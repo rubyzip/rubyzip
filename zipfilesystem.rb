@@ -319,19 +319,25 @@ module Zip
       end
       
       def entries(aDirectoryName)
+        entries = []
+        foreach(aDirectoryName) { |e| entries << e }
+        entries
+      end
+
+      def foreach(aDirectoryName)
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
         end
         path = @file.expand_path(aDirectoryName).ensure_end("/")
 
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
-        @mappedZip.select_map { 
+        @mappedZip.each { 
           |fileName|
           match = subDirEntriesRegex.match(fileName)
-          match == nil ? nil : match[1]
+          yield(match[1]) unless match == nil
         }
       end
-      
+
       def delete(entryName)
         unless @file.stat(entryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{entryName}"

@@ -672,7 +672,28 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   end
 
   def test_foreach
-    fail "implement test"
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+
+      blockCalled = false
+      assert_exception(Errno::ENOENT, "No such file or directory - noSuchDir") {
+        zf.dir.foreach("noSuchDir") { |e| blockCalled = true }
+      }
+      assert(! blockCalled)
+
+      assert_exception(Errno::ENOTDIR, "Not a directory - file1") {
+        zf.dir.foreach("file1") { |e| blockCalled = true }
+      }
+      assert(! blockCalled)
+
+      entries = []
+      zf.dir.foreach(".") { |e| entries << e }
+      assert_equals(["dir1", "dir2", "file1"].sort, entries.sort)
+
+      entries = []
+      zf.dir.foreach("dir1") { |e| entries << e }
+      assert_equals(["dir11", "file11", "file12"], entries.sort)
+    }
   end
 
   def test_chroot
