@@ -1,3 +1,4 @@
+Implement ZipFsDir.glob
 
 Refactoring: 
 Rename the FileArchive module to AbstractFileSystemUtils, and refactor

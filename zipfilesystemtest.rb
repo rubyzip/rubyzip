@@ -697,10 +697,11 @@ class ZipFsDirectoryTest < RUNIT::TestCase
     }
   end
 
-  def test_glob
-    # test alias []-operator too
-    fail "implement test"
-  end
+  # Globbing not supported yet
+  #def test_glob
+  #  # test alias []-operator too
+  #  fail "implement test"
+  #end
 
   def test_open_new
     ZipFile.open(TEST_ZIP) {
