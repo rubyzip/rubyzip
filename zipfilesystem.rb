@@ -41,5 +41,10 @@ class ZipFileSystem
     def size(fileName)
       @zipFile.getEntry(fileName).size
     end
+
+    def file?(fileName)
+      entry = @zipFile.findEntry(fileName)
+      entry != nil && entry.file?
+    end      
   end
 end
