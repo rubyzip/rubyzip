@@ -91,8 +91,12 @@ class TestArchive
     @entries.each(&aProc)
   end
 
-  def extractEntry(src, dst)
+  def extractEntry(src, dst, &continueOnExists)
+    continueOnExists ||= proc { false }
     getEntry(src)
+    if (MockFileSystem.instance.exists?(dst) && ! continueOnExists.call(dst))
+      raise Errno::EEXIST, "File exists - \"#{dst}\""
+    end
     MockFileSystem.instance.createFile(dst)
   end
 
@@ -265,6 +269,18 @@ class FileArchiveTest < RUNIT::TestCase
   def test_noMatchForSource
     assert_exception(Zip::ZipNoSuchEntryError) {
       @testArchive.extract("noMatchForThis*", "outdir", FileArchive::RECURSIVE)
+    }
+  end
+  
+  def test_extractContinueOnExistsProc
+    procArg = nil
+    MockFileSystem.instance.createFile("myfile")
+    @testArchive.extract("dir1/dir2/entry121", "myfile", FileArchive::RECURSIVE,
+			 proc { |filename| procArg = filename; true})
+    assert_equals("myfile", procArg)
+    
+    assert_exception(Errno::EEXIST) {
+      @testArchive.extract("dir1/dir2/entry121", "myfile", proc { false })
     }
   end
 
