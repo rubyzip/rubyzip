@@ -173,9 +173,12 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_utime
-    assert_exception(StandardError, "utime not supported") {
-      @zipFile.file.utime(100, "file1", "dir1")
-    }
+    t_now = Time.now
+    t_bak = @zipFile.file.mtime("file1")
+    @zipFile.file.utime(t_now, "file1")
+    assert_equals(t_now, @zipFile.file.mtime("file1"))
+    @zipFile.file.utime(t_bak, "file1")
+    assert_equals(t_bak, @zipFile.file.mtime("file1"))
   end
 
 
@@ -256,7 +259,10 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_chown
-    assert_equals(2, @zipFile.file.chown(1,2, "noSuchFile", "file1"))
+    assert_equals(2, @zipFile.file.chown(1,2, "dir1", "file1"))
+    assert_equals(1, @zipFile.file.stat("dir1").uid)
+    assert_equals(2, @zipFile.file.stat("dir1").gid)
+    assert_equals(2, @zipFile.file.chown(nil, nil, "dir1", "file1"))
   end
 
   def test_zero?
@@ -295,17 +301,17 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_mtime
-    assert_equals(Time.local(2002, "Jul", 26, 16, 38, 26),
+    assert_equals(Time.at(1027694306),
 		  @zipFile.file.mtime("dir2/file21"))
-    assert_equals(Time.local(2002, "Jul", 26, 15, 41, 04),
+    assert_equals(Time.at(1027690863),
 		  @zipFile.file.mtime("dir2/dir21"))
     assert_exception(Errno::ENOENT) {
       @zipFile.file.mtime("noSuchEntry")
     }
 
-    assert_equals(Time.local(2002, "Jul", 26, 16, 38, 26),
+    assert_equals(Time.at(1027694306),
 		  @zipFile.file.stat("dir2/file21").mtime)
-    assert_equals(Time.local(2002, "Jul", 26, 15, 41, 04),
+    assert_equals(Time.at(1027690863),
 		  @zipFile.file.stat("dir2/dir21").mtime)
   end
 
@@ -320,35 +326,59 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_readable?
-    assert_true_if_entry_exists(:readable?)
+    assert(! @zipFile.file.readable?("noSuchFile"))
+    assert(@zipFile.file.readable?("file1"))
+    assert(@zipFile.file.readable?("dir1"))
+    assert(@zipFile.file.stat("file1").readable?)
+    assert(@zipFile.file.stat("dir1").readable?)
   end
 
   def test_readable_real?
-    assert_true_if_entry_exists(:readable_real?)
+    assert(! @zipFile.file.readable_real?("noSuchFile"))
+    assert(@zipFile.file.readable_real?("file1"))
+    assert(@zipFile.file.readable_real?("dir1"))
+    assert(@zipFile.file.stat("file1").readable_real?)
+    assert(@zipFile.file.stat("dir1").readable_real?)
   end
 
   def test_writable?
-    assert_true_if_entry_exists(:writable?)
+    assert(! @zipFile.file.writable?("noSuchFile"))
+    assert(@zipFile.file.writable?("file1"))
+    assert(@zipFile.file.writable?("dir1"))
+    assert(@zipFile.file.stat("file1").writable?)
+    assert(@zipFile.file.stat("dir1").writable?)
   end
 
   def test_writable_real?
-    assert_true_if_entry_exists(:writable_real?)
+    assert(! @zipFile.file.writable_real?("noSuchFile"))
+    assert(@zipFile.file.writable_real?("file1"))
+    assert(@zipFile.file.writable_real?("dir1"))
+    assert(@zipFile.file.stat("file1").writable_real?)
+    assert(@zipFile.file.stat("dir1").writable_real?)
   end
 
   def test_executable?
-    assert_true_if_entry_exists(:executable?)
+    assert(! @zipFile.file.executable?("noSuchFile"))
+    assert(! @zipFile.file.executable?("file1"))
+    assert(@zipFile.file.executable?("dir1"))
+    assert(! @zipFile.file.stat("file1").executable?)
+    assert(@zipFile.file.stat("dir1").executable?)
   end
 
   def test_executable_real?
-    assert_true_if_entry_exists(:executable_real?)
+    assert(! @zipFile.file.executable_real?("noSuchFile"))
+    assert(! @zipFile.file.executable_real?("file1"))
+    assert(@zipFile.file.executable_real?("dir1"))
+    assert(! @zipFile.file.stat("file1").executable_real?)
+    assert(@zipFile.file.stat("dir1").executable_real?)
   end
 
   def test_owned?
-    assert_true_if_entry_exists(:executable_real?)
+    assert_true_if_entry_exists(:owned?)
   end
 
   def test_grpowned?
-    assert_true_if_entry_exists(:executable_real?)
+    assert_true_if_entry_exists(:grpowned?)
   end
 
   def test_setgid?
@@ -485,7 +515,10 @@ class ZipFsFileStatTest < RUNIT::TestCase
   end
 
   def test_mode
-    assert_equals(33206, @zipFile.file.stat("file1").mode)
+    assert_equals(0600, @zipFile.file.stat("file1").mode & 0777)
+    assert_equals(0600, @zipFile.file.stat("file1").mode & 0777)
+    assert_equals(0755, @zipFile.file.stat("dir1").mode & 0777)
+    assert_equals(0755, @zipFile.file.stat("dir1").mode & 0777)
   end
 
   def test_dev

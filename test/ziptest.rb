@@ -156,7 +156,7 @@ class ZipEntryTest < RUNIT::TestCase
     assert_equals(TEST_COMMENT, entry.comment)
     assert_equals(TEST_COMPRESSED_SIZE, entry.compressed_size)
     assert_equals(TEST_CRC, entry.crc)
-    assert_equals(TEST_EXTRA, entry.extra)
+    assert_instance_of(Zip::ZipExtraField, entry.extra)
     assert_equals(TEST_COMPRESSIONMETHOD, entry.compression_method)
     assert_equals(TEST_NAME, entry.name)
     assert_equals(TEST_SIZE, entry.size)
@@ -323,7 +323,7 @@ class ZipLocalEntryTest < RUNIT::TestCase
       |file|
       entry = ZipEntry.read_local_entry(file)
       assert_equals("zippedruby1.rb", entry.name)
-      assert_equals(Time.local(2002, "Apr", 20, 02, 13, 58), entry.time)
+      assert_equals(Time.at(1019261638), entry.time)
     }
   end
 
@@ -1838,6 +1838,73 @@ END {
   exit if ARGV.index("recreateonly") != nil
 }
 
+class ZipExtraFieldTest < RUNIT::TestCase
+  def test_new
+    extra_pure    = ZipExtraField.new("")
+    extra_withstr = ZipExtraField.new("foo")
+    assert_instance_of(ZipExtraField, extra_pure)
+    assert_instance_of(ZipExtraField, extra_withstr)
+  end
+
+  def test_unknownfield
+    extra = ZipExtraField.new("foo")
+    assert_equals(extra["Unknown"], "foo")
+    extra.merge("a")
+    assert_equals(extra["Unknown"], "fooa")
+    extra.merge("barbaz")
+    assert_equals(extra.to_s, "fooabarbaz")
+  end
+
+
+  def test_merge
+    str = "UT\x5\0\x3\250$\r@Ux\0\0"
+    extra1 = ZipExtraField.new("")
+    extra2 = ZipExtraField.new(str)
+    assert(! extra1.member?("UniversalTime"))
+    assert(extra2.member?("UniversalTime"))
+    extra1.merge(str)
+    assert_equals(extra1["UniversalTime"].mtime, extra2["UniversalTime"].mtime)
+  end
+
+  def test_length
+    str = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit"
+    extra = ZipExtraField.new(str)
+    assert_equals(extra.local_length, extra.to_local_bin.length)
+    assert_equals(extra.c_dir_length, extra.to_c_dir_bin.length)
+    extra.merge("foo")
+    assert_equals(extra.local_length, extra.to_local_bin.length)
+    assert_equals(extra.c_dir_length, extra.to_c_dir_bin.length)
+  end
+
+
+  def test_to_s
+    str = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit"
+    extra = ZipExtraField.new(str)
+    assert_instance_of(String, extra.to_s)
+
+    s = extra.to_s
+    extra.merge("foo")
+    assert_equals(s.length + 3, extra.to_s.length)
+  end
+
+  def test_equality
+    str = "UT\x5\0\x3\250$\r@"
+    extra1 = ZipExtraField.new(str)
+    extra2 = ZipExtraField.new(str)
+    extra3 = ZipExtraField.new(str)
+    assert_equals(extra1, extra2)
+   
+    extra2["UniversalTime"].mtime = Time.now
+    assert(extra1 != extra2)
+
+    extra3.create("IUnix")
+    assert(extra1 != extra3)
+
+    extra1.create("IUnix")
+    assert_equals(extra1, extra3)
+  end
+
+end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or

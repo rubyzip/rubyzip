@@ -80,12 +80,7 @@ class Time
 
   # Dos time is only stored with two seconds accuracy
   def dos_equals(other)
-    (year  == other.year   &&
-     month == other.month  &&
-     day   == other.day    &&
-     hour  == other.hour   &&
-     min   == other.min &&
-     sec/2 == other.sec/2)
+    to_i/2 == other.to_i/2
   end
 
   def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)

@@ -53,9 +53,28 @@ module Zip
         
         def blocks; nil; end
 
-        def gid; 0; end
+        def get_entry
+          @zipFsFile.__send__(:get_entry, @entryName)
+        end
+        private :get_entry
 
-        def uid; 0; end
+        def gid
+          e = get_entry
+          if e.extra.member? "IUnix"
+            e.extra["IUnix"].gid || 0
+          else
+            0
+          end
+        end
+
+        def uid
+          e = get_entry
+          if e.extra.member? "IUnix"
+            e.extra["IUnix"].uid || 0
+          else
+            0
+          end
+        end
 
         def ino; 0; end
 
@@ -81,12 +100,37 @@ module Zip
         
         def blksize; nil; end
 
-        def mode; 33206; end # 33206 is equivalent to -rw-rw-rw-
+        def mode
+          e = get_entry
+          if e.fstype == 3
+            e.externalFileAttributes >> 16
+          else
+            33206 # 33206 is equivalent to -rw-rw-rw-
+          end
+        end
       end
 
       def initialize(mappedZip)
 	@mappedZip = mappedZip
       end
+
+      def get_entry(fileName)
+        if ! exists?(fileName)
+          raise Errno::ENOENT, "No such file or directory - #{fileName}"
+        end
+        @mappedZip.find_entry(fileName)
+      end
+      private :get_entry
+
+      def unix_mode_cmp(fileName, mode)
+        begin
+          e = get_entry(fileName)
+          e.fstype == 3 && ((e.externalFileAttributes >> 16) & mode ) != 0
+        rescue Errno::ENOENT
+          false
+        end
+      end
+      private :unix_mode_cmp
       
       def exists?(fileName)
         expand_path(fileName) == "/" || @mappedZip.find_entry(fileName) != nil
@@ -94,25 +138,34 @@ module Zip
       alias :exist? :exists?
       
       # Permissions not implemented, so if the file exists it is accessible
-      alias readable?        exists?
-      alias readable_real?   exists?
-      alias writable?        exists?
-      alias writable_real?   exists?
-      alias executable?      exists?
-      alias executable_real? exists?
       alias owned?           exists?
       alias grpowned?        exists?
 
+      def readable?(fileName)
+        unix_mode_cmp(fileName, 0444)
+      end
+      alias readable_real?   readable?
+
+      def writable?(fileName)
+        unix_mode_cmp(fileName, 0222)
+      end
+      alias writable_real?   writable?
+
+      def executable?(fileName)
+        unix_mode_cmp(fileName, 0111)
+      end
+      alias executable_real? executable?
+
       def setuid?(fileName)
-        false
+        unix_mode_cmp(fileName, 04000)
       end
 
       def setgid?(fileName)
-        false
+        unix_mode_cmp(fileName, 02000)
       end
       
       def sticky?(fileName)
-        false
+        unix_mode_cmp(fileName, 01000)
       end
 
       def umask(*args)
@@ -153,16 +206,23 @@ module Zip
 	return (entry == nil || entry.directory?) ? nil : entry.size
       end
       
-      def chown(ownerInt, groupInt, *filenames) 
+      def chown(ownerInt, groupInt, *filenames)
+        filenames.each { |fileName|
+          e = get_entry(fileName)
+          unless e.extra.member?("IUnix")
+            e.extra.create("IUnix")
+          end
+          e.extra["IUnix"].uid = ownerInt
+          e.extra["IUnix"].gid = groupInt
+        }
         filenames.size
       end
 
       def chmod (modeInt, *filenames)
-        filenames.each { 
-          |elem|
-          if ! exists?(elem)
-            raise Errno::ENOENT, "No such file or directory - #{elem}"
-          end
+        filenames.each { |fileName|
+          e = get_entry(fileName)
+          e.fstype = 3 # force convertion filesystem type to unix
+          e.externalFileAttributes = modeInt << 16
         }
         filenames.size
       end
@@ -195,8 +255,10 @@ module Zip
 	::File.join(*fragments)
       end
       
-      def utime(accessTime, *fileNames)
-        raise StandardError, "utime not supported"
+      def utime(modifiedTime, *fileNames)
+        fileNames.each { |fileName|
+          get_entry(fileName).time = modifiedTime
+        }
       end
 
       def mtime(fileName)
@@ -204,13 +266,21 @@ module Zip
       end
       
       def atime(fileName)
-        @mappedZip.get_entry(fileName)
-        nil
+        e = get_entry(fileName)
+        if e.extra.member? "UniversalTime"
+          e.extra["UniversalTime"].atime
+        else
+          nil
+        end
       end
       
       def ctime(fileName)
-        @mappedZip.get_entry(fileName)
-        nil
+        e = get_entry(fileName)
+        if e.extra.member? "UniversalTime"
+          e.extra["UniversalTime"].ctime
+        else
+          nil
+        end
       end
 
       def pipe?(filename)

@@ -316,12 +316,10 @@ module Zip
     DEFLATED = 8
     
     attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
-      :name, :size, :localHeaderOffset, :time, :zipfile
+      :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes
     
-    alias :mtime :time
-
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
-		   compressed_size = 0, crc = 0, 
+                   compressed_size = 0, crc = 0, 
 		   compression_method = ZipEntry::DEFLATED, size = 0,
 		   time  = Time.now)
       super()
@@ -329,12 +327,38 @@ module Zip
 	raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
       end
       @localHeaderOffset = 0
+      @internalFileAttributes = 1
+      @externalFileAttributes = 0
+      @version = 52 # this library's version
+      @fstype  = 0  # default is fat
       @zipfile, @comment, @compressed_size, @crc, @extra, @compression_method, 
 	@name, @size = zipfile, comment, compressed_size, crc, 
 	extra, compression_method, name, size
       @time = time
+      unless ZipExtraField === @extra
+        @extra = ZipExtraField.new(@extra.to_s)
+      end
     end
+
+    def time
+      if @extra["UniversalTime"]
+        @extra["UniversalTime"].mtime
+      else
+        # Atandard time field in central directory has local time
+        # under archive creator. Then, we can't get timezone.
+        @time
+      end
+    end
+    alias :mtime :time
     
+    def time=(aTime)
+      unless @extra.member?("UniversalTime")
+        @extra.create("UniversalTime")
+      end
+      @extra["UniversalTime"].mtime = aTime
+      @time = aTime
+    end
+
     def directory?
       return (%r{\/$} =~ @name) != nil
     end
@@ -349,12 +373,12 @@ module Zip
     end
     
     def local_header_size  #:nodoc:all
-      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.size : 0) + (@extra ? @extra.size : 0)
+      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.size : 0) + (@extra ? @extra.local_size : 0)
     end
 
     def cdir_header_size  #:nodoc:all
       CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.size : 0) + 
-	(@extra ? @extra.size : 0) + (@comment ? @comment.size : 0)
+	(@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.size : 0)
     end
     
     def next_header_offset  #:nodoc:all
@@ -387,7 +411,8 @@ module Zip
       end
       
       localHeader       ,
-	@version          ,
+        @version          ,
+	@fstype           ,
 	@gpFlags          ,
 	@compression_method,
 	lastModTime       ,
@@ -396,7 +421,7 @@ module Zip
 	@compressed_size   ,
 	@size             ,
 	nameLength        ,
-	extraLength       = staticSizedFieldsBuf.unpack('VvvvvvVVVvv') 
+	extraLength       = staticSizedFieldsBuf.unpack('VCCvvvvVVVvv') 
 
       unless (localHeader == LOCAL_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
@@ -404,9 +429,16 @@ module Zip
       set_time(lastModDate, lastModTime)
       
       @name              = io.read(nameLength)
-      @extra             = io.read(extraLength)
-      unless (@extra && @extra.length == extraLength)
+      extra              = io.read(extraLength)
+
+      if (extra && extra.length != extraLength)
 	raise ZipError, "Truncated local zip entry header"
+      else
+        if ZipExtraField === @extra
+          @extra.merge(extra)
+        else
+          @extra = ZipExtraField.new(extra)
+        end
       end
     end
     
@@ -423,7 +455,8 @@ module Zip
       
       io << 
 	[LOCAL_ENTRY_SIGNATURE    ,
-	0                         , # @version                  ,
+	@version                  ,
+        @fstype                   , 
 	0                         , # @gpFlags                  ,
 	@compression_method        ,
 	@time.to_binary_dos_time     , # @lastModTime              ,
@@ -432,9 +465,9 @@ module Zip
 	@compressed_size           ,
 	@size                     ,
 	@name ? @name.length   : 0,
-	@extra? @extra.length : 0 ].pack('VvvvvvVVVvv')
+	@extra? @extra.local_length : 0 ].pack('VCCvvvvVVVvv')
       io << @name
-      io << @extra
+      io << (@extra ? @extra.to_local_bin : "")
     end
     
     CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
@@ -447,7 +480,8 @@ module Zip
       end
       
       cdirSignature          ,
-	@version               ,
+	@version               , # version of encoding software
+        @fstype                , # filesystem tye
 	@versionNeededToExtract,
 	@gpFlags               ,
 	@compression_method     ,
@@ -465,7 +499,7 @@ module Zip
 	@localHeaderOffset     ,
 	@name                  ,
 	@extra                 ,
-	@comment               = staticSizedFieldsBuf.unpack('VvvvvvvVVVvvvvvVV')
+	@comment               = staticSizedFieldsBuf.unpack('VCCvvvvvVVVvvvvvVV')
 
       unless (cdirSignature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
@@ -473,7 +507,11 @@ module Zip
       set_time(lastModDate, lastModTime)
       
       @name                  = io.read(nameLength)
-      @extra                 = io.read(extraLength)
+      if ZipExtraField === @extra
+        @extra.merge(io.read(extraLength))
+      else
+        @extra = ZipExtraField.new(io.read(extraLength))
+      end
       @comment               = io.read(commentLength)
       unless (@comment && @comment.length == commentLength)
 	raise ZipError, "Truncated cdir zip entry header"
@@ -492,7 +530,8 @@ module Zip
     def write_c_dir_entry(io)  #:nodoc:all
       io << 
 	[CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
-	0                                 , # @version                          ,
+        @version                          , # version of encoding software
+	@fstype                           , # filesystem type
 	0                                 , # @versionNeededToExtract           ,
 	0                                 , # @gpFlags                          ,
 	@compression_method                ,
@@ -502,18 +541,18 @@ module Zip
 	@compressed_size                   ,
 	@size                             ,
 	@name  ?  @name.length  : 0       ,
-	@extra ? @extra.length : 0        ,
+	@extra ? @extra.c_dir_length : 0  ,
 	@comment ? comment.length : 0     ,
 	0                                 , # disk number start
-	0                                 , # @internalFileAttributes           ,
-	0                                 , # @externalFileAttributes           ,
+	@internalFileAttributes           , # file type (binary=0, text=1)
+	@externalFileAttributes           , # native filesystem attributes
 	@localHeaderOffset                ,
 	@name                             ,
 	@extra                            ,
-	@comment                          ].pack('VvvvvvvVVVvvvvvVV')
+	@comment                          ].pack('VCCvvvvvVVVvvvvvVV')
 
       io << @name
-      io << @extra
+      io << (@extra ? @extra.to_c_dir_bin : "")
       io << @comment
     end
     
@@ -526,7 +565,7 @@ module Zip
        @size              == other.size	             &&
        @name              == other.name	             &&
        @extra             == other.extra             &&
-       @time.dos_equals(other.time))
+       self.time.dos_equals(other.time))
     end
 
     def <=> (other)
@@ -1211,6 +1250,214 @@ module Zip
       aZipOutputStream << get_input_stream { |is| is.read }
     end
   end
+
+  class ZipExtraField < Hash
+    ID_MAP = {}
+
+    # Meta class for extra fields
+    class Generic
+      def self.register_map
+        if self.const_defined?(:HEADER_ID)
+          ID_MAP[self.const_get(:HEADER_ID)] = self
+        end
+      end
+
+      def self.name
+        self.to_s.split("::")[-1]
+      end
+
+      # return field [size, content] or false
+      def initial_parse(binstr)
+        if ! binstr
+          # If nil, start with empty.
+          return false
+        elsif binstr[0,2] != self.class.const_get(:HEADER_ID)
+          $stderr.puts "Warning: weired extra feild header ID. skip parsing"
+          return false
+        end
+        [binstr[2,2].unpack("v")[0], binstr[4..-1]]
+      end
+
+      def ==(other)
+        self.class != other.class and return false
+        each { |k, v|
+          v != other[k] and return false
+        }
+        true
+      end
+
+      def to_local_bin
+        s = pack_for_local
+        self.class.const_get(:HEADER_ID) + [s.length].pack("v") + s
+      end
+
+      def to_c_dir_bin
+        s = pack_for_c_dir
+        self.class.const_get(:HEADER_ID) + [s.length].pack("v") + s
+      end
+    end
+
+    # Info-ZIP Additional timestamp field
+    class UniversalTime < Generic
+      HEADER_ID = "UT"
+      register_map
+
+      def initialize(binstr = nil)
+        @ctime = nil
+        @mtime = nil
+        @atime = nil
+        @flag  = nil
+        binstr and merge(binstr)
+      end
+      attr_accessor :atime, :ctime, :mtime, :flag
+
+      def merge(binstr)
+        binstr == "" and return
+        size, content = initial_parse(binstr)
+        size or return
+        @flag, mtime, atime, ctime = content.unpack("CVVV")
+        mtime and @mtime ||= Time.at(mtime)
+        atime and @atime ||= Time.at(atime)
+        ctime and @ctime ||= Time.at(ctime)
+      end
+
+      def ==(other)
+        @mtime == other.mtime &&
+        @atime == other.atime &&
+        @ctime == other.ctime
+      end
+
+      def pack_for_local
+        s = [@flag].pack("C")
+        @flag & 1 != 0 and s << [@mtime.to_i].pack("V")
+        @flag & 2 != 0 and s << [@atime.to_i].pack("V")
+        @flag & 4 != 0 and s << [@ctime.to_i].pack("V")
+        s
+      end
+
+      def pack_for_c_dir
+        s = [@flag].pack("C")
+        @flag & 1 == 1 and s << [@mtime.to_i].pack("V")
+        s
+      end
+    end
+
+    # Info-ZIP Extra for UNIX uid/gid
+    class IUnix < Generic
+      HEADER_ID = "Ux"
+      register_map
+
+      def initialize(binstr = nil)
+        @uid = nil
+        @gid = nil
+        binstr and merge(binstr)
+      end
+      attr_accessor :uid, :gid
+
+      def merge(binstr)
+        binstr == "" and return
+        size, content = initial_parse(binstr)
+        # size: 0 for central direcotry. 4 for local header
+        return if(! size || size == 0)
+        uid, gid = content.unpack("vv")
+        @uid ||= uid
+        @gid ||= gid
+      end
+
+      def ==(other)
+        @uid == other.uid &&
+        @gid == other.gid
+      end
+
+      def pack_for_local
+        [@uid, @gid].pack("vv")
+      end
+
+      def pack_for_c_dir
+        ""
+      end
+    end
+
+    ## start main of ZipExtraField < Hash
+    def initialize(binstr = nil)
+      binstr and merge(binstr)
+    end
+
+    def merge(binstr)
+      binstr == "" and return
+      i = 0 
+      while i < binstr.length
+        id = binstr[i,2]
+        len = binstr[i+2,2].to_s.unpack("v")[0] 
+        if id && ID_MAP.member?(id)
+          field_name = ID_MAP[id].name
+          if self.member?(field_name)
+            self[field_name].mergea(binstr[i, len+4])
+          else
+            field_obj = ID_MAP[id].new(binstr[i, len+4])
+            self[field_name] = field_obj
+          end
+        elsif id
+          unless self["Unknown"]
+            s = ""
+            class << s
+              alias_method :to_c_dir_bin, :to_s
+              alias_method :to_local_bin, :to_s
+            end
+            self["Unknown"] = s
+          end
+          if ! len || len+4 > binstr[i..-1].length
+            self["Unknown"] << binstr[i..-1]
+            break;
+          end
+          self["Unknown"] << binstr[i, len+4]
+        end
+        i += len+4
+      end
+    end
+
+    def create(name)
+      field_class = nil
+      ID_MAP.each { |id, klass|
+        if klass.name == name
+          field_class = klass
+          break
+        end
+      }
+      if ! field_class
+	raise ZipError, "Unknown extra field '#{name}'"
+      end
+      self[name] = field_class.new()
+    end
+
+    def to_local_bin
+      s = ""
+      each { |k, v|
+        s << v.to_local_bin
+      }
+      s
+    end
+    alias :to_s :to_local_bin
+
+    def to_c_dir_bin
+      s = ""
+      each { |k, v|
+        s << v.to_c_dir_bin
+      }
+      s
+    end
+
+    def c_dir_length
+      to_c_dir_bin.length
+    end
+    def local_length
+      to_local_bin.length
+    end
+    alias :c_dir_size :c_dir_length
+    alias :local_size :local_length
+    alias :length     :local_length
+    alias :size       :local_length
+  end # end ZipExtraField
 
 end # Zip namespace module
 
