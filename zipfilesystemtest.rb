@@ -40,7 +40,20 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_open
-    fail "implement test"
+    blockCalled = false
+    @zipFsFile.open("file1", "r") {
+      |f|
+      blockCalled = true
+      assert_equals("this is the entry 'file1' in my test archive!", 
+		    f.readline.chomp)
+    }
+    assert(blockCalled)
+
+    blockCalled = false
+    assert_exception(StandardError) {
+      @zipFsFile.open("file1", "w") { blockCalled = true }
+    }
+    assert(! blockCalled)
   end
 
 #  def test_symlink

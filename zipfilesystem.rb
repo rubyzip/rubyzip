@@ -32,5 +32,10 @@ class ZipFileSystem
     def pipe?(filename)
       false
     end
+
+    def open(fileName, openMode = "r", &block)
+      raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
+      @zipFile.getInputStream(fileName, &block)
+    end
   end
 end
