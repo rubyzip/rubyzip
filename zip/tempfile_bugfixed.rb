@@ -1,7 +1,7 @@
 #
 # tempfile - manipulates temporary files
 #
-# $Id: tempfile_bugfixed.rb,v 1.1 2004/03/25 15:34:43 thomas Exp $
+# $Id: tempfile_bugfixed.rb,v 1.2 2004/03/28 12:46:36 thomas Exp $
 #
 
 require 'delegate'
@@ -113,8 +113,14 @@ class Tempfile < DelegateClass(File)
   end
   alias delete unlink
 
-  def __setobj__(obj)
-    @obj = obj
+  if RUBY_VERSION > '1.8.0'
+    def __setobj__(obj)
+      @_dc_obj = obj
+    end
+  else
+    def __setobj__(obj)
+      @obj = obj
+    end
   end
 
   # Returns the full path name of the temporary file.
