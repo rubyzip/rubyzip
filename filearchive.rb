@@ -10,7 +10,7 @@ module FileArchive
   def extract(src, dst, recursive = RECURSIVE)
     selectedEntries = Glob.glob(entries, src, recursive)
     if (selectedEntries.size == 0)
-      raise ZipNoSuchEntryError, "'#{src}' not found in archive #{self.to_s}"
+      raise Zip::ZipNoSuchEntryError, "'#{src}' not found in archive #{self.to_s}"
     end
     createDstAsDirectory = (selectedEntries.size == 1)
     selectedEntries.each {
