@@ -25,11 +25,6 @@ To apply the patch cd to ruby-zlib-0.4.0 and:
 
 patch -p0 < RUBYZIP_PATH/zlib.c.diff
 
-= Missing tests =
-
-zip.rb is under 500 lines. Go through it and check for each line
-whether there is a test for it!
-
 = LICENSE =
 
 rubyzip is distributed under the GPL. I'm considering a more liberal
@@ -38,3 +33,15 @@ license, though.
 = AUTHOR =
 
 Thomas Sondergaard thomass@deltadata.dk
+
+
+= Missing tests =
+
+zip.rb is under 500 lines. Go through it and check for each line
+whether there is a test for it!
+
+== walk-thru ==
+
+Test classes missing for Inflater and PassThruDecompressor
+
+Many more tests with invalid data

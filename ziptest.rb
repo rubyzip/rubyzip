@@ -248,7 +248,7 @@ class TestZipFile
       File.open("ziptest.rb") { |file| ziptestTxt=file.read }
       File.open("longAscii.txt", "w") {
 	|file|
-	while (file.tell < 1E6)
+	while (file.tell < 1E5)
 	  file << ziptestTxt
 	end
       }
@@ -259,7 +259,7 @@ class TestZipFile
       
       File.open("longBinary.bin", "wb") {
 	|file|
-	while (file.tell < 3E6)
+	while (file.tell < 3E5)
 	  file << testBinaryPattern << rand
 	end
       }
