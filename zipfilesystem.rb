@@ -6,8 +6,9 @@ module Zip
   module ZipFileSystem
 
     def initialize
-      @zipFsDir  = ZipFsDir.new(self)
-      @zipFsFile = ZipFsFile.new(self)
+      mappedZip = ZipFileNameMapper.new(self)
+      @zipFsDir  = ZipFsDir.new(mappedZip)
+      @zipFsFile = ZipFsFile.new(mappedZip)
       @zipFsDir.file = @zipFsFile
       @zipFsFile.dir = @zipFsDir
     end
@@ -83,12 +84,12 @@ module Zip
         def mode; 33206; end # 33206 is equivalent to -rw-rw-rw-
       end
 
-      def initialize(zipFile)
-	@zipFile = zipFile
+      def initialize(mappedZip)
+	@mappedZip = mappedZip
       end
       
       def exists?(fileName)
-        expand_path(fileName) == "/" || @zipFile.find_entry(@dir.expand_to_entry(fileName)) != nil
+        expand_path(fileName) == "/" || @mappedZip.find_entry(fileName) != nil
       end
       alias :exist? :exists?
       
@@ -123,17 +124,16 @@ module Zip
       end
 
       def directory?(fileName)
-	entry = @zipFile.find_entry(@dir.expand_to_entry(fileName))
+	entry = @mappedZip.find_entry(fileName)
 	expand_path(fileName) == "/" || (entry != nil && entry.directory?)
       end
       
       def open(fileName, openMode = "r", &block)
-        entryName = @dir.expand_to_entry(fileName)
         case openMode
         when "r" 
-          @zipFile.get_input_stream(entryName, &block)
+          @mappedZip.get_input_stream(fileName, &block)
         when "w"
-          @zipFile.get_output_stream(entryName, &block)
+          @mappedZip.get_output_stream(fileName, &block)
         else
           raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
         end
@@ -144,12 +144,12 @@ module Zip
       end
       
       def size(fileName)
-	@zipFile.get_entry(fileName).size
+	@mappedZip.get_entry(fileName).size
       end
       
       # nil for not found and nil for directories
       def size?(fileName)
-	entry = @zipFile.find_entry(fileName)
+	entry = @mappedZip.find_entry(fileName)
 	return (entry == nil || entry.directory?) ? nil : entry.size
       end
       
@@ -175,7 +175,7 @@ module Zip
       end
       
       def file?(fileName)
-	entry = @zipFile.find_entry(fileName)
+	entry = @mappedZip.find_entry(fileName)
 	entry != nil && entry.file?
       end      
       
@@ -200,16 +200,16 @@ module Zip
       end
 
       def mtime(fileName)
-	@zipFile.get_entry(fileName).mtime
+	@mappedZip.get_entry(fileName).mtime
       end
       
       def atime(fileName)
-        @zipFile.get_entry(fileName)
+        @mappedZip.get_entry(fileName)
         nil
       end
       
       def ctime(fileName)
-        @zipFile.get_entry(fileName)
+        @mappedZip.get_entry(fileName)
         nil
       end
 
@@ -234,7 +234,7 @@ module Zip
       end
       
       def ftype(fileName)
-	@zipFile.get_entry(fileName).directory? ? "directory" : "file"
+	@mappedZip.get_entry(fileName).directory? ? "directory" : "file"
       end
       
       def readlink(fileName)
@@ -267,7 +267,7 @@ module Zip
       end
 
       def read(fileName)
-        @zipFile.read(fileName)
+        @mappedZip.read(fileName)
       end
 
       def popen(*args, &aProc)
@@ -284,74 +284,132 @@ module Zip
 	  if directory?(fileName)
 	    raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
 	  end
-	  @zipFile.remove(fileName) 
+	  @mappedZip.remove(fileName) 
 	}
       end
 
       def rename(fileToRename, newName)
-        @zipFile.rename(fileToRename, newName) { true }
+        @mappedZip.rename(fileToRename, newName) { true }
       end
 
       alias :unlink :delete
 
       def expand_path(aPath)
-        @dir.expand_path(aPath)
+        @mappedZip.expand_path(aPath)
       end
     end
 
     class ZipFsDir
       
-      def initialize(zipFile)
-        @zipFile = zipFile
-        @pwd = "/"
+      def initialize(mappedZip)
+        @mappedZip = mappedZip
       end
       
       attr_writer :file
 #      protected :file
       
-      attr_reader :pwd
+      def pwd; @mappedZip.pwd; end
       alias getwd pwd
       
       def chdir(aDirectoryName)
         unless @file.stat(aDirectoryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
         end
-        @pwd = expand_path(aDirectoryName)
+        @mappedZip.pwd = @file.expand_path(aDirectoryName)
       end
       
       def entries(aDirectoryName)
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
         end
-        path = expand_path(aDirectoryName).lchop.ensure_end("/")
-        
-        @zipFile.entries.select { 
-          |e| 
-          parent = e.parent_as_string
-          parent == path || (path == "/" && parent == nil ) 
-        }.map { |e| @file.basename(e.to_s.chomp("/")) }
+        path = @file.expand_path(aDirectoryName).ensure_end("/")
+
+        subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
+        @mappedZip.select_map { 
+          |fileName|
+          match = subDirEntriesRegex.match(fileName)
+          match == nil ? nil : match[1]
+        }
       end
       
       def delete(entryName)
         unless @file.stat(entryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{entryName}"
         end
-        @zipFile.remove(entryName)
+        @mappedZip.remove(entryName)
       end
       alias rmdir  delete
       alias unlink delete
       
       def mkdir(entryName, permissionInt = 0)
-        @zipFile.mkdir(entryName, permissionInt)
+        @mappedZip.mkdir(entryName, permissionInt)
       end
       
+    end
+
+    # All access to ZipFile from ZipFsFile and ZipFsDir goes through a
+    # ZipFileNameMapper, which has one responsibility: ensure
+    class ZipFileNameMapper
+      include Enumerable
+
+      def initialize(zipFile)
+        @zipFile = zipFile
+        @pwd = "/"
+      end
+      
+      attr_accessor :pwd
+      
+      def find_entry(fileName)
+        @zipFile.find_entry(expand_to_entry(fileName))
+      end
+      
+      def get_entry(fileName)
+        @zipFile.get_entry(expand_to_entry(fileName))
+      end
+
+      def get_input_stream(fileName, &aProc)
+        @zipFile.get_input_stream(expand_to_entry(fileName), &aProc)
+      end
+      
+      def get_output_stream(fileName, &aProc)
+        @zipFile.get_output_stream(expand_to_entry(fileName), &aProc)
+      end
+
+      def read(fileName)
+        @zipFile.read(expand_to_entry(fileName))
+      end
+      
+      def remove(fileName)
+        @zipFile.remove(expand_to_entry(fileName))
+      end
+
+      def rename(fileName, newName, &continueOnExistsProc)
+        @zipFile.rename(expand_to_entry(fileName), expand_to_entry(newName), 
+                        &continueOnExistsProc)
+      end
+
+      def mkdir(fileName, permissionInt = 0)
+        @zipFile.mkdir(expand_to_entry(fileName), permissionInt)
+      end
+
+      # Turns entries into strings and adds leading /
+      # and removes trailing slash on directories
+      def each
+        @zipFile.each {
+          |e|
+          yield("/"+e.to_s.chomp("/"))
+        }
+      end
+
       def expand_path(aPath)
         expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
         expanded.gsub!(/\/\.(\/|$)/, "")
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
         expanded.empty? ? "/" : expanded
       end
-      
+
+      private
+
       def expand_to_entry(aPath)
         expand_path(aPath).lchop
       end
