@@ -8,17 +8,17 @@ unless Enumerable.instance_methods(true).include?("inject")
 end
 
 class String
-  def startsWith(aString)
+  def starts_with(aString)
     slice(0, aString.size) == aString
   end
 
-  def endsWith(aString)
+  def ends_with(aString)
     aStringSize = aString.size
     slice(-aStringSize, aStringSize) == aString 
   end
 
-  def ensureEnd(aString)
-    endsWith(aString) ? self : self + aString
+  def ensure_end(aString)
+    ends_with(aString) ? self : self + aString
   end
 
 end
@@ -38,20 +38,20 @@ class Time
   # bits 9-15 year (four digit year minus 1980)
   
   
-  def toBinaryDosDate
+  def to_binary_dos_date
     (sec/2) +
       (min  << 5) +
       (hour << 11)
   end
 
-  def toBinaryDosTime
+  def to_binary_dos_time
     (day) +
       (month << 5) +
       ((year - 1980) << 9)
   end
 
   # Dos time is only stored with two seconds accuracy
-  def dosEquals(other)
+  def dos_equals(other)
     (year  == other.year   &&
      month == other.month  &&
      day   == other.day    &&
@@ -60,7 +60,7 @@ class Time
      sec/2 == other.sec/2)
   end
 
-  def self.parseBinaryDosFormat(binaryDosDate, binaryDosTime)
+  def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)
     second = 2 * (       0b11111 & binaryDosTime)
     minute = (     0b11111100000 & binaryDosTime) >> 5 
     hour   = (0b1111100000000000 & binaryDosTime) >> 11
@@ -74,7 +74,7 @@ class Time
 end
 
 class Module
-  def forwardMessage(forwarder, *messagesToForward)
+  def forward_message(forwarder, *messagesToForward)
     methodDefs = messagesToForward.map { 
       |msg| 
       "def #{msg}; #{forwarder}(:#{msg}); end"

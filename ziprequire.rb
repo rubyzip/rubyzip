@@ -7,13 +7,13 @@ class ZipList
       @zipFileList = zipFileList
   end
 
-  def getInputStream(entry, &aProc)
+  def get_input_stream(entry, &aProc)
     @zipFileList.each {
       |zfName|
       Zip::ZipFile.open(zfName) {
 	|zf|
 	begin
-	  return zf.getInputStream(entry, &aProc) 
+	  return zf.get_input_stream(entry, &aProc) 
 	rescue Errno::ENOENT
 	end
       }
@@ -29,12 +29,12 @@ module Kernel
   alias :oldRequire :require
 
   def require(moduleName)
-    zipRequire(moduleName) || oldRequire(moduleName)
+    zip_require(moduleName) || oldRequire(moduleName)
   end
 
-  def zipRequire(moduleName)
-    return false if alreadyLoaded?(moduleName)
-    getResource(ensureRbExtension(moduleName)) { 
+  def zip_require(moduleName)
+    return false if already_loaded?(moduleName)
+    get_resource(ensure_rb_extension(moduleName)) { 
       |zis| 
       eval(zis.read); $" << moduleName 
     }
@@ -43,17 +43,17 @@ module Kernel
     return false
   end
 
-  def getResource(resourceName, &aProc)
+  def get_resource(resourceName, &aProc)
     zl = ZipList.new($:.grep(/\.zip$/))
-    zl.getInputStream(resourceName, &aProc)
+    zl.get_input_stream(resourceName, &aProc)
   end
 
-  def alreadyLoaded?(moduleName)
+  def already_loaded?(moduleName)
     moduleRE = Regexp.new("^"+moduleName+"(\.rb|\.so|\.dll|\.o)?$")
     $".detect { |e| e =~ moduleRE } != nil
   end
 
-  def ensureRbExtension(aString)
+  def ensure_rb_extension(aString)
     aString.sub(/(\.rb)?$/i, ".rb")
   end
 end

@@ -9,10 +9,10 @@ require 'zip'
 
 Zip::ZipInputStream.open("example.zip") {
   |zis|
-  entry = zis.getNextEntry
+  entry = zis.get_next_entry
   print "First line of '#{entry.name} (#{entry.size} bytes):  "
   puts "'#{zis.gets.chomp}'"
-  entry = zis.getNextEntry
+  entry = zis.get_next_entry
   print "First line of '#{entry.name} (#{entry.size} bytes):  "
   puts "'#{zis.gets.chomp}'"
 }
@@ -25,7 +25,7 @@ zf.each_with_index {
   |entry, index|
   
   puts "entry #{index} is #{entry.name}, size = #{entry.size}, compressed size = #{entry.compressedSize}"
-  # use zf.getInputStream(entry) to get a ZipInputStream for the entry
+  # use zf.get_input_stream(entry) to get a ZipInputStream for the entry
   # entry can be the ZipEntry object or any object which has a to_s method that
   # returns the name of the entry.
 }
@@ -35,10 +35,10 @@ zf.each_with_index {
 
 Zip::ZipOutputStream.open("exampleout.zip") {
   |zos|
-  zos.putNextEntry("the first little entry")
+  zos.put_next_entry("the first little entry")
   zos.puts "Hello hello hello hello hello hello hello hello hello"
 
-  zos.putNextEntry("the second little entry")
+  zos.put_next_entry("the second little entry")
   zos.puts "Hello again"
 
   # Use rubyzip or your zip client of choice to verify

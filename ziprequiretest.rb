@@ -31,8 +31,8 @@ class ZipRequireTest < RUNIT::TestCase
     assert_equals(4, ZippedRuby3.multiplyValues(2, 2))
   end
 
-  def test_getResource
-    getResource("aResource.txt") {
+  def test_get_resource
+    get_resource("aResource.txt") {
       |f|
       assert_equals("Nothing exciting in this file!", f.read)
     }

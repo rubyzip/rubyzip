@@ -22,7 +22,7 @@ module Zip
           @entryName = entryName
         end
         
-        def forwardInvoke(msg)
+        def forward_invoke(msg)
           @zipFsFile.send(msg, @entryName)
         end
 
@@ -30,16 +30,16 @@ module Zip
           super || t == File::Stat 
         end
         
-        forwardMessage :forwardInvoke, :file?, :directory?, :pipe?, :chardev?
-        forwardMessage :forwardInvoke, :symlink?, :socket?, :blockdev?
-        forwardMessage :forwardInvoke, :readable?, :readable_real?
-        forwardMessage :forwardInvoke, :writable?, :writable_real?
-        forwardMessage :forwardInvoke, :executable?, :executable_real?
-        forwardMessage :forwardInvoke, :sticky?, :owned?, :grpowned?
-        forwardMessage :forwardInvoke, :setuid?, :setgid?
-        forwardMessage :forwardInvoke, :zero?
-        forwardMessage :forwardInvoke, :size, :size?
-        forwardMessage :forwardInvoke, :mtime
+        forward_message :forward_invoke, :file?, :directory?, :pipe?, :chardev?
+        forward_message :forward_invoke, :symlink?, :socket?, :blockdev?
+        forward_message :forward_invoke, :readable?, :readable_real?
+        forward_message :forward_invoke, :writable?, :writable_real?
+        forward_message :forward_invoke, :executable?, :executable_real?
+        forward_message :forward_invoke, :sticky?, :owned?, :grpowned?
+        forward_message :forward_invoke, :setuid?, :setgid?
+        forward_message :forward_invoke, :zero?
+        forward_message :forward_invoke, :size, :size?
+        forward_message :forward_invoke, :mtime
         
         def blocks; nil; end
 
@@ -77,7 +77,7 @@ module Zip
       end
       
       def exists?(fileName)
-	@zipFile.findEntry(fileName) != nil
+	@zipFile.find_entry(fileName) != nil
       end
       alias :exist? :exists?
       
@@ -112,13 +112,13 @@ module Zip
       end
 
       def directory?(fileName)
-	entry = @zipFile.findEntry(fileName)
+	entry = @zipFile.find_entry(fileName)
 	entry != nil && entry.directory?
       end
       
       def open(fileName, openMode = "r", &block)
 	raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
-	@zipFile.getInputStream(fileName, &block)
+	@zipFile.get_input_stream(fileName, &block)
       end
 
       def new(fileName, openMode = "r")
@@ -126,12 +126,12 @@ module Zip
       end
       
       def size(fileName)
-	@zipFile.getEntry(fileName).size
+	@zipFile.get_entry(fileName).size
       end
       
       # nil for not found and nil for directories
       def size?(fileName)
-	entry = @zipFile.findEntry(fileName)
+	entry = @zipFile.find_entry(fileName)
 	return (entry == nil || entry.directory?) ? nil : entry.size
       end
       
@@ -157,7 +157,7 @@ module Zip
       end
       
       def file?(fileName)
-	entry = @zipFile.findEntry(fileName)
+	entry = @zipFile.find_entry(fileName)
 	entry != nil && entry.file?
       end      
       
@@ -178,7 +178,7 @@ module Zip
       end
       
       def mtime(fileName)
-	@zipFile.getEntry(fileName).mtime
+	@zipFile.get_entry(fileName).mtime
       end
       
       def pipe?(filename)
@@ -202,7 +202,7 @@ module Zip
       end
       
       def ftype(fileName)
-	@zipFile.getEntry(fileName).directory? ? "directory" : "file"
+	@zipFile.get_entry(fileName).directory? ? "directory" : "file"
       end
       
       def readlink(fileName)

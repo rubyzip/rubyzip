@@ -147,7 +147,7 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
 
-  def assertAlwaysFalse(operation)
+  def assert_always_false(operation)
     assert(! @zipFile.file.send(operation, "noSuchFile"))
     assert(! @zipFile.file.send(operation, "file1"))
     assert(! @zipFile.file.send(operation, "dir1"))
@@ -155,7 +155,7 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(! @zipFile.file.stat("dir1").send(operation))
   end
 
-  def assertTrueIfEntryExists(operation)
+  def assert_true_if_entry_exists(operation)
     assert(! @zipFile.file.send(operation, "noSuchFile"))
     assert(@zipFile.file.send(operation, "file1"))
     assert(@zipFile.file.send(operation, "dir1"))
@@ -164,23 +164,23 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_pipe?
-    assertAlwaysFalse(:pipe?)
+    assert_always_false(:pipe?)
   end
 
   def test_blockdev?
-    assertAlwaysFalse(:blockdev?)
+    assert_always_false(:blockdev?)
   end
 
   def test_symlink?
-    assertAlwaysFalse(:symlink?)
+    assert_always_false(:symlink?)
   end
 
   def test_socket?
-    assertAlwaysFalse(:socket?)
+    assert_always_false(:socket?)
   end
 
   def test_chardev?
-    assertAlwaysFalse(:chardev?)
+    assert_always_false(:chardev?)
   end
 
   def test_truncate
@@ -189,14 +189,14 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     }
   end
 
-  def assertENOENT(operation, args = ["NoSuchFile"])
+  def assert_e_n_o_e_n_t(operation, args = ["NoSuchFile"])
     assert_exception(Errno::ENOENT) {
       @zipFile.file.send(operation, *args)
     }
   end
 
   def test_ftype
-    assertENOENT(:ftype)
+    assert_e_n_o_e_n_t(:ftype)
     assert_equals("file", @zipFile.file.ftype("file1"))
     assert_equals("directory", @zipFile.file.ftype("dir1/dir11"))
     assert_equals("directory", @zipFile.file.ftype("dir1/dir11/"))
@@ -277,47 +277,47 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 
 
   def test_readable?
-    assertTrueIfEntryExists(:readable?)
+    assert_true_if_entry_exists(:readable?)
   end
 
   def test_readable_real?
-    assertTrueIfEntryExists(:readable_real?)
+    assert_true_if_entry_exists(:readable_real?)
   end
 
   def test_writable?
-    assertTrueIfEntryExists(:writable?)
+    assert_true_if_entry_exists(:writable?)
   end
 
   def test_writable_real?
-    assertTrueIfEntryExists(:writable_real?)
+    assert_true_if_entry_exists(:writable_real?)
   end
 
   def test_executable?
-    assertTrueIfEntryExists(:executable?)
+    assert_true_if_entry_exists(:executable?)
   end
 
   def test_executable_real?
-    assertTrueIfEntryExists(:executable_real?)
+    assert_true_if_entry_exists(:executable_real?)
   end
 
   def test_owned?
-    assertTrueIfEntryExists(:executable_real?)
+    assert_true_if_entry_exists(:executable_real?)
   end
 
   def test_grpowned?
-    assertTrueIfEntryExists(:executable_real?)
+    assert_true_if_entry_exists(:executable_real?)
   end
 
   def test_setgid?
-    assertAlwaysFalse(:setgid?)
+    assert_always_false(:setgid?)
   end
 
   def test_setuid?
-    assertAlwaysFalse(:setgid?)
+    assert_always_false(:setgid?)
   end
 
   def test_sticky?
-    assertAlwaysFalse(:sticky?)
+    assert_always_false(:sticky?)
   end
 
   def test_readlink
@@ -472,11 +472,11 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
   end
  
   def test_delete
-    doTest_deleteOrUnlink(:delete)
+    do_test_delete_or_unlink(:delete)
   end
 
   def test_unlink
-    doTest_deleteOrUnlink(:unlink)
+    do_test_delete_or_unlink(:unlink)
   end
 
   def test_rename
@@ -495,7 +495,7 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
     }
   end
 
-  def doTest_deleteOrUnlink(symbol)
+  def do_test_delete_or_unlink(symbol)
     ZipFile.open(TEST_ZIP) {
       |zf|
       assert(zf.file.exists?("dir2/dir21/dir221/file2221"))

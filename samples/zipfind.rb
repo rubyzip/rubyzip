@@ -26,7 +26,7 @@ module Zip
       }
     end
 
-    def self.findFile(path, fileNamePattern, zipFilePattern = /\.zip$/i)
+    def self.find_file(path, fileNamePattern, zipFilePattern = /\.zip$/i)
       self.find(path, zipFilePattern) {
 	|fileName|
 	yield(fileName) if fileName =~ fileNamePattern
@@ -44,16 +44,16 @@ if __FILE__ == $0
     ZIPFILE_PATTERN_ARG_INDEX = 2;
     
     def self.run(args)
-      checkArgs(args)
-      Zip::ZipFind.findFile(args[PATH_ARG_INDEX], 
+      check_args(args)
+      Zip::ZipFind.find_file(args[PATH_ARG_INDEX], 
 			    args[FILENAME_PATTERN_ARG_INDEX],
 			    args[ZIPFILE_PATTERN_ARG_INDEX]) {
 	|fileName|
-	reportEntryFound fileName
+	report_entry_found fileName
       }
     end
     
-    def self.checkArgs(args)
+    def self.check_args(args)
       if (args.size != 3)
 	usage
 	exit
@@ -64,7 +64,7 @@ if __FILE__ == $0
       puts "Usage: #{$0} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
     end
     
-    def self.reportEntryFound(fileName)
+    def self.report_entry_found(fileName)
       puts fileName
     end
     

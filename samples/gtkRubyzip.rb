@@ -20,7 +20,7 @@ class MainApp < Gtk::Window
     @zipfile = nil
     @buttonPanel = ButtonPanel.new
     @buttonPanel.openButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
-      showFileSelector
+      show_file_selector
     }
     @buttonPanel.extractButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
       puts "Not implemented!"
@@ -55,11 +55,11 @@ class MainApp < Gtk::Window
     end
   end
 
-  def showFileSelector
+  def show_file_selector
     @fileSelector = Gtk::FileSelection.new("Open zip file")
     @fileSelector.show
     @fileSelector.ok_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
-      openZip(@fileSelector.filename)
+      open_zip(@fileSelector.filename)
       @fileSelector.destroy
     }
     @fileSelector.cancel_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
@@ -67,7 +67,7 @@ class MainApp < Gtk::Window
     }
   end
 
-  def openZip(filename)
+  def open_zip(filename)
     @zipfile = Zip::ZipFile.open(filename)
     @clist.clear
     @zipfile.each { 
