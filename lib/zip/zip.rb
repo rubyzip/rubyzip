@@ -28,7 +28,48 @@ module Zip
   # an empty string the first time and then nil.
   #  not so in 1.7.x
   EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST = RUBY_MINOR_VERSION != 7
-  
+
+  # ZipInputStream is the basic class for reading zip entries in a 
+  # zip file. It is possible to create a ZipInputStream object directly, 
+  # passing the zip file name to the constructor, but more often than not 
+  # the ZipInputStream will be obtained from a ZipFile (perhaps using the 
+  # ZipFileSystem interface) object for a particular entry in the zip 
+  # archive.
+  #
+  # A ZipInputStream inherits AbstractInputStream in order to provide an
+  # IO-like interface for reading from a single zip entry. Beyond methods 
+  # for mimicking an IO-object it contains the method get_next_entry for
+  # iterating through the entries of an archive. get_next_entry returns a
+  # ZipEntry object that describes the zip entry the ZipInputStream is 
+  # currently reading from.
+  #
+  # Example that creates a zip archive with ZipOutputStream and reads it 
+  # back again with a ZipInputStream.
+  #
+  #   require 'zip/zip'
+  #   
+  #   Zip::ZipOutputStream::open("my.zip") { 
+  #     |io|
+  #   
+  #     io.put_next_entry("first_entry.txt")
+  #     io.write "Hello world!"
+  #   
+  #     io.put_next_entry("adir/first_entry.txt")
+  #     io.write "Hello again!"
+  #   }
+  #
+  #   
+  #   Zip::ZipInputStream::open("my.zip") {
+  #     |io|
+  #   
+  #     while (entry = io.get_next_entry)
+  #       puts "Contents of #{entry.name}: '#{io.read}'"
+  #     end
+  #   }
+  #
+  # java.util.zip.ZipInputStream is the original inspiration for this 
+  # class.
+
   class ZipInputStream 
     include IOExtras::AbstractInputStream
 
@@ -506,6 +547,23 @@ module Zip
     end
   end
 
+
+  # ZipOutputStream is the basic class for writing zip files. It is 
+  # possible to create a ZipInputStream object directly, passing 
+  # the zip file name to the constructor, but more often than not 
+  # the ZipOutputStream will be obtained from a ZipFile (perhaps using the 
+  # ZipFileSystem interface) object for a particular entry in the zip 
+  # archive.
+  #
+  # A ZipOutputStream inherits AbstractOutputStream in order to provide an
+  # IO-like interface for writing to a single zip entry. Beyond methods 
+  # for mimicking an IO-object it contains the method put_next_entry that
+  # closes the current entry and creates a new.
+  #
+  # Please refer to ZipInputStream for example code.
+  #
+  # java.util.zip.ZipOutputStream is the original inspiration for this 
+  # class.
 
   class ZipOutputStream
     include IOExtras::AbstractOutputStream

@@ -1,4 +1,6 @@
 module IOExtras
+
+  # Implements kind_of? in order to pretend to be an IO object
   module FakeIO
     def kind_of?(object)
       object == IO || super
@@ -66,7 +68,8 @@ module IOExtras
   end
 
 
-  #relies on <<
+  # Implements many of the output convenience methods of IO.
+  # relies on <<
   module AbstractOutputStream 
     include FakeIO
 
