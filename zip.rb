@@ -963,6 +963,8 @@ module Zip
   class ZipEntryNameError              < ZipError; end
 
   class ZipFile < ZipCentralDirectory
+    include ZipFileSystem
+
     CREATE = 1
 
     attr_reader :name
@@ -1010,10 +1012,6 @@ module Zip
     
     def to_s
       @name
-    end
-
-    def fileSystem
-      @fileSystem ||= ZipFileSystem.new(self)
     end
 
     def add(entry, srcPath, &continueOnExistsProc)

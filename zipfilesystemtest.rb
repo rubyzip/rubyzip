@@ -10,7 +10,7 @@ include Zip
 class ZipFsFileTest < RUNIT::TestCase
   def setup
     @zipFile = ZipFile.new("zipWithDirs.zip")
-    @zipFsFile = @zipFile.fileSystem.file
+    @zipFsFile = @zipFile.file
   end
 
   def teardown
@@ -250,7 +250,7 @@ class ZipFsFileTest < RUNIT::TestCase
     ZipFile.open("4entry.zip") {
       |zf|
       blockCalled = true
-      assert(zf.fileSystem.file.zero?("empty.txt"))
+      assert(zf.file.zero?("empty.txt"))
     }
     assert(blockCalled)
   end

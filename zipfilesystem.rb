@@ -3,18 +3,15 @@
 require 'filearchive'
 
 module Zip
-  class ZipFileSystem
+  module ZipFileSystem
     
-    def initialize(zipFile)
-      @zipFile = zipFile
-    end
     
     def dir
-      @zipFsDir ||= Dir.new(@zipFile)
+      @zipFsDir ||= Dir.new(self)
     end
     
     def file
-      @zipFsDir ||= ZipFsFile.new(@zipFile)
+      @zipFsDir ||= ZipFsFile.new(self)
     end
     
     class ZipFsFile
