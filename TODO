@@ -1,6 +1,3 @@
-Make sure commit updates all entries to refer to the version in the
-zip archive.
-
 unit test writeFile (onExistsProc)
 unit test rename onExistsProc
 unit test yield on ZipFile::getInputStream
