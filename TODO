@@ -1,5 +1,4 @@
 
-* Change directory structure to that common to a ruby library
 * Add an extensively documented sample in samples/ that shows most of 
   what rubyzip does
 * Add doc target to Rakefile that builds rdoc documentation and which

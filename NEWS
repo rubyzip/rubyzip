@@ -1,7 +1,9 @@
 = Version 0.5.7 =
 
-Directory structure
-Migrated from RubyUnit to Test::Unit format.
+install.rb no longer assumes it is being run from the toplevel source
+dir. Directory structure changed to reflect common ruby library
+project structure. Migrated from RubyUnit to Test::Unit format.  Now
+uses Rake to build gems and run unit tests
 
 = Version 0.5.6 =
 
