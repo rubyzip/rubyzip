@@ -165,10 +165,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assertAlwaysFalse(:chardev?)
   end
 
-  def test_writable?
-    fail "implement test"
-  end
-
   def test_truncate
     fail "implement test"
   end
@@ -204,15 +200,7 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_executable_real?
-    fail "implement test"
-  end
-
   def test_ctime
-    fail "implement test"
-  end
-
-  def test_readable_real?
     fail "implement test"
   end
 
@@ -254,10 +242,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(blockCalled)
   end
 
-  def test_executable?
-    fail "implement test"
-  end
-
   def test_expand_path
     # Cannot implement before we have a concept of current dir for zip filesystem
     fail "implement test"
@@ -273,8 +257,41 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     }
   end
 
+
   def test_readable?
-    fail "implement test"
+    assert(@zipFile.file.readable?("file1"))
+    assert(@zipFile.file.readable?("dir1"))
+    assert(! @zipFile.file.readable?("noSuchFile"))
+  end
+
+  def test_readable_real?
+    assert(@zipFile.file.readable_real?("file1"))
+    assert(@zipFile.file.readable_real?("dir1"))
+    assert(! @zipFile.file.readable_real?("noSuchFile"))
+  end
+
+  def test_writable?
+    assert(@zipFile.file.writable?("file1"))
+    assert(@zipFile.file.writable?("dir1"))
+    assert(! @zipFile.file.writable?("noSuchFile"))
+  end
+
+  def test_writable_real?
+    assert(@zipFile.file.writable_real?("file1"))
+    assert(@zipFile.file.writable_real?("dir1"))
+    assert(! @zipFile.file.writable_real?("noSuchFile"))
+  end
+
+  def test_executable?
+    assert(@zipFile.file.executable?("file1"))
+    assert(@zipFile.file.executable?("dir1"))
+    assert(! @zipFile.file.executable?("noSuchFile"))
+  end
+
+  def test_executable_real?
+    assert(@zipFile.file.executable_real?("file1"))
+    assert(@zipFile.file.executable_real?("dir1"))
+    assert(! @zipFile.file.executable_real?("noSuchFile"))
   end
 
   def test_readlink
@@ -288,10 +305,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_chmod
-    fail "implement test"
-  end
-
-  def test_writable_real?
     fail "implement test"
   end
 

@@ -24,6 +24,14 @@ module Zip
       end
       alias :exist? :exists?
       
+      # Permissions not implemented, so if the file exists it is accessible
+      alias readable? exists?
+      alias readable_real? exists?
+      alias writable? exists?
+      alias writable_real? exists?
+      alias executable? exists?
+      alias executable_real? exists?
+
       def directory?(fileName)
 	entry = @zipFile.findEntry(fileName)
 	entry != nil && entry.directory?
