@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-system("zip example.zip example.rb NEWS")
+$: << ".."
+system("zip example.zip example.rb gtkRubyzip.rb")
 
 require 'zip'
 
