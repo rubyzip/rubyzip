@@ -155,22 +155,7 @@ class MockFileSystem
   end
 end
 
-class FileArchiveTest < RUNIT::TestCase
-  def setup
-    @testArchive = TestArchive.new([ "dir1/",
-				     "dir1/dir2/",
-				     "dir1/dir2/entry121",
-				     "dir1/entry11",
-				     "dir3/",
-				     "dir3/dir4/",
-				     "dir3/dir4/entry341"])
-    configureMockFileSystem
-  end
-
-  def teardown
-    unconfigureMockFileSystem
-  end
-
+module MockFileSystemTestSetup
   def configureMockFileSystem
     MockFileSystem.instance.deleteAll
 
@@ -205,6 +190,30 @@ class FileArchiveTest < RUNIT::TestCase
       alias :directory? :origDirectory?
     end
   end
+end
+
+module FileArchiveTestFixture
+  include MockFileSystemTestSetup
+
+  def setup
+    @testArchive = TestArchive.new([ "dir1/",
+				     "dir1/dir2/",
+				     "dir1/dir2/entry121",
+				     "dir1/entry11",
+				     "dir3/",
+				     "dir3/dir4/",
+				     "dir3/dir4/entry341"])
+    configureMockFileSystem
+  end
+
+  def teardown
+    unconfigureMockFileSystem
+  end
+ 
+end
+
+class FileArchiveTest < RUNIT::TestCase
+  include FileArchiveTestFixture
 
   def test_expandSelection
     assert_equals([ "dir1/",
@@ -222,6 +231,14 @@ class FileArchiveTest < RUNIT::TestCase
       FileArchive.ensureDirectory("mums") { false }
     }      
   end
+
+  def test_mkdir
+    fail "implement"
+  end
+end
+
+class FileArchiveExtractTest < RUNIT::TestCase
+  include FileArchiveTestFixture
 
   def test_extractAllRecursiveToDirectory
     @testArchive.extract("*", "odir1", FileArchive::RECURSIVE)
@@ -266,7 +283,7 @@ class FileArchiveTest < RUNIT::TestCase
     assertExtracted(["odir1/"])
   end
 
-  def test_noMatchForSource
+  def test_extractNoMatchForSource
     assert_exception(Zip::ZipNoSuchEntryError) {
       @testArchive.extract("noMatchForThis*", "outdir", FileArchive::RECURSIVE)
     }
@@ -321,16 +338,53 @@ class FileArchiveTest < RUNIT::TestCase
 end
 
 class FileArchiveAddTest < RUNIT::TestCase
+  include MockFileSystemTestSetup
+
   def setup
     @testArchive = TestArchive.new
+    MockFileSystem.instance.deleteAll
+    MockFileSystem.instance.createFile("dir1/file11")
+    MockFileSystem.instance.createFile("dir1/file12")
+    MockFileSystem.instance.createFile("dir1/file13")
+    MockFileSystem.instance.createFile("dir1/file14")
+    MockFileSystem.instance.createFile("dir1/dir2/file121")
+    MockFileSystem.instance.createFile("dir1/dir2/file122")
+    MockFileSystem.instance.createFile("dir1/dir2/file123")
+    MockFileSystem.instance.createFile("dir1/dir3/file131")
+
+    configureMockFileSystem
+  end
+
+  def teardown
+    unconfigureMockFileSystem
   end
 
   def test_addSingleFile
+    @testArchive.add("dir1/file11", "")
+    assert(@testArchive.entries.include?("file11"))
+
+    @testArchive.add("dir1/file11", "newname")
+    assert(@testArchive.entries.include?("newname"))
+  end
+
+  def test_addAllRecursively
+    @testArchive.mkdir("existing")
+    @testArchive.add("dir1", "existing", FileArchive::RECURSIVE)
+    assert(@testArchive.include?("existing/dir1/file11"))
+    assert(@testArchive.include?("existing/dir1/file12"))
+    assert(@testArchive.include?("existing/dir1/file13"))
+    assert(@testArchive.include?("existing/dir1/file14"))
+    assert(@testArchive.include?("existing/dir1/dir2/file121"))
+    assert(@testArchive.include?("existing/dir1/dir2/file122"))
+    assert(@testArchive.include?("existing/dir1/dir2/file123"))
+    assert(@testArchive.include?("existing/dir1/dir3/file131"))
+  end
+
+  def test_addSubDirRecursively
     fail "implement"
   end
 
-  def test_addRecursively
-    fail "implement"
+  def test_addRecursivelyToExistingDirectory
   end
 
   def test_addMultipleWithFilenameGlobbing

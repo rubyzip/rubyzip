@@ -112,7 +112,13 @@ module FileArchive
   RECURSIVE = true
   NONRECURSIVE = false
 
-  # src can be String, ZipEntry or Enumerable of either
+  def add(src, dst, recursive = NONRECURSIVE,
+	  continueOnExistsProc = proc { false },
+	  createDestDirectoryProc = proc { true } )
+    puts "implement FileArchive.add"
+  end
+
+  # src can be String(glob pattern), regex, ZipEntry or Enumerable
   def extract(src, dst, recursive = NONRECURSIVE, 
 	      continueOnExistsProc = proc { false }, 
 	      createDestDirectoryProc = proc { true } )
