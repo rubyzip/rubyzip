@@ -1494,6 +1494,9 @@ TestZipFile::createTestZips(ARGV.index("recreate") != nil ||
 			    ARGV.index("recreateonly") != nil)
 exit if ARGV.index("recreateonly") != nil
 
+#require 'runit/cui/testrunner'
+#RUNIT::CUI::TestRunner.run(ZipFileTest.suite)
+
 # Copyright (C) 2002 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
 # modify it under the terms of the ruby license.

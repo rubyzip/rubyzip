@@ -474,9 +474,19 @@ module Zip
       end
     end
 
+
     def writeToZipOutputStream(aZipOutputStream)
       aZipOutputStream.putNextEntry(self.dup)
-      aZipOutputStream << getInputStream { |is| is.read }
+      aZipOutputStream << getRawInputStream { 
+	|is| 
+	is.seek(localEntryOffset, IO::SEEK_SET)
+	is.read(compressedSize)
+      }
+    end
+
+    private
+    def getRawInputStream(&aProc)
+      File.open(@zipfile, "rb", &aProc)
     end
   end
 
