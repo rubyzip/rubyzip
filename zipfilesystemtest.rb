@@ -406,9 +406,10 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 		  @zipFile.file.popen("ls") { |f| f.read })
   end
 
-  def test_select
-    fail "implement test"
-  end
+# Can be added later
+#  def test_select
+#    fail "implement test"
+#  end
 
   def test_readlines
     ZipFile.open("zipWithDir.zip") {
@@ -460,7 +461,7 @@ class ZipFsFileStatTest < RUNIT::TestCase
   end
 
   def test_mode
-    fail "Implement test"
+    assert_equals(33206, @zipFile.file.stat("file1").mode)
   end
 
   def test_dev

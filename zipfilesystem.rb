@@ -70,6 +70,8 @@ module Zip
         def nlink; 1; end
         
         def blksize; nil; end
+
+        def mode; 33206; end # 33206 is equivalent to -rw-rw-rw-
       end
 
       def initialize(zipFile)
