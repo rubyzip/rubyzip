@@ -60,7 +60,7 @@ end
 
 Rake::RDocTask.new do |rd|
   rd.main = "README"
-  rd.rdoc_files.add %W{ README NEWS TODO lib/** }
+  rd.rdoc_files.add %W{ lib/zip/*.rb README NEWS TODO  }
   rd.options << "--title 'rubyzip documentation' --webcvs http://cvs.sourceforge.net/viewcvs.py/rubyzip/rubyzip/"
 #  rd.options << "--all"
 end

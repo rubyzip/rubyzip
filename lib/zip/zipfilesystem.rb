@@ -1,9 +1,42 @@
 require 'zip/zip'
 
 module Zip
+
+  # The ZipFileSystem API provides an API for accessing entries in 
+  # a zip archive that is similar to ruby's builtin File and Dir 
+  # classes.
+  #
+  # Requiring 'zip/zipfilesystem' includes this module in ZipFile
+  # making the methods in this module available on ZipFile objects.
+  #
+  # Using this API the following example creates a new zip file 
+  # <code>my.zip</code> containing a normal entry with the name
+  # <code>first.txt</code>, a directory entry named <code>mydir</code>
+  # and finally another normal entry named <code>second.txt</code>
+  #
+  #   require 'zip/zipfilesystem'
+  #   
+  #   Zip::ZipFile.open("my.zip", Zip::ZipFile::CREATE) {
+  #     |zipfile|
+  #     zipfile.file.open("first.txt", "w") { |f| f.puts "Hello world" }
+  #     zipfile.dir.mkdir("mydir")
+  #     zipfile.file.open("mydir/second.txt", "w") { |f| f.puts "Hello again" }
+  #   }
+  #
+  # Reading is as easy as writing, as the following example shows. The 
+  # example writes the contents of <code>first.txt</code> from zip archive
+  # <code>my.zip</code> to standard out.
+  #
+  #   require 'zip/zipfilesystem'
+  #   
+  #   Zip::ZipFile.open("my.zip") {
+  #     |zipfile|
+  #     puts zipfile.file.read("first.txt")
+  #   }
+
   module ZipFileSystem
 
-    def initialize
+    def initialize # :nodoc:
       mappedZip = ZipFileNameMapper.new(self)
       @zipFsDir  = ZipFsDir.new(mappedZip)
       @zipFsFile = ZipFsFile.new(mappedZip)
@@ -11,14 +44,26 @@ module Zip
       @zipFsFile.dir = @zipFsDir
     end
 
+    # Returns a ZipFsDir which is much like ruby's builtin Dir (class)
+    # object, except it works on the ZipFile on which this method is
+    # invoked
     def dir
       @zipFsDir
     end
     
+    # Returns a ZipFsFile which is much like ruby's builtin File (class)
+    # object, except it works on the ZipFile on which this method is
+    # invoked
     def file
       @zipFsFile
     end
-    
+
+    # Instances of this class are normally accessed via the accessor
+    # ZipFile::file. An instance of ZipFsFile behaves like ruby's
+    # builtin File (class) object, except it works on ZipFile entries.
+    #
+    # The individual methods are not documented due to their
+    # similarity with the methods in File
     class ZipFsFile
 
       attr_writer :dir
@@ -198,7 +243,7 @@ module Zip
 	@mappedZip.get_entry(fileName).size
       end
       
-      # nil for not found and nil for directories
+      # Returns nil for not found and nil for directories
       def size?(fileName)
 	entry = @mappedZip.find_entry(fileName)
 	return (entry == nil || entry.directory?) ? nil : entry.size
@@ -367,6 +412,12 @@ module Zip
       end
     end
 
+    # Instances of this class are normally accessed via the accessor
+    # ZipFile::dir. An instance of ZipFsDir behaves like ruby's
+    # builtin Dir (class) object, except it works on ZipFile entries.
+    #
+    # The individual methods are not documented due to their
+    # similarity with the methods in Dir
     class ZipFsDir
       
       def initialize(mappedZip)
@@ -441,7 +492,7 @@ module Zip
 
     end
 
-    class ZipFsDirIterator
+    class ZipFsDirIterator # :nodoc:all
       include Enumerable
 
       def initialize(arrayOfFileNames)
@@ -481,7 +532,7 @@ module Zip
 
     # All access to ZipFile from ZipFsFile and ZipFsDir goes through a
     # ZipFileNameMapper, which has one responsibility: ensure
-    class ZipFileNameMapper
+    class ZipFileNameMapper # :nodoc:all
       include Enumerable
 
       def initialize(zipFile)

@@ -1,9 +1,4 @@
 
-* Add an extensively documented sample in samples/ that shows most of 
-  what rubyzip does
-* Add doc target to Rakefile that builds rdoc documentation and which
-  turns the samples in the sample directory into html which is included
-  in the output site
 * Add web target to Rakefile to update rubyzip.sourceforge.net website
 * Add upload target which uploads dist to sourceforge and gem to where-ever
 * Release 0.5.7

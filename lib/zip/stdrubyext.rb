@@ -24,7 +24,7 @@ unless Object.method_defined?(:object_id)
 end
 
 unless File.respond_to?(:read)
-  class File
+  class File # :nodoc:all
     # singleton method read does not exist in 1.6.x
     def self.read(fileName)
       open(fileName) { |f| f.read }
