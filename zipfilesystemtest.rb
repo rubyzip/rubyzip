@@ -203,12 +203,14 @@ class ZipFsFileTest < RUNIT::TestCase
     assert(! @zipFsFile.symlink?("dir1"))
   end
 
-  def test_readable?
-    fail "implement test"
-  end
+#  def test_readable?
+#    fail "implement test"
+#  end
 
   def test_split
-    fail "implement test"
+    assert_equals(["a/b/c", "d"], @zipFsFile.split("a/b/c/d"))
+    assert_equals(["a/b/c/d", ""], @zipFsFile.split("a/b/c/d/"))
+    assert_equals([".", "a"], @zipFsFile.split("a"))
   end
 
   def test_delete

@@ -60,5 +60,9 @@ class ZipFileSystem
     def symlink?(fileName)
       false
     end
+
+    def split(fileName)
+      ::File.split(fileName)
+    end
   end
 end
