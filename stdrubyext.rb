@@ -7,6 +7,14 @@ unless Enumerable.instance_methods(true).include?("inject")
   end
 end
 
+module Enumerable #:nodoc:all
+  # returns a new array of all the return values not equal to nil
+  # This implementation could be faster
+  def select_map(&aProc)
+    map(&aProc).reject { |e| e.nil? }
+  end
+end
+
 unless Object.instance_methods(true).include?("object_id")
   class Object
     # Using object_id which is the new thing, so we need

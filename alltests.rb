@@ -2,6 +2,7 @@
 
 $VERBOSE = true
 
+require 'stdrubyext'
 require 'ziptest'
 require 'zipfilesystemtest'
 require 'ziprequiretest'
