@@ -1001,13 +1001,32 @@ class ZipFileTest < RUNIT::TestCase
 
     File.delete(extractedEntryFilename) if File.exists?(extractedEntryFilename)
 
-    zf = ZipFile.new(TEST_ZIP)
+    zf = ZipFile.new(TEST_ZIP.zipName)
     zf.extract(entryToExtract, extractedEntryFilename)
     
     assert(File.exists? extractedEntryFilename)
     AssertEntry::assertContents(extractedEntryFilename, 
 				zf.getInputStream(entryToExtract).read)
     zf.close
+  end
+
+  def test_extractNonEntry
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert_exception(ZipError) { zf.extract("nonExistingEntry") }
+  ensure
+    zf.close if zf
+  end
+
+  def test_extractNonEntry
+    assert_exception(ZipError) {
+      zf = ZipFile.new(TEST_ZIP.zipName)
+      nonEntry = "hotdog-diddelidoo"
+      outFile = "outfile"
+      assert(! zf.entries.include?(nonEntry))
+      zf.extract(nonEntry, outFile)
+      zf.close
+    }
+    assert(! File.exists?(outFile))
   end
 
   def test_rename
@@ -1029,6 +1048,30 @@ class ZipFileTest < RUNIT::TestCase
     zfRead.close
   end
 
+  def test_renameNonEntry
+    nonEntry = "bogusEntry"
+    targetEntry = "targetEntryName"
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert(! zf.entries.include?(nonEntry))
+    assert_exception(ZipError) {
+      zf.rename(nonEntry, targetEntry)
+    }
+    zf.commit
+    assert(! zf.entries.include?(targetEntry))
+  ensure
+    zf.close
+  end
+
+  def test_renameEntryToExistingEntry
+    entry1, entry2, *remaining = TEST_ZIP.entryNames
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert_exception(ZipError) {
+      zf.rename(entry1, entry2)
+    }
+  ensure 
+    zf.close
+  end
+
   def test_replace
     unchangedEntries = TEST_ZIP.entryNames
     entryToReplace = unchangedEntries.delete(2)
@@ -1043,6 +1086,22 @@ class ZipFileTest < RUNIT::TestCase
     AssertEntry::assertContents(newEntrySrcFilename, 
 				zfRead.getInputStream(entryToReplace).read)
     zfRead.close    
+  end
+
+  def test_replaceNonEntry
+    # Simply adds the file
+    entryToReplace = "nonExistingEntryname"
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    orgEntries = zf.entries.dup
+    zf.replace(entryToReplace, "ziptest.rb")
+    zf.commit
+
+    zfRead = ZipFile.new(TEST_ZIP.zipName)
+    assert_equals(orgEntries.push(entryToReplace),
+		  zfRead.entries.map { |e| e.name })
+  ensure
+    zf.close if zf
+    zfRead.close if zfRead
   end
 
   def test_commit
@@ -1069,6 +1128,8 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_compound1
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    zf.close
     # Add a few big files
     # commit
     # assert contents
