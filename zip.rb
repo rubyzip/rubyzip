@@ -333,7 +333,7 @@ module Zip
     def read(numberOfBytes = nil)
       if inputFinished?
 	hasReturnedEmptyStringVal=@hasReturnedEmptyString
-	@hasReturnedEmptyString=false
+	@hasReturnedEmptyString=true
 	return "" unless hasReturnedEmptyStringVal
 	return nil
       end
