@@ -20,7 +20,7 @@ ruby install.rb
 This library requires ruby/zlib version 0.5.0 or newer.
 
 * zlib http://www.gzip.org/zlib/
-* ruby-zlib: http://www.blue.sky.or.jp/atelier/#ruby-zlib
+* ruby-zlib: http://www.blue.sky.or.jp/atelier/ruby/
 
 = License
 
