@@ -814,6 +814,8 @@ module Zip
 	io.seek(-MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE, IO::SEEK_END)
       rescue Errno::EINVAL
 	io.seek(0, IO::SEEK_SET)
+      rescue Errno::EFBIG # FreeBSD 4.9 returns Errno::EFBIG instead of Errno::EINVAL
+	io.seek(0, IO::SEEK_SET)
       end
       buf = io.read
       sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
