@@ -4,12 +4,12 @@ $VERBOSE = true
 
 $: << "../lib"
 
-require 'rubyunit'
+require 'test/unit'
 require 'zip/ioextras'
 
 include IOExtras
 
-class FakeIOTest < RUNIT::TestCase
+class FakeIOTest < Test::Unit::TestCase
   class FakeIOUsingClass
     include FakeIO
   end
@@ -25,7 +25,7 @@ class FakeIOTest < RUNIT::TestCase
   end
 end
 
-class AbstractInputStreamTest < RUNIT::TestCase
+class AbstractInputStreamTest < Test::Unit::TestCase
   # AbstractInputStream subclass that provides a read method
   
   TEST_LINES = [ "Hello world#{$/}", 
@@ -60,32 +60,32 @@ class AbstractInputStreamTest < RUNIT::TestCase
   end
   
   def test_gets
-    assert_equals(TEST_LINES[0], @io.gets)
-    assert_equals(1, @io.lineno)
-    assert_equals(TEST_LINES[1], @io.gets)
-    assert_equals(2, @io.lineno)
-    assert_equals(TEST_LINES[2], @io.gets)
-    assert_equals(3, @io.lineno)
-    assert_equals(nil, @io.gets)
-    assert_equals(4, @io.lineno)
+    assert_equal(TEST_LINES[0], @io.gets)
+    assert_equal(1, @io.lineno)
+    assert_equal(TEST_LINES[1], @io.gets)
+    assert_equal(2, @io.lineno)
+    assert_equal(TEST_LINES[2], @io.gets)
+    assert_equal(3, @io.lineno)
+    assert_equal(nil, @io.gets)
+    assert_equal(4, @io.lineno)
   end
 
   def test_getsMultiCharSeperator
-    assert_equals("Hell", @io.gets("ll"))
-    assert_equals("o world#{$/}this is the second l", @io.gets("d l"))
+    assert_equal("Hell", @io.gets("ll"))
+    assert_equal("o world#{$/}this is the second l", @io.gets("d l"))
   end
 
   def test_each_line
     lineNumber=0
     @io.each_line {
       |line|
-      assert_equals(TEST_LINES[lineNumber], line)
+      assert_equal(TEST_LINES[lineNumber], line)
       lineNumber+=1
     }
   end
 
   def test_readlines
-    assert_equals(TEST_LINES, @io.readlines)
+    assert_equal(TEST_LINES, @io.readlines)
   end
 
   def test_readline
@@ -98,7 +98,7 @@ class AbstractInputStreamTest < RUNIT::TestCase
   end
 end
 
-class AbstractOutputStreamTest < RUNIT::TestCase
+class AbstractOutputStreamTest < Test::Unit::TestCase
   class TestOutputStream
     include AbstractOutputStream
 
@@ -128,77 +128,77 @@ class AbstractOutputStreamTest < RUNIT::TestCase
 
   def test_write
     count = @outputStream.write("a little string")
-    assert_equals("a little string", @outputStream.buffer)
-    assert_equals("a little string".length, count)
+    assert_equal("a little string", @outputStream.buffer)
+    assert_equal("a little string".length, count)
 
     count = @outputStream.write(". a little more")
-    assert_equals("a little string. a little more", @outputStream.buffer)
-    assert_equals(". a little more".length, count)
+    assert_equal("a little string. a little more", @outputStream.buffer)
+    assert_equal(". a little more".length, count)
   end
   
   def test_print
     $\ = nil # record separator set to nil
     @outputStream.print("hello")
-    assert_equals("hello", @outputStream.buffer)
+    assert_equal("hello", @outputStream.buffer)
 
     @outputStream.print(" world.")
-    assert_equals("hello world.", @outputStream.buffer)
+    assert_equal("hello world.", @outputStream.buffer)
     
     @outputStream.print(" You ok ",  "out ", "there?")
-    assert_equals("hello world. You ok out there?", @outputStream.buffer)
+    assert_equal("hello world. You ok out there?", @outputStream.buffer)
 
     $\ = "\n"
     @outputStream.print
-    assert_equals("hello world. You ok out there?\n", @outputStream.buffer)
+    assert_equal("hello world. You ok out there?\n", @outputStream.buffer)
 
     @outputStream.print("I sure hope so!")
-    assert_equals("hello world. You ok out there?\nI sure hope so!\n", @outputStream.buffer)
+    assert_equal("hello world. You ok out there?\nI sure hope so!\n", @outputStream.buffer)
 
     $, = "X"
     @outputStream.buffer = ""
     @outputStream.print("monkey", "duck", "zebra")
-    assert_equals("monkeyXduckXzebra\n", @outputStream.buffer)
+    assert_equal("monkeyXduckXzebra\n", @outputStream.buffer)
 
     $\ = nil
     @outputStream.buffer = ""
     @outputStream.print(20)
-    assert_equals("20", @outputStream.buffer)
+    assert_equal("20", @outputStream.buffer)
   end
   
   def test_printf
     @outputStream.printf("%d %04x", 123, 123) 
-    assert_equals("123 007b", @outputStream.buffer)
+    assert_equal("123 007b", @outputStream.buffer)
   end
   
   def test_putc
     @outputStream.putc("A")
-    assert_equals("A", @outputStream.buffer)
+    assert_equal("A", @outputStream.buffer)
     @outputStream.putc(65)
-    assert_equals("AA", @outputStream.buffer)
+    assert_equal("AA", @outputStream.buffer)
   end
 
   def test_puts
     @outputStream.puts
-    assert_equals("\n", @outputStream.buffer)
+    assert_equal("\n", @outputStream.buffer)
 
     @outputStream.puts("hello", "world")
-    assert_equals("\nhello\nworld\n", @outputStream.buffer)
+    assert_equal("\nhello\nworld\n", @outputStream.buffer)
 
     @outputStream.buffer = ""
     @outputStream.puts("hello\n", "world\n")
-    assert_equals("hello\nworld\n", @outputStream.buffer)
+    assert_equal("hello\nworld\n", @outputStream.buffer)
     
     @outputStream.buffer = ""
     @outputStream.puts(["hello\n", "world\n"])
-    assert_equals("hello\nworld\n", @outputStream.buffer)
+    assert_equal("hello\nworld\n", @outputStream.buffer)
 
     @outputStream.buffer = ""
     @outputStream.puts(["hello\n", "world\n"], "bingo")
-    assert_equals("hello\nworld\nbingo\n", @outputStream.buffer)
+    assert_equal("hello\nworld\nbingo\n", @outputStream.buffer)
 
     @outputStream.buffer = ""
     @outputStream.puts(16, 20, 50, "hello")
-    assert_equals("16\n20\n50\nhello\n", @outputStream.buffer)
+    assert_equal("16\n20\n50\nhello\n", @outputStream.buffer)
   end
 end
 

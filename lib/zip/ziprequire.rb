@@ -1,6 +1,6 @@
 require 'zip/zip'
 
-class ZipList
+class ZipList #:nodoc:all
   def initialize(zipFileList)
       @zipFileList = zipFileList
   end
@@ -23,7 +23,7 @@ class ZipList
 end
 
 
-module Kernel
+module Kernel #:nodoc:all
   alias :oldRequire :require
 
   def require(moduleName)

@@ -11,7 +11,7 @@ if Tempfile.superclass == SimpleDelegator
   Tempfile = BugFix::Tempfile
 end
 
-module Zlib
+module Zlib  #:nodoc:all
   if ! const_defined? :MAX_WBITS
     MAX_WBITS = Zlib::Deflate.MAX_WBITS
   end
@@ -36,12 +36,12 @@ module Zip
   # ZipFileSystem interface) object for a particular entry in the zip 
   # archive.
   #
-  # A ZipInputStream inherits AbstractInputStream in order to provide an
-  # IO-like interface for reading from a single zip entry. Beyond methods 
-  # for mimicking an IO-object it contains the method get_next_entry for
-  # iterating through the entries of an archive. get_next_entry returns a
-  # ZipEntry object that describes the zip entry the ZipInputStream is 
-  # currently reading from.
+  # A ZipInputStream inherits IOExtras::AbstractInputStream in order
+  # to provide an IO-like interface for reading from a single zip 
+  # entry. Beyond methods for mimicking an IO-object it contains 
+  # the method get_next_entry for iterating through the entries of 
+  # an archive. get_next_entry returns a ZipEntry object that describes
+  # the zip entry the ZipInputStream is currently reading from.
   #
   # Example that creates a zip archive with ZipOutputStream and reads it 
   # back again with a ZipInputStream.
@@ -73,6 +73,9 @@ module Zip
   class ZipInputStream 
     include IOExtras::AbstractInputStream
 
+    # Opens the indicated zip file. An exception is thrown
+    # if the specified offset in the specified filename is
+    # not a local zip entry header.
     def initialize(filename, offset = 0)
       super()
       @archiveIO = File.open(filename, "rb")
@@ -84,7 +87,10 @@ module Zip
     def close
       @archiveIO.close
     end
-    
+
+    # Same as #initialize but if a block is passed the opened
+    # stream is passed to the block and closed when the block
+    # returns.    
     def ZipInputStream.open(filename)
       return new(filename) unless block_given?
       
@@ -94,12 +100,17 @@ module Zip
       zio.close if zio
     end
 
+    # Returns a ZipEntry object. It is necessary to call this
+    # method on a newly created ZipInputStream before reading from 
+    # the first entry in the archive. Returns nil when there are 
+    # no more entries.
     def get_next_entry
       @archiveIO.seek(@currentEntry.next_header_offset, 
 		      IO::SEEK_SET) if @currentEntry
       open_entry
     end
 
+    # Rewinds the stream to the beginning of the current entry
     def rewind
       return if @currentEntry.nil?
       @lineno = 0
@@ -107,6 +118,13 @@ module Zip
 		      IO::SEEK_SET)
       open_entry
     end
+
+    # Modeled after IO.read
+    def read(numberOfBytes = nil)
+      @decompressor.read(numberOfBytes)
+    end
+
+    protected
 
     def open_entry
       @currentEntry = ZipEntry.read_local_entry(@archiveIO)
@@ -125,10 +143,6 @@ module Zip
       return @currentEntry
     end
 
-    def read(numberOfBytes = nil)
-      @decompressor.read(numberOfBytes)
-    end
-    protected
     def produce_input
       @decompressor.produce_input
     end
@@ -549,16 +563,17 @@ module Zip
 
 
   # ZipOutputStream is the basic class for writing zip files. It is 
-  # possible to create a ZipInputStream object directly, passing 
+  # possible to create a ZipOutputStream object directly, passing 
   # the zip file name to the constructor, but more often than not 
   # the ZipOutputStream will be obtained from a ZipFile (perhaps using the 
   # ZipFileSystem interface) object for a particular entry in the zip 
   # archive.
   #
-  # A ZipOutputStream inherits AbstractOutputStream in order to provide an
-  # IO-like interface for writing to a single zip entry. Beyond methods 
-  # for mimicking an IO-object it contains the method put_next_entry that
-  # closes the current entry and creates a new.
+  # A ZipOutputStream inherits IOExtras::AbstractOutputStream in order 
+  # to provide an IO-like interface for writing to a single zip 
+  # entry. Beyond methods for mimicking an IO-object it contains 
+  # the method put_next_entry that closes the current entry 
+  # and creates a new.
   #
   # Please refer to ZipInputStream for example code.
   #
@@ -570,6 +585,8 @@ module Zip
 
     attr_accessor :comment
 
+    # Opens the indicated zip file. If a file with that name already
+    # exists it will be overwritten.
     def initialize(fileName)
       super()
       @fileName = fileName
@@ -581,6 +598,9 @@ module Zip
       @comment = nil
     end
 
+    # Same as #initialize but if a block is passed the opened
+    # stream is passed to the block and closed when the block
+    # returns.    
     def ZipOutputStream.open(fileName)
       return new(fileName) unless block_given?
       zos = new(fileName)
@@ -589,6 +609,7 @@ module Zip
       zos.close if zos
     end
 
+    # Closes the stream and writes the central directory to the zip file
     def close
       return if @closed
       finalize_current_entry
@@ -598,6 +619,8 @@ module Zip
       @closed = true
     end
 
+    # Closes the current entry and opens a new for writing.
+    # +entry+ can be a ZipEntry object or a string.
     def put_next_entry(entry, level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@fileName, entry.to_s)
@@ -673,6 +696,7 @@ module Zip
     end
 
     public
+    # Modeled after IO.<<
     def << (data)
       @compressor << data
     end
@@ -738,7 +762,7 @@ module Zip
   end
   
 
-  class ZipEntrySet
+  class ZipEntrySet #:nodoc:all
     include Enumerable
     
     def initialize(anEnumerable = [])

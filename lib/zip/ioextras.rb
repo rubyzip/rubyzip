@@ -1,4 +1,4 @@
-module IOExtras
+module IOExtras  #:nodoc:
 
   # Implements kind_of? in order to pretend to be an IO object
   module FakeIO

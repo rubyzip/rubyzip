@@ -1,13 +1,13 @@
 #
 # tempfile - manipulates temporary files
 #
-# $Id: tempfile_bugfixed.rb,v 1.1 2005/02/15 21:10:32 thomas Exp $
+# $Id: tempfile_bugfixed.rb,v 1.2 2005/02/19 20:30:33 thomas Exp $
 #
 
 require 'delegate'
 require 'tmpdir'
 
-module BugFix
+module BugFix  #:nodoc:all
 
 # A class for managing temporary files.  This library is written to be
 # thread safe.

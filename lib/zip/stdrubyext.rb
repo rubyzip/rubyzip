@@ -16,7 +16,7 @@ module Enumerable #:nodoc:all
 end
 
 unless Object.method_defined?(:object_id)
-  class Object
+  class Object  #:nodoc:all
     # Using object_id which is the new thing, so we need
     # to make that work in versions prior to 1.8.0
     alias object_id id
@@ -32,7 +32,7 @@ unless File.respond_to?(:read)
   end
 end
 
-class String
+class String  #:nodoc:all
   def starts_with(aString)
     rindex(aString, 0) == 0
   end
@@ -50,7 +50,7 @@ class String
   end
 end
 
-class Time
+class Time  #:nodoc:all
   
   #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
   # 
@@ -95,7 +95,7 @@ class Time
   end
 end
 
-class Module
+class Module  #:nodoc:all
   def forward_message(forwarder, *messagesToForward)
     methodDefs = messagesToForward.map { 
       |msg| 

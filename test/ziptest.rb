@@ -4,7 +4,7 @@ $VERBOSE = true
 
 $: << "../lib"
 
-require 'rubyunit'
+require 'test/unit'
 require 'zip/zip'
 require 'gentestfiles'
 

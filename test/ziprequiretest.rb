@@ -4,12 +4,12 @@ $VERBOSE = true
 
 $: << "../lib"
 
-require 'rubyunit'
+require 'test/unit'
 require 'zip/ziprequire'
 
 $: << 'data/rubycode.zip' << 'data/rubycode2.zip'
 
-class ZipRequireTest < RUNIT::TestCase
+class ZipRequireTest < Test::Unit::TestCase
   def test_require
     assert(require('data/notzippedruby'))
     assert(!require('data/notzippedruby'))
@@ -27,13 +27,13 @@ class ZipRequireTest < RUNIT::TestCase
     assert(c1.returnTrue)
     assert(ZippedRuby1.returnTrue)
     assert(!ZippedRuby2.returnFalse)
-    assert_equals(4, ZippedRuby3.multiplyValues(2, 2))
+    assert_equal(4, ZippedRuby3.multiplyValues(2, 2))
   end
 
   def test_get_resource
     get_resource("aResource.txt") {
       |f|
-      assert_equals("Nothing exciting in this file!", f.read)
+      assert_equal("Nothing exciting in this file!", f.read)
     }
   end
 end

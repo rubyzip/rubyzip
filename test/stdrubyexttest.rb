@@ -4,18 +4,18 @@ $VERBOSE = true
 
 $: << "../lib"
 
-require 'rubyunit'
+require 'test/unit'
 require 'zip/stdrubyext'
 
-class ModuleTest < RUNIT::TestCase
+class ModuleTest < Test::Unit::TestCase
 
   def test_select_map
-    assert_equals([2, 4, 8, 10], [1, 2, 3, 4, 5].select_map { |e| e == 3 ? nil : 2*e })
+    assert_equal([2, 4, 8, 10], [1, 2, 3, 4, 5].select_map { |e| e == 3 ? nil : 2*e })
   end
   
 end
 
-class StringExtensionsTest < RUNIT::TestCase
+class StringExtensionsTest < Test::Unit::TestCase
 
   def test_starts_with
     assert("hello".starts_with(""))
@@ -24,7 +24,7 @@ class StringExtensionsTest < RUNIT::TestCase
     assert(! "hello".starts_with("hello there"))
     assert(! "hello".starts_with(" he"))
 
-    assert_exception(TypeError, "type mismatch: NilClass given") { 
+    assert_raise(TypeError, "type mismatch: NilClass given") { 
       "hello".starts_with(nil) 
     }
   end
@@ -40,10 +40,10 @@ class StringExtensionsTest < RUNIT::TestCase
   end
 
   def test_ensure_end
-    assert_equals("hello!", "hello!".ensure_end("!"))
-    assert_equals("hello!", "hello!".ensure_end("o!"))
-    assert_equals("hello!", "hello".ensure_end("!"))
-    assert_equals("hello!", "hel".ensure_end("lo!"))
+    assert_equal("hello!", "hello!".ensure_end("!"))
+    assert_equal("hello!", "hello!".ensure_end("o!"))
+    assert_equal("hello!", "hello".ensure_end("!"))
+    assert_equal("hello!", "hel".ensure_end("lo!"))
   end
 end
 
