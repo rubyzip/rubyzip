@@ -19,7 +19,7 @@ end
 
 module Zip
 
-  RUBY_MINOR_VERSION = VERSION.split(".")[1].to_i
+  RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
   # Ruby 1.7.x compatibility
   # In ruby 1.6.x and 1.8.0 reading from an empty stream returns 
@@ -377,7 +377,7 @@ module Zip
       
       cdirSignature          ,
 	@version               , # version of encoding software
-        @fstype                , # filesystem tye
+        @fstype                , # filesystem type
 	@versionNeededToExtract,
 	@gpFlags               ,
 	@compression_method     ,
