@@ -14,11 +14,11 @@ task :default => [:test]
 
 desc "Run unit tests"
 task :test do
-  ruby %{-e "Dir.chdir 'test'; require 'alltests.rb'}
+  ruby %{-C test alltests.rb}
 end
 
 # Shortcuts for test targets
-#task :ut => [:test]
+task :ut => [:test]
 
 #task :gemtest do
 #  ruby %{-Ilib -rscripts/runtest -e 'run_tests("test/test_gempaths.rb", true)'}
