@@ -175,9 +175,10 @@ module Zip
       
       zio = new(filename)
       yield zio
-      zio.close
+    ensure
+      zio.close if zio
     end
-    
+
     def getNextEntry
       @archiveIO.seek(@currentEntry.nextHeaderOffset, 
 		      IO::SEEK_SET) if @currentEntry
@@ -850,8 +851,10 @@ module Zip
     attr_accessor :comment
 
     def ZipFile.foreach(aZipFileName, &block)
-      zipFile = ZipFile.new(aZipFileName)
-      zipFile.each(&block)
+      ZipFile.open(aZipFileName) {
+	|zipFile|
+	zipFile.each(&block)
+      }
     end
     
     def getInputStream(entry, &aProc)
