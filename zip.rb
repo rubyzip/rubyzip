@@ -109,7 +109,7 @@ end
 
 
 class Decompressor
-  CHUNK_SIZE=8192
+  CHUNK_SIZE=32768
   def initialize(inputStream)
     @inputStream=inputStream
   end
