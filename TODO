@@ -1,8 +1,8 @@
 
-unit test and implement directory extract (and implement)
-unit test adding directories recursively (and implement)
-unit test ZipFile.checkIntegrity method (and implement)
-unit test and implement recursive extract (and implement)
+unit test and implement directory extract
+unit test and implement adding directories recursively
+unit test and implement  ZipFile.checkIntegrity method
+unit test and implement recursive extract
 unit test and implement recursive extract with block for determining whether directories should be created.
 
 performance improve method

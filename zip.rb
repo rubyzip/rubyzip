@@ -819,7 +819,7 @@ module Zip
       onExistsProc ||= proc { false }
       foundEntry = getEntry(entry)
       if foundEntry.isDirectory
-	createDirectory(foundEntry, destPath)
+	createDirectory(foundEntry, destPath, &onExistsProc)
       else
 	writeFile(destPath, onExistsProc) { 
 	  |os|
@@ -852,12 +852,15 @@ module Zip
       if File.directory? destPath
 	return
       elsif File.exists? destPath
-	raise ZipDestinationFileExistsError,
-	  "Cannot create directory '#{destPath}'. "+
-	  "A file already exists with that name"
-      else
-	Dir.mkdir destPath
+	if block_given? && yield(entry, destPath)
+	  File.rm_f destPath
+	else
+	  raise ZipDestinationFileExistsError,
+	    "Cannot create directory '#{destPath}'. "+
+	    "A file already exists with that name"
+	end
       end
+      Dir.mkdir destPath
     end
 
     def isDirectory(newEntry, srcPath)

@@ -21,3 +21,5 @@ randomAscii?.txt
 randomBinary?.bin
 extEntry
 okToDeleteMoved.txt
+zipWithDir.zip
+emptyOutDir

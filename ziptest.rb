@@ -1354,45 +1354,6 @@ class ZipFileTest < CommonZipFileFixture
   end
 end
 
-class ZipFileExtractDirectoryTest < CommonZipFileFixture
-  TEST_OUT_NAME = "emptyOutDir"
-
-  def openZip(&aProc)
-    assert(aProc != nil)
-    ZipFile.open(TestZipFile::TEST_ZIP4.zipName, &aProc)
-  end
-
-  def extractTestDir
-    openZip {
-      |zf|
-      zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME)
-    }
-  end
-
-  def setup
-    super
-
-    Dir.rmdir(TEST_OUT_NAME)   if File.directory? TEST_OUT_NAME
-    File.delete(TEST_OUT_NAME) if File.exists?    TEST_OUT_NAME
-  end
-    
-  def test_extractDirectory
-    extractTestDir
-    assert(File.directory? TEST_OUT_NAME)
-  end
-  
-  def test_extractDirectoryExistsAsDir
-    Dir.mkdir TEST_OUT_NAME
-    extractTestDir
-    assert(File.directory? TEST_OUT_NAME)
-  end
-
-  def test_extractDirectoryExistsAsFile
-    File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
-    assert_exception(ZipDestinationFileExistsError) { extractTestDir }
-  end
-end
-
 class ZipFileExtractTest < CommonZipFileFixture
   EXTRACTED_FILENAME = "extEntry"
   ENTRY_TO_EXTRACT, *REMAINING_ENTRIES = TEST_ZIP.entryNames.reverse
@@ -1465,6 +1426,59 @@ class ZipFileExtractTest < CommonZipFileFixture
     assert(! File.exists?(outFile))
   end
 
+end
+
+class ZipFileExtractDirectoryTest < CommonZipFileFixture
+  TEST_OUT_NAME = "emptyOutDir"
+
+  def openZip(&aProc)
+    assert(aProc != nil)
+    ZipFile.open(TestZipFile::TEST_ZIP4.zipName, &aProc)
+  end
+
+  def extractTestDir(&aProc)
+    openZip {
+      |zf|
+      zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME, &aProc)
+    }
+  end
+
+  def setup
+    super
+
+    Dir.rmdir(TEST_OUT_NAME)   if File.directory? TEST_OUT_NAME
+    File.delete(TEST_OUT_NAME) if File.exists?    TEST_OUT_NAME
+  end
+    
+  def test_extractDirectory
+    extractTestDir
+    assert(File.directory? TEST_OUT_NAME)
+  end
+  
+  def test_extractDirectoryExistsAsDir
+    Dir.mkdir TEST_OUT_NAME
+    extractTestDir
+    assert(File.directory? TEST_OUT_NAME)
+  end
+
+  def test_extractDirectoryExistsAsFile
+    File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
+    assert_exception(ZipDestinationFileExistsError) { extractTestDir }
+  end
+
+  def test_extractDirectoryExistsAsFileOverwrite
+    File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
+    gotCalled = false
+    extractTestDir { 
+      |entry, destPath| 
+      gotCalled = true
+      assert_equals(TEST_OUT_NAME, destPath)
+      assert(entry.isDirectory)
+      true
+    }
+    assert(gotCalled)
+    assert(File.directory? TEST_OUT_NAME)
+  end
 end
 
 
