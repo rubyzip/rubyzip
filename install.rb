@@ -13,7 +13,7 @@ files = %w{ stdrubyext.rb ioextras.rb zip.rb zipfilesystem.rb ziprequire.rb temp
 INSTALL_DIR = File.join(CONFIG["sitelibdir"], "zip")
 File.makedirs(INSTALL_DIR)
 
-SOURCE_DIR = File.join(File.dirname($0), "zip")
+SOURCE_DIR = File.join(File.dirname($0), "lib/zip")
 
 files.each { 
   |filename|
