@@ -759,6 +759,8 @@ module Zip
       else
 	raise ZipError, "File #{fileName} not found"
       end
+      @create = create
+      @storedEntries = @entries.map{ |e| e.dup }
     end
     
     def ZipFile.open(fileName, create = nil)
@@ -829,6 +831,7 @@ module Zip
     end
     
     def commit
+      return if ! commitRequired?
       onSuccessReplace(name) {
 	|tmpFile|
 	ZipOutputStream.open(tmpFile) {
@@ -844,6 +847,10 @@ module Zip
     
     def close
       commit
+    end
+
+    def commitRequired?
+      return entries != @storedEntries || @create == ZipFile::CREATE
     end
     
     private
