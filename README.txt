@@ -20,6 +20,10 @@ to inflateInit2 from being negative. Apply the patch 'zlib.c.diff' to
 zlib.c from ruby/zlib, then rebuild and install ruby/zlib to fix the
 issue.
 
+To apply the patch cd to ruby-zlib-0.4.0 and:
+
+patch -p0 < RUBYZIP_PATH/zlib.c.diff
+
 = Missing tests =
 
 zip.rb is only 280 lines. Go through it and check for each line
