@@ -5,7 +5,6 @@ require 'singleton'
 require 'tempfile'
 require 'ftools'
 require 'zlib'
-require 'zipfilesystem'
 
 unless Enumerable.instance_methods(true).include?("inject")
   module Enumerable  #:nodoc:all
@@ -977,7 +976,6 @@ module Zip
   class ZipEntryNameError              < ZipError; end
 
   class ZipFile < ZipCentralDirectory
-    include ZipFileSystem
 
     CREATE = 1
 

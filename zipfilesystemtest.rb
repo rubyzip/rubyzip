@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-require 'zip'
+require 'zipfilesystem'
 require 'rubyunit'
 
 include Zip

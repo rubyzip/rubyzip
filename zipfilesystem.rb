@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'zip'
 require 'filearchive'
 
 module Zip
@@ -154,4 +155,9 @@ module Zip
 
     end
   end
+
+  class ZipFile
+    include ZipFileSystem
+  end
 end
+
