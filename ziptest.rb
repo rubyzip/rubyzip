@@ -248,7 +248,7 @@ class TestZipFile
       File.open("ziptest.rb") { |file| ziptestTxt=file.read }
       File.open("longAscii.txt", "w") {
 	|file|
-	while (file.tell < 1E5)
+	while (file.tell < 1E6)
 	  file << ziptestTxt
 	end
       }
@@ -259,14 +259,14 @@ class TestZipFile
       
       File.open("longBinary.bin", "wb") {
 	|file|
-	while (file.tell < 1E6)
+	while (file.tell < 3E6)
 	  file << testBinaryPattern << rand
 	end
       }
       raise "failed to create test zip '#{TEST_ZIP2.zipName}'" unless 
 	system("zip #{TEST_ZIP2.zipName} #{TEST_ZIP2.entryNames.join(' ')}")
       raise "failed to add comment to test zip '#{TEST_ZIP2.zipName}'" unless 
-	system("echo '#{TEST_ZIP2.comment}' | zip #{TEST_ZIP2.zipName}")
+	system("echo '#{TEST_ZIP2.comment}' | zip -z #{TEST_ZIP2.zipName}")
 
       raise "failed to create test zip '#{TEST_ZIP3.zipName}'" unless 
 	system("zip #{TEST_ZIP3.zipName} #{TEST_ZIP3.entryNames.join(' ')}")
@@ -274,7 +274,8 @@ class TestZipFile
   end
 
   TEST_ZIP1 = TestZipFile.new("empty.zip", [])
-  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin})
+  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin}, 
+			      "my zip comment")
   TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
 end
 
