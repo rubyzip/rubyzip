@@ -1490,6 +1490,60 @@ class ZipFileExtractDirectoryTest < CommonZipFileFixture
 end
 
 
+class GlobTest < RUNIT::TestCase
+
+  def testPruneLeadingAndTrailingSeparator
+    assert_equals("hello", 
+		  Glob.pruneLeadingAndTrailingSeparator("/hello/"))
+    assert_equals("hello/goodbye", 
+		  Glob.pruneLeadingAndTrailingSeparator("/hello/goodbye"))
+    assert_equals("hello/goodbye", 
+		  Glob.pruneLeadingAndTrailingSeparator("hello/goodbye/"))
+  end
+
+  def testExpandPath
+    assert_equals([], 
+		  Glob.expandPath(""))
+    assert_equals(["rip"], 
+		  Glob.expandPath("rip"))
+    assert_equals(["rip", "rip/rap", "rip/rap/rup"], 
+		  Glob.expandPath("rip/rap/rup"))
+    assert_equals(["rip", "rip/rap", "rip/rap/rup"], 
+		  Glob.expandPath("rip/rap/rup/"))
+  end
+
+  def testExpandPathList
+    assert_equals(["rip", "rip/rap", "rip/rap/rup", "jimmy", "jimmy/benny"].sort,
+		  Glob.expandPathList(["rip/rap/rup", "jimmy/benny"]).sort)
+    assert_equals([], Glob.expandPathList([]))
+  end
+
+  FILE_LIST = [ "rip/rap/rup", "jimmy/benny", "maria/jenny", "rip/tom", "marie/ben" ]
+
+  def testGlobQuestionMark
+    assert_equals(["rip"], Glob.glob(FILE_LIST, "ri?"))
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mari?").sort)
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mari?").sort)
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mar??").sort)
+    assert_equals(["marie"], Glob.glob(FILE_LIST, "ma??e").sort)
+  end
+
+  def testGlobStar
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "m*").sort)
+    assert_equals(["rip"], Glob.glob(FILE_LIST, "rip*").sort)
+    assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "rip/*").sort)
+    assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "rip/*").sort)
+    assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "r*/*").sort)
+  end
+
+  def testCombined
+    assert_equals(["rip/rap"], Glob.glob(FILE_LIST, "r*/ra?").sort)
+  end
+  
+end
+
+
+
 TestFiles::createTestFiles(ARGV.index("recreate") != nil || 
 			   ARGV.index("recreateonly") != nil)
 TestZipFile::createTestZips(ARGV.index("recreate") != nil || 

@@ -3,7 +3,7 @@ write unit tests for ziprequire and improve the current
 proof-of-concept implementation.
 
 unit test and implement:
-* globbing
+* globbing (Glob module implemented and unit tested, but not used)
 * adding directories recursively
 * recursive extract
 * recursive extract with block for determining whether directories should be created.
