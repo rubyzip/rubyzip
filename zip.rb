@@ -331,7 +331,11 @@ module Zip
       return (%r{\/$} =~ @name) != nil
     end
     alias :isDirectory :directory?
-    
+
+    def file?
+      ! directory?
+    end
+
     def localEntryOffset  #:nodoc:all
       localHeaderOffset + localHeaderSize
     end

@@ -111,6 +111,20 @@ class ZipEntryTest < RUNIT::TestCase
     assert_equals(TEST_ISDIRECTORY, entry.isDirectory)
   end
 
+  def test_isDirectoryAndIsFile
+    assert(ZipEntry.new(TEST_ZIPFILE, "hello").file?)
+    assert(! ZipEntry.new(TEST_ZIPFILE, "hello").directory?)
+
+    assert(ZipEntry.new(TEST_ZIPFILE, "dir/hello").file?)
+    assert(! ZipEntry.new(TEST_ZIPFILE, "dir/hello").directory?)
+
+    assert(ZipEntry.new(TEST_ZIPFILE, "hello/").directory?)
+    assert(! ZipEntry.new(TEST_ZIPFILE, "hello/").file?)
+
+    assert(ZipEntry.new(TEST_ZIPFILE, "dir/hello/").directory?)
+    assert(! ZipEntry.new(TEST_ZIPFILE, "dir/hello/").file?)
+  end
+
   def test_equality
     entry1 = ZipEntry.new("file.zip", "name",  "isNotCompared", 
 			  "something extra", 123, 1234, 
