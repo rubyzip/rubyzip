@@ -5,6 +5,69 @@ $VERBOSE = true
 require 'rubyunit'
 require 'filearchive'
 
+
+class GlobTest < RUNIT::TestCase
+
+  def test_pruneLeadingAndTrailingSeparator
+    assert_equals("hello", 
+		  Glob.pruneLeadingAndTrailingSeparator("/hello/"))
+    assert_equals("hello/goodbye", 
+		  Glob.pruneLeadingAndTrailingSeparator("/hello/goodbye"))
+    assert_equals("hello/goodbye", 
+		  Glob.pruneLeadingAndTrailingSeparator("hello/goodbye/"))
+  end
+
+  def test_expandPath
+    assert_equals([], 
+		  Glob.expandPath(""))
+    assert_equals(["rip"], 
+		  Glob.expandPath("rip"))
+    assert_equals(["rip", "rip/rap", "rip/rap/rup"], 
+		  Glob.expandPath("rip/rap/rup"))
+    assert_equals(["rip", "rip/rap", "rip/rap/rup"], 
+		  Glob.expandPath("rip/rap/rup/"))
+  end
+
+  def test_expandPathList
+    assert_equals(["rip", "rip/rap", "rip/rap/rup", "jimmy", "jimmy/benny"].sort,
+		  Glob.expandPathList(["rip/rap/rup", "jimmy/benny"]).sort)
+    assert_equals([], Glob.expandPathList([]))
+  end
+
+  FILE_LIST = [ "rip/rap/rup", "jimmy/benny", "maria/jenny", "rip/tom", "marie/ben" ]
+
+  def test_globQuestionMark
+    assert_equals(["rip"], Glob.glob(FILE_LIST, "ri?"))
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mari?").sort)
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mari?").sort)
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mar??").sort)
+    assert_equals(["marie"], Glob.glob(FILE_LIST, "ma??e").sort)
+  end
+
+  def test_globStar
+    assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "m*").sort)
+    assert_equals(["rip"], Glob.glob(FILE_LIST, "rip*").sort)
+    assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "rip/*").sort)
+    assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "rip/*").sort)
+    assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "r*/*").sort)
+  end
+
+  def test_recursive
+    assert_equals(["rip", "rip/rap", "rip/rap/rup", "rip/tom"].sort, 
+		  Glob.glob(FILE_LIST, "rip", true).sort)
+    assert_equals(["rip/rap", "rip/rap/rup", "rip/tom"].sort, 
+		  Glob.glob(FILE_LIST, "rip/*", true).sort)
+  end
+
+  def test_combined
+    assert_equals(["rip/rap"], Glob.glob(FILE_LIST, "r*/ra?").sort)
+    assert_equals(["rip", "rip/rap", "rip/rap/rup", "rip/tom"].sort, 
+		  Glob.glob(FILE_LIST, "ri*", true).sort)
+  end
+  
+end
+
+
 class TestArchive
   include Enumerable
   include FileArchive
