@@ -59,9 +59,11 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
-#  def test_symlink
-#    fail "implement test"
-#  end
+  def test_symlink
+    assert_exception(NotImplementedError) {
+      @zipFsFile.symlink("file1", "aSymlink")
+    }
+  end
 
 #  def test_sticky?
 #    fail "implement test"

@@ -102,6 +102,10 @@ module Zip
       def readlink(fileName)
 	raise NotImplementedError, "The readlink() function is not implemented to ZipFileSystem"
       end
+      
+      def symlink(fileName, symlinkName)
+	raise NotImplementedError, "The symlink() function is not implemented to ZipFileSystem"
+      end
     end
   end
 end
