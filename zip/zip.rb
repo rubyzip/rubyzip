@@ -1,11 +1,15 @@
 require 'delegate'
 require 'singleton'
-require 'zip/tempfile_bugfixed'
+require 'tempfile'
 require 'ftools'
 require 'zlib'
 require 'zip/stdrubyext'
 require 'zip/ioextras'
 
+if Tempfile.superclass == SimpleDelegator
+  require 'zip/tempfile_bugfixed'
+  Tempfile = BugFix::Tempfile
+end
 
 module Zlib
   if ! const_defined? :MAX_WBITS
@@ -1066,7 +1070,7 @@ module Zip
     end
     
     def get_tempfile
-      tempFile = BugFix::Tempfile.new(File.basename(name), File.dirname(name))
+      tempFile = Tempfile.new(File.basename(name), File.dirname(name))
       tempFile.binmode
       tempFile
     end
@@ -1116,7 +1120,7 @@ module Zip
   class ZipStreamableStream < DelegateClass(ZipEntry) #nodoc:all
     def initialize(entry)
       super(entry)
-      @tempFile = BugFix::Tempfile.new(File.basename(name), File.dirname(zipfile))
+      @tempFile = Tempfile.new(File.basename(name), File.dirname(zipfile))
       @tempFile.binmode
     end
 
