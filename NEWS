@@ -1,17 +1,23 @@
 = Version 0.5.0 =
 
-Changed method names from camelCase to rubys underscore style. Added
-ZipFile.directory and ZipFile.file - each method return an object that
-can be used like Dir and File only for the contents of the zip
-file. Added FileArchive module which ZipFile mix in. FileArchive
-provides filename globbing, regex selection, recursive
-extraction/addition, and other convenience methods. Now works with
-ruby 1.7.2. Added sample application zipfind which works like
-Find.find, only Zip::ZipFind.find traverses into zip archives too.
+* Compatible with ruby 1.8.0 and ruby-zlib 0.6.0
+
+* Changed method names from camelCase to rubys underscore style. 
+
+* Added ZipFile.directory and ZipFile.file - each method return an
+object that can be used like Dir and File only for the contents of the
+zip file. 
+
+* Added FileArchive module which ZipFile mix in. FileArchive provides
+filename globbing, regex selection, recursive extraction/addition, and
+other convenience methods. 
+
+* Added sample application zipfind which works like Find.find, only
+Zip::ZipFind.find traverses into zip archives too.
 
 Bug fixes:
-* AbstractInputStream.each_line with different separator
-* ruby-zlib 0.6.0 compatibility fix
+* AbstractInputStream.each_line with non-default separator
+
 
 = Version 0.5.0a =
 

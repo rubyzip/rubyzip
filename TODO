@@ -1,26 +1,19 @@
-Implement more unit tests
 
-AbstractFileSystemUtils.copy will continue as below.
-
-
-Refactoring:
-Rename the FileArchive module to AbstractFileSystemUtils, and refactor FileArchive.extract to AbstractFileSystemUtils.copy. Write (Local)FileSystem, which implements exists?, mkdir, open, etc in terms of calls to Dir and File. Implement a module ZipFileSystem, which has the same interface. AbstractFileSystemUtils.copy should then use the abstract FileSystem interface for access.
+Refactoring: 
+Rename the FileArchive module to AbstractFileSystemUtils, and refactor
+FileArchive.extract to AbstractFileSystemUtils.copy. Write
+(Local)FileSystem, which implements exists?, mkdir, open, etc in terms
+of calls to Dir and File. Implement a module ZipFileSystem, which has
+the same interface. AbstractFileSystemUtils.copy should then use the
+abstract FileSystem interface for access.
 
 change order of parameters in Zip::ZipFile.add (so it becomes src, dst)
-
-Change to ruby naming conventions for methods, e.g. get_inputstream, instead of getInputstream
 
 More unit tests for FileArchive.extract
 * Test createDirProc and continueIfExistProc
 * Test more error conditions
 
 Implement FileArchive.add() which relies on addEntry
-
-Change ZipFile (and ZipFileTest)
-* extract -> extractEntry
-* add -> addEntry
-* include FileArchive (and import filearchive.rb)
-
 
 unit test and implement:
 * openmode (binary, ascii) - only relevant on windows

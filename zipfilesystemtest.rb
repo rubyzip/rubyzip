@@ -667,10 +667,6 @@ class ZipFsDirectoryTest < RUNIT::TestCase
     }
   end
 
-  def test_indexOperator # ie []
-    fail "implement test"
-  end
-
   def test_foreach
     ZipFile.open(TEST_ZIP) {
       |zf|
@@ -706,6 +702,7 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   end
 
   def test_glob
+    # test alias []-operator too
     fail "implement test"
   end
 
