@@ -3,7 +3,8 @@
 rubyzip is a ruby library for reading and writing zip (pkzip format)
 files, with the restriction that only uncompressed and deflated zip
 entries are supported. All this library does is handling of the zip
-file format. the actual compression/decompression is handled by zlib
+file format. the actual compression/decompression is handled by
+zlib. zlib is accessible from ruby thanks to ruby/zlib (see resources)
 
 
 = Resources =
@@ -16,10 +17,12 @@ ruby-zlib: http://www.blue.sky.or.jp/atelier/#ruby-zlib
 
 This library requires ruby/zlib version 0.5.0 or newer.
 
+
 = LICENSE =
 
 rubyzip is distributed under the GPL. I'm considering a more liberal
 license, though.
+
 
 = AUTHOR =
 

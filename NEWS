@@ -1,4 +1,4 @@
-= Version 0.2.1 =
+= Version 0.2.2 =
 
 Fixed and extended unit test suite. Updated to work with ruby/zlib
 0.5. It doesn't work with earlier versions of ruby/zlib.
