@@ -18,8 +18,9 @@
 #   }
 #
 # To use the ruby module stored in the zip archive simply require
-# <code>zip/ziprequire</code> and include the zip en the search path. 
-# The following command shows one way to do this:
+# <code>zip/ziprequire</code> and include the <code>my.zip</code> zip 
+# file in the module search path. The following command shows one 
+# way to do this:
 #
 #   ruby -rzip/ziprequire -Imy.zip  -e " require 'log/simplelog'; simpleLog 'Hello world' "
 
