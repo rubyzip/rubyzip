@@ -3,17 +3,6 @@
 require 'ftools'
 require 'zip'
 
-class String
-  def endsWith(aString)
-    aStringSize = aString.size
-    slice(-aStringSize, aStringSize) == aString 
-  end
-
-  def ensureEnd(aString)
-    endsWith(aString) ? self : self + aString
-  end
-
-end
 
 
 module Glob

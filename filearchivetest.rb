@@ -6,24 +6,6 @@ require 'rubyunit'
 require 'filearchive'
 require 'fileutils'
 
-class StringExtensionsTest < RUNIT::TestCase
-  def test_endsWith
-    assert("hello".endsWith("o"))
-    assert("hello".endsWith("lo"))
-    assert("hello".endsWith("hello"))
-    assert(!"howdy".endsWith("o"))
-    assert(!"howdy".endsWith("oy"))
-    assert(!"howdy".endsWith("howdy doody"))
-    assert(!"howdy".endsWith("doody howdy"))
-  end
-
-  def test_ensureEnd
-    assert_equals("hello!", "hello!".ensureEnd("!"))
-    assert_equals("hello!", "hello!".ensureEnd("o!"))
-    assert_equals("hello!", "hello".ensureEnd("!"))
-    assert_equals("hello!", "hel".ensureEnd("lo!"))
-  end
-end
 
 class GlobTest < RUNIT::TestCase
 

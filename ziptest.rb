@@ -7,6 +7,37 @@ require 'zip'
 
 include Zip
 
+class StringExtensionsTest < RUNIT::TestCase
+
+  def test_startsWith
+    assert("hello".startsWith(""))
+    assert("hello".startsWith("h"))
+    assert("hello".startsWith("he"))
+    assert(! "hello".startsWith("hello there"))
+    assert(! "hello".startsWith(" he"))
+    assert_exception(NameError, "undefined method 'size' for nil") { 
+      "hello".startsWith(nil) 
+    }
+  end
+
+  def test_endsWith
+    assert("hello".endsWith("o"))
+    assert("hello".endsWith("lo"))
+    assert("hello".endsWith("hello"))
+    assert(!"howdy".endsWith("o"))
+    assert(!"howdy".endsWith("oy"))
+    assert(!"howdy".endsWith("howdy doody"))
+    assert(!"howdy".endsWith("doody howdy"))
+  end
+
+  def test_ensureEnd
+    assert_equals("hello!", "hello!".ensureEnd("!"))
+    assert_equals("hello!", "hello!".ensureEnd("o!"))
+    assert_equals("hello!", "hello".ensureEnd("!"))
+    assert_equals("hello!", "hel".ensureEnd("lo!"))
+  end
+end
+
 class AbstractInputStreamTest < RUNIT::TestCase
   # AbstractInputStream subclass that provides a read method
   
@@ -183,6 +214,26 @@ class ZipEntryTest < RUNIT::TestCase
     assert_equals("3", entries[3].to_s)
     assert_equals("4", entries[4].to_s)
     assert_equals("5", entries[5].to_s)
+  end
+
+  def testParentAsString
+    entry1 = ZipEntry.new("zf.zip", "a")
+    entry2 = ZipEntry.new("zf.zip", "a/")
+    entry3 = ZipEntry.new("zf.zip", "a/b")
+    entry4 = ZipEntry.new("zf.zip", "a/b/")
+    entry5 = ZipEntry.new("zf.zip", "a/b/c")
+    entry6 = ZipEntry.new("zf.zip", "a/b/c/")
+
+    assert_equals(nil, entry1.parentAsString)
+    assert_equals(nil, entry2.parentAsString)
+    assert_equals("a/", entry3.parentAsString)
+    assert_equals("a/", entry4.parentAsString)
+    assert_equals("a/b/", entry5.parentAsString)
+    assert_equals("a/b/", entry6.parentAsString)
+  end
+
+  def testEntryNameCannotStartWithSlash
+    assert_exception(ZipEntryNameError) { ZipEntry.new("zf.zip", "/hej/der") }
   end
 end
 
@@ -1020,6 +1071,25 @@ class ZipEntrySetTest < RUNIT::TestCase
     # demonstrate that this is a deep copy
     copy.entries[0].name = "a totally different name"
     assert(@zipEntrySet != copy)
+  end
+
+  def testParent
+    entries = [ 
+      ZipEntry.new("zf.zip", "a"),
+      ZipEntry.new("zf.zip", "a/"),
+      ZipEntry.new("zf.zip", "a/b"),
+      ZipEntry.new("zf.zip", "a/b/"),
+      ZipEntry.new("zf.zip", "a/b/c"),
+      ZipEntry.new("zf.zip", "a/b/c/")
+    ]
+    entrySet = ZipEntrySet.new(entries)
+    
+    assert_equals(nil, entrySet.parent(entries[0]))
+    assert_equals(nil, entrySet.parent(entries[1]))
+    assert_equals(entries[1], entrySet.parent(entries[2]))
+    assert_equals(entries[1], entrySet.parent(entries[3]))
+    assert_equals(entries[3], entrySet.parent(entries[4]))
+    assert_equals(entries[3], entrySet.parent(entries[5]))
   end
 end
 

@@ -16,6 +16,22 @@ unless Enumerable.instance_methods.include?("inject")
   end
 end
 
+class String
+  def startsWith(aString)
+    slice(0, aString.size) == aString
+  end
+
+  def endsWith(aString)
+    aStringSize = aString.size
+    slice(-aStringSize, aStringSize) == aString 
+  end
+
+  def ensureEnd(aString)
+    endsWith(aString) ? self : self + aString
+  end
+
+end
+
 class Time
   
   #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
@@ -324,6 +340,9 @@ module Zip
 		   compressedSize = 0, crc = 0, 
 		   compressionMethod = ZipEntry::DEFLATED, size = 0,
 		   time  = Time.now)
+      if name.startsWith("/")
+	raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
+      end
       @localHeaderOffset = 0
       @zipfile, @comment, @compressedSize, @crc, @extra, @compressionMethod, 
 	@name, @size = zipfile, comment, compressedSize, crc, 
@@ -553,6 +572,11 @@ module Zip
       }
     end
 
+    def parentAsString
+      val = name[/.*(?=[^\/](\/)?)/]
+      val == "" ? nil : val
+    end
+
     private
     def getRawInputStream(&aProc)
       File.open(@zipfile, "rb", &aProc)
@@ -762,13 +786,13 @@ module Zip
       return @entrySet == other.entrySet      
     end
 
+    def parent(entry)
+      @entrySet[entry.parentAsString]
+    end
+
+#TODO    attr_accessor :autoCreateDirectories
     protected
     attr_accessor :entrySet
-
-#    attr_accessor :autoCreateDirectories
-
-#    def parent(entry)
-#    end
   end
 
 
@@ -886,6 +910,7 @@ module Zip
   class ZipEntryExistsError            < ZipError; end
   class ZipDestinationFileExistsError  < ZipError; end
   class ZipCompressionMethodError      < ZipError; end
+  class ZipEntryNameError              < ZipError; end
 
   class ZipFile < ZipCentralDirectory
     CREATE = 1
