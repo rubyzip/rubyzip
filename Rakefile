@@ -7,6 +7,7 @@ require 'rake/packagetask'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/contrib/sshpublisher'
+require 'net/ftp'
 
 PKG_NAME = 'rubyzip'
 PKG_VERSION = File.read('lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
@@ -70,4 +71,18 @@ desc "Publish documentation"
 task :pdoc => [:rdoc] do
   Rake::SshFreshDirPublisher.
        new("thomas@rubyzip.sourceforge.net", "rubyzip/htdocs", "html").upload
+end
+
+desc "Publish package"
+task :ppackage => [:package] do
+  Net::FTP.open("upload.sourceforge.net", 
+                "ftp", 
+                ENV['USER']+"@"+ENV['HOSTNAME']) {
+    |ftpclient|
+    ftpclient.chdir "incoming"
+    Dir['pkg/*.{tgz,zip,gem}'].each {
+      |e|
+      ftpclient.putbinaryfile(e, File.basename(e))
+    }
+  }
 end
