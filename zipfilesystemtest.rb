@@ -218,7 +218,16 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_zero?
-    fail "implement test"
+    assert(! @zipFsFile.zero?("notAFile"))
+    assert(! @zipFsFile.zero?("file1"))
+    assert(@zipFsFile.zero?("dir1"))
+    blockCalled = false
+    ZipFile.open("4entry.zip") {
+      |zf|
+      blockCalled = true
+      assert(zf.fileSystem.file.zero?("empty.txt"))
+    }
+    assert(blockCalled)
   end
 
   def test_executable?
