@@ -26,8 +26,5 @@ patch -p0 < RUBYZIP_PATH/zlib.c.diff
 
 = Missing tests =
 
-zip.rb is only 280 lines. Go through it and check for each line
+zip.rb is under 500 lines. Go through it and check for each line
 whether there is a test for it!
-
-= todo for release 0.2.0 =
-Write ZipFile or ZipDir that reads the zip central directory
