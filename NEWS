@@ -4,10 +4,10 @@ Windows compatibility fixes.
 
 = Version 0.4.0 =
 
-ZipFile is now mutable and provides a more convenient way of modifying
-zip archives than ZipOutputStream. Operations for adding, extracting,
-renaming, replacing and removing entries to zip archives are now
-available.
+Zip::ZipFile is now mutable and provides a more convenient way of
+modifying zip archives than Zip::ZipOutputStream. Operations for
+adding, extracting, renaming, replacing and removing entries to zip
+archives are now available.
 
 Runs without warnings with -w switch.
 
