@@ -1329,12 +1329,13 @@ class ZipFileTest < CommonZipFileFixture
 
     zf = ZipFile.new(EMPTY_FILENAME, ZipFile::CREATE)
     zf.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
+    zf.mkdir("dir1")
     zf.comment = comment
     zf.close
 
     zfRead = ZipFile.new(EMPTY_FILENAME)
     assert_equals(comment, zfRead.comment)
-    assert_equals(1, zfRead.entries.length)
+    assert_equals(2, zfRead.entries.length)
   end
 
   def test_get_output_stream
