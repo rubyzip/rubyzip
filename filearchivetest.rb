@@ -34,7 +34,7 @@ class GlobTest < RUNIT::TestCase
   def test_globSimple
     assert_equals(["rip/"], Glob.glob(FILE_LIST, "rip/"))
     assert_equals([], Glob.glob(["rip"], "rip/"))
-  end
+ end
 
   def test_globQuestionMark
     assert_equals(["rip/"], Glob.glob(FILE_LIST, "ri?"))
@@ -66,7 +66,7 @@ class TestArchive
 
   def initialize(entries)
     @entries = entries
-    @extractedEntries = []
+    @extractedEntries = [] # TODO: remove this, use MockFileSystem instead
   end
 
   def each(&aProc)
@@ -74,9 +74,9 @@ class TestArchive
   end
 
   def extractEntry(src, dst)
-#    puts "extractEntry(#{src}, #{dst})"
     getEntry(src)
     @extractedEntries << dst
+    MockFileSystem.instance.createFile(dst)
   end
 
   def getEntry(src)
@@ -95,6 +95,10 @@ end
 class MockFileSystem
   include Singleton
 
+  def entries
+    @entries.keys
+  end
+  
   def initialize
     deleteAll
   end
@@ -104,7 +108,16 @@ class MockFileSystem
   end
 
   def mkdir(aPath)
+    dirname = Glob::FilePath.dirname(aPath)
+    if (dirname.size > 0 && ! directory?(dirname))
+      raise "MockFileSystem error: cannot create #{aPath}. " +
+      "Directory #{Glob::FilePath.dirname(aPath)} doesn't exists" 
+    end
     @entries[aPath.ensureEnd(File::SEPARATOR)] = nil
+  end
+
+  def createFile(aPath)
+    @entries[aPath] = nil
   end
 
   def exists?(aPath)
@@ -191,45 +204,45 @@ class FileArchiveTest < RUNIT::TestCase
 
   def test_extractAllRecursiveToDirectory
     @testArchive.extract("*", "odir1", FileArchive::RECURSIVE)
-    assertExtracted([ "dir1/",
-		      "dir1/dir2/",
-		      "dir1/dir2/entry121",
-		      "dir1/entry11",
-		      "dir3/",
-		      "dir3/dir4/",
-		      "dir3/dir4/entry341"])
-  end
-
-  def test_extractAllRecursiveToNewName
-    @testArchive.extract("*", "newName", FileArchive::RECURSIVE)
-    assertExtracted([ "newName/dir1/dir2/",
-		      "newName/dir1/dir2/entry121",
-		      "newName/dir1/entry11",
-		      "newName/dir3/dir4/entry341"])
+    assertExtracted([ "odir1/",
+		      "odir1/dir1/",
+		      "odir1/dir1/dir2/",
+		      "odir1/dir1/dir2/entry121",
+		      "odir1/dir1/entry11",
+		      "odir1/dir3/",
+		      "odir1/dir3/dir4/",
+		      "odir1/dir3/dir4/entry341"])
   end
 
   def test_extractOneRecursiveToDirectory
+    MockFileSystem.instance.mkdir("odir1")
+    MockFileSystem.instance.mkdir("odir1/odir2")
     @testArchive.extract("dir1", "odir1/odir2", FileArchive::RECURSIVE)
-    assertExtracted([ "odir1/odir2/dir1/dir2/",
+    assertExtracted([ "odir1/",
+		      "odir1/odir2/",
+		      "odir1/odir2/dir1/",
+		      "odir1/odir2/dir1/dir2/",
 		      "odir1/odir2/dir1/dir2/entry121",
 		      "odir1/odir2/dir1/entry11"])
   end
 
   def test_extractOneRecursiveToNewName
-    @testArchive.extract("dir1", "newName", FileArchive::RECURSIVE)
-    assertExtracted([ "newName/dir2/",
-		      "newName/dir2/entry121",
-		      "newName/entry11"])
+    @testArchive.extract("dir1", "odir1/odir2", FileArchive::RECURSIVE)
+    assertExtracted([ "odir1/odir2/",
+		      "odir1/odir2/dir2/",
+		      "odir1/odir2/dir2/entry121",
+		      "odir1/odir2/entry11"])
   end
 
   def test_extractOneToDirectory
+    MockFileSystem.instance.mkdir("odir1")
     @testArchive.extract("dir1", "odir1")
-    assertExtracted(["odir1/dir1"])
+    assertExtracted(["odir1/", "odir1/dir1/"])
   end
 
   def test_extractOneToNewName
-    @testArchive.extract("dir1", "newName")
-    assertExtracted(["newname"])
+    @testArchive.extract("dir1", "odir1")
+    assertExtracted(["odir1/"])
   end
 
   def test_noMatchForSource
@@ -238,8 +251,8 @@ class FileArchiveTest < RUNIT::TestCase
     }
   end
 
-  def assertExtracted(expectedExtractedEntries, testArchive = @testArchive)
-    assert_equals(expectedExtractedEntries.sort, testArchive.extractedEntries.sort)
+  def assertExtracted(expectedExtractedEntries)
+    assert_equals(expectedExtractedEntries.sort, MockFileSystem.instance.entries.sort)
   end
 
 end

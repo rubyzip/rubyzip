@@ -71,8 +71,12 @@ module Glob
     end
 
     def self.basename(aFilePath)
-      aFilePath.to_s.split(File::SEPARATOR).last
-      #      aFilePath.to_s.slice(Regexp.new("#{GlobPattern::NOT_PATH_SEPARATOR}*$"))
+      aFilePath.to_s.slice(Regexp.new("#{GlobPattern::NOT_PATH_SEPARATOR}*(#{File::SEPARATOR})?$"))
+    end
+
+    def self.dirname(aFilePath)
+      aFilePath.to_s.sub(Regexp.new("#{GlobPattern::NOT_PATH_SEPARATOR}*(#{File::SEPARATOR})?$"),
+			 "")
     end
   end
   
@@ -104,7 +108,7 @@ end # end of Glob module
 
 
 # Relies on:
-# * extract(src, dst)
+# * extractEntry(src, dst)
 # ** src may be a string or an entry object native to the container (e.g. ZipEntry for ZipFile) 
 # ** dst is a string
 module FileArchive
@@ -112,10 +116,9 @@ module FileArchive
   NONRECURSIVE = false
 
   # src can be String, ZipEntry or Enumerable of either
-  def extract(src, dst, recursive = RECURSIVE, 
+  def extract(src, dst, recursive = NONRECURSIVE, 
 	      continueOnExistsProc = proc { false }, 
 	      createDestDirectoryProc = proc { true } )
-    puts "extract(#{src}, #{dst}, #{recursive}, ...)"
     selectedEntries = expandSelection(src)
     case (selectedEntries.size)
     when 0
@@ -139,10 +142,10 @@ module FileArchive
   private :extractMultiple
 
   def extractSingle(src, dst, recursive, continueOnExistsProc, createDestDirectoryProc)
-    puts "destinationFilename(#{src}, #{dst}) = #{destinationFilename(src, dst)}"
-    extractEntry(src, destinationFilename(src, dst), &continueOnExistsProc)
+    destFilename = destinationFilename(src, dst)
+    extractEntry(src, destFilename, &continueOnExistsProc)
     if (recursive && Glob::FilePath.isDirectory(src))
-      extract(src+"*", destinationFilename(src, dst).ensureEnd(File::SEPARATOR)+src,
+      extract(src+"*", destFilename.ensureEnd(File::SEPARATOR),
 	      recursive, continueOnExistsProc, createDestDirectoryProc)
     end
   end
@@ -152,7 +155,8 @@ module FileArchive
     if File.directory?(destinationPath)
       return destinationPath.ensureEnd(File::SEPARATOR) + Glob::FilePath.basename(sourceFilePath)
     else
-      return sourceFilePath
+      return sourceFilePath.endsWith(File::SEPARATOR)? 
+      destinationPath.ensureEnd(File::SEPARATOR) : destinationPath	
     end
   end
   private :destinationFilename
@@ -176,7 +180,7 @@ module FileArchive
       raise Errno::EEXIST, 
 	"Could not create directory '#{filepath}' - a file already exists with that name"
     elsif createDirectoryProc.call
-      Dir.mkdir(filepath)
+      Dir.mkdir(filepath) # replace with something that does mkdir -p (create all dirs)
     else
       raise Errno::ENOENT, "No such file or directory - '#{filepath}'"
     end
