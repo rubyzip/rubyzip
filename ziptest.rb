@@ -693,7 +693,7 @@ class ZipOutputStreamTest < RUNIT::TestCase
     TEST_ZIP.entryNames.each {
       |entryName|
       zos.putNextEntry(entryName)
-      File.open(entryName) { |f| zos.write(f.read) }
+      File.open(entryName, "rb") { |f| zos.write(f.read) }
     }
   end
 end
