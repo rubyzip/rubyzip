@@ -514,8 +514,7 @@ module Zip
     end
     
     def == (other)
-      return false unless other.kind_of?(ZipEntry)
-
+      return false unless other.class == ZipEntry
       # Compares contents of local entry and exposed fields
       (@compressionMethod == other.compressionMethod &&
        @crc               == other.crc		     &&
@@ -527,7 +526,7 @@ module Zip
     end
 
     def <=> (other)
-      return self.to_s <=> other.to_s
+      return to_s <=> other.to_s
     end
 
     def getInputStream
@@ -575,7 +574,7 @@ module Zip
     def initialize(fileName)
       @fileName = fileName
       @outputStream = File.new(@fileName, "wb")
-      @entries = []
+      @entrySet = ZipEntrySet.new
       @compressor = NullCompressor.instance
       @closed = false
       @currentEntry = nil
@@ -620,7 +619,7 @@ module Zip
     
     def initNextEntry(entry, level = Zlib::DEFAULT_COMPRESSION)
       finalizeCurrentEntry
-      @entries << entry
+      @entrySet << entry
       entry.writeLocalEntry(@outputStream)
       @compressor = getCompressor(entry, level)
     end
@@ -636,7 +635,7 @@ module Zip
 
     def updateLocalHeaders
       pos = @outputStream.tell
-      @entries.each {
+      @entrySet.each {
 	|entry|
 	@outputStream.pos = entry.localHeaderOffset
 	entry.writeLocalEntry(@outputStream)
@@ -645,7 +644,7 @@ module Zip
     end
 
     def writeCentralDirectory
-      cdir = ZipCentralDirectory.new(@entries, @comment)
+      cdir = ZipCentralDirectory.new(@entrySet, @comment)
       cdir.writeToStream(@outputStream)
     end
 
@@ -718,6 +717,61 @@ module Zip
     attr_reader :size, :crc
   end
   
+
+  class ZipEntrySet
+    include Enumerable
+    
+    def initialize(anEnumerable = [])
+      @entrySet = {}
+      anEnumerable.each { |o| push(o) }
+    end
+
+    def include?(entry)
+      @entrySet.include?(entry.to_s)
+    end
+
+    def <<(entry)
+      @entrySet[entry.to_s] = entry
+    end
+    alias :push :<<
+
+    def size
+      @entrySet.size
+    end
+    alias :length :size
+
+    def delete(entry)
+      @entrySet.delete(entry.to_s) ? entry : nil
+    end
+
+    def each(&aProc)
+      @entrySet.values.each(&aProc)
+    end
+
+    def entries
+      @entrySet.values
+    end
+
+    # deep clone
+    def dup
+      newZipEntrySet = ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
+    end
+
+    def == (other)
+      return false unless other.kind_of?(ZipEntrySet)
+      return @entrySet == other.entrySet      
+    end
+
+    protected
+    attr_accessor :entrySet
+
+#    attr_accessor :autoCreateDirectories
+
+#    def parent(entry)
+#    end
+  end
+
+
   class ZipCentralDirectory #:nodoc:all
     include Enumerable
     
@@ -725,16 +779,20 @@ module Zip
     MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE = 65536 + 18
     STATIC_EOCD_SIZE = 22
 
-    attr_reader :size, :comment, :entries
+    attr_reader :size, :comment
     
-    def initialize(entries = [], comment = "")
-      @entries = entries
+    def entries
+      @entrySet.entries
+    end
+
+    def initialize(entries = ZipEntrySet.new, comment = "")
+      @entrySet = entries.kind_of?(ZipEntrySet) ? entries : ZipEntrySet.new(entries)
       @comment = comment
     end
 
     def writeToStream(io)
       offset = io.tell
-      @entries.each { |entry| entry.writeCDirEntry(io) }
+      @entrySet.each { |entry| entry.writeCDirEntry(io) }
       writeEOCD(io, offset)
     end
 
@@ -743,8 +801,8 @@ module Zip
 	[END_OF_CENTRAL_DIRECTORY_SIGNATURE,
         0                                  , # @numberOfThisDisk
 	0                                  , # @numberOfDiskWithStartOfCDir
-	@entries? @entries.size : 0        ,
-	@entries? @entries.size : 0        ,
+	@entrySet? @entrySet.size : 0        ,
+	@entrySet? @entrySet.size : 0        ,
 	cdirSize                           ,
 	offset                             ,
 	@comment ? @comment.length : 0     ].pack('VvvvvVVv')
@@ -754,7 +812,7 @@ module Zip
 
     def cdirSize
       # does not include eocd
-      @entries.inject { |value, entry| entry.cdirHeaderSize + value }
+      @entrySet.inject { |value, entry| entry.cdirHeaderSize + value }
     end
     private :cdirSize
 
@@ -777,9 +835,9 @@ module Zip
       rescue Errno::EINVAL
 	raise ZipError, "Zip consistency problem while reading central directory entry"
       end
-      @entries = []
+      @entrySet = ZipEntrySet.new
       @size.times {
-	@entries << ZipEntry.readCDirEntry(io)
+	@entrySet << ZipEntry.readCDirEntry(io)
       }
     end
     
@@ -805,7 +863,7 @@ module Zip
     end
     
     def each(&proc)
-      @entries.each(&proc)
+      @entrySet.each(&proc)
     end
 
     def ZipCentralDirectory.readFromStream(io)
@@ -818,7 +876,7 @@ module Zip
 
     def == (other)
       return false unless other.kind_of?(ZipCentralDirectory)
-      @entries == other.entries && comment == other.comment
+      @entrySet.entries.sort == other.entries.sort && comment == other.comment
     end
   end
   
@@ -840,12 +898,12 @@ module Zip
       if (File.exists?(fileName))
 	File.open(name, "rb") { |f| readFromStream(f) }
       elsif (create == ZipFile::CREATE)
-	@entries = []
+	@entrySet = ZipEntrySet.new
       else
 	raise ZipError, "File #{fileName} not found"
       end
       @create = create
-      @storedEntries = @entries.map{ |e| e.dup }
+      @storedEntries = @entrySet.dup
     end
     
     def ZipFile.open(fileName, create = nil)
@@ -887,14 +945,14 @@ module Zip
       checkEntryExists(entry, continueOnExistsProc, "add")
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       if isDirectory(newEntry, srcPath)
-	@entries << ZipStreamableDirectory.new(newEntry)
+	@entrySet << ZipStreamableDirectory.new(newEntry)
       else
-	@entries << ZipStreamableFile.new(newEntry, srcPath)
+	@entrySet << ZipStreamableFile.new(newEntry, srcPath)
       end
     end
     
     def remove(entry)
-      @entries.delete(getEntry(entry))
+      @entrySet.delete(getEntry(entry))
     end
     
     def rename(entry, newName, &continueOnExistsProc)
@@ -922,13 +980,13 @@ module Zip
     end
     
     def commit
-      return if ! commitRequired?
+     return if ! commitRequired?
       onSuccessReplace(name) {
 	|tmpFile|
 	ZipOutputStream.open(tmpFile) {
 	  |zos|
 
-	  @entries.each { |e| e.writeToZipOutputStream(zos) }
+	  @entrySet.each { |e| e.writeToZipOutputStream(zos) }
 	  zos.comment = comment
 	}
 	true
@@ -941,11 +999,11 @@ module Zip
     end
 
     def commitRequired?
-      return entries != @storedEntries || @create == ZipFile::CREATE
+      return @entrySet != @storedEntries || @create == ZipFile::CREATE
     end
 
     def findEntry(entry)
-      @entries.detect { 
+      @entrySet.detect { 
 	|e| 
 	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
       }
@@ -991,7 +1049,7 @@ module Zip
 
     def checkEntryExists(entryName, continueOnExistsProc, procedureName)
       continueOnExistsProc ||= proc { false }
-      if @entries.detect { |e| e.name == entryName }
+      if @entrySet.detect { |e| e.name == entryName }
 	if continueOnExistsProc.call
 	  remove getEntry(entryName)
 	else
@@ -1034,6 +1092,7 @@ module Zip
   class ZipStreamableFile < DelegateClass(ZipEntry) #:nodoc:all
     def initialize(entry, filepath)
       super(entry)
+      @delegate = entry
       @filepath = filepath
     end
 
@@ -1045,6 +1104,14 @@ module Zip
       aZipOutputStream.putNextEntry(self)
       aZipOutputStream << getInputStream { |is| is.read }
     end
+
+    def == (other)
+      return false unless other.class == ZipStreamableFile
+      @filepath == other.filepath && super(other.delegate)
+    end
+
+    protected
+    attr_reader :filepath, :delegate
   end
 
   class ZipStreamableDirectory < DelegateClass(ZipEntry) #:nodoc:all

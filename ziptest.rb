@@ -158,6 +158,8 @@ class ZipEntryTest < RUNIT::TestCase
 
     assert(entry7 != "hello")
     assert(entry7 != 12)
+
+    assert(entry7 != ZipStreamableFile.new(entry7, "aPath"))
   end
 
   def testCompare
@@ -385,12 +387,12 @@ module AssertEntry
     fileContents = ""
     File.open(filename, "rb") { |f| fileContents = f.read }
     if (fileContents != aString)
-      if (expected.length > 400 || actual.length > 400)
+      if (fileContents.length > 400 || aString.length > 400)
 	stringFile = filename + ".other"
 	File.open(stringFile, "wb") { |f| f << aString }
 	fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
       else
-	assert_equals(expected, actual)
+	assert_equals(fileContents, aString)
       end
     end
   end
@@ -937,6 +939,79 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
 
 end
 
+
+class ZipEntrySetTest < RUNIT::TestCase
+  ZIP_ENTRIES = [ 
+    ZipEntry.new("zipfile.zip", "name1", "comment1"),
+    ZipEntry.new("zipfile.zip", "name2", "comment1"),
+    ZipEntry.new("zipfile.zip", "name3", "comment1"),
+    ZipEntry.new("zipfile.zip", "name4", "comment1"),
+    ZipEntry.new("zipfile.zip", "name5", "comment1"),
+    ZipEntry.new("zipfile.zip", "name6", "comment1")
+  ]
+
+  def setup
+    @zipEntrySet = ZipEntrySet.new(ZIP_ENTRIES)
+  end
+
+  def testInclude
+    assert(@zipEntrySet.include?(ZIP_ENTRIES.first))
+    assert(! @zipEntrySet.include?(ZipEntry.new("different.zip", "different", "aComment")))
+  end
+
+  def testSize
+    assert_equals(ZIP_ENTRIES.size, @zipEntrySet.size)
+    assert_equals(ZIP_ENTRIES.size, @zipEntrySet.length)
+    @zipEntrySet << ZipEntry.new("a", "b", "c")
+    assert_equals(ZIP_ENTRIES.size + 1, @zipEntrySet.length)
+  end
+
+  def testAdd
+    zes = ZipEntrySet.new
+    entry1 = ZipEntry.new("zf.zip", "name1")
+    entry2 = ZipEntry.new("zf.zip", "name2")
+    zes << entry1
+    assert(zes.include?(entry1))
+    zes.push(entry2)
+    assert(zes.include?(entry2))
+  end
+
+  def testDelete
+    assert_equals(ZIP_ENTRIES.size, @zipEntrySet.size)
+    entry = @zipEntrySet.delete(ZIP_ENTRIES.first)
+    assert_equals(ZIP_ENTRIES.size - 1, @zipEntrySet.size)
+    assert_equals(ZIP_ENTRIES.first, entry)
+
+    entry = @zipEntrySet.delete(ZIP_ENTRIES.first)
+    assert_equals(ZIP_ENTRIES.size - 1, @zipEntrySet.size)
+    assert_nil(entry)
+  end
+
+  def testEach
+    # Tested indirectly via each_with_index
+    count = 0
+    @zipEntrySet.each_with_index { 
+      |entry, index|
+      assert(ZIP_ENTRIES.include?(entry))
+      count = count.succ
+    }
+    assert_equals(ZIP_ENTRIES.size, count)
+  end
+
+  def testEntries
+    assert_equals(ZIP_ENTRIES.sort, @zipEntrySet.entries.sort)
+  end
+
+  def testCompound
+    fail "implement compound test"
+  end
+
+  def testDup
+    fail "Implement test for dup"
+  end
+end
+
+
 class ZipCentralDirectoryTest < RUNIT::TestCase
 
   def test_readFromStream
@@ -945,7 +1020,7 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
       cdir = ZipCentralDirectory.readFromStream(zipFile)
 
       assert_equals(TestZipFile::TEST_ZIP2.entryNames.size, cdir.size)
-      assert(cdir.compareEnumerables(TestZipFile::TEST_ZIP2.entryNames) { 
+      assert(cdir.entries.sort.compareEnumerables(TestZipFile::TEST_ZIP2.entryNames.sort) { 
 		      |cdirEntry, testEntryName|
 		      cdirEntry.name == testEntryName
 		    })
@@ -983,7 +1058,7 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
     cdirReadback = ZipCentralDirectory.new
     File.open("cdirtest.bin", "rb") { |f| cdirReadback.readFromStream(f) }
     
-    assert_equals(cdir.entries, cdirReadback.entries)
+    assert_equals(cdir.entries.sort, cdirReadback.entries.sort)
   end
 
   def test_equality
@@ -1027,39 +1102,48 @@ class BasicZipFileTest < RUNIT::TestCase
     @testEntryNameIndex=0
   end
 
-  def nextTestEntryName
-    retVal=TestZipFile::TEST_ZIP2.entryNames[@testEntryNameIndex]
-    @testEntryNameIndex+=1
-    return retVal
-  end
-    
   def test_entries
-    assert_equals(TestZipFile::TEST_ZIP2.entryNames, @zipFile.entries.map {|e| e.name} )
+    assert_equals(TestZipFile::TEST_ZIP2.entryNames.sort, 
+		  @zipFile.entries.entries.sort.map {|e| e.name} )
   end
 
   def test_each
+    count = 0
+    visited = {}
     @zipFile.each {
       |entry|
-      assert_equals(nextTestEntryName, entry.name)
+      assert(TestZipFile::TEST_ZIP2.entryNames.include?(entry.name))
+      assert(! visited.include?(entry.name))
+      visited[entry.name] = nil
+      count = count.succ
     }
-    assert_equals(4, @testEntryNameIndex)
+    assert_equals(TestZipFile::TEST_ZIP2.entryNames.length, count)
   end
 
   def test_foreach
+    count = 0
+    visited = {}
     ZipFile.foreach(TestZipFile::TEST_ZIP2.zipName) {
       |entry|
-      assert_equals(nextTestEntryName, entry.name)
+      assert(TestZipFile::TEST_ZIP2.entryNames.include?(entry.name))
+      assert(! visited.include?(entry.name))
+      visited[entry.name] = nil
+      count = count.succ
     }
-    assert_equals(4, @testEntryNameIndex)
+    assert_equals(TestZipFile::TEST_ZIP2.entryNames.length, count)
   end
 
   def test_getInputStream
+    count = 0
+    visited = {}
     @zipFile.each {
       |entry|
-      assertEntry(nextTestEntryName, @zipFile.getInputStream(entry), 
-		  entry.name)
+      assertEntry(entry.name, @zipFile.getInputStream(entry), entry.name)
+      assert(! visited.include?(entry.name))
+      visited[entry.name] = nil
+      count = count.succ
     }
-    assert_equals(4, @testEntryNameIndex)
+    assert_equals(TestZipFile::TEST_ZIP2.entryNames.length, count)
   end
 
   def test_getInputStreamBlock
@@ -1204,7 +1288,7 @@ class ZipFileTest < CommonZipFileFixture
 
     ZipFile.open(TEST_ZIP.zipName) { 
       |zf| 
-      assert_equals(oldEntries.map{ |e| e.name }, zf.entries.map{ |e| e.name })
+      assert_equals(oldEntries.sort.map{ |e| e.name }, zf.entries.sort.map{ |e| e.name })
     }
   end
 
@@ -1213,17 +1297,19 @@ class ZipFileTest < CommonZipFileFixture
     ZipFile.open(TEST_ZIP.zipName) { |zf| oldEntries = zf.entries }
     
     gotCalled = false
+    renamedEntryName = nil
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
+      renamedEntryName = zf.entries[0].name
       zf.rename(zf.entries[0], zf.entries[1].name) { gotCalled = true; true }
     }
 
     assert(gotCalled)
-    oldEntries.delete_at(0)
+    oldEntries.delete_if { |e| e.name == renamedEntryName }
     ZipFile.open(TEST_ZIP.zipName) { 
       |zf| 
-      assert_equals(oldEntries.map{ |e| e.name }, 
-		    zf.entries.map{ |e| e.name })
+      assert_equals(oldEntries.sort.map{ |e| e.name }, 
+		    zf.entries.sort.map{ |e| e.name })
     }
   end
 
@@ -1252,15 +1338,12 @@ class ZipFileTest < CommonZipFileFixture
   end
 
   def test_replace
-    unchangedEntries = TEST_ZIP.entryNames.dup
-    entryToReplace = unchangedEntries.delete_at(2)
+    entryToReplace = TEST_ZIP.entryNames[2]
     newEntrySrcFilename = "file2.txt" 
-
     zf = ZipFile.new(TEST_ZIP.zipName)
     zf.replace(entryToReplace, newEntrySrcFilename)
     
     zf.close
-
     zfRead = ZipFile.new(TEST_ZIP.zipName)
     AssertEntry::assertContents(newEntrySrcFilename, 
 				zfRead.getInputStream(entryToReplace) { |is| is.read })
@@ -1372,7 +1455,7 @@ class ZipFileTest < CommonZipFileFixture
 	zf.add(filename, filename)
 	assertContains(zf, filename)
       }
-      assert_equals(zf.entries.map { |e| e.name }, TestFiles::ASCII_TEST_FILES)
+      assert_equals(zf.entries.sort.map { |e| e.name }, TestFiles::ASCII_TEST_FILES)
       
       zf.rename(TestFiles::ASCII_TEST_FILES[0], "newName")
       assertNotContains(zf, TestFiles::ASCII_TEST_FILES[0])
@@ -1533,6 +1616,24 @@ class ZipFileExtractDirectoryTest < CommonZipFileFixture
   end
 end
 
+class ZipStreamableFileTest < RUNIT::TestCase
+  def test_equality
+    zipEntry1 = ZipEntry.new("zf.zip", "entryname1", "comment")
+    zipEntry2 = ZipEntry.new("zf.zip", "entryname2", "comment")
+
+    zipStreamableFile1 = ZipStreamableFile.new(zipEntry1, "path")
+    zipStreamableFile2 = ZipStreamableFile.new(zipEntry1, "path")
+    zipStreamableFile3 = ZipStreamableFile.new(zipEntry1, "anotherPath")
+    zipStreamableFile4 = ZipStreamableFile.new(zipEntry2, "path")
+    
+    assert_equals(zipStreamableFile1, zipStreamableFile1)
+    assert_equals(zipStreamableFile1, zipStreamableFile2)
+    assert(zipStreamableFile1 != zipStreamableFile3)
+    assert(zipStreamableFile1 != zipStreamableFile4)
+    assert(zipStreamableFile1 != zipEntry1)
+    assert(zipStreamableFile1 != "hej")
+  end
+end
 
 END {
   if __FILE__ == $0

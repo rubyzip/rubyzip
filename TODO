@@ -46,6 +46,8 @@ Rename the FileArchive module to AbstractFileSystemUtils, and refactor FileArchi
 
 change order of parameters in Zip::ZipFile.add (so it becomes src, dst)
 
+Change to ruby naming conventions for methods, e.g. get_inputstream, instead of getInputstream
+
 More unit tests for FileArchive.extract
 * Test createDirProc and continueIfExistProc
 * Test more error conditions
