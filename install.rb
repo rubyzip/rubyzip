@@ -8,7 +8,7 @@ require 'ftools'
 
 include Config
 
-files = %w{ stdrubyext.rb ioextras.rb zip.rb zipfilesystem.rb ziprequire.rb }
+files = %w{ stdrubyext.rb ioextras.rb zip.rb zipfilesystem.rb ziprequire.rb tempfile_bugfixed.rb }
 
 INSTALL_DIR = File.join(CONFIG["sitelibdir"], "zip")
 File.makedirs(INSTALL_DIR)

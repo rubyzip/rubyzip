@@ -1,3 +1,7 @@
+= Version 0.5.4 =
+
+Significantly reduced memory footprint when modifying zip files.
+
 = Version 0.5.3 =
 
 Added optimization to avoid decompressing and recompressing individual
