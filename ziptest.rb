@@ -359,6 +359,11 @@ class TestZipFile
       raise "failed to create test zip '#{TEST_ZIP3.zipName}'" unless 
 	system("zip #{TEST_ZIP3.zipName} #{TEST_ZIP3.entryNames.join(' ')}")
     end
+  rescue 
+    raise $!.to_s + 
+      "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" +
+      "to create test data. If you don't have it you can download\n"   +
+      "the necessary test files at http://sf.net/projects/rubyzip."
   end
 
   TEST_ZIP1 = TestZipFile.new("empty.zip", [])
