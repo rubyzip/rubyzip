@@ -33,7 +33,7 @@ module Zip
     end
     
     def gets(aSepString=$/)
-      @outputBuffer="" unless @outputBuffer
+      @outputBuffer ||= ""
       return read if aSepString == nil
       aSepString="#{$/}#{$/}" if aSepString == ""
       
@@ -50,6 +50,7 @@ module Zip
     end
     
     def flush
+      @outputBuffer ||= ""
       retVal=@outputBuffer
       @outputBuffer=""
       return retVal
@@ -117,6 +118,7 @@ module Zip
       @archiveIO = File.open(filename, "rb")
       @archiveIO.seek(offset, IO::SEEK_SET)
       @decompressor = NullDecompressor.instance
+      @currentEntry = nil
     end
     
     def close
@@ -177,6 +179,7 @@ module Zip
       super
       @zlibInflater = Zlib::Inflate.new(-Zlib::Inflate::MAX_WBITS)
       @outputBuffer=""
+      @hasReturnedEmptyString = false
     end
     
     def read(numberOfBytes = nil)
@@ -265,6 +268,7 @@ module Zip
     
     def initialize(name = "", comment = "", extra = "", compressedSize = 0,   
 		   crc = 0, compressionMethod = ZipEntry::DEFLATED, size = 0)
+      @localHeaderOffset = 0
       @comment, @compressedSize, @crc, @extra, @compressionMethod, 
 	@name, @size, @isDirectory = comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
@@ -352,11 +356,11 @@ module Zip
       
       io << 
 	[LOCAL_ENTRY_SIGNATURE    ,
-	@version                  ,
-	@gpFlags                  ,
+	0                         , # @version                  ,
+	0                         , # @gpFlags                  ,
 	@compressionMethod        ,
-	@lastModTime              ,
-	@lastModDate              ,
+	0                         , # @lastModTime              ,
+	0                         , # @lastModDate              ,
 	@crc                      ,
 	@compressedSize           ,
 	@size                     ,
@@ -420,12 +424,12 @@ module Zip
     def writeCDirEntry(io)
       io << 
 	[CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
-	@version                          ,
-	@versionNeededToExtract           ,
-	@gpFlags                          ,
+	0                                 , # @version                          ,
+	0                                 , # @versionNeededToExtract           ,
+	0                                 , # @gpFlags                          ,
 	@compressionMethod                ,
-	@lastModTime                      ,
-	@lastModDate                      ,
+	0                                 , # @lastModTime                      ,
+	0                                 , # @lastModDate                      ,
 	@crc                              ,
 	@compressedSize                   ,
 	@size                             ,
@@ -433,8 +437,8 @@ module Zip
 	@extra ? @extra.length : 0        ,
 	@comment ? comment.length : 0     ,
 	0                                 , # disk number start
-	@internalFileAttributes           ,
-	@externalFileAttributes           ,
+	0                                 , # @internalFileAttributes           ,
+	0                                 , # @externalFileAttributes           ,
 	@localHeaderOffset                ,
 	@name                             ,
 	@extra                            ,
@@ -483,6 +487,9 @@ module Zip
       @outputStream = File.new(@fileName, "wb")
       @entries = []
       @compressor = NullCompressor.instance
+      @closed = false
+      @currentEntry = nil
+      @comment = nil
     end
 
     def ZipOutputStream.open(fileName)
@@ -707,7 +714,7 @@ module Zip
     end
     
     def each(&proc)
-      @entries.each &proc
+      @entries.each(&proc)
     end
 
     def ZipCentralDirectory.readFromStream(io)
@@ -734,6 +741,7 @@ module Zip
     
     def initialize(name)
       @name=name
+      @comment = ""
       File.open(name) {
 	|file|
 	readFromStream(file)
@@ -742,7 +750,7 @@ module Zip
     
     def BasicZipFile.foreach(aZipFileName, &block)
       zipFile = BasicZipFile.new(aZipFileName)
-      zipFile.each &block
+      zipFile.each(&block)
     end
     
     def getInputStream(entry)
@@ -772,6 +780,7 @@ module Zip
 
     def initialize(fileName, create = nil)
       @name = fileName
+      @comment = ""
       if (File.exists?(fileName))
 	super(fileName)
 	fixEntries
@@ -825,7 +834,7 @@ module Zip
     end
     
     def getInputStream(entry, &aProc)
-      getEntry(entry).getInputStream &aProc
+      getEntry(entry).getInputStream(&aProc)
     end
     
     def extract(entry, destPath, onExistsProc = proc { false })

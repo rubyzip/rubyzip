@@ -6,7 +6,6 @@ require 'zip'
 
 include Zip
 
-
 class AbstractInputStreamTest < RUNIT::TestCase
   # AbstractInputStream subclass that provides a read method
   
@@ -141,7 +140,7 @@ module IOizeString
   attr_reader :tell
   
   def read(count = nil)
-    @tell = 0 unless @tell
+    @tell ||= 0
     count = size unless count
     retVal = slice(@tell, count)
     @tell += count
@@ -149,6 +148,7 @@ module IOizeString
   end
 
   def seek(index, offset)
+    @tell ||= 0
     case offset
     when IO::SEEK_END
       newPos = size + index
@@ -164,6 +164,10 @@ module IOizeString
     else
       @tell=newPos
     end
+  end
+
+  def reset
+    @tell = 0
   end
 end
 
@@ -197,7 +201,7 @@ class ZipLocalEntryTest < RUNIT::TestCase
   def test_readLocalEntryFromTruncatedZipFile
     zipFragment=""
     File.open(TestZipFile::TEST_ZIP2.zipName) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
-    zipFragment.extend(IOizeString)
+    zipFragment.extend(IOizeString).reset
     entry = ZipEntry.new
     entry.readLocalEntry(zipFragment)
     fail "ZipError expected"
@@ -751,7 +755,7 @@ class ZipOutputStreamTest < RUNIT::TestCase
     begin
       zos = ZipOutputStream.open(name)
     rescue Exception
-      assert ($!.kind_of?(Errno::EISDIR) || $!.kind_of?(Errno::EEXIST),
+      assert($!.kind_of?(Errno::EISDIR) || $!.kind_of?(Errno::EEXIST),
 	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!}")
     end
   end
@@ -781,7 +785,7 @@ module Enumerable
     index=0
     each_with_index {
       |element, index|
-      return false unless yield (element, otherAsArray[index])
+      return false unless yield(element, otherAsArray[index])
     }
     return index+1 == otherAsArray.size
   end
@@ -1051,14 +1055,14 @@ class ZipFileTest < RUNIT::TestCase
     File.copy(TestZipFile::TEST_ZIP2.zipName, TEST_ZIP.zipName)
 
     zf = ZipFile.new(TEST_ZIP.zipName)
-    assert(zf.entries.map { |e| e.name }.include? (entryToRemove))
+    assert(zf.entries.map { |e| e.name }.include?(entryToRemove))
     zf.remove(entryToRemove)
-    assert(! zf.entries.map { |e| e.name }.include? (entryToRemove))
+    assert(! zf.entries.map { |e| e.name }.include?(entryToRemove))
     assert_equals(zf.entries.map {|x| x.name }.sort, remainingEntries.sort) 
     zf.close
 
     zfRead = ZipFile.new(TEST_ZIP.zipName)
-    assert(! zfRead.entries.map { |e| e.name }.include? (entryToRemove))
+    assert(! zfRead.entries.map { |e| e.name }.include?(entryToRemove))
     assert_equals(zfRead.entries.map {|x| x.name }.sort, remainingEntries.sort) 
     zfRead.close
   end
@@ -1080,12 +1084,12 @@ class ZipFileTest < RUNIT::TestCase
 
   def test_extractNonEntry
     zf = ZipFile.new(TEST_ZIP.zipName)
-    assert_exception(ZipError) { zf.extract("nonExistingEntry") }
+    assert_exception(ZipError) { zf.extract("nonExistingEntry", "nonExistingEntry") }
   ensure
     zf.close if zf
   end
 
-  def test_extractNonEntry
+  def test_extractNonEntry2
     outFile = "outfile"
     assert_exception(ZipError) {
       zf = ZipFile.new(TEST_ZIP.zipName)
@@ -1285,7 +1289,6 @@ end
 
 TestZipFile::createTestZips(ARGV.index("recreate") != nil)
 TestFiles::createTestFiles(ARGV.index("recreate") != nil)
-
 
 # Copyright (C) 2002 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or

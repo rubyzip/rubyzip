@@ -1,3 +1,10 @@
+= Version 0.4.0 =
+
+ZipFile is now mutable and provides a more convenient way of modifying
+zip archives than ZipOutputStream.
+
+Runs without warnings with -w switch.
+
 = Version 0.3.1 =
 
 Rudimentary support for writing zip archives.
