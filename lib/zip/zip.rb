@@ -1256,8 +1256,8 @@ module Zip
       register_map
 
       def initialize(binstr = nil)
-        @uid = nil
-        @gid = nil
+        @uid = 0
+        @gid = 0
         binstr and merge(binstr)
       end
       attr_accessor :uid, :gid

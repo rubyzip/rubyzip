@@ -1,7 +1,7 @@
 = Version 0.5.7 =
 
 Directory structure
-RubyUnit => Test::Unit 
+Migrated from RubyUnit to Test::Unit format.
 
 = Version 0.5.6 =
 
