@@ -588,14 +588,7 @@ module Zip
 
 
     def write_to_zip_output_stream(aZipOutputStream)  #:nodoc:all
-      aZipOutputStream.put_next_entry(self.dup)
-      aZipOutputStream << get_input_stream { |is| is.read }
-#      aZipOutputStream.put_next_entry(self.dup)
-#      aZipOutputStream << get_raw_input_stream { 
-#	|is| 
-#	is.seek(local_entry_offset, IO::SEEK_SET)
-#	is.read(compressed_size)
-#      }
+      aZipOutputStream.copy_raw_entry(self)
     end
 
     def parent_as_string
@@ -604,11 +597,11 @@ module Zip
       slash_index ? entry_name.slice(0, slash_index+1) : nil
     end
 
-    private
     def get_raw_input_stream(&aProc)
       File.open(@zipfile, "rb", &aProc)
     end
 
+    private
     def set_time(binaryDosDate, binaryDosTime)
       @time = Time.parse_binary_dos_format(binaryDosDate, binaryDosTime)
     rescue ArgumentError
@@ -655,6 +648,24 @@ module Zip
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@fileName, entry.to_s)
       init_next_entry(newEntry)
       @currentEntry=newEntry
+    end
+
+    def copy_raw_entry(entry)
+      entry = entry.dup
+      raise ZipError, "zip stream is closed" if @closed
+      raise ZipError, "entry is not a ZipEntry" if !entry.kind_of?(ZipEntry)
+      finalize_current_entry
+      @entrySet << entry
+      src_pos = entry.local_entry_offset
+      entry.write_local_entry(@outputStream)
+      @compressor = NullCompressor.instance
+      @outputStream << entry.get_raw_input_stream { 
+	|is| 
+	is.seek(src_pos, IO::SEEK_SET)
+	is.read(entry.compressed_size)
+      }
+      @compressor = NullCompressor.instance
+      @currentEntry = nil
     end
 
     private

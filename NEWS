@@ -1,3 +1,8 @@
+= Version 0.5.3 =
+
+Added optimization to avoid decompressing and recompressing individual
+entries when modifying a zip archive.
+
 = Version 0.5.2 =
 
 Fixed ZipFile corruption bug in ZipFile class. Added basic unix
