@@ -93,3 +93,18 @@ task :ChangeLog do
   system %{cvs2cl}
 end
 
+desc "Make a release"
+task :release => [:tag_release, :pdoc, :ppackage] do
+end
+
+desc "Make a release tag"
+task :tag_release do
+  tag = "release-#{PKG_VERSION.gsub('.','-')}"
+
+  puts "Checking for tag '#{tag}'"
+  if (Regexp.new("^\\s+#{tag}") =~ `cvs log README`)
+    abort "Tag '#{tag}' already exists"
+  end
+  puts "Tagging module with '#{tag}'"
+  system("cvs tag #{tag}")
+end
