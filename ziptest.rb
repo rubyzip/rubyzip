@@ -316,6 +316,10 @@ module AssertEntry
 
   def assertEntry(filename, zis, entryName)
     assert_equals(filename, entryName)
+    assertEntryContentsForStream(filename, zis, entryName)
+  end
+
+  def assertEntryContentsForStream(filename, zis, entryName)
     File.open(filename, "rb") {
       |file|
       expected = file.read
@@ -364,7 +368,7 @@ module AssertEntry
 
   def assertEntryContents(zipFile, entryName, filename = entryName.to_s)
     zis = zipFile.getInputStream(entryName)
-    assertEntry(filename, zis, entryName)
+    assertEntryContentsForStream(filename, zis, entryName)
   ensure 
     zis.close if zis
   end
@@ -1190,6 +1194,19 @@ class ZipFileTest < RUNIT::TestCase
     zfRead.close
 
     zf.close
+  end
+
+  # This test tests that after commit, you
+  # can delete the file you used to add the entry to the zip file
+  # with
+  def test_commitUseZipEntry
+    File.copy(TestFiles::RANDOM_ASCII_FILE1, "okToDelete.txt")
+    zf = ZipFile.open(TEST_ZIP.zipName)
+    zf.add("okToDelete.txt", "okToDelete.txt")
+    assertContains(zf, "okToDelete.txt")
+    zf.commit
+    File.move("okToDelete.txt", "okToDeleteMoved.txt")
+    assertContains(zf, "okToDelete.txt", "okToDeleteMoved.txt")
   end
 
 #  def test_close
