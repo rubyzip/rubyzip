@@ -260,11 +260,12 @@ module Zip
     attr_accessor  :comment, :compressedSize, :crc, :extra, :compressionMethod, 
       :name, :size, :localHeaderOffset
     
-    def initialize(name = "", comment = "", extra = "", compressedSize = 0,   
-		   crc = 0, compressionMethod = ZipEntry::DEFLATED, size = 0)
+    def initialize(zipfile = "", name = "", comment = "", extra = "", 
+		   compressedSize = 0, crc = 0, 
+		   compressionMethod = ZipEntry::DEFLATED, size = 0)
       @localHeaderOffset = 0
-      @comment, @compressedSize, @crc, @extra, @compressionMethod, 
-	@name, @size, @isDirectory = comment, compressedSize, crc, 
+      @zipfile, @comment, @compressedSize, @crc, @extra, @compressionMethod, 
+	@name, @size, @isDirectory = zipfile, comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
     end
     
@@ -338,7 +339,7 @@ module Zip
     end
     
     def ZipEntry.readLocalEntry(io)
-      entry = new()
+      entry = new(io.path)
       entry.readLocalEntry(io)
       return entry
     rescue ZipError
@@ -407,7 +408,7 @@ module Zip
     end
     
     def ZipEntry.readCDirEntry(io)
-      entry = new()
+      entry = new(io.path)
       entry.readCDirEntry(io)
       return entry
     rescue ZipError
@@ -455,8 +456,8 @@ module Zip
        @extra             == other.extra)
     end
 
-    def getInputStreamForZipFile(zipFileName)
-      zis = ZipInputStream.new(zipFileName, localHeaderOffset)
+    def getInputStream
+      zis = ZipInputStream.new(@zipfile, localHeaderOffset)
       zis.getNextEntry
       if block_given?
 	begin
@@ -467,6 +468,11 @@ module Zip
       else
 	return zis
       end
+    end
+
+    def writeToZipOutputStream(aZipOutputStream)
+      aZipOutputStream.putNextEntry(self.dup)
+      aZipOutputStream << getInputStream { |is| is.read }
     end
   end
 
@@ -505,7 +511,7 @@ module Zip
 
     def putNextEntry(entry, level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
-      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(entry.to_s)
+      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@fileName, entry.to_s)
       initNextEntry(newEntry)
       @currentEntry=newEntry
     end
@@ -730,54 +736,19 @@ module Zip
   class ZipError < RuntimeError
   end
   
-  class BasicZipFile < ZipCentralDirectory
-    attr_reader :name
-    
-    def initialize(name)
-      @name=name
-      @comment = ""
-      File.open(name) {
-	|file|
-	readFromStream(file)
-      }
-    end
-    
-    def BasicZipFile.foreach(aZipFileName, &block)
-      zipFile = BasicZipFile.new(aZipFileName)
-      zipFile.each(&block)
-    end
-    
-    def getInputStream(entry)
-      selectedEntry = getEntry(entry)
-      zis = selectedEntry.getInputStreamForZipFile(name)
-      return zis
-    end
-
-    def to_s
-      @name
-    end
-    
-    protected
-    def getEntry(entry)
-      selectedEntry = @entries.detect { |e| e.name == entry.to_s }
-      unless selectedEntry
-      raise ZipError, 
-	"No matching entry found in zip file '#{@name}' for '#{entry}'"
-      end
-      return selectedEntry
-    end
-  end
-
-
-  class ZipFile < BasicZipFile
+  class ZipFile < ZipCentralDirectory
     CREATE = 1
+
+    attr_reader :name
 
     def initialize(fileName, create = nil)
       @name = fileName
       @comment = ""
       if (File.exists?(fileName))
-	super(fileName)
-	fixEntries
+	File.open(name) {
+	  |file|
+	  readFromStream(file)
+	}
       elsif (create == ZipFile::CREATE)
 	@entries = []
       else
@@ -800,8 +771,21 @@ module Zip
 
     attr_writer :comment
 
+    def ZipFile.foreach(aZipFileName, &block)
+      zipFile = ZipFile.new(aZipFileName)
+      zipFile.each(&block)
+    end
+    
+    def getInputStream(entry, &aProc)
+      getEntry(entry).getInputStream(&aProc)
+    end
+    
+    def to_s
+      @name
+    end
+    
     def add(entry, srcPath) 
-      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(entry.to_s)
+      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       zipStreamable = ZipStreamableFile.new(newEntry, srcPath)
       @entries << zipStreamable
     end
@@ -827,10 +811,6 @@ module Zip
       add(remove(entry), srcPath)
     end
     
-    def getInputStream(entry, &aProc)
-      getEntry(entry).getInputStream(&aProc)
-    end
-    
     def extract(entry, destPath, onExistsProc = proc { false })
       foundEntry = getEntry(entry)
       writeFile(destPath, onExistsProc) { 
@@ -844,6 +824,7 @@ module Zip
 	|tmpFile|
 	ZipOutputStream.open(tmpFile) {
 	  |zos|
+
 	  @entries.each { |e| e.writeToZipOutputStream(zos) }
 	  zos.comment = comment
 	}
@@ -880,27 +861,21 @@ module Zip
       end
     end
     
-    def fixEntries
-      @entries.map! { |e| ZipStreamableZipEntry.new(e, name) }
-    end
-    
     def getTempfile
       Tempfile.new(File.basename(name), File.dirname(name)).binmode
     end
     
-  end
-
-
-  module ZipStreamable
-    def writeToZipOutputStream(aZipOutputStream)
-      aZipOutputStream.putNextEntry(self)
-      aZipOutputStream << getInputStream { |is| is.read }
+    def getEntry(entry)
+      selectedEntry = @entries.detect { |e| e.name == entry.to_s }
+      unless selectedEntry
+      raise ZipError, 
+	"No matching entry found in zip file '#{@name}' for '#{entry}'"
+      end
+      return selectedEntry
     end
   end
 
   class ZipStreamableFile < DelegateClass(ZipEntry)
-    include ZipStreamable
-
     def initialize(entry, filepath)
       super(entry)
       @filepath = filepath
@@ -910,18 +885,9 @@ module Zip
       File.open(@filepath, "rb", &aProc)
     end
     
-  end
-  
-  class ZipStreamableZipEntry < DelegateClass(ZipEntry)
-    include ZipStreamable
-
-    def initialize(entry, zipfile)
-      super(entry)
-      @zipfile = zipfile
-    end
-
-    def getInputStream(&aProc)
-      getInputStreamForZipFile @zipfile, &aProc
+    def writeToZipOutputStream(aZipOutputStream)
+      aZipOutputStream.putNextEntry(self)
+      aZipOutputStream << getInputStream { |is| is.read }
     end
   end
   

@@ -77,6 +77,7 @@ class AbstractInputStreamTest < RUNIT::TestCase
 end
 
 class ZipEntryTest < RUNIT::TestCase
+  TEST_ZIPFILE = "someZipFile.zip"
   TEST_COMMENT = "a comment"
   TEST_COMPRESSED_SIZE = 1234
   TEST_CRC = 325324
@@ -87,7 +88,8 @@ class ZipEntryTest < RUNIT::TestCase
   TEST_ISDIRECTORY = false
 
   def test_constructorAndGetters
-    entry = ZipEntry.new(TEST_NAME,
+    entry = ZipEntry.new(TEST_ZIPFILE,
+			 TEST_NAME,
 			 TEST_COMMENT,
 			 TEST_EXTRA,
 			 TEST_COMPRESSED_SIZE,
@@ -106,22 +108,30 @@ class ZipEntryTest < RUNIT::TestCase
   end
 
   def test_equality
-    entry1 = ZipEntry.new("name",  "isNotCompared",    "something extra", 
-			  123, 1234, ZipEntry::DEFLATED, 10000)  
-    entry2 = ZipEntry.new("name",  "isNotComparedXXX", "something extra", 
-			  123, 1234, ZipEntry::DEFLATED, 10000)  
-    entry3 = ZipEntry.new("name2", "isNotComparedXXX", "something extra", 
-			  123, 1234, ZipEntry::DEFLATED, 10000)  
-    entry4 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
-			  123, 1234, ZipEntry::DEFLATED, 10000)  
-    entry5 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
-			  12,  1234, ZipEntry::DEFLATED, 10000)  
-    entry6 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
-			  12,  123,  ZipEntry::DEFLATED, 10000)  
-    entry7 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
-			  12,  123,  ZipEntry::STORED,   10000)  
-    entry8 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
-			  12,  123,  ZipEntry::STORED,   100000)  
+    entry1 = ZipEntry.new("file.zip", "name",  "isNotCompared", 
+			  "something extra", 123, 1234, 
+			  ZipEntry::DEFLATED, 10000)  
+    entry2 = ZipEntry.new("file.zip", "name",  "isNotComparedXXX", 
+			  "something extra", 123, 1234, 
+			  ZipEntry::DEFLATED, 10000)  
+    entry3 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
+			  "something extra", 123, 1234, 
+			  ZipEntry::DEFLATED, 10000)  
+    entry4 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
+			  "something extraXX", 123, 1234, 
+			  ZipEntry::DEFLATED, 10000)  
+    entry5 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
+			  "something extraXX", 12,  1234, 
+			  ZipEntry::DEFLATED, 10000)  
+    entry6 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
+			  "something extraXX", 12,  123, 
+			  ZipEntry::DEFLATED, 10000)  
+    entry7 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
+			  "something extraXX", 12,  123,  
+			  ZipEntry::STORED,   10000)  
+    entry8 = ZipEntry.new("file.zip", "name2", "isNotComparedXXX", 
+			  "something extraXX", 12,  123,  
+			  ZipEntry::STORED,   100000)  
 
     assert_equals(entry1, entry1)
     assert_equals(entry1, entry2)
@@ -211,7 +221,8 @@ class ZipLocalEntryTest < RUNIT::TestCase
   end
 
   def test_writeEntry
-    entry = ZipEntry.new("entryName", "my little comment", "thisIsSomeExtraInformation", 100, 987654, 
+    entry = ZipEntry.new("file.zip", "entryName", "my little comment", 
+			 "thisIsSomeExtraInformation", 100, 987654, 
 			 ZipEntry::DEFLATED, 400)
     writeToFile("localEntryHeader.bin", "centralEntryHeader.bin",  entry)
     entryReadLocal, entryReadCentral = readFromFile("localEntryHeader.bin", "centralEntryHeader.bin")
@@ -904,9 +915,9 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   end
 
   def test_writeToStream
-    entries = [ ZipEntry.new("flimse", "myComment", "somethingExtra"),
-      ZipEntry.new("secondEntryName"),
-      ZipEntry.new("lastEntry.txt", "Has a comment too") ]
+    entries = [ ZipEntry.new("file.zip", "flimse", "myComment", "somethingExtra"),
+      ZipEntry.new("file.zip", "secondEntryName"),
+      ZipEntry.new("file.zip", "lastEntry.txt", "Has a comment too") ]
     cdir = ZipCentralDirectory.new(entries, "my zip comment")
     File.open("cdirtest.bin", "wb") { |f| cdir.writeToStream(f) }
     cdirReadback = ZipCentralDirectory.new
@@ -916,20 +927,24 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   end
 
   def test_equality
-    cdir1 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
-				     ZipEntry.new("secondEntryName"),
-				     ZipEntry.new("lastEntry.txt") ], 
+    cdir1 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
+						   "somethingExtra"),
+				     ZipEntry.new("file.zip", "secondEntryName"),
+				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
 				   "my zip comment")
-    cdir2 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
-				     ZipEntry.new("secondEntryName"),
-				     ZipEntry.new("lastEntry.txt") ], 
+    cdir2 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
+						   "somethingExtra"),
+				     ZipEntry.new("file.zip", "secondEntryName"),
+				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
 				   "my zip comment")
-    cdir3 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
-				     ZipEntry.new("secondEntryName"),
-				     ZipEntry.new("lastEntry.txt") ], 
+    cdir3 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
+						   "somethingExtra"),
+				     ZipEntry.new("file.zip", "secondEntryName"),
+				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
 				   "comment?")
-    cdir4 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
-				     ZipEntry.new("lastEntry.txt") ], 
+    cdir4 = ZipCentralDirectory.new([ ZipEntry.new("file.zip", "flimse", nil, 
+						   "somethingExtra"),
+				     ZipEntry.new("file.zip", "lastEntry.txt") ], 
 				   "comment?")
     assert_equals(cdir1, cdir1)
     assert_equals(cdir1, cdir2)
@@ -947,12 +962,8 @@ end
 class BasicZipFileTest < RUNIT::TestCase
   include AssertEntry
 
-  def zipFileClass
-    BasicZipFile
-  end
-
   def setup
-    @zipFile = zipFileClass.new(TestZipFile::TEST_ZIP2.zipName)
+    @zipFile = ZipFile.new(TestZipFile::TEST_ZIP2.zipName)
     @testEntryNameIndex=0
   end
 
@@ -975,7 +986,7 @@ class BasicZipFileTest < RUNIT::TestCase
   end
 
   def test_foreach
-    zipFileClass.foreach(TestZipFile::TEST_ZIP2.zipName) {
+    ZipFile.foreach(TestZipFile::TEST_ZIP2.zipName) {
       |entry|
       assert_equals(nextTestEntryName, entry.name)
     }
@@ -989,12 +1000,6 @@ class BasicZipFileTest < RUNIT::TestCase
 		  entry.name)
     }
     assert_equals(4, @testEntryNameIndex)
-  end
-end
-
-class ZipFileBasicZipFileTest < BasicZipFileTest
-  def zipFileClass
-    ZipFile
   end
 end
 
