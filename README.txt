@@ -6,6 +6,7 @@ entries are supported. All this library does is handling of the zip
 file format. the actual compression/decompression is handled by
 zlib. zlib is accessible from ruby thanks to ruby/zlib (see resources)
 
+To run the unit tests you need to have rubyunit installed.
 
 = Resources =
 
