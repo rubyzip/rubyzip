@@ -1,5 +1,9 @@
 = Version 0.5.4 =
 
+Fix for a problem with writing zip files that concerns only ruby 1.8.1.
+
+= Version 0.5.4 =
+
 Significantly reduced memory footprint when modifying zip files.
 
 = Version 0.5.3 =
