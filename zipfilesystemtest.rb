@@ -107,6 +107,11 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(@zipFile.file.file?("dir2/file21"))
     assert(! @zipFile.file.file?("dir1"))
     assert(! @zipFile.file.file?("dir1/dir11"))
+
+    assert(@zipFile.file.stat("file1").file?)
+    assert(@zipFile.file.stat("dir2/file21").file?)
+    assert(! @zipFile.file.stat("dir1").file?)
+    assert(! @zipFile.file.stat("dir1/dir11").file?)
   end
 
   def test_dirname
@@ -143,6 +148,18 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(! @zipFile.file.send(operation, "noSuchFile"))
     assert(! @zipFile.file.send(operation, "file1"))
     assert(! @zipFile.file.send(operation, "dir1"))
+    assert(! @zipFile.file.stat("noSuchFile").send(operation))
+    assert(! @zipFile.file.stat("file1").send(operation))
+    assert(! @zipFile.file.stat("dir1").send(operation))
+  end
+
+  def assertTrueIfEntryExists(operation)
+    assert(! @zipFile.file.send(operation, "noSuchFile"))
+    assert(@zipFile.file.send(operation, "file1"))
+    assert(@zipFile.file.send(operation, "dir1"))
+    assert(! @zipFile.file.stat("noSuchFile").send(operation))
+    assert(@zipFile.file.stat("file1").send(operation))
+    assert(@zipFile.file.stat("dir1").send(operation))
   end
 
   def test_pipe?
@@ -219,6 +236,13 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(@zipFile.file.directory?("dir1"))
     assert(@zipFile.file.directory?("dir1/"))
     assert(@zipFile.file.directory?("dir2/dir21"))
+
+    assert(! @zipFile.file.stat("notAFile").directory?)
+    assert(! @zipFile.file.stat("file1").directory?)
+    assert(! @zipFile.file.stat("dir1/file11").directory?)
+    assert(@zipFile.file.stat("dir1").directory?)
+    assert(@zipFile.file.stat("dir1/").directory?)
+    assert(@zipFile.file.stat("dir2/dir21").directory?)
   end
 
   def test_chown
@@ -259,39 +283,27 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 
 
   def test_readable?
-    assert(@zipFile.file.readable?("file1"))
-    assert(@zipFile.file.readable?("dir1"))
-    assert(! @zipFile.file.readable?("noSuchFile"))
+    assertTrueIfEntryExists(:readable?)
   end
 
   def test_readable_real?
-    assert(@zipFile.file.readable_real?("file1"))
-    assert(@zipFile.file.readable_real?("dir1"))
-    assert(! @zipFile.file.readable_real?("noSuchFile"))
+    assertTrueIfEntryExists(:readable_real?)
   end
 
   def test_writable?
-    assert(@zipFile.file.writable?("file1"))
-    assert(@zipFile.file.writable?("dir1"))
-    assert(! @zipFile.file.writable?("noSuchFile"))
+    assertTrueIfEntryExists(:writable?)
   end
 
   def test_writable_real?
-    assert(@zipFile.file.writable_real?("file1"))
-    assert(@zipFile.file.writable_real?("dir1"))
-    assert(! @zipFile.file.writable_real?("noSuchFile"))
+    assertTrueIfEntryExists(:writable_real?)
   end
 
   def test_executable?
-    assert(@zipFile.file.executable?("file1"))
-    assert(@zipFile.file.executable?("dir1"))
-    assert(! @zipFile.file.executable?("noSuchFile"))
+    assertTrueIfEntryExists(:executable?)
   end
 
   def test_executable_real?
-    assert(@zipFile.file.executable_real?("file1"))
-    assert(@zipFile.file.executable_real?("dir1"))
-    assert(! @zipFile.file.executable_real?("noSuchFile"))
+    assertTrueIfEntryExists(:executable_real?)
   end
 
   def test_readlink
@@ -363,81 +375,7 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 
 end
 
-class ZipFsFileStatTest < RUNIT::TestCase
-
-  def setup
-    @zipFile = ZipFile.new("zipWithDirs.zip")
-  end
-
-  def teardown
-    @zipFile.close if @zipFile
-  end
-
-  def assertAlwaysFalse(operation)
-    assert(! @zipFile.file.stat("noSuchFile").send(operation))
-    assert(! @zipFile.file.stat("file1").send(operation))
-    assert(! @zipFile.file.stat("dir1").send(operation))
-  end
-
-  def test_file?
-    assert(@zipFile.file.stat("file1").file?)
-    assert(@zipFile.file.stat("dir2/file21").file?)
-    assert(! @zipFile.file.stat("dir1").file?)
-    assert(! @zipFile.file.stat("dir1/dir11").file?)
-  end
-
-  def test_directory?
-    assert(! @zipFile.file.stat("notAFile").directory?)
-    assert(! @zipFile.file.stat("file1").directory?)
-    assert(! @zipFile.file.stat("dir1/file11").directory?)
-    assert(@zipFile.file.stat("dir1").directory?)
-    assert(@zipFile.file.stat("dir1/").directory?)
-    assert(@zipFile.file.stat("dir2/dir21").directory?)
-  end
-
-  def test_pipe?
-    assertAlwaysFalse(:pipe?)
-  end
-
-  def test_chardev?
-    assertAlwaysFalse(:chardev?)
-  end
-
-  def test_blockdev?
-    assertAlwaysFalse(:blockdev?)
-  end
-
-  def test_symlink?
-    assertAlwaysFalse(:symlink?)
-  end
-
-  def test_socket?
-    assertAlwaysFalse(:socket?)
-  end
-
-  def test_readable?
-    fail "Implement test"
-  end
-
-  def test_readable_real?
-    fail "Implement test"
-  end
-
-  def test_writable?
-    fail "Implement test"
-  end
-
-  def test_writable_real?
-    fail "Implement test"
-  end
-
-  def test_executable?
-    fail "Implement test"
-  end
-
-  def test_executable_real?
-    fail "Implement test"
-  end
+class ZipFsFileStatTest #< RUNIT::TestCase
 
   def test_setuid?
     fail "Implement test"

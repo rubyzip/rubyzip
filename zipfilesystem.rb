@@ -22,34 +22,16 @@ module Zip
           @zipFsFile = zipFsFile
           @entryName = entryName
         end
-
-        def file?
-          @zipFsFile.file?(@entryName)
+        
+        def forwardInvoke(msg)
+          @zipFsFile.send(msg, @entryName)
         end
 
-        def directory?
-          @zipFsFile.directory?(@entryName)
-        end
-
-        def pipe?
-          @zipFsFile.pipe?(@entryName)
-        end
-
-        def chardev?
-          @zipFsFile.chardev?(@entryName)
-        end
-
-        def blockdev?
-          @zipFsFile.blockdev?(@entryName)
-        end
-
-        def symlink?
-          @zipFsFile.symlink?(@entryName)
-        end
-
-        def socket?
-          @zipFsFile.socket?(@entryName)
-        end
+        forwardMessage :forwardInvoke, :file?, :directory?, :pipe?, :chardev?
+        forwardMessage :forwardInvoke, :symlink?, :socket?, :blockdev?
+        forwardMessage :forwardInvoke, :readable?, :readable_real?
+        forwardMessage :forwardInvoke, :writable?, :writable_real?
+        forwardMessage :forwardInvoke, :executable?, :executable_real?
 
       end
 
