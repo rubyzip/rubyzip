@@ -38,6 +38,9 @@ class String
     ends_with(aString) ? self : self + aString
   end
 
+  def lchop
+    slice(1, length)
+  end
 end
 
 class Time

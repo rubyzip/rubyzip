@@ -241,19 +241,19 @@ class ZipEntryTest < RUNIT::TestCase
   end
 
   def test_parentAsString
-    entry1 = ZipEntry.new("zf.zip", "a")
-    entry2 = ZipEntry.new("zf.zip", "a/")
-    entry3 = ZipEntry.new("zf.zip", "a/b")
-    entry4 = ZipEntry.new("zf.zip", "a/b/")
-    entry5 = ZipEntry.new("zf.zip", "a/b/c")
-    entry6 = ZipEntry.new("zf.zip", "a/b/c/")
+    entry1 = ZipEntry.new("zf.zip", "aa")
+    entry2 = ZipEntry.new("zf.zip", "aa/")
+    entry3 = ZipEntry.new("zf.zip", "aa/bb")
+    entry4 = ZipEntry.new("zf.zip", "aa/bb/")
+    entry5 = ZipEntry.new("zf.zip", "aa/bb/cc")
+    entry6 = ZipEntry.new("zf.zip", "aa/bb/cc/")
 
     assert_equals(nil, entry1.parent_as_string)
     assert_equals(nil, entry2.parent_as_string)
-    assert_equals("a/", entry3.parent_as_string)
-    assert_equals("a/", entry4.parent_as_string)
-    assert_equals("a/b/", entry5.parent_as_string)
-    assert_equals("a/b/", entry6.parent_as_string)
+    assert_equals("aa/", entry3.parent_as_string)
+    assert_equals("aa/", entry4.parent_as_string)
+    assert_equals("aa/bb/", entry5.parent_as_string)
+    assert_equals("aa/bb/", entry6.parent_as_string)
   end
 
   def test_entry_name_cannot_start_with_slash

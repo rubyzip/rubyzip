@@ -266,8 +266,15 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_expand_path
-    # Cannot implement before we have a concept of current dir for zip filesystem
-    fail "implement test"
+    ZipFile.open("zipWithDirs.zip") {
+      |zf|
+      assert_equals("/", zf.file.expand_path("."))
+      zf.dir.chdir "dir1"
+      assert_equals("/dir1", zf.file.expand_path("."))
+      assert_equals("/dir1/file12", zf.file.expand_path("file12"))
+      assert_equals("/", zf.file.expand_path(".."))
+      assert_equals("/dir2/dir21", zf.file.expand_path("../dir2/dir21"))
+    }
   end
 
   def test_mtime
@@ -599,15 +606,6 @@ class ZipFsDirectoryTest < RUNIT::TestCase
     }
   end
 
-
-  def test_open
-    fail "implement test"
-  end
-
-  def test_getwd
-    fail "implement test"
-  end
-
   def test_mkdir
     ZipFile.open(TEST_ZIP) {
       |zf|
@@ -625,16 +623,36 @@ class ZipFsDirectoryTest < RUNIT::TestCase
       assert(zf.file.directory?("newDir2"))
     }
   end
-
-  def test_chdir
+  
+  def test_open
     fail "implement test"
+  end
+
+  def test_pwd_chdir_entries
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert_equals("/", zf.dir.pwd)
+
+      assert_exception(Errno::ENOENT, "No such file or directory - no such dir") {
+        zf.dir.chdir "no such dir"
+      }
+      
+      assert_exception(Errno::EINVAL, "Invalid argument - file1") {
+        zf.dir.chdir "file1"
+      }
+
+      assert_equals(["dir1", "dir2", "file1"].sort, zf.dir.entries(".").sort)
+      zf.dir.chdir "dir1"
+      assert_equals("/dir1", zf.dir.pwd)
+      assert_equals(["dir11", "file11", "file12"], zf.dir.entries(".").sort)
+      
+      zf.dir.chdir "../dir2/dir21"
+      assert_equals("/dir2/dir21", zf.dir.pwd)
+      assert_equals(["dir221"].sort, zf.dir.entries(".").sort)
+    }
   end
 
   def test_indexOperator # ie []
-    fail "implement test"
-  end
-
-  def test_entries
     fail "implement test"
   end
 
@@ -647,11 +665,6 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   end
 
   def test_glob
-    fail "implement test"
-  end
-
-
-  def test_pwd
     fail "implement test"
   end
 

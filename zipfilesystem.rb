@@ -5,7 +5,6 @@ require 'zip'
 module Zip
   module ZipFileSystem
     
-    
     def dir
       @zipFsDir ||= ZipFsDir.new(self)
     end
@@ -79,7 +78,7 @@ module Zip
       end
       
       def exists?(fileName)
-	@zipFile.find_entry(fileName) != nil
+        expand_path(fileName) == "/" || @zipFile.find_entry(@zipFile.dir.expand_to_entry(fileName)) != nil
       end
       alias :exist? :exists?
       
@@ -114,8 +113,8 @@ module Zip
       end
 
       def directory?(fileName)
-	entry = @zipFile.find_entry(fileName)
-	entry != nil && entry.directory?
+	entry = @zipFile.find_entry(@zipFile.dir.expand_to_entry(fileName))
+	expand_path(fileName) == "/" || (entry != nil && entry.directory?)
       end
       
       def open(fileName, openMode = "r", &block)
@@ -245,7 +244,7 @@ module Zip
 
       def stat(fileName)
         if ! exists?(fileName)
-          raise Errno::ENOENT, "No such file or directory - #{fileName}"
+          raise Errno::ENOENT, fileName
         end
         ZipFsStat.new(self, fileName)
       end
@@ -284,12 +283,41 @@ module Zip
 
       alias :unlink :delete
 
+      def expand_path(aPath)
+        @zipFile.dir.expand_path(aPath)
+      end
     end
   end
 
   class ZipFsDir
+
     def initialize(zipFile)
       @zipFile = zipFile
+      @file = @zipFile.file
+      @pwd = "/"
+    end
+    
+    attr_reader :pwd
+    alias getwd pwd
+
+    def chdir(aDirectoryName)
+      unless @file.stat(aDirectoryName).directory?
+        raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
+      end
+      @pwd = expand_path(aDirectoryName)
+    end
+
+    def entries(aDirectoryName)
+      unless @file.stat(aDirectoryName).directory?
+        raise Errno::ENOTDIR, aDirectoryName
+      end
+      path = expand_path(aDirectoryName).lchop.ensure_end("/")
+
+      @zipFile.entries.select { 
+        |e| 
+        parent = e.parent_as_string
+        parent == path || (path == "/" && parent == nil ) 
+      }.map { |e| @file.basename(e.to_s.chomp("/")) }
     end
 
     def delete(entryName)
@@ -303,6 +331,17 @@ module Zip
 
     def mkdir(entryName, permissionInt = 0)
       @zipFile.mkdir(entryName, permissionInt)
+    end
+
+    def expand_path(aPath)
+      expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
+      expanded.gsub!(/\/\.(\/|$)/, "")
+      expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
+      expanded.empty? ? "/" : expanded
+    end
+
+    def expand_to_entry(aPath)
+      expand_path(aPath).lchop
     end
   end
 

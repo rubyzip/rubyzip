@@ -558,8 +558,9 @@ module Zip
     end
 
     def parent_as_string
-      val = name[/.*(?=[^\/](\/)?)/]
-      val == "" ? nil : val
+      entry_name = name.chomp("/")
+      slash_index = entry_name.rindex("/")
+      slash_index ? entry_name.slice(0, slash_index+1) : nil
     end
 
     private
