@@ -1,17 +1,12 @@
 
 unit test and implement:
-* glob module to support:
-** adding directories recursively
-** recursive extract
-** recursive extract with block for determining whether directories should be created.
-
+* globbing
+* adding directories recursively
+* recursive extract
+* recursive extract with block for determining whether directories should be created.
 * ZipFile.checkIntegrity method
 
-performance improve method
-ZipStreamableZipEntry.writeToZipOutputStream by not
-decompressing/compressing the data.
-
-release 0.4.2
+make release
 
 implement small gui app on top, to exercise library and to discover
 what features should be added to rubyzip.
@@ -20,7 +15,7 @@ implement setting the date correctly in ZipEntry with now as default
 
 implement storing attributes and ownership information
 
-release 0.4.3 with small gui demo app and fixes
+make release with small gui demo app and fixes
 
 unit test compressing and extracting with file permissions (and implement)
 
@@ -31,7 +26,7 @@ some more.
 
 move test files into test/ (remember binary CVS tags, when moving)
 
-release 0.4.4
+make release
 
 Write scarf-like
 (http://www.pragmaticprogrammer.com/ruby/downloads/scarf.html) ruby
