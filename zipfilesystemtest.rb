@@ -7,7 +7,7 @@ require 'rubyunit'
 
 include Zip
 
-class ZipFsFileTest < RUNIT::TestCase
+class ZipFsFileNonmutatingTest < RUNIT::TestCase
   def setup
     @zipFile = ZipFile.new("zipWithDirs.zip")
   end
@@ -216,10 +216,6 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_unlink
-    fail "implement test"
-  end
-
   def test_lstat
     fail "implement test"
   end
@@ -278,10 +274,6 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_readable?
-    fail "implement test"
-  end
-
-  def test_delete
     fail "implement test"
   end
 
@@ -358,6 +350,43 @@ class ZipFsFileTest < RUNIT::TestCase
 
 end
 
+class ZipFsFileMutatingTest < RUNIT::TestCase
+  TEST_ZIP = "zipWithDirs_copy.zip"
+  def setup
+    File.copy("zipWithDirs.zip", TEST_ZIP)
+  end
+
+  def teardown
+  end
+ 
+  def test_delete
+    doTest_deleteOrUnlink(:delete)
+  end
+
+  def test_unlink
+    doTest_deleteOrUnlink(:unlink)
+  end
+
+  def doTest_deleteOrUnlink(symbol)
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert(zf.file.exists?("dir2/dir21/dir221/file2221"))
+      zf.file.send(symbol, "dir2/dir21/dir221/file2221")
+      assert(! zf.file.exists?("dir2/dir21/dir221/file2221"))
+
+      assert(zf.file.exists?("dir1/file11"))
+      assert(zf.file.exists?("dir1/file12"))
+      zf.file.send(symbol, "dir1/file11", "dir1/file12")
+      assert(! zf.file.exists?("dir1/file11"))
+      assert(! zf.file.exists?("dir1/file12"))
+
+      assert_exception(Errno::ENOENT) { zf.file.send(symbol, "noSuchFile") }
+      assert_exception(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11") }
+      assert_exception(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11/") }
+    }
+  end
+
+end
 
 class ZipFsDirectoryTest #< RUNIT::TestCase
   def test_rmdir

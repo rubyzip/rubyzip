@@ -131,6 +131,19 @@ module Zip
       def foreach(fileName, aSep = $/, &aProc)
 	open(fileName) { |is| is.each_line(aSep, &aProc) }
       end
+
+      def delete(*args)
+	args.each { 
+	  |fileName|
+	  if directory?(fileName)
+	    raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
+	  end
+	  @zipFile.remove(fileName) 
+	}
+      end
+
+      alias :unlink :delete
+
     end
   end
 end
