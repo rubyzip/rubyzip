@@ -1,3 +1,46 @@
+Refactoring - plan II (Better I think)
+LocalFileSystem should be just this:
+
+class LocalFileSystem
+  include Singleton
+
+  def directory
+    Directory
+  end
+
+  def file
+    File
+  end
+end
+
+The convenience methods in ZipFile should be cleaned up/out.
+
+class ZipFileSystem
+  def initialize(zipFile)
+    @zipfile = zipfile
+  end
+
+  def directory
+    ZipFsDirectory.new(@zipfile)
+  end
+  once :directory
+
+  def file
+    ZipFsFile.new(@zipfile)
+  end
+  once :file
+end
+
+class ZipFile
+  def fileSystem
+    ZipFileSystem.new(self)
+  end
+  once: fileSystem
+end
+
+AbstractFileSystemUtils.copy will continue as below.
+
+
 Refactoring:
 Rename the FileArchive module to AbstractFileSystemUtils, and refactor FileArchive.extract to AbstractFileSystemUtils.copy. Write (Local)FileSystem, which implements exists?, mkdir, open, etc in terms of calls to Dir and File. Implement a module ZipFileSystem, which has the same interface. AbstractFileSystemUtils.copy should then use the abstract FileSystem interface for access.
 
