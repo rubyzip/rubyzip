@@ -84,12 +84,19 @@ end
 
 module Zip
   
+  module FakeIO
+    def kind_of?(object)
+      object == IO || super
+    end
+  end
+
   # Implements many of the convenience methods of IO
   # such as gets, getc, readline and readlines 
   # depends on: inputFinished?, produceInput and read
   module AbstractInputStream  
     include Enumerable
-    
+    include FakeIO
+
     def readlines(aSepString = $/)
       retVal = []
       each_line(aSepString) { |line| retVal << line }
@@ -139,6 +146,8 @@ module Zip
 
   #relies on <<
   module AbstractOutputStream 
+    include FakeIO
+
     def write(data)
       self << data
       data.to_s.length
@@ -174,10 +183,10 @@ module Zip
 
   end
   
-  
+
   class ZipInputStream 
     include AbstractInputStream
-    
+
     def initialize(filename, offset = 0)
       @archiveIO = File.open(filename, "rb")
       @archiveIO.seek(offset, IO::SEEK_SET)

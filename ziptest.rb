@@ -38,6 +38,23 @@ class StringExtensionsTest < RUNIT::TestCase
   end
 end
 
+
+class FakeIOTest < RUNIT::TestCase
+  class FakeIOUsingClass
+    include FakeIO
+  end
+
+  def test_kind_of?
+    obj = FakeIOUsingClass.new
+    
+    assert(obj.kind_of?(Object))
+    assert(obj.kind_of?(FakeIOUsingClass))
+    assert(obj.kind_of?(IO))
+    assert(!obj.kind_of?(Fixnum))
+    assert(!obj.kind_of?(String))
+  end
+end
+
 class AbstractInputStreamTest < RUNIT::TestCase
   # AbstractInputStream subclass that provides a read method
   
