@@ -1,6 +1,5 @@
 define finer grained exceptions
 
-unit test yield on ZipFile::getInputStream
 unit test adding directories (and implement)
 unit test adding directories recursively (and implement)
 unit test ZipFile.checkIntegrity method (and implement)

@@ -1005,6 +1005,16 @@ class BasicZipFileTest < RUNIT::TestCase
     }
     assert_equals(4, @testEntryNameIndex)
   end
+
+  def test_getInputStreamBlock
+    fileAndEntryName = @zipFile.entries.first.name
+    @zipFile.getInputStream(fileAndEntryName) {
+      |zis|
+      assertEntryContentsForStream(fileAndEntryName, 
+				   zis, 
+				   fileAndEntryName)
+    }
+  end
 end
 
 class CommonZipFileFixture < RUNIT::TestCase
