@@ -19,6 +19,8 @@ end
 
 module Zip
 
+  VERSION = '0.5.7'
+
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
   # Ruby 1.7.x compatibility

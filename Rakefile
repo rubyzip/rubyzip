@@ -7,7 +7,7 @@ require 'rake/packagetask'
 require 'rake/gempackagetask'
 
 PKG_NAME = 'rubyzip'
-PKG_VERSION = '0.5.7'
+PKG_VERSION = File.read('lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
 
 PKG_FILES = FileList.new
 
