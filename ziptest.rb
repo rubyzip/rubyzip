@@ -211,11 +211,12 @@ end
 # For representation and creation of
 # test data
 class TestZipFile
-  attr_reader :zipName, :entryNames
+  attr_reader :zipName, :entryNames, :comment
 
-  def initialize(zipName, entryNames)
+  def initialize(zipName, entryNames, comment = "")
     @zipName=zipName
     @entryNames=entryNames
+    @comment = comment
     @@testZips << self
   end
 
@@ -264,6 +265,8 @@ class TestZipFile
       }
       raise "failed to create test zip '#{TEST_ZIP2.zipName}'" unless 
 	system("zip #{TEST_ZIP2.zipName} #{TEST_ZIP2.entryNames.join(' ')}")
+      raise "failed to add comment to test zip '#{TEST_ZIP2.zipName}'" unless 
+	system("echo '#{TEST_ZIP2.comment}' | zip #{TEST_ZIP2.zipName}")
 
       raise "failed to create test zip '#{TEST_ZIP3.zipName}'" unless 
 	system("zip #{TEST_ZIP3.zipName} #{TEST_ZIP3.entryNames.join(' ')}")
@@ -271,8 +274,83 @@ class TestZipFile
   end
 
   TEST_ZIP1 = TestZipFile.new("empty.zip", [])
-  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin})
+  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin},
+			      "a nice comment")
   TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
+end
+
+module Enumerable
+  def compareEnumerables(otherEnumerable)
+    otherAsArray = otherEnumerable.to_a
+    index=0
+    each_with_index {
+      |element, index|
+      return false unless yield element otherAsArray[index]
+    }
+    return index+1 == otherAsArray.size
+  end
+end
+
+
+class ZipCentralDirectoryEntryTest < RUNIT::TestCase
+
+  def test_readFromStream
+    File.open("testDirectory.bin", "rb") {
+      |file|
+      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      
+      assert_equals("longAscii.txt", entry.name)
+      assert_equals(ZipEntry::DEFLATED, entry.compressionMethod)
+      assert_equals(106490, entry.size)
+      assert_equals(3784, entry.compressedSize)
+      assert_equals(0xfcd1799c, entry.crc)
+      assert_equals("", entry.comment)
+
+      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      assert_equals("empty.txt", entry.name)
+      assert_equals(ZipEntry::STORED, entry.compressionMethod)
+      assert_equals(0, entry.size)
+      assert_equals(0, entry.compressedSize)
+      assert_equals(0x0, entry.crc)
+      assert_equals("", entry.comment)
+
+      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      assert_equals("short.txt", entry.name)
+      assert_equals(ZipEntry::STORED, entry.compressionMethod)
+      assert_equals(6, entry.size)
+      assert_equals(6, entry.compressedSize)
+      assert_equals(0xbb76fe69, entry.crc)
+      assert_equals("", entry.comment)
+
+      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      assert_equals("longBinary.bin", entry.name)
+      assert_equals(ZipEntry::DEFLATED, entry.compressionMethod)
+      assert_equals(1000024, entry.size)
+      assert_equals(70847, entry.compressedSize)
+      assert_equals(0x10da7d59, entry.crc)
+      assert_equals("", entry.comment)
+
+      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      assert_equals(nil, entry)
+# Fields that are not check by this test:
+#          version made by                 2 bytes
+#          version needed to extract       2 bytes
+#          general purpose bit flag        2 bytes
+#          last mod file time              2 bytes
+#          last mod file date              2 bytes
+#          compressed size                 4 bytes
+#          uncompressed size               4 bytes
+#          disk number start               2 bytes
+#          internal file attributes        2 bytes
+#          external file attributes        4 bytes
+#          relative offset of local header 4 bytes
+
+#          file name (variable size)
+#          extra field (variable size)
+#          file comment (variable size)
+
+    }
+  end
 end
 
 class ZipCentralDirectoryTest < RUNIT::TestCase
@@ -281,26 +359,13 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
     File.open(TestZipFile::TEST_ZIP2.zipName, "rb") {
       |zipFile|
       cdir = ZipCentralDirectory.new(zipFile)
-      ######################################################################
-      # IN PROGRESS: write this test, then ZipCentralDirectory, 
-      # then ZipCentralDirectoryEntryTest, then ZipCentralDirectory,
-      # then check ZipFileTest, then write ZipFile
-      ######################################################################
 
-#  end of central dir signature    4 bytes  (0x06054b50)
-#          number of this disk             2 bytes
-#          number of the disk with the
-#          start of the central directory  2 bytes
-#          total number of entries in the
-#          central directory on this disk  2 bytes
-#          total number of entries in
-#          the central directory           2 bytes
-#          size of the central directory   4 bytes
-#          offset of start of central
-#          directory with respect to
-#          the starting disk number        4 bytes
-#          .ZIP file comment length        2 bytes
-#          .ZIP file comment       (variable size)
+      assert_equals(TestZipFile::TEST_ZIP2.entryNames.size, cdir)
+      assert_equals(cdir.compareEnumerables(TestZipFile::TEST_ZIP2.entryNames) { 
+		      |cdirEntry, testEntryName|
+		      cdirEntry.name == testEntryName
+		    })
+      assert_equals(TestZipFile::TEST_ZIP2.comment, cdir.comment)
     }
   end
 
@@ -314,8 +379,8 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   end
 end
 
-# TODO: Tests yet to write
-# ZipFile
+
+
 class ZipFileTest < RUNIT::TestCase
   include AssertEntry
 

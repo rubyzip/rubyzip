@@ -205,7 +205,7 @@ class ZipEntry
   end
 
   def isDirectory
-    return (/\/$/ =~ @name) != nil
+    return (%r{\/$} =~ @name) != nil
   end
 
   def localEntryOffset
@@ -240,7 +240,7 @@ class ZipLocalEntry < ZipEntry
   def readFromStream(io)
     unless (ZipEntry::readZipLong(io) == LOCAL_ENTRY_SIGNATURE)
       raise ZipError,
-	"Zip Local Header magic '#{LOCAL_ENTRY_SIGNATURE} not found"
+	"Zip local header magic '#{LOCAL_ENTRY_SIGNATURE} not found"
     end
     @localHeaderOffset = io. tell - 4
     @version           = ZipEntry::readZipShort(io)
@@ -266,20 +266,94 @@ class ZipLocalEntry < ZipEntry
   end
 end
 
-#  class ZipCentralDirectoryEntry < ZipEntry
-#    ZIP_CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
-  
-#    def readFromStream(io)
-#    end
-  
-#    def ZipCentralDirectoryEntry.readFromStream(io)
-#      entry = new()
-#      entry.readFromStream(io)
-#      return entry
-#    rescue ZipError
-#      return nil
-#    end
-#  end
+class ZipCentralDirectoryEntry < ZipEntry
+  CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
+
+  def readFromStream(io)
+    unless (ZipEntry::readZipLong(io) == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
+      raise ZipError,
+	"Zip central directory header magic '#{CENTRAL_DIRECTORY_ENTRY_SIGNATURE} not found"
+    end
+    @version                = ZipEntry::readZipShort(io)
+    @versionNeededToExtract = ZipEntry::readZipShort(io)
+    @gpFlags                = ZipEntry::readZipShort(io)
+    @compressionMethod      = ZipEntry::readZipShort(io)
+    @lastModTime            = ZipEntry::readZipShort(io) 
+    @lastModDate            = ZipEntry::readZipShort(io) 
+    @crc                    = ZipEntry::readZipLong(io) 
+    @compressedSize         = ZipEntry::readZipLong(io)
+    @size                   = ZipEntry::readZipLong(io)
+    nameLength              = ZipEntry::readZipShort(io)
+    extraLength             = ZipEntry::readZipShort(io)
+    commentLength           = ZipEntry::readZipShort(io)
+    diskNumberStart         = ZipEntry::readZipShort(io)
+    @internalFileAttributes = ZipEntry::readZipShort(io)
+    @externalFileAttributes = ZipEntry::readZipLong(io)
+    @localHeaderOffset      = ZipEntry::readZipLong(io)
+    @name                   = io.read(nameLength)
+    @extra                  = io.read(extraLength)
+    @comment                = io.read(commentLength)
+  end
+
+  def ZipCentralDirectoryEntry.readFromStream(io)
+    entry = new()
+    entry.readFromStream(io)
+    return entry
+  rescue ZipError
+    return nil
+  end
+end
+
+
+
+#        File header:
+
+#          central file header signature   4 bytes  (0x02014b50)
+#          version made by                 2 bytes
+#          version needed to extract       2 bytes
+#          general purpose bit flag        2 bytes
+#          compression method              2 bytes
+#          last mod file time              2 bytes
+#          last mod file date              2 bytes
+#          crc-32                          4 bytes
+#          compressed size                 4 bytes
+#          uncompressed size               4 bytes
+#          file name length                2 bytes
+#          extra field length              2 bytes
+#          file comment length             2 bytes
+#          disk number start               2 bytes
+#          internal file attributes        2 bytes
+#          external file attributes        4 bytes
+#          relative offset of local header 4 bytes
+
+#          file name (variable size)
+#          extra field (variable size)
+#          file comment (variable size)
+
+
+#  end of central dir signature    4 bytes  (0x06054b50)
+#          number of this disk             2 bytes
+#          number of the disk with the
+#          start of the central directory  2 bytes
+#          total number of entries in the
+#          central directory on this disk  2 bytes
+#          total number of entries in
+#          the central directory           2 bytes
+#          size of the central directory   4 bytes
+#          offset of start of central
+#          directory with respect to
+#          the starting disk number        4 bytes
+#          .ZIP file comment length        2 bytes
+#          .ZIP file comment       (variable size)
+
+
+
+#        Digital signature:
+
+#          header signature                4 bytes  (0x05054b50)
+#          size of data                    2 bytes
+#          signature data (variable size)
+
 
 class ZipError < RuntimeError
 end
