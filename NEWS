@@ -1,3 +1,7 @@
+= Version 0.4.1 =
+
+Windows compatibility fixes.
+
 = Version 0.4.0 =
 
 ZipFile is now mutable and provides a more convenient way of modifying
