@@ -23,11 +23,6 @@ class StringExtensionsTest < RUNIT::TestCase
     assert_equals("hello!", "hello".ensureEnd("!"))
     assert_equals("hello!", "hel".ensureEnd("lo!"))
   end
-
-  def test_ensureNotEnd
-    assert_equals("meep", "meepmeep".ensureNotEnd("meep"))
-    assert_equals("meepmeep", "meepmeep".ensureNotEnd("mee"))
-  end
 end
 
 class GlobTest < RUNIT::TestCase
@@ -153,8 +148,8 @@ class MockFileSystem
   end
 
   def getEntry(aPath)
-    aPathReduced = aPath.ensureNotEnd(File::SEPARATOR)
-    @entries.keys.find { |e| e.ensureNotEnd(File::SEPARATOR) == aPathReduced }
+    aPathReduced = aPath.chomp(File::SEPARATOR)
+    @entries.keys.find { |e| e.chomp(File::SEPARATOR) == aPathReduced }
   end
 end
 

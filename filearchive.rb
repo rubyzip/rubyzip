@@ -13,9 +13,6 @@ class String
     endsWith(aString) ? self : self + aString
   end
 
-  def ensureNotEnd(aString)
-    endsWith(aString) ? slice(0, size - aString.size) : self  
-  end
 end
 
 
