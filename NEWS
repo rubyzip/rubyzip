@@ -4,10 +4,12 @@ Added ZipFile.directory and ZipFile.file - each method return an
 object that can be used like Dir and File only for the contents of the
 zip file. Added FileArchive module which ZipFile mix in. FileArchive
 provides filename globbing, regex selection, recursive
-extraction/addition, and other convenience methods.
+extraction/addition, and other convenience methods. Now works with
+ruby 1.7.2.
 
 Bug fixes:
 * AbstractInputStream.each_line with different separator
+
 
 = Version 0.5.0a =
 

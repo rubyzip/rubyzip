@@ -12,16 +12,16 @@ end
 
 class ZipRequireTest < RUNIT::TestCase
   def test_require
-    assert(require 'notzippedruby')
+    assert(require('notzippedruby'))
     assert(!require('notzippedruby'))
 
-    assert(require 'zippedruby1')
+    assert(require('zippedruby1'))
     assert(!require('zippedruby1'))
 
-    assert(require 'zippedruby2')
+    assert(require('zippedruby2'))
     assert(!require('zippedruby2'))
 
-    assert(require 'zippedruby3')
+    assert(require('zippedruby3'))
     assert(!require('zippedruby3'))
 
     c1 = NotZippedRuby.new

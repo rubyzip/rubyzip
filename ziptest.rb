@@ -15,7 +15,9 @@ class StringExtensionsTest < RUNIT::TestCase
     assert("hello".startsWith("he"))
     assert(! "hello".startsWith("hello there"))
     assert(! "hello".startsWith(" he"))
-    assert_exception(NameError, "undefined method 'size' for nil") { 
+
+    expectedException = (RUBY_MINOR_VERSION > 6) ? NoMethodError : NameError
+    assert_exception(expectedException, "undefined method 'size' for nil") { 
       "hello".startsWith(nil) 
     }
   end
@@ -463,7 +465,7 @@ module AssertEntry
       expected = file.read
       actual   = zis.read
       if (expected != actual)
-	if (expected.length > 400 || actual.length > 400)
+	if ((expected && actual) && (expected.length > 400 || actual.length > 400))
 	  zipEntryFilename=entryName+".zipEntry"
 	  File.open(zipEntryFilename, "wb") { |file| file << actual }
 	  fail("File '#{filename}' is different from '#{zipEntryFilename}'")

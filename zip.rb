@@ -83,6 +83,8 @@ class Time
 end
 
 module Zip
+
+  RUBY_MINOR_VERSION = VERSION.split(".")[1].to_i
   
   module FakeIO
     def kind_of?(object)
@@ -274,7 +276,7 @@ module Zip
       super
       @zlibInflater = Zlib::Inflate.new(-Zlib::Inflate::MAX_WBITS)
       @outputBuffer=""
-      @hasReturnedEmptyString = false
+      @hasReturnedEmptyString = (RUBY_MINOR_VERSION >= 7)
     end
     
     def read(numberOfBytes = nil)
@@ -324,15 +326,15 @@ module Zip
       super inputStream
       @charsToRead = charsToRead
       @readSoFar = 0
-      @isFirst=true
+      @hasReturnedEmptyString = (RUBY_MINOR_VERSION >= 7)
     end
     
     # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
     def read(numberOfBytes = nil)
       if inputFinished?
-	isFirstVal=@isFirst
-	@isFirst=false
-	return "" if isFirstVal
+	hasReturnedEmptyStringVal=@hasReturnedEmptyString
+	@hasReturnedEmptyString=false
+	return "" unless hasReturnedEmptyStringVal
 	return nil
       end
       
@@ -886,7 +888,7 @@ module Zip
 
     def cdirSize
       # does not include eocd
-      @entrySet.inject { |value, entry| entry.cdirHeaderSize + value }
+      @entrySet.inject(0) { |value, entry| entry.cdirHeaderSize + value }
     end
     private :cdirSize
 
