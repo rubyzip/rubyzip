@@ -65,10 +65,10 @@ class ZipFsFileTest < RUNIT::TestCase
     }
   end
 
-#  def test_sticky?
-#    fail "implement test"
-#  end
-
+  def test_sticky?
+    fail "implement test"
+  end
+  
   def test_size
     assert_exception(Errno::ENOENT) { @zipFsFile.size("notAFile") }
     assert_equals(72, @zipFsFile.size("file1"))
@@ -171,7 +171,9 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_link
-    fail "implement test"
+    assert_exception(NotImplementedError) {
+      @zipFsFile.link("file1", "someOtherString")
+    }
   end
 
 #  def test_setgid?

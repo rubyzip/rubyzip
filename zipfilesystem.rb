@@ -106,6 +106,10 @@ module Zip
       def symlink(fileName, symlinkName)
 	raise NotImplementedError, "The symlink() function is not implemented to ZipFileSystem"
       end
+
+      def link(fileName, symlinkName)
+	raise NotImplementedError, "The link() function is not implemented to ZipFileSystem"
+      end
     end
   end
 end
