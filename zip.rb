@@ -5,6 +5,7 @@ require 'singleton'
 require 'tempfile'
 require 'ftools'
 require 'zlib'
+require 'zipfilesystem'
 
 module Enumerable  #:nodoc:all
   def inject(n = 0)
@@ -326,9 +327,10 @@ module Zip
       @time = time
     end
     
-    def isDirectory
+    def directory?
       return (%r{\/$} =~ @name) != nil
     end
+    alias :isDirectory :directory?
     
     def localEntryOffset  #:nodoc:all
       localHeaderOffset + localHeaderSize
@@ -864,7 +866,11 @@ module Zip
     def to_s
       @name
     end
-    
+
+    def fileSystem
+      @fileSystem ||= ZipFileSystem.new(self)
+    end
+
     def add(entry, srcPath, &continueOnExistsProc)
       continueOnExistsProc ||= proc { false }
       checkEntryExists(entry, continueOnExistsProc, "add")
@@ -925,6 +931,13 @@ module Zip
 
     def commitRequired?
       return entries != @storedEntries || @create == ZipFile::CREATE
+    end
+
+    def findEntry(entry)
+      @entries.detect { 
+	|e| 
+	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
+      }
     end
     
     private
@@ -997,10 +1010,7 @@ module Zip
     end
     
     def getEntry(entry)
-      selectedEntry = @entries.detect { 
-	|e| 
-	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
-      }
+      selectedEntry = findEntry(entry)
       unless selectedEntry
 	raise ZipNoSuchEntryError, 
 	  "No matching entry found in zip file '#{@name}' for '#{entry}'"
