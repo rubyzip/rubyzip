@@ -25,11 +25,29 @@ included in most recent ruby distributions.
 
 = Documentation
 
+There is more than one way to access or create a zip archive with
+rubyzip. The basic API is modelled after the classes in
+java.util.zip.* from the Java SDK. This means there are classes such
+as Zip::ZipInputStream, Zip::ZipOutputStream and
+Zip::ZipFile. Zip::ZipInputStream provides a basic interface for
+iterating through the entries in a zip archive and reading from the
+entries in the same way as from a regular File or IO
+object. ZipOutputStream is the corresponding basic output
+facility. Zip::ZipFile provides a mean for accessing the archives
+central directory and provides means for accessing any entry without
+having to iterate through the archive. Unlike Java's
+java.util.zip.ZipFile rubyzip's Zip::ZipFile is mutable, which means
+it can be used to change zip files as well.
+
+Another way to access a zip archive with rubyzip is to use rubyzip's
+lib/zip/zipfilesystem.rb API. Using this API files can be read from and written
+to the archive in much the same manner as ruby's builtin classes
+allows files to be read from and written to the file system.
+
 The samples/ directory is a good place to start to get a feel for
 using the library. For details about the specific behaviour of classes
 and methods refer to the test suite. Finally you can generate the rdoc
 documentation or visit http://rubyzip.sourceforge.net/doc.
-
 
 = License
 

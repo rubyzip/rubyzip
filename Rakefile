@@ -5,6 +5,7 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
+require 'rake/rdoctask'
 
 PKG_NAME = 'rubyzip'
 PKG_VERSION = File.read('lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
@@ -57,3 +58,9 @@ Rake::GemPackageTask.new(spec) do |pkg|
   pkg.need_tar = true
 end
 
+Rake::RDocTask.new do |rd|
+  rd.main = "README"
+  rd.rdoc_files.add %W{ README NEWS TODO lib/** }
+  rd.options << "--title 'rubyzip documentation' --webcvs http://cvs.sourceforge.net/viewcvs.py/rubyzip/rubyzip/"
+#  rd.options << "--all"
+end

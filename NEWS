@@ -1,39 +1,39 @@
-= Version 0.5.7 =
+= Version 0.5.7
 
 install.rb no longer assumes it is being run from the toplevel source
 dir. Directory structure changed to reflect common ruby library
 project structure. Migrated from RubyUnit to Test::Unit format.  Now
 uses Rake to build source packages and gems and run unit tests
 
-= Version 0.5.6 =
+= Version 0.5.6
 
 Fix for FreeBSD 4.9 which returns Errno::EFBIG instead of
 Errno::EINVAL for some invalid seeks. Fixed 'version needed to
 extract'-field incorrect in local headers.
 
-= Version 0.5.5 =
+= Version 0.5.5
 
 Fix for a problem with writing zip files that concerns only ruby 1.8.1.
 
-= Version 0.5.4 =
+= Version 0.5.4
 
 Significantly reduced memory footprint when modifying zip files.
 
-= Version 0.5.3 =
+= Version 0.5.3
 
 Added optimization to avoid decompressing and recompressing individual
 entries when modifying a zip archive.
 
-= Version 0.5.2 =
+= Version 0.5.2
 
 Fixed ZipFile corruption bug in ZipFile class. Added basic unix
 extra-field support.
 
-= Version 0.5.1 =
+= Version 0.5.1
 
 Fixed ZipFile.get_output_stream bug.
 
-= Version 0.5.0 =
+= Version 0.5.0
 
 List of changes:
 * Ruby 1.8.0 and ruby-zlib 0.6.0 compatibility
@@ -49,7 +49,7 @@ Bug fixes:
 * AbstractInputStream.each_line with non-default separator
 
 
-= Version 0.5.0a =
+= Version 0.5.0a
 
 Source reorganized. Added ziprequire, which can be used to load ruby
 modules from a zip file, in a fashion similar to jar files in
@@ -62,15 +62,15 @@ Bug fixes:
 * Fixed read() using separate buffer, causing mix of gets/readline/read to
 cause problems. 
 
-= Version 0.4.2 =
+= Version 0.4.2
 
 Performance optimizations. Test suite runs in half the time.
 
-= Version 0.4.1 =
+= Version 0.4.1
 
 Windows compatibility fixes.
 
-= Version 0.4.0 =
+= Version 0.4.0
 
 Zip::ZipFile is now mutable and provides a more convenient way of
 modifying zip archives than Zip::ZipOutputStream. Operations for
@@ -82,18 +82,18 @@ Runs without warnings with -w switch.
 Install script install.rb added.
 
 
-= Version 0.3.1 =
+= Version 0.3.1
 
 Rudimentary support for writing zip archives.
 
 
-= Version 0.2.2 =
+= Version 0.2.2
 
 Fixed and extended unit test suite. Updated to work with ruby/zlib
 0.5. It doesn't work with earlier versions of ruby/zlib.
 
 
-= Version 0.2.0 =
+= Version 0.2.0
 
 Class ZipFile added. Where ZipInputStream is used to read the
 individual entries in a zip file, ZipFile reads the central directory
@@ -101,6 +101,6 @@ in the zip archive, so you can get to any entry in the zip archive
 without having to skipping through all the preceeding entries.
 
 
-= Version 0.1.0 =
+= Version 0.1.0
 
 First working version of ZipInputStream.
