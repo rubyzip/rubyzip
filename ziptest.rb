@@ -7,7 +7,9 @@ require 'zip'
 
 include Zip
 
-Dir.chdir "test"
+if __FILE__ == $0
+  Dir.chdir "test"
+end
 
 module RUNIT
   class TestCaseDummy
@@ -1504,17 +1506,15 @@ class ZipFileExtractDirectoryTest < CommonZipFileFixture
 end
 
 
-
-
-
-TestFiles::createTestFiles(ARGV.index("recreate") != nil || 
-			   ARGV.index("recreateonly") != nil)
-TestZipFile::createTestZips(ARGV.index("recreate") != nil || 
-			    ARGV.index("recreateonly") != nil)
-exit if ARGV.index("recreateonly") != nil
-
-#require 'runit/cui/testrunner'
-#RUNIT::CUI::TestRunner.run(ZipFileTest.suite)
+END {
+  # This is before test::unit runs the test suite, but after the
+  # current directory has been set to test/
+  TestFiles::createTestFiles(ARGV.index("recreate") != nil || 
+			     ARGV.index("recreateonly") != nil)
+  TestZipFile::createTestZips(ARGV.index("recreate") != nil || 
+			      ARGV.index("recreateonly") != nil)
+  exit if ARGV.index("recreateonly") != nil
+}
 
 # Copyright (C) 2002 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or

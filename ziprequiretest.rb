@@ -6,7 +6,9 @@ require 'rubyunit'
 require 'ziprequire'
 $: << 'rubycode.zip' << 'rubycode2.zip'
 
-Dir.chdir "test"
+if __FILE__ == $0
+  Dir.chdir "test"
+end
 
 class ZipRequireTest < RUNIT::TestCase
   def test_require
