@@ -404,9 +404,12 @@ class TestFiles
   RANDOM_BINARY_FILE1 = "randomBinary1.bin"
   RANDOM_BINARY_FILE2 = "randomBinary2.bin"
 
+  EMPTY_TEST_DIR      = "emptytestdir"
+
   ASCII_TEST_FILES  = [ RANDOM_ASCII_FILE1, RANDOM_ASCII_FILE2, RANDOM_ASCII_FILE3 ] 
   BINARY_TEST_FILES = [ RANDOM_BINARY_FILE1, RANDOM_BINARY_FILE2 ]
-  TEST_FILES        = [ ASCII_TEST_FILES, BINARY_TEST_FILES ].flatten!
+  TEST_DIRECTORIES  = [ EMPTY_TEST_DIR ]
+  TEST_FILES        = [ ASCII_TEST_FILES, BINARY_TEST_FILES, EMPTY_TEST_DIR ].flatten!
 
   def TestFiles.createTestFiles(recreate)
     if (recreate || 
@@ -421,6 +424,8 @@ class TestFiles
 	|filename, index| 
 	createRandomBinary(filename, 1E4 * (index+1))
       }
+
+      ensureDir(EMPTY_TEST_DIR)
     end
   end
 
@@ -442,6 +447,15 @@ class TestFiles
       end
     }
   end
+
+  def TestFiles.ensureDir(name) 
+    if File.exists?(name)
+      return if File.stat(name).directory?
+      File.delete(name)
+    end
+    Dir.mkdir(name)
+  end
+
 end
 
 # For representation and creation of
@@ -733,22 +747,13 @@ class ZipOutputStreamTest < RUNIT::TestCase
   end
 
   def test_cannotOpenFile
-    name = "emptytestdir"
-    ensureDir(name)
+    name = TestFiles::EMPTY_TEST_DIR
     begin
       zos = ZipOutputStream.open(name)
     rescue Exception
       assert ($!.kind_of?(Errno::EISDIR) || $!.kind_of?(Errno::EEXIST),
 	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!}")
     end
-  end
-
-  def ensureDir(name) 
-    if File.exists?(name)
-      return if File.stat(name).directory?
-      File.delete(name)
-    end
-    Dir.mkdir(name)
   end
 
   def assertIOErrorInClosedStream
@@ -1028,8 +1033,16 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_addDirectory
-    # assert that it is added as a directory
-    fail "implement"
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      zf.add(TestFiles::EMPTY_TEST_DIR, TestFiles::EMPTY_TEST_DIR)
+    }
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      dirEntry = zf.entries.detect { |e| e == TestFiles::EMPTY_TEST_DIR+"/" } 
+      assert(dirEntry != nil)
+      assert(dirEntry.isDirectory)
+    }
   end
 
   def test_remove
@@ -1128,8 +1141,8 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_replace
-    unchangedEntries = TEST_ZIP.entryNames
-    entryToReplace = unchangedEntries.delete(2)
+    unchangedEntries = TEST_ZIP.entryNames.dup
+    entryToReplace = unchangedEntries.delete_at(2)
     newEntrySrcFilename = "ziptest.rb" 
 
     zf = ZipFile.new(TEST_ZIP.zipName)
@@ -1144,19 +1157,13 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_replaceNonEntry
-    # Simply adds the file
     entryToReplace = "nonExistingEntryname"
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    orgEntries = zf.entries.dup
-    zf.replace(entryToReplace, "ziptest.rb")
-    zf.commit
-
-    zfRead = ZipFile.new(TEST_ZIP.zipName)
-    assert_equals(orgEntries.push(entryToReplace),
-		  zfRead.entries.map { |e| e.name })
-  ensure
-    zf.close if zf
-    zfRead.close if zfRead
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      assert_exception(ZipError) {
+	zf.replace(entryToReplace, "ziptest.rb")
+      }
+    }
   end
 
   def test_commit

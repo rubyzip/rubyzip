@@ -842,6 +842,7 @@ module Zip
 	ZipOutputStream.open(tmpFile) {
 	  |zos|
 	  @entries.each { |e| e.writeToZipOutputStream(zos) }
+	  zos.comment = comment
 	}
 	true
       }
