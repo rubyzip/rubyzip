@@ -1,42 +1,9 @@
-Implement ZipFsDir.glob
-
-Refactoring: 
-Rename the FileArchive module to AbstractFileSystemUtils, and refactor
-FileArchive.extract to AbstractFileSystemUtils.copy. Write
-(Local)FileSystem, which implements exists?, mkdir, open, etc in terms
-of calls to Dir and File. Implement a module ZipFileSystem, which has
-the same interface. AbstractFileSystemUtils.copy should then use the
-abstract FileSystem interface for access.
-
-change order of parameters in Zip::ZipFile.add (so it becomes src, dst)
-
-More unit tests for FileArchive.extract
-* Test createDirProc and continueIfExistProc
-* Test more error conditions
-
-Implement FileArchive.add() which relies on addEntry
-
-unit test and implement:
-* openmode (binary, ascii) - only relevant on windows
-* globbing (Glob module implemented and unit tested, but not used)
-* adding directories recursively
-* recursive extract
-* recursive extract with block for determining whether directories should be created.
+* Implement ZipFsDir.glob
 * ZipFile.checkIntegrity method
 * non-MSDOS permission attributes
 ** See mail from Ned Konz to ruby-talk subj. "Re: SV: [ANN] Archive 0.2"
 * Packager version, required unpacker version in zip headers
 ** See mail from Ned Konz to ruby-talk subj. "Re: SV: [ANN] Archive 0.2"
-* Write interface adapters or adapt interface of rubyzip to become compatible with the "Archive module", which supports ar, tar and mbox
-
-implement small gui app on top, to exercise library and to discover
+* implement small gui app on top, to exercise library and to discover
 what features should be added to rubyzip next.
-
-implement storing attributes and ownership information
-
-make release
-
-Refactor ZipFileTest to reduce duplicated code, divide into different
-test classes if different fixtures are required and use setup/teardown
-some more. Clean up AssertEntry module.
-
+* implement storing attributes and ownership information

@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-require 'stdrubyext'
+require 'stdrubyexttest'
 require 'ziptest'
 require 'zipfilesystemtest'
 require 'ziprequiretest'
