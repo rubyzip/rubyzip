@@ -4,7 +4,7 @@ $VERBOSE = true
 
 require 'rubyunit'
 require 'filearchive'
-
+require 'fileutils'
 
 class StringExtensionsTest < RUNIT::TestCase
   def test_endsWith
@@ -83,9 +83,8 @@ class TestArchive
   include Enumerable
   include FileArchive
 
-  def initialize(entries)
+  def initialize(entries = [])
     @entries = entries
-    @extractedEntries = [] # TODO: remove this, use MockFileSystem instead
   end
 
   def each(&aProc)
@@ -94,8 +93,11 @@ class TestArchive
 
   def extractEntry(src, dst)
     getEntry(src)
-    @extractedEntries << dst
     MockFileSystem.instance.createFile(dst)
+  end
+
+  def addEntry(src, dst)
+    @entries << dst
   end
 
   def getEntry(src)
@@ -104,10 +106,6 @@ class TestArchive
       throw StandardError, "'#{src}' not found in #{@entries.join(", ")}"
     end
     entry
-  end
-
-  def extractedEntries
-    @extractedEntries
   end
 end
 
@@ -276,3 +274,60 @@ class FileArchiveTest < RUNIT::TestCase
 
 end
 
+class FileArchiveAddTest < RUNIT::TestCase
+  def setup
+    @testArchive = TestArchive.new
+  end
+
+  def test_addSingleFile
+    fail "implement"
+  end
+
+  def test_addRecursively
+    fail "implement"
+  end
+
+  def test_addMultipleWithFilenameGlobbing
+    fail "implement"
+  end
+
+  def test_addMultipleWithFilenameGlobbingRecursively
+    fail "implement"
+  end
+end
+
+class FileArchiveTestFiles
+
+  TEST_DIRECTORIES = [ 
+    "aDir", 
+    "aDir/aChildDir", 
+    "aDir/aChildDir/aSecondChildDir"
+  ]
+  
+  TEST_REGULAR_FILES = [ 
+    "aDir/file1", 
+    "aDir/aChildDir/file2", 
+    "aDir/aChildDir/file3", 
+    "aDir/aChildDir/aSecondChildDir/file4"
+  ]
+
+  TEST_FILES = TEST_DIRECTORIES + TEST_REGULAR_FILES
+
+  def self.create
+    TEST_FILES.each { |f| FileUtils.rm_rf f }
+    TEST_DIRECTORIES.sort.each { |d| Dir.mkdir d }
+    TEST_REGULAR_FILES.each { 
+      |filename|
+      File.open(filename, "w") { |f| f << "Test file '#{filename}'" }
+    }
+  end
+end
+
+END {
+  # before running the tests
+  if __FILE__ == $0
+    Dir.chdir "test"
+  end
+  
+  FileArchiveTestFiles.create
+}

@@ -7,10 +7,6 @@ require 'zip'
 
 include Zip
 
-if __FILE__ == $0
-  Dir.chdir "test"
-end
-
 module RUNIT
   class TestCaseDummy
   end
@@ -1507,8 +1503,10 @@ end
 
 
 END {
-  # This is before test::unit runs the test suite, but after the
-  # current directory has been set to test/
+  if __FILE__ == $0
+    Dir.chdir "test"
+  end
+
   TestFiles::createTestFiles(ARGV.index("recreate") != nil || 
 			     ARGV.index("recreateonly") != nil)
   TestZipFile::createTestZips(ARGV.index("recreate") != nil || 

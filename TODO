@@ -1,3 +1,5 @@
+change order of parameters in Zip::ZipFile.add (so it becomes src, dst)
+
 More unit tests for FileArchive.extract
 * Test createDirProc and continueIfExistProc
 * Test more error conditions
@@ -7,7 +9,7 @@ Implement FileArchive.add() which relies on addEntry
 Change ZipFile (and ZipFileTest)
 * extract -> extractEntry
 * add -> addEntry
-* include FileArchive (and import filearchive.rb"
+* include FileArchive (and import filearchive.rb)
 
 
 unit test and implement:
