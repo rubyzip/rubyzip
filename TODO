@@ -1,3 +1,4 @@
+
 define finer grained exceptions
 
 unit test adding directories (and implement)
@@ -8,6 +9,9 @@ unit test and implement recursive extract (and implement)
 performance improve method
 ZipStreamableZipEntry.writeToZipOutputStream by not
 decompressing/compressing the data.
+
+RDoc main files (short, must not get in the way in the source)
+Put rdoc on website
 
 release 0.4.0
 
