@@ -24,8 +24,7 @@ class StringExtensionsTest < RUNIT::TestCase
     assert(! "hello".starts_with("hello there"))
     assert(! "hello".starts_with(" he"))
 
-    expectedException = (VERSION.split(".")[1].to_i > 6) ? NoMethodError : NameError
-    assert_exception(expectedException, "undefined method 'size' for nil") { 
+    assert_exception(TypeError, "type mismatch: NilClass given") { 
       "hello".starts_with(nil) 
     }
   end

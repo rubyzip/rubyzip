@@ -1,4 +1,4 @@
-unless Enumerable.instance_methods(true).include?("inject")
+unless Enumerable.method_defined?(:inject)
   module Enumerable  #:nodoc:all
     def inject(n = 0)
       each { |value| n = yield(n, value) }
@@ -15,7 +15,7 @@ module Enumerable #:nodoc:all
   end
 end
 
-unless Object.instance_methods(true).include?("object_id")
+unless Object.method_defined?(:object_id)
   class Object
     # Using object_id which is the new thing, so we need
     # to make that work in versions prior to 1.8.0
@@ -34,12 +34,11 @@ end
 
 class String
   def starts_with(aString)
-    slice(0, aString.size) == aString
+    rindex(aString, 0) == 0
   end
 
   def ends_with(aString)
-    aStringSize = aString.size
-    slice(-aStringSize, aStringSize) == aString 
+    index(aString, -aString.size)
   end
 
   def ensure_end(aString)
