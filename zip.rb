@@ -753,7 +753,7 @@ module Zip
       @name = fileName
       @comment = ""
       if (File.exists?(fileName))
-	File.open(name) { |f| readFromStream(f) }
+	File.open(name, "rb") { |f| readFromStream(f) }
       elsif (create == ZipFile::CREATE)
 	@entries = []
       else

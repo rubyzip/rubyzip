@@ -530,7 +530,7 @@ class TestZipFile
       raise "failed to create test zip '#{TEST_ZIP2.zipName}'" unless 
 	system("zip #{TEST_ZIP2.zipName} #{TEST_ZIP2.entryNames.join(' ')}")
       raise "failed to add comment to test zip '#{TEST_ZIP2.zipName}'" unless 
-	system("echo '#{TEST_ZIP2.comment}' | zip -z #{TEST_ZIP2.zipName}")
+	system("echo #{TEST_ZIP2.comment} | zip -z #{TEST_ZIP2.zipName}")
 
       raise "failed to create test zip '#{TEST_ZIP3.zipName}'" unless 
 	system("zip #{TEST_ZIP3.zipName} #{TEST_ZIP3.entryNames.join(' ')}")
@@ -777,8 +777,10 @@ class ZipOutputStreamTest < RUNIT::TestCase
     begin
       zos = ZipOutputStream.open(name)
     rescue Exception
-      assert($!.kind_of?(Errno::EISDIR) || $!.kind_of?(Errno::EEXIST),
-	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!}")
+      assert($!.kind_of?(Errno::EISDIR) || # Linux 
+	     $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
+	     $!.kind_of?(Errno::EACCES),   # Windows
+	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.type}")
     end
   end
 
@@ -1031,6 +1033,7 @@ class CommonZipFileFixture < RUNIT::TestCase
   TEST_ZIP.zipName = "4entry_copy.zip"
 
   def setup
+    GC.start # TODO: remove
     File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)
     File.copy(TestZipFile::TEST_ZIP2.zipName, TEST_ZIP.zipName)
   end
@@ -1211,7 +1214,7 @@ class ZipFileTest < CommonZipFileFixture
 
     zfRead = ZipFile.new(TEST_ZIP.zipName)
     AssertEntry::assertContents(newEntrySrcFilename, 
-				zfRead.getInputStream(entryToReplace).read)
+				zfRead.getInputStream(entryToReplace) { |is| is.read })
     zfRead.close    
   end
 
@@ -1370,7 +1373,7 @@ class ZipFileExtractTest < CommonZipFileFixture
       
       assert(File.exists? EXTRACTED_FILENAME)
       AssertEntry::assertContents(EXTRACTED_FILENAME, 
-				  zf.getInputStream(ENTRY_TO_EXTRACT).read)
+				  zf.getInputStream(ENTRY_TO_EXTRACT) { |is| is.read })
     }
   end
 
