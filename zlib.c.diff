@@ -1,0 +1,11 @@
+--- zlib.c.org	Tue Jan  1 21:31:08 2002
++++ zlib.c	Tue Jan  1 21:32:41 2002
+@@ -514,7 +514,7 @@
+ 
+ 	Check_Type(val, T_FIXNUM);
+ 	wbits = FIX2INT(val);
+-	if (wbits < 8 || MAX_WBITS < wbits)
++	if (abs(wbits) < 8 || MAX_WBITS < abs(wbits))
+ 		rb_raise(rb_eArgError, "window bits out of range");
+ 	return wbits;
+ }
