@@ -2,6 +2,8 @@
 
 $VERBOSE = true
 
+$: << ".."
+
 require 'rubyunit'
 require 'zip/stdrubyext'
 

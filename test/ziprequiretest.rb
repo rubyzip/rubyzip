@@ -2,13 +2,12 @@
 
 $VERBOSE = true
 
+$: << ".."
+
 require 'rubyunit'
 require 'zip/ziprequire'
-$: << 'rubycode.zip' << 'rubycode2.zip'
 
-if __FILE__ == $0
-  Dir.chdir "test"
-end
+$: << 'rubycode.zip' << 'rubycode2.zip'
 
 class ZipRequireTest < RUNIT::TestCase
   def test_require

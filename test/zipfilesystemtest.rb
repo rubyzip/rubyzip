@@ -2,6 +2,8 @@
 
 $VERBOSE = true
 
+$: << ".."
+
 require 'zip/zipfilesystem'
 require 'rubyunit'
 
@@ -788,11 +790,6 @@ class ZipFsDirIteratorTest < RUNIT::TestCase
 
 end
 
-END {
-  if __FILE__ == $0
-    Dir.chdir "test"
-  end
-}
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or

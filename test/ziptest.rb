@@ -2,6 +2,8 @@
 
 $VERBOSE = true
 
+$: << ".."
+
 require 'rubyunit'
 require 'zip/zip'
 
@@ -1823,10 +1825,6 @@ class ZipStreamableFileTest < RUNIT::TestCase
 end
 
 END {
-  if __FILE__ == $0
-    Dir.chdir "test"
-  end
-
   TestFiles::create_test_files(ARGV.index("recreate") != nil || 
 			     ARGV.index("recreateonly") != nil)
   TestZipFile::create_test_zips(ARGV.index("recreate") != nil || 
