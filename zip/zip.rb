@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'delegate'
 require 'singleton'
 require 'zip/tempfile_bugfixed'

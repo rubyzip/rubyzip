@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'zip/zip'
 
 module Zip

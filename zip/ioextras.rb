@@ -1,6 +1,3 @@
-#!/usr/bin/env ruby
-
-
 module IOExtras
   module FakeIO
     def kind_of?(object)
