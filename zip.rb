@@ -13,6 +13,56 @@ module Enumerable  #:nodoc:all
   end
 end
 
+class Time
+  
+  #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
+  # 
+  # Register CX, the Time:
+  # Bits 0-4  2 second increments (0-29)
+  # Bits 5-10 minutes (0-59)
+  # bits 11-15 hours (0-24)
+  # 
+  # Register DX, the Date:
+  # Bits 0-4 day (1-31)
+  # bits 5-8 month (1-12)
+  # bits 9-15 year (four digit year minus 1980)
+  
+  
+  def toBinaryDosDate
+    (sec/2) +
+      (min  << 5) +
+      (hour << 11)
+  end
+
+  def toBinaryDosTime
+    (day) +
+      (month << 5) +
+      ((year - 1980) << 9)
+  end
+
+  # Dos time is only stored with two seconds accuracy
+  def dosEquals(other)
+    (year  == other.year   &&
+     month == other.month  &&
+     day   == other.day    &&
+     hour  == other.hour   &&
+     min   == other.min &&
+     sec/2 == other.sec/2)
+  end
+
+  def self.parseBinaryDosFormat(binaryDosDate, binaryDosTime)
+    second = 2 * (       0b11111 & binaryDosTime)
+    minute = (     0b11111100000 & binaryDosTime) >> 5 
+    hour   = (0b1111100000000000 & binaryDosTime) >> 11
+    day    = (           0b11111 & binaryDosDate) 
+    month  = (       0b111100000 & binaryDosDate) >> 5
+    year   = ((0b1111111000000000 & binaryDosDate) >> 9) + 1980
+    begin
+      return Time.local(year, month, day, hour, minute, second)
+    end
+  end
+end
+
 module Zip
   
   # Implements many of the convenience methods of IO
@@ -262,15 +312,17 @@ module Zip
     DEFLATED = 8
     
     attr_accessor  :comment, :compressedSize, :crc, :extra, :compressionMethod, 
-      :name, :size, :localHeaderOffset
+      :name, :size, :localHeaderOffset, :time
     
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
 		   compressedSize = 0, crc = 0, 
-		   compressionMethod = ZipEntry::DEFLATED, size = 0)
+		   compressionMethod = ZipEntry::DEFLATED, size = 0,
+		   time  = Time.now)
       @localHeaderOffset = 0
       @zipfile, @comment, @compressedSize, @crc, @extra, @compressionMethod, 
 	@name, @size = zipfile, comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
+      @time = time
     end
     
     def isDirectory
@@ -323,17 +375,18 @@ module Zip
 	@version          ,
 	@gpFlags          ,
 	@compressionMethod,
-	@lastModTime      ,
-	@lastModDate      ,
+	lastModTime       ,
+	lastModDate       ,
 	@crc              ,
 	@compressedSize   ,
 	@size             ,
 	nameLength        ,
 	extraLength       = staticSizedFieldsBuf.unpack('VvvvvvVVVvv') 
-      
+
       unless (localHeader == LOCAL_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
+      @time = Time.parseBinaryDosFormat(lastModDate, lastModTime)
       
       @name              = io.read(nameLength)
       @extra             = io.read(extraLength)
@@ -358,8 +411,8 @@ module Zip
 	0                         , # @version                  ,
 	0                         , # @gpFlags                  ,
 	@compressionMethod        ,
-	0                         , # @lastModTime              ,
-	0                         , # @lastModDate              ,
+	@time.toBinaryDosDate     , # @lastModTime              ,
+	@time.toBinaryDosTime     , # @lastModDate              ,
 	@crc                      ,
 	@compressedSize           ,
 	@size                     ,
@@ -383,8 +436,8 @@ module Zip
 	@versionNeededToExtract,
 	@gpFlags               ,
 	@compressionMethod     ,
-	@lastModTime           ,
-	@lastModDate           ,
+	lastModTime            ,
+	lastModDate            ,
 	@crc                   ,
 	@compressedSize        ,
 	@size                  ,
@@ -398,10 +451,11 @@ module Zip
 	@name                  ,
 	@extra                 ,
 	@comment               = staticSizedFieldsBuf.unpack('VvvvvvvVVVvvvvvVV')
-      
+
       unless (cdirSignature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
+      @time = Time.parseBinaryDosFormat(lastModDate, lastModTime)
       
       @name                  = io.read(nameLength)
       @extra                 = io.read(extraLength)
@@ -427,8 +481,8 @@ module Zip
 	0                                 , # @versionNeededToExtract           ,
 	0                                 , # @gpFlags                          ,
 	@compressionMethod                ,
-	0                                 , # @lastModTime                      ,
-	0                                 , # @lastModDate                      ,
+        @time.toBinaryDosDate             , # @lastModTime                      ,
+	@time.toBinaryDosTime             , # @lastModDate                      ,
 	@crc                              ,
 	@compressedSize                   ,
 	@size                             ,
@@ -457,7 +511,8 @@ module Zip
        @compressedSize    == other.compressedSize    &&
        @size              == other.size	             &&
        @name              == other.name	             &&
-       @extra             == other.extra)
+       @extra             == other.extra             &&
+       @time.dosEquals(other.time))
     end
 
     def getInputStream

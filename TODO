@@ -1,7 +1,4 @@
 
-write unit tests for ziprequire and improve the current
-proof-of-concept implementation.
-
 unit test and implement:
 * globbing (Glob module implemented and unit tested, but not used)
 * adding directories recursively
@@ -11,8 +8,6 @@ unit test and implement:
 
 implement small gui app on top, to exercise library and to discover
 what features should be added to rubyzip next.
-
-implement setting the date correctly in ZipEntry with now as default
 
 implement storing attributes and ownership information
 

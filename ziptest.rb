@@ -191,7 +191,7 @@ end
 
 class ZipLocalEntryTest < RUNIT::TestCase
   def test_readLocalEntryHeaderOfFirstTestZipEntry
-    File.open(TestZipFile::TEST_ZIP3.zipName) {
+    File.open(TestZipFile::TEST_ZIP3.zipName, "rb") {
       |file|
       entry = ZipEntry.readLocalEntry(file)
       
@@ -206,6 +206,15 @@ class ZipLocalEntryTest < RUNIT::TestCase
       assert_equal(TestZipFile::TEST_ZIP3.entryNames[0], entry.name)
       assert_equal(File.size(TestZipFile::TEST_ZIP3.entryNames[0]), entry.size)
       assert(! entry.isDirectory)
+    }
+  end
+
+  def test_readDateTime
+    File.open("rubycode.zip", "rb") {
+      |file|
+      entry = ZipEntry.readLocalEntry(file)
+      assert_equals("zippedruby1.rb", entry.name)
+      assert_equals(Time.local(2002, "Apr", 20, 02, 13, 58), entry.time)
     }
   end
 
