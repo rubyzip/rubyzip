@@ -1,0 +1,22 @@
+Rename ZipFile to SimpleZipFile and add
+
+class ZipFile < SimpleZipFile
+  def initialize(fileName); end
+  def add(entry, srcPath); end
+  def remove(entry); end
+  def rename(entry, newName); end
+  def replace(entry, srcPath); end
+  def extract(entry, destPath); end
+  def entries(entry); end
+  def each; end
+  def entries; end
+  def getInputStream(entry); end
+  def foreach(entry); end
+
+  def commit; end
+  def close; end
+end
+
+
+Add install.rb file
+
