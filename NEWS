@@ -1,3 +1,8 @@
+= Version 0.2.1 =
+
+Fixed and extended unit test suite. Updated to work with ruby/zlib
+0.5. It doesn't work with earlier versions of ruby/zlib.
+
 = Version 0.2.0 =
 
 Class ZipFile added. Where ZipInputStream is used to read the
