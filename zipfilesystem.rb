@@ -36,6 +36,10 @@ module Zip
 	raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
 	@zipFile.getInputStream(fileName, &block)
       end
+
+      def new(fileName, openMode = "r")
+	open(fileName, openMode)
+      end
       
       def size(fileName)
 	@zipFile.getEntry(fileName).size

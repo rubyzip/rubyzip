@@ -17,13 +17,13 @@ class ZipFsFileTest < RUNIT::TestCase
     @zipFile.close if @zipFile
   end
 
-#  def test_umask
-#    fail "implement test"
-#  end
+  def test_umask
+    fail "implement test"
+  end
 
-#  def test_atime
-#    fail "implement test"
-#  end
+  def test_atime
+    fail "implement test"
+  end
 
   def test_exists?
     assert(! @zipFsFile.exists?("notAFile"))
@@ -53,10 +53,31 @@ class ZipFsFileTest < RUNIT::TestCase
     assert_exception(Errno::ENOENT) {
       @zipFsFile.open("noSuchEntry")
     }
+
+    begin
+      is = @zipFsFile.open("file1")
+      assert_equals("this is the entry 'file1' in my test archive!", 
+		    is.readline.chomp)
+    ensure
+      is.close if is
+    end
   end
 
   def test_new
-    fail "implement test"
+    begin
+      is = @zipFsFile.new("file1")
+      assert_equals("this is the entry 'file1' in my test archive!", 
+		    is.readline.chomp)
+    ensure
+      is.close if is
+    end
+    begin
+      is = @zipFsFile.new("file1") {
+	fail "should not call block"
+      }
+    ensure
+      is.close if is
+    end
   end
 
   def test_symlink
