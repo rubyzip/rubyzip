@@ -344,6 +344,13 @@ module AssertEntry
       assertStreamContents(zis, testZipFile)
     }
   end
+
+  def assertEntryContents(zipFile, entryName, filename = entry.to_s)
+    zis = zipFile.getInputStream(entry)
+    assertEntry(filename, zis, entryName)
+  ensure 
+    zis.close
+  end
 end
 
 
@@ -390,6 +397,52 @@ class ZipInputStreamTest < RUNIT::TestCase
   
 end
 
+class TestFiles
+  RANDOM_ASCII_FILE1  = "randomAscii1.txt"
+  RANDOM_ASCII_FILE2  = "randomAscii2.txt"
+  RANDOM_ASCII_FILE3  = "randomAscii3.txt"
+  RANDOM_BINARY_FILE1 = "randomBinary1.bin"
+  RANDOM_BINARY_FILE2 = "randomBinary2.bin"
+
+  ASCII_TEST_FILES  = [ RANDOM_ASCII_FILE1, RANDOM_ASCII_FILE2, RANDOM_ASCII_FILE3 ] 
+  BINARY_TEST_FILES = [ RANDOM_BINARY_FILE1, RANDOM_BINARY_FILE2 ]
+  TEST_FILES        = [ ASCII_TEST_FILES, BINARY_TEST_FILES ].flatten!
+
+  def TestFiles.createTestFiles(recreate)
+    if (recreate || 
+	! (TEST_FILES.inject(true) { |accum, element| accum && File.exists?(element) }))
+      
+      ASCII_TEST_FILES.each_with_index { 
+	|filename, index| 
+	createRandomAscii(filename, 1E4 * (index+1))
+      }
+      
+      BINARY_TEST_FILES.each_with_index { 
+	|filename, index| 
+	createRandomBinary(filename, 1E4 * (index+1))
+      }
+    end
+  end
+
+  private
+  def TestFiles.createRandomAscii(filename, size)
+    File.open(filename, "wb") {
+      |file|
+      while (file.tell < size)
+	file << rand
+      end
+    }
+  end
+
+  def TestFiles.createRandomBinary(filename, size)
+    File.open(filename, "wb") {
+      |file|
+      while (file.tell < size)
+	file << rand.to_a.pack("V")
+      end
+    }
+  end
+end
 
 # For representation and creation of
 # test data
@@ -1128,30 +1181,104 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_compound1
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    zf.close
-    # Add a few big files
-    # commit
-    # assert contents
-    # remove a few entries, rename some, delete one
-    # assert contents
-    fail "implement"
+    renamedName = "renamedName"
+    originalEntries = []
+    begin
+      zf = ZipFile.new(TEST_ZIP.zipName)
+      originalEntries = zf.entries.dup
+
+      assertContains(zf, TestFiles::RANDOM_ASCII_FILE1)
+      zf.add(TestFiles::RANDOM_ASCII_FILE1, 
+	     TestFiles::RANDOM_ASCII_FILE1)
+      assertContains(zf, TestFiles::RANDOM_ASCII_FILE1)
+
+
+      zf.rename(zf.entries[0], renamedName)
+      assertContains(zf, renamedName)
+
+
+      TestFiles::BINARY_TEST_FILES.each {
+	|filename|
+	zf.add(filename, filename)
+	assertContains(zf, filename)
+      }
+
+      assertContains(originalEntries.last)
+      zf.remove(originalEntries.last)
+      assertNotContains(originalEntries.last)
+      
+    ensure
+      zf.close
+    end
+    begin
+      zfRead = ZipFile.new(TEST_ZIP.zipName)
+      assertContains(zfRead, TestFiles::RANDOM_ASCII_FILE1)
+      assertContains(zfRead, renamedName)
+      TestFiles::BINARY_TEST_FILES.each {
+	|filename|
+	assertContains(zfRead, filename)
+      }
+      assertNotContains(originalEntries.last)
+      AssertEntry::assertTestZipContents(TEST_ZIP)
+    ensure
+      zf.close
+    end
   end
 
   def test_compound2
-    # remove all entries, add three new, rename one of the new ones
-    fail "implement"
+    begin
+      zf = ZipFile.new(TEST_ZIP.zipName)
+      originalEntries = zf.entries.dup
+      
+      originalEntries.each {
+	|entry|
+	zf.remove(entry)
+	assertNotContains(entry)
+      }
+      assert(zf.entries.empty?)
+      
+      TestFiles::ASCII_TEST_FILES.each {
+	|filename|
+	zf.add(filename)
+	assertContains(filename)
+      }
+      assert_equals(zf.entries.map { |e| e.name }, TestFiles::ASCII_TEST_FILES)
+      
+      zf.rename(TestFiles::ASCII_TEST_FILES[0], "newName")
+      assertNotContains(zf, TestFiles::ASCII_TEST_FILES[0])
+      assertContains(zf, "newName")
+    ensure
+      zf.close
+    end
+    begin
+      zfRead = ZipFile.new(TEST_ZIP.zipName)
+      asciiTestFiles = TestFiles::ASCII_TEST_FILES.dup
+      asciiTestFiles.shift
+      asciiTestFiles.each {
+	|filename|
+	assertContains(zf, filename)
+      }
+
+      assertContains(zf, "newName")
+    ensure
+      zfRead.close
+    end
   end
 
-  def test_compound3
-    # add 15 new entries, rename some of them, commit, replace one
-    fail "implement"
+  private
+  def assertContains(zf, entryName, filename = entryName)
+    assert(zf.entries.map { |e| e.name }.include? (entryName))
+    AssertEntry::assertEntryContents(zf, entryName, filename) if File.exists?(filename)
   end
-
+  
+  def assertNotContains(zf, entryName)
+    assert(! zf.entries.map { |e| e.name }.include? (entryName))
+  end
 end
 
 
 TestZipFile::createTestZips(ARGV.index("recreate") != nil)
+TestFiles::createTestFiles(ARGV.index("recreate") != nil)
 
 
 # Copyright (C) 2002 Thomas Sondergaard
