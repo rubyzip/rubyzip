@@ -792,7 +792,7 @@ module Zip
     MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE = 65536 + 18
     STATIC_EOCD_SIZE = 22
 
-    attr_reader :size, :comment
+    attr_reader :comment
     
     def entries
       @entrySet.entries
@@ -880,6 +880,10 @@ module Zip
       @entrySet.each(&proc)
     end
 
+    def size
+      @entrySet.size
+    end
+
     def ZipCentralDirectory.read_from_stream(io)
       cdir  = new
       cdir.read_from_stream(io)
@@ -948,9 +952,24 @@ module Zip
     def get_input_stream(entry, &aProc)
       get_entry(entry).get_input_stream(&aProc)
     end
-    
+
+    def get_output_stream(entry, &aProc)
+      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
+      if newEntry.directory?
+	raise ArgumentError,
+	  "cannot open stream to directory entry - '#{newEntry}'"
+      end
+      zipStreamableEntry = ZipStreamableStream.new(newEntry)
+      @entrySet << zipStreamableEntry
+      zipStreamableEntry.get_output_stream(&aProc)      
+    end
+
     def to_s
       @name
+    end
+
+    def read(entry)
+      get_input_stream(entry) { |is| is.read } 
     end
 
     def add(entry, srcPath, &continueOnExistsProc)
@@ -1097,7 +1116,9 @@ module Zip
     end
     
     def get_tempfile
-      Tempfile.new(File.basename(name), File.dirname(name)).binmode
+      tempFile = Tempfile.new(File.basename(name), File.dirname(name))
+      tempFile.binmode
+      tempFile
     end
     
   end
@@ -1135,6 +1156,46 @@ module Zip
     def get_input_stream(&aProc)
       return yield(NullInputStream.instance) if block_given?
       NullInputStream.instance
+    end
+    
+    def write_to_zip_output_stream(aZipOutputStream)
+      aZipOutputStream.put_next_entry(self)
+    end
+  end
+
+  class ZipStreamableStream < DelegateClass(ZipEntry) #nodoc:all
+    def initialize(entry)
+      super(entry)
+      @tempFile = Tempfile.new(File.basename(name), File.dirname(name))
+      @tempFile.binmode
+    end
+
+    def get_output_stream
+      if block_given?
+        begin
+          yield(@tempFile)
+        ensure
+          @tempFile.close
+        end
+      else
+        @tempFile
+      end
+    end
+
+    def get_input_stream
+      if ! @tempFile.closed?
+        raise StandardError, "cannot open entry for reading while its open for writing - #{name}"
+      end
+      @tempFile.open # reopens tempfile from top
+      if block_given?
+        begin
+          yield(@tempFile)
+        ensure
+          @tempFile.close
+        end
+      else
+        @tempFile
+      end
     end
     
     def write_to_zip_output_stream(aZipOutputStream)

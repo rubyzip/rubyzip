@@ -1336,6 +1336,35 @@ class ZipFileTest < CommonZipFileFixture
     assert_equals(0, zfRead.entries.length)
   end
 
+  def test_get_output_stream
+    entryCount = nil
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      entryCount = zf.size
+      zf.get_output_stream('newEntry.txt') {
+        |os|
+        os.write "Putting stuff in newEntry.txt"
+      }
+      assert_equals(entryCount+1, zf.size)
+      assert_equals("Putting stuff in newEntry.txt", zf.read("newEntry.txt")) 
+
+      zf.get_output_stream(zf.get_entry('empty.txt')) {
+        |os|
+       os.write "Putting stuff in empty.txt"
+      }
+      assert_equals(entryCount+1, zf.size)
+      assert_equals("Putting stuff in empty.txt", zf.read("empty.txt")) 
+
+    }
+    
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+#      assert_equals(entryCount+1, zf.size)
+#      assert_equals("putting stuff in newEntry.txt", zf.read("newEntry.txt")) 
+#      assert_equals("putting stuff in empty.txt", zf.read("empty.txt")) 
+    }
+  end
+
   def test_add
     srcFile   = "file2.txt"
     entryName = "newEntryName.rb" 

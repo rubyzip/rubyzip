@@ -513,7 +513,7 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
       zf.file.open("test_open_write_entry", "w") {
         |f|
         blockCalled = true
-        f.puts "This is what I'm writing"
+        f.write "This is what I'm writing"
       }
       assert_equals("This is what I'm writing",
                     zf.file.read("test_open_write_entry"))
@@ -522,7 +522,7 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
       zf.file.open("file1", "w") {
         |f|
         blockCalled = true
-        f.puts "This is what I'm writing too"
+        f.write "This is what I'm writing too"
       }
       assert_equals("This is what I'm writing too",
                     zf.file.read("file1"))

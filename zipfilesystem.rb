@@ -117,8 +117,14 @@ module Zip
       end
       
       def open(fileName, openMode = "r", &block)
-	raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
-	@zipFile.get_input_stream(fileName, &block)
+        case openMode
+        when "r" 
+          @zipFile.get_input_stream(fileName, &block)
+        when "w"
+          @zipFile.get_output_stream(fileName, &block)
+        else
+          raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
+        end
       end
 
       def new(fileName, openMode = "r")
@@ -249,7 +255,7 @@ module Zip
       end
 
       def read(fileName)
-	open(fileName) { |is| is.read }
+        @zipFile.read(fileName)
       end
 
       def popen(*args, &aProc)
