@@ -1050,6 +1050,30 @@ class ZipFileTest < CommonZipFileFixture
     AssertEntry.assertContents(srcFile, zfRead.getInputStream(entryName).read)
   end
 
+  def test_addExistingEntryName
+    assert_exception(ZipError) {
+      ZipFile.open(TEST_ZIP.zipName) {
+	|zf|
+	zf.add(zf.entries.first.name, "ziptest.rb")
+      }
+    }
+  end
+
+  def test_addExistingEntryNameReplace
+    gotCalled = false
+    replacedEntry = nil
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      replacedEntry = zf.entries.first.name
+      zf.add(replacedEntry, "ziptest.rb") { gotCalled = true; true }
+    }
+    assert(gotCalled)
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      assertContains(zf, replacedEntry, "ziptest.rb")
+    }
+  end
+
   def test_addDirectory
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|

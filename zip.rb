@@ -781,7 +781,9 @@ module Zip
       @name
     end
     
-    def add(entry, srcPath) 
+    def add(entry, srcPath, &continueOnExistsProc)
+      continueOnExistsProc ||= proc { false }
+      checkEntryExists(entry, continueOnExistsProc, "add")
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       zipStreamable = ZipStreamableFile.new(newEntry, srcPath)
       @entries << zipStreamable
@@ -792,18 +794,11 @@ module Zip
     end
     
     def rename(entry, newName, &continueOnExistsProc)
-      continueOnExistsProc ||= proc { false }
       foundEntry = getEntry(entry)
-      if @entries.detect { |e| e.name == newName }
-	if continueOnExistsProc.call
-	  remove getEntry(newName)
-	else
-	  raise ZipError, "Cannot rename to #{newName}. An entry with that name exists"
-	end
-      end
+      checkEntryExists(newName, continueOnExistsProc, "rename")
       foundEntry.name=newName
     end
-    
+
     def replace(entry, srcPath)
       checkFile(srcPath)
       add(remove(entry), srcPath)
@@ -838,6 +833,18 @@ module Zip
     
     private
     
+    def checkEntryExists(entryName, continueOnExistsProc, procedureName)
+      continueOnExistsProc ||= proc { false }
+      if @entries.detect { |e| e.name == entryName }
+	if continueOnExistsProc.call
+	  remove getEntry(entryName)
+	else
+	  raise ZipError, 
+	    procedureName+" failed. Entry #{entryName} already exists"
+	end
+      end
+    end
+
     def writeFile(destPath, continueOnExistsProc = proc { false }, &writeFileProc)
       if File.exists?(destPath) && ! continueOnExistsProc.call
 	raise ZipError,
