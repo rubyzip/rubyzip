@@ -980,17 +980,19 @@ end # Zip namespace module
 
 module Glob
 
-  def self.glob(pathList, globPattern)
+  def self.glob(pathList, globPattern, recursive = false)
 #p toRegexp(globPattern)
-    expandPathList(pathList).grep(toRegexp(globPattern))
+    expandPathList(pathList).grep(toRegexp(globPattern, recursive))
   end
 
 
-  def self.toRegexp(globPattern)
+  def self.toRegexp(globPattern, recursive)
     reducedGlobPattern = pruneLeadingAndTrailingSeparator(globPattern)
     return Regexp.new("^"+reducedGlobPattern.
 		      gsub(/\?/, "#{NOT_PATH_SEPARATOR}?").
-		      gsub(/\*/, "#{NOT_PATH_SEPARATOR}*")+"/?$")
+		      gsub(/\*/, "#{NOT_PATH_SEPARATOR}*")+
+		      (recursive ? "(?:/.+)?" : "")+
+		      "/?$")
   end
 
 

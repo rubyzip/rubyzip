@@ -9,6 +9,11 @@ include Zip
 
 Dir.chdir "test"
 
+module RUNIT
+  class TestCaseDummy
+  end
+end
+
 class AbstractInputStreamTest < RUNIT::TestCase
   # AbstractInputStream subclass that provides a read method
   
@@ -1492,7 +1497,7 @@ end
 
 class GlobTest < RUNIT::TestCase
 
-  def testPruneLeadingAndTrailingSeparator
+  def test_pruneLeadingAndTrailingSeparator
     assert_equals("hello", 
 		  Glob.pruneLeadingAndTrailingSeparator("/hello/"))
     assert_equals("hello/goodbye", 
@@ -1501,7 +1506,7 @@ class GlobTest < RUNIT::TestCase
 		  Glob.pruneLeadingAndTrailingSeparator("hello/goodbye/"))
   end
 
-  def testExpandPath
+  def test_expandPath
     assert_equals([], 
 		  Glob.expandPath(""))
     assert_equals(["rip"], 
@@ -1512,7 +1517,7 @@ class GlobTest < RUNIT::TestCase
 		  Glob.expandPath("rip/rap/rup/"))
   end
 
-  def testExpandPathList
+  def test_expandPathList
     assert_equals(["rip", "rip/rap", "rip/rap/rup", "jimmy", "jimmy/benny"].sort,
 		  Glob.expandPathList(["rip/rap/rup", "jimmy/benny"]).sort)
     assert_equals([], Glob.expandPathList([]))
@@ -1520,7 +1525,7 @@ class GlobTest < RUNIT::TestCase
 
   FILE_LIST = [ "rip/rap/rup", "jimmy/benny", "maria/jenny", "rip/tom", "marie/ben" ]
 
-  def testGlobQuestionMark
+  def test_globQuestionMark
     assert_equals(["rip"], Glob.glob(FILE_LIST, "ri?"))
     assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mari?").sort)
     assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "mari?").sort)
@@ -1528,7 +1533,7 @@ class GlobTest < RUNIT::TestCase
     assert_equals(["marie"], Glob.glob(FILE_LIST, "ma??e").sort)
   end
 
-  def testGlobStar
+  def test_globStar
     assert_equals(["maria", "marie"].sort, Glob.glob(FILE_LIST, "m*").sort)
     assert_equals(["rip"], Glob.glob(FILE_LIST, "rip*").sort)
     assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "rip/*").sort)
@@ -1536,8 +1541,17 @@ class GlobTest < RUNIT::TestCase
     assert_equals(["rip/rap", "rip/tom"].sort, Glob.glob(FILE_LIST, "r*/*").sort)
   end
 
-  def testCombined
+  def test_recursive
+    assert_equals(["rip", "rip/rap", "rip/rap/rup", "rip/tom"].sort, 
+		  Glob.glob(FILE_LIST, "rip", true).sort)
+    assert_equals(["rip/rap", "rip/rap/rup", "rip/tom"].sort, 
+		  Glob.glob(FILE_LIST, "rip/*", true).sort)
+  end
+
+  def test_combined
     assert_equals(["rip/rap"], Glob.glob(FILE_LIST, "r*/ra?").sort)
+    assert_equals(["rip", "rip/rap", "rip/rap/rup", "rip/tom"].sort, 
+		  Glob.glob(FILE_LIST, "ri*", true).sort)
   end
   
 end
