@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubyunit'
+require 'ftools'
 require 'zip'
 
 include Zip
@@ -314,6 +315,19 @@ module AssertEntry
     }
   end
 
+  def assertContents(filename, aString)
+    fileContents = ""
+    File.open(filename, "rb") { |f| fileContents = f.read }
+    if (fileContents != aString)
+      if (expected.length > 400 || actual.length > 400)
+	stringFile = filename + ".other"
+	File.open(stringFile, "wb") { |f| f << aString }
+	fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
+      else
+	assert_equals(expected, actual)
+      end
+    end
+  end
 
   def assertStreamContents(zis, testZipFile)
     assert(zis != nil)
@@ -867,11 +881,11 @@ end
 
 
 
-class ZipFileTest < RUNIT::TestCase
+class SimpleZipFileTest < RUNIT::TestCase
   include AssertEntry
 
   def setup
-    @zipFile = ZipFile.new(TestZipFile::TEST_ZIP2.zipName)
+    @zipFile = SimpleZipFile.new(TestZipFile::TEST_ZIP2.zipName)
     @testEntryNameIndex=0
   end
 
@@ -899,7 +913,7 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_foreach
-    ZipFile.foreach(TestZipFile::TEST_ZIP2.zipName) {
+    SimpleZipFile.foreach(TestZipFile::TEST_ZIP2.zipName) {
       |entry|
       assert_equals(nextTestEntryName, entry.name)
     }
@@ -914,6 +928,156 @@ class ZipFileTest < RUNIT::TestCase
     }
     assert_equals(4, @testEntryNameIndex)
   end
+end
+
+
+class ZipFileTest < RUNIT::TestCase
+  EMPTY_FILENAME = "emptyZipFile.zip"
+
+  TEST_ZIP = TestZipFile::TEST_ZIP2.clone
+  TEST_ZIP.zipName = "4entry_copy.zip"
+
+  def setup
+    File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)
+    File.copy(TestZipFile::TEST_ZIP2.zipName, TEST_ZIP.zipName)
+  end
+
+  def test_createFromScratch
+    comment  = "a short comment"
+
+    zf = ZipFile.new(EMPTY_FILENAME, ZipFile::CREATE)
+    zf.comment = comment
+    zf.close
+
+    zfRead = ZipFile.new(EMPTY_FILENAME)
+    assert_equals(comment, zfRead.comment)
+    assert_equals(0, zfRead.entries.length)
+  end
+
+  def test_add
+    srcFile   = "ziptest.rb"
+    entryName = "newEntryName.rb" 
+    assert(File.exists? srcFile)
+    zf = ZipFile.new(EMPTY_FILENAME, ZipFile::CREATE)
+    zf.add(entryName, srcFile)
+    zf.close
+
+    zfRead = ZipFile.new(EMPTY_FILENAME)
+    assert_equals("", zfRead.comment)
+    assert_equals(1, zfRead.entries.length)
+    assert_equals(entryName, zfRead.entries.first)
+    AssertEntry::assertContents(srcFile, zfRead.getInputStream(entryName).read)
+  end
+
+  def test_addDirectory
+    # assert that it is added as a directory
+    fail "implement"
+  end
+
+  def test_remove
+    entryToRemove, *remainingEntries = TEST_ZIP.entryNames
+
+    File.copy(TestZipFile::TEST_ZIP2.zipName, TEST_ZIP.zipName)
+
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert(zf.entries.map { |e| e.name }.include? (entryToRemove))
+    zf.remove(entryToRemove)
+    assert(! zf.entries.map { |e| e.name }.include? (entryToRemove))
+    assert_equals(zf.entries.map {|x| x.name }.sort, remainingEntries.sort) 
+    zf.close
+
+    zfRead = ZipFile(TEST_ZIP.zipName)
+    assert(! zfRead.entries.map { |e| e.name }.include? (entryToRemove))
+    assert_equals(zfRead.entries.map {|x| x.name }.sort, remainingEntries.sort) 
+    zfRead.close
+  end
+
+  def test_extract
+    extractedEntryFilename = "extEntry"
+    entryToExtract, *remainingEntries = TEST_ZIP.entryNames.reverse
+
+    File.delete(extractedEntryFilename) if File.exists?(extractedEntryFilename)
+
+    zf = ZipFile.new(TEST_ZIP)
+    zf.extract(entryToExtract, extractedEntryFilename)
+    
+    assert(File.exists? extractedEntryFilename)
+    AssertEntry::assertContents(extractedEntryFilename, 
+				zf.getInputStream(entryToExtract).read)
+    zf.close
+  end
+
+  def test_rename
+    entryToRename, *remainingEntries = TEST_ZIP.entryNames
+    
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert(zf.entries.map { |e| e.name }.include?  entryToRename)
+    
+    newName = "changed name"
+    assert(! zf.entries.map { |e| e.name }.include?(newName))
+
+    zf.rename(entryToRename, newName)
+    assert(zf.entries.map { |e| e.name }.include?  newName)
+
+    zf.close
+
+    zfRead = ZipFile.new(TEST_ZIP.zipName)
+    assert(zfRead.entries.map { |e| e.name }.include?  newName)
+    zfRead.close
+  end
+
+  def test_replace
+    unchangedEntries = TEST_ZIP.entryNames
+    entryToReplace = unchangedEntries.delete(2)
+    newEntrySrcFilename = "ziptest.rb" 
+
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    zf.replace(entryToReplace, newEntrySrcFilename)
+    
+    zf.close
+
+    zfRead = ZipFile.new(TEST_ZIP.zipName)
+    AssertEntry::assertContents(newEntrySrcFilename, 
+				zfRead.getInputStream(entryToReplace).read)
+    zfRead.close    
+  end
+
+  def test_entries
+    fail "implement"
+  end
+
+  def test_each
+    fail "implement"
+  end
+
+  def test_entries
+    fail "implement"
+  end
+
+  def test_getInputStream
+    fail "implement"
+  end
+
+  def test_foreach
+    fail "implement"
+  end
+  
+  def test_commit
+    fail "implement"
+  end
+
+  def test_compound1
+    fail "implement"
+  end
+
+  def test_compound2
+    fail "implement"
+  end
+
+  def test_compound3
+    fail "implement"
+  end
+
 end
 
 

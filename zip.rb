@@ -706,7 +706,7 @@ module Zip
   class ZipError < RuntimeError
   end
   
-  class ZipFile < ZipCentralDirectory
+  class SimpleZipFile < ZipCentralDirectory
     attr_reader :name
     
     def initialize(name)
@@ -717,8 +717,8 @@ module Zip
       }
     end
     
-    def ZipFile.foreach(aZipFileName, &block)
-      zipFile = ZipFile.new(aZipFileName)
+    def SimpleZipFile.foreach(aZipFileName, &block)
+      zipFile = SimpleZipFile.new(aZipFileName)
       zipFile.each &block
     end
     
@@ -729,6 +729,25 @@ module Zip
       zis.getNextEntry
       return zis
     end
+  end
+
+
+
+  class ZipFile < SimpleZipFile
+    def initialize(fileName); end
+    def add(entry, srcPath); end
+    def remove(entry); end
+    def extract(entry, destPath); end
+    def rename(entry, newName); end
+    def replace(entry, srcPath); end
+    def entries(entry); end
+    def each; end
+    def entries; end
+    def getInputStream(entry); end
+    def foreach(entry); end
+    
+    def commit; end
+    def close; end
   end
   
 end

@@ -18,9 +18,9 @@ Zip::ZipInputStream.open("example.zip") {
 
 
 
-####### Using ZipFile to read the directory of a zip file: #######
+####### Using SimpleZipFile to read the directory of a zip file: #######
 
-zf = Zip::ZipFile.new("example.zip")
+zf = Zip::SimpleZipFile.new("example.zip")
 zf.each_with_index {
   |entry, index|
   
