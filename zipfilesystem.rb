@@ -357,6 +357,44 @@ module Zip
 
     end
 
+    class ZipFsDirIterator
+      include Enumerable
+
+      def initialize(arrayOfFileNames)
+        @fileNames = arrayOfFileNames
+        @index = 0
+      end
+
+      def close
+        @fileNames = nil
+      end
+
+      def each(&aProc)
+        raise IOError, "closed directory" if @fileNames == nil
+        @fileNames.each(&aProc)
+      end
+
+      def read
+        raise IOError, "closed directory" if @fileNames == nil
+        @fileNames[(@index+=1)-1]
+      end
+
+      def rewind
+        raise IOError, "closed directory" if @fileNames == nil
+        @index = 0
+      end
+
+      def seek(anIntegerPosition)
+        raise IOError, "closed directory" if @fileNames == nil
+        @index = anIntegerPosition
+      end
+
+      def tell
+        raise IOError, "closed directory" if @fileNames == nil
+        @index
+      end
+    end
+
     # All access to ZipFile from ZipFsFile and ZipFsDir goes through a
     # ZipFileNameMapper, which has one responsibility: ensure
     class ZipFileNameMapper
