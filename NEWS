@@ -1,6 +1,11 @@
+= Version 0.5.2 =
+
+Fixed ZipFile corruption bug in ZipFile class. Added basic unix
+extra-field support.
+
 = Version 0.5.1 =
 
-fixed ZipFile.get_output_stream bug.
+Fixed ZipFile.get_output_stream bug.
 
 = Version 0.5.0 =
 
