@@ -1531,6 +1531,12 @@ class ZipFileTest < CommonZipFileFixture
     zfRead = ZipFile.new(TEST_ZIP.zip_name)
     AssertEntry::assert_contents(newEntrySrcFilename, 
 				zfRead.get_input_stream(entryToReplace) { |is| is.read })
+    AssertEntry::assert_contents(TEST_ZIP.entry_names[0], 
+				zfRead.get_input_stream(TEST_ZIP.entry_names[0]) { |is| is.read })
+    AssertEntry::assert_contents(TEST_ZIP.entry_names[1], 
+				zfRead.get_input_stream(TEST_ZIP.entry_names[1]) { |is| is.read })
+    AssertEntry::assert_contents(TEST_ZIP.entry_names[3], 
+				zfRead.get_input_stream(TEST_ZIP.entry_names[3]) { |is| is.read })
     zfRead.close    
   end
 
