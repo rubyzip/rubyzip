@@ -551,7 +551,23 @@ class AbstractOutputStreamTest < RUNIT::TestCase
   end
 end
 
+
+module CrcTest
+  def runCrcTest(compressorClass)
+    str = "Here's a nice little text to compute the crc for! Ho hum, it is nice nice nice nice indeed."
+    fakeOut = AbstractOutputStreamTest::TestOutputStream.new
+    
+    deflater = compressorClass.new(fakeOut)
+    deflater << str
+    assert_equals(0x919920fc, deflater.crc)
+  end
+end
+
+
+
 class PassThruCompressorTest < RUNIT::TestCase
+  include CrcTest
+
   def test_size
     File.open("dummy.txt", "wb") {
       |file|
@@ -573,9 +589,15 @@ class PassThruCompressorTest < RUNIT::TestCase
       assert_equals(compressor.size, t1.size + t2.size + t3.size)
     }
   end
+
+  def test_crc
+    runCrcTest(PassThruCompressor)
+  end
 end
 
 class DeflaterTest < RUNIT::TestCase
+  include CrcTest
+
   def test_outputOperator
     txt = loadFile("ziptest.rb")
     deflate(txt, "deflatertest.bin")
@@ -608,8 +630,11 @@ class DeflaterTest < RUNIT::TestCase
       txt = inflater.read
     }
   end
-end
 
+  def test_crc
+    runCrcTest(Deflater)
+  end
+end
 
 class ZipOutputStreamTest < RUNIT::TestCase
   include AssertEntry
@@ -634,18 +659,33 @@ class ZipOutputStreamTest < RUNIT::TestCase
     assertTestZipContents(TEST_ZIP)
   end
 
-  def test_putOnClosedStream
-    fail "implement and expect ZipError"
-  end
-
   def test_writingToClosedStream
-    fail "implement this test and make sure behaviour is similar to closed File object"
+    assertIOErrorInClosedStream { |zos| zos << "hello world" }
+    assertIOErrorInClosedStream { |zos| zos.puts "hello world" }
+    assertIOErrorInClosedStream { |zos| zos.write "hello world" }
   end
 
   def test_cannotOpenFile
-    fail "implement and expect zip.closed? and exception from constructor"
+    name = "emptytestdir"
+    ensureDir(name)
+    assert_exception(Errno::EISDIR, "Is a directorYY") {
+      zos = ZipOutputStream.open(name)
+    }
   end
 
+  def ensureDir(name) 
+    return if File.stat(name).directory?
+    File.delete(name)
+    Dir.mkdir(name)
+  end
+
+  def assertIOErrorInClosedStream
+    assert_exception(IOError) {
+      zos = ZipOutputStream.new("test_putOnClosedStream.zip")
+      zos.close
+      yield zos
+    }
+  end
 
   def writeTestZip(zos)
     TEST_ZIP.entryNames.each {

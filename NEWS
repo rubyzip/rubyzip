@@ -1,3 +1,7 @@
+= Version 0.3.0 =
+
+Rudimentary support for writing zip archives.
+
 = Version 0.2.2 =
 
 Fixed and extended unit test suite. Updated to work with ruby/zlib

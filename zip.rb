@@ -453,7 +453,7 @@ module Zip
       @fileName = fileName
       @outputStream = File.new(@fileName, "wb")
       @entries = []
-      @compressor = NullCompressor
+      @compressor = NullCompressor.instance
     end
 
     def ZipOutputStream.open(fileName)
@@ -483,10 +483,12 @@ module Zip
     def finalizeCurrentEntry
       return unless @currentEntry
       finish
-      @currentEntry.compressedSize = @outputStream.tell - @currentEntry.localHeaderOffset - @currentEntry.localHeaderSize
+      @currentEntry.compressedSize = @outputStream.tell - @currentEntry.localHeaderOffset - 
+	@currentEntry.localHeaderSize
       @currentEntry.size = @compressor.size
+      @currentEntry.crc = @compressor.crc
       @currentEntry = nil
-      @compressor = NullCompressor
+      @compressor = NullCompressor.instance
     end
     
     def initNextEntry(entry, level = Zlib::DEFAULT_COMPRESSION)
@@ -520,12 +522,14 @@ module Zip
     end
 
     protected
-    def << (data)
-      @compressor << data
-    end
 
     def finish
       @compressor.finish
+    end
+
+    public
+    def << (data)
+      @compressor << data
     end
   end
 
@@ -538,22 +542,25 @@ module Zip
   class PassThruCompressor < Compressor
     def initialize(outputStream)
       @outputStream = outputStream
+      @crc = Zlib::crc32
       @size = 0
     end
 
     def << (data)
       val = data.to_s
+      @crc = Zlib::crc32(val, @crc)
       @size += val.size
       @outputStream << val
     end
 
-    attr_reader :size
+    attr_reader :size, :crc
   end
 
   class NullCompressor < Compressor
     include Singleton
 
     def << (data)
+      raise IOError, "closed stream"
     end
 
     attr_reader :size, :compressedSize
@@ -564,10 +571,12 @@ module Zip
       @outputStream = outputStream
       @zlibDeflater = Zlib::Deflate.new(level, -Zlib::Deflate::MAX_WBITS)
       @size = 0
+      @crc = Zlib::crc32
     end
     
     def << (data)
       val = data.to_s
+      @crc = Zlib::crc32(val, @crc)
       @size += val.size
       @outputStream << @zlibDeflater.deflate(data)
     end
@@ -578,7 +587,7 @@ module Zip
       end
     end
 
-    attr_reader :size
+    attr_reader :size, :crc
   end
   
   class ZipCentralDirectory

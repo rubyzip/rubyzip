@@ -18,6 +18,9 @@ ruby-zlib: http://www.blue.sky.or.jp/atelier/#ruby-zlib
 
 This library requires ruby/zlib version 0.5.0 or newer.
 
+As of this writing ruby/zlib 0.5.0 is only available as
+ruby-zlib-0.5.0-pre3 at http://www.blue.sky.or.jp/atelier/ruby/
+
 
 = LICENSE =
 
