@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'filearchive'
+
 class ZipFileSystem
   
   def initialize(zipFile)
@@ -46,5 +48,13 @@ class ZipFileSystem
       entry = @zipFile.findEntry(fileName)
       entry != nil && entry.file?
     end      
+
+    def dirname(fileName)
+      ::File.dirname(fileName)
+    end
+
+    def mtime(fileName)
+      @zipFile.getEntry(fileName).mtime
+    end
   end
 end

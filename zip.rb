@@ -316,6 +316,8 @@ module Zip
     attr_accessor  :comment, :compressedSize, :crc, :extra, :compressionMethod, 
       :name, :size, :localHeaderOffset, :time
     
+    alias :mtime :time
+
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
 		   compressedSize = 0, crc = 0, 
 		   compressionMethod = ZipEntry::DEFLATED, size = 0,

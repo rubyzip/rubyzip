@@ -60,6 +60,10 @@ class ZipFsFileTest < RUNIT::TestCase
     }
   end
 
+  def test_new
+    fail "implement test"
+  end
+
 #  def test_symlink
 #    fail "implement test"
 #  end
@@ -82,7 +86,9 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_dirname
-    fail "implement test"
+    assert_equals("a/b/c", @zipFsFile.dirname("a/b/c/d"))
+    assert_equals(".", @zipFsFile.dirname("c"))
+    assert_equals("a/b", @zipFsFile.dirname("a/b/"))
   end
 
   def test_utime
@@ -182,7 +188,13 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_mtime
-    fail "implement test"
+    assert_equals(Time.local(2002, "Jul", 26, 16, 38, 26),
+		  @zipFsFile.mtime("dir2/file21"))
+    assert_equals(Time.local(2002, "Jul", 26, 15, 41, 04),
+		  @zipFsFile.mtime("dir2/dir21"))
+    assert_exception(Errno::ENOENT) {
+      @zipFsFile.mtime("noSuchEntry")
+    }
   end
 
   def test_symlink?
