@@ -306,8 +306,24 @@ module Zip
       end
       
       attr_writer :file
-#      protected :file
-      
+
+      def new(aDirectoryName)
+        ZipFsDirIterator.new(entries(aDirectoryName))
+      end
+
+      def open(aDirectoryName)
+        dirIt = new(aDirectoryName)
+        if block_given?
+          begin
+            yield(dirIt)
+            return nil
+          ensure
+            dirIt.close
+          end
+        end
+        dirIt
+      end
+
       def pwd; @mappedZip.pwd; end
       alias getwd pwd
       

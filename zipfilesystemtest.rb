@@ -703,7 +703,26 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   end
 
   def test_open_new
-    fail "implement test"
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+
+      assert_exception(Errno::ENOTDIR, "Not a directory - file1") {
+        zf.dir.new("file1")
+      }
+
+      assert_exception(Errno::ENOENT, "No such file or directory - noSuchFile") {
+        zf.dir.new("noSuchFile")
+      }
+
+      d = zf.dir.new(".")
+      assert_equals(["file1", "dir1", "dir2"].sort, d.entries.sort)
+      d.close
+
+      zf.dir.open("dir1") {
+        |d|
+        assert_equals(["dir11", "file11", "file12"].sort, d.entries.sort)
+      }
+    }
   end
 
 end
