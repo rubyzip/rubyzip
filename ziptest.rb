@@ -1007,7 +1007,7 @@ class BasicZipFileTest < RUNIT::TestCase
   end
 end
 
-class ZipFileTest < RUNIT::TestCase
+class CommonZipFileFixture < RUNIT::TestCase
   include AssertEntry
 
   EMPTY_FILENAME = "emptyZipFile.zip"
@@ -1019,6 +1019,9 @@ class ZipFileTest < RUNIT::TestCase
     File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)
     File.copy(TestZipFile::TEST_ZIP2.zipName, TEST_ZIP.zipName)
   end
+end
+
+class ZipFileTest < CommonZipFileFixture
 
   def test_createFromScratch
     comment  = "a short comment"
@@ -1078,39 +1081,6 @@ class ZipFileTest < RUNIT::TestCase
     zfRead.close
   end
 
-  def test_extract
-    extractedEntryFilename = "extEntry"
-    entryToExtract, *remainingEntries = TEST_ZIP.entryNames.reverse
-
-    File.delete(extractedEntryFilename) if File.exists?(extractedEntryFilename)
-
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    zf.extract(entryToExtract, extractedEntryFilename)
-    
-    assert(File.exists? extractedEntryFilename)
-    AssertEntry::assertContents(extractedEntryFilename, 
-				zf.getInputStream(entryToExtract).read)
-    zf.close
-  end
-
-  def test_extractNonEntry
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    assert_exception(ZipError) { zf.extract("nonExistingEntry", "nonExistingEntry") }
-  ensure
-    zf.close if zf
-  end
-
-  def test_extractNonEntry2
-    outFile = "outfile"
-    assert_exception(ZipError) {
-      zf = ZipFile.new(TEST_ZIP.zipName)
-      nonEntry = "hotdog-diddelidoo"
-      assert(! zf.entries.include?(nonEntry))
-      zf.extract(nonEntry, outFile)
-      zf.close
-    }
-    assert(! File.exists?(outFile))
-  end
 
   def test_rename
     entryToRename, *remainingEntries = TEST_ZIP.entryNames
@@ -1308,6 +1278,79 @@ class ZipFileTest < RUNIT::TestCase
   def assertNotContains(zf, entryName)
     assert(zf.entries.detect { |e| e.name == entryName} == nil, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
   end
+end
+
+
+class ZipFileExtractTest < CommonZipFileFixture
+  EXTRACTED_FILENAME = "extEntry"
+  ENTRY_TO_EXTRACT, *REMAINING_ENTRIES = TEST_ZIP.entryNames.reverse
+
+  def setup
+    super
+    File.delete(EXTRACTED_FILENAME) if File.exists?(EXTRACTED_FILENAME)
+  end
+
+  def test_extract
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
+      
+      assert(File.exists? EXTRACTED_FILENAME)
+      AssertEntry::assertContents(EXTRACTED_FILENAME, 
+				  zf.getInputStream(ENTRY_TO_EXTRACT).read)
+    }
+  end
+
+  def test_extractExists
+    writtenText = "written text"
+    File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
+
+    assert_exception(ZipError) {
+      ZipFile.open(TEST_ZIP.zipName) { 
+	|zf| 
+	zf.extract(zf.entries.first, EXTRACTED_FILENAME) 
+      }
+    }
+    File.open(EXTRACTED_FILENAME, "r") {
+      |f|
+      assert_equals(writtenText, f.read)
+    }
+  end
+
+  def test_extractExistsOverwrite
+    writtenText = "written text"
+    File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
+
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      zf.extract(zf.entries.first, EXTRACTED_FILENAME) { gotCalled = true; true }
+    }
+
+    File.open(EXTRACTED_FILENAME, "r") {
+      |f|
+      assert(writtenText != f.read)
+    }
+  end
+
+  def test_extractNonEntry
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert_exception(ZipError) { zf.extract("nonExistingEntry", "nonExistingEntry") }
+  ensure
+    zf.close if zf
+  end
+
+  def test_extractNonEntry2
+    outFile = "outfile"
+    assert_exception(ZipError) {
+      zf = ZipFile.new(TEST_ZIP.zipName)
+      nonEntry = "hotdog-diddelidoo"
+      assert(! zf.entries.include?(nonEntry))
+      zf.extract(nonEntry, outFile)
+      zf.close
+    }
+    assert(! File.exists?(outFile))
+  end
+
 end
 
 

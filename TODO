@@ -6,6 +6,8 @@ unit test adding directories recursively (and implement)
 unit test ZipFile.checkIntegrity method (and implement)
 unit test and implement recursive extract (and implement)
 
+define finer grained exceptions
+
 performance improve method
 ZipStreamableZipEntry.writeToZipOutputStream by not
 decompressing/compressing the data.

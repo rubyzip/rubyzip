@@ -808,7 +808,8 @@ module Zip
       add(remove(entry), srcPath)
     end
     
-    def extract(entry, destPath, onExistsProc = proc { false })
+    def extract(entry, destPath, &onExistsProc)
+      onExistsProc ||= proc { false }
       foundEntry = getEntry(entry)
       writeFile(destPath, onExistsProc) { 
 	|os|
