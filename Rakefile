@@ -79,6 +79,7 @@ task :ppackage => [:package] do
                 "ftp", 
                 ENV['USER']+"@"+ENV['HOSTNAME']) {
     |ftpclient|
+    ftpclient.passive = true
     ftpclient.chdir "incoming"
     Dir['pkg/*.{tgz,zip,gem}'].each {
       |e|
