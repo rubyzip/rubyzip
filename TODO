@@ -1,5 +1,9 @@
-Glob.expandPathList needs to be changed so directories have a trailing
-slash.
+Glob.expandPath(List) needs to be changed to work with non-string
+objects. To stay untied to ZipEntry, it will need to be configured
+with an abstract factory for creating entries from strings. It may be
+necessary to change Glob.glob to not call expandPathList because it
+will be unnatural to have to pass down an entry factory. Tests will
+have to be refactored.
 
 FileArchive needs to be completed.
 
@@ -10,6 +14,11 @@ unit test and implement:
 * recursive extract
 * recursive extract with block for determining whether directories should be created.
 * ZipFile.checkIntegrity method
+* non-MSDOS permission attributes
+** See mail from Ned Konz to ruby-talk subj. "Re: SV: [ANN] Archive 0.2"
+* Packager version, required unpacker version in zip headers
+** See mail from Ned Konz to ruby-talk subj. "Re: SV: [ANN] Archive 0.2"
+* Write interface adapters or adapt interface of rubyzip to become compatible with the "Archive module", which supports ar, tar and mbox
 
 implement small gui app on top, to exercise library and to discover
 what features should be added to rubyzip next.
