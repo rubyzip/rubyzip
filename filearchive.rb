@@ -8,6 +8,14 @@ class String
     aStringSize = aString.size
     slice(-aStringSize, aStringSize) == aString 
   end
+
+  def ensureEnd(aString)
+    endsWith(aString) ? self : self + aString
+  end
+
+  def ensureNotEnd(aString)
+    endsWith(aString) ? slice(0, size - aString.size) : self  
+  end
 end
 
 
@@ -62,8 +70,9 @@ module Glob
       aFilePath.to_s.endsWith(File::SEPARATOR)
     end
 
-    def self.filename(aFilePath)
-      aFilePath.to_s.slice(Regexp.new("#{GlobPattern::NOT_PATH_SEPARATOR}*$"))
+    def self.basename(aFilePath)
+      aFilePath.to_s.split(File::SEPARATOR).last
+      #      aFilePath.to_s.slice(Regexp.new("#{GlobPattern::NOT_PATH_SEPARATOR}*$"))
     end
   end
   
@@ -106,31 +115,42 @@ module FileArchive
   def extract(src, dst, recursive = RECURSIVE, 
 	      continueOnExistsProc = proc { false }, 
 	      createDestDirectoryProc = proc { true } )
-    selectedEntries = selectEntries(src)
+    puts "extract(#{src}, #{dst}, #{recursive}, ...)"
+    selectedEntries = expandSelection(src)
     case (selectedEntries.size)
     when 0
       raise Zip::ZipNoSuchEntryError, "'#{src}' not found in archive #{self.to_s}"
     when 1
-      extractSingle(selectedEntries[0], dst, continueOnExistsProc)
+      extractSingle(selectedEntries[0], dst, recursive, 
+		    continueOnExistsProc, createDestDirectoryProc)
     else
-      extractMultiple(selectedEntries, dst, continueOnExistsProc, createDestDirectoryProc)
+      extractMultiple(selectedEntries, dst, recursive,
+		      continueOnExistsProc, createDestDirectoryProc)
     end
   end
 
-  def extractMultiple(srcList, dst, continueOnExistsProc, createDestDirectoryProc)
+  def extractMultiple(srcList, dst, recursive, continueOnExistsProc, createDestDirectoryProc)
     FileArchive.ensureDirectory(dst, &createDestDirectoryProc)
-    srcList.each { |srcFilename| extractSingle(srcFilename, dst, continueOnExistsProc) }
+    srcList.each { 
+      |srcFilename| 
+      extractSingle(srcFilename, dst, recursive, continueOnExistsProc, createDestDirectoryProc) 
+    }
   end
   private :extractMultiple
 
-  def extractSingle(src, dst, continueOnExistsProc)
+  def extractSingle(src, dst, recursive, continueOnExistsProc, createDestDirectoryProc)
+    puts "destinationFilename(#{src}, #{dst}) = #{destinationFilename(src, dst)}"
     extractEntry(src, destinationFilename(src, dst), &continueOnExistsProc)
+    if (recursive && Glob::FilePath.isDirectory(src))
+      extract(src+"*", destinationFilename(src, dst).ensureEnd(File::SEPARATOR)+src,
+	      recursive, continueOnExistsProc, createDestDirectoryProc)
+    end
   end
   private :extractSingle
 
   def destinationFilename(sourceFilePath, destinationPath)
     if File.directory?(destinationPath)
-      return destinationPath + File::SEPARATOR + Glob::FilePath.filename(sourceFilePath)
+      return destinationPath.ensureEnd(File::SEPARATOR) + Glob::FilePath.basename(sourceFilePath)
     else
       return sourceFilePath
     end
@@ -139,8 +159,7 @@ module FileArchive
 
   # if selection is a string or a regexp it is expanded to a list of entries
   # otherwise selection is returned unmodified
-  def selectEntries(selection)
-puts "selectEntries should have unit test"
+  def expandSelection(selection)
     case selection
     when String then return Glob.glob(entries, selection)
     when Regexp then return entries.select { |entry| entry.to_s =~ selection }
@@ -151,7 +170,6 @@ puts "selectEntries should have unit test"
   # If filepath is a file raises exception. 
   # If filepath doesn't exist create if createDirectoryProc
   def self.ensureDirectory(filepath, &createDirectoryProc)
-puts "ensureDirectory should have unit test"
     if File.exists?(filepath) && File.directory?(filepath)
       return
     elsif File.exists?(filepath) && ! File.directory?(filepath)

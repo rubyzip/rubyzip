@@ -64,9 +64,8 @@ class TestArchive
   include Enumerable
   include FileArchive
 
-  def initialize(entries, fakeKnownDirectories)
+  def initialize(entries)
     @entries = entries
-    @fakeKnownDirectories = fakeKnownDirectories
     @extractedEntries = []
   end
 
@@ -75,6 +74,7 @@ class TestArchive
   end
 
   def extractEntry(src, dst)
+#    puts "extractEntry(#{src}, #{dst})"
     getEntry(src)
     @extractedEntries << dst
   end
@@ -104,15 +104,20 @@ class MockFileSystem
   end
 
   def mkdir(aPath)
-    @entries[aPath] = nil
+    @entries[aPath.ensureEnd(File::SEPARATOR)] = nil
   end
 
   def exists?(aPath)
-    @entries.include?(aPath)
+    getEntry(aPath) != nil
   end
 
   def directory?(aPath)
-    exists?(aPath) && aPath.endsWith(File::SEPARATOR)
+    exists?(aPath) && getEntry(aPath).endsWith(File::SEPARATOR)
+  end
+
+  def getEntry(aPath)
+    aPathReduced = aPath.ensureNotEnd(File::SEPARATOR)
+    @entries.keys.find { |e| e.ensureNotEnd(File::SEPARATOR) == aPathReduced }
   end
 end
 
@@ -124,10 +129,7 @@ class FileArchiveTest < RUNIT::TestCase
 				     "dir1/entry11",
 				     "dir3/",
 				     "dir3/dir4/",
-				     "dir3/dir4/entry341"],
-				   [ "odir1/", 
-				     "odir1/odir2/", 
-				     "odir3/"])
+				     "dir3/dir4/entry341"])
     configureMockFileSystem
   end
 
@@ -170,12 +172,32 @@ class FileArchiveTest < RUNIT::TestCase
     end
   end
 
+  def test_expandSelection
+    assert_equals([ "dir1/",
+		    "dir3/"].sort,
+		  @testArchive.expandSelection("*").sort)
+  end
+
+  def test_ensureDirectory
+    FileArchive.ensureDirectory("hello/") { true }
+    assert(MockFileSystem.instance.exists?("hello"))
+    FileArchive.ensureDirectory("hello/") { false }
+    assert(MockFileSystem.instance.exists?("hello"))
+    assert_exception(Errno::ENOENT) {
+      FileArchive.ensureDirectory("mums/") { false }
+      FileArchive.ensureDirectory("mums") { false }
+    }      
+  end
+
   def test_extractAllRecursiveToDirectory
     @testArchive.extract("*", "odir1", FileArchive::RECURSIVE)
-    assertExtracted([ "odir1/dir1/dir2/",
-		      "odir1/dir1/dir2/entry121",
-		      "odir1/dir1/entry11",
-		      "odir1/dir3/dir4/entry341"])
+    assertExtracted([ "dir1/",
+		      "dir1/dir2/",
+		      "dir1/dir2/entry121",
+		      "dir1/entry11",
+		      "dir3/",
+		      "dir3/dir4/",
+		      "dir3/dir4/entry341"])
   end
 
   def test_extractAllRecursiveToNewName
