@@ -4,7 +4,7 @@ $VERBOSE = true
 
 require 'rubyunit'
 require 'ziprequire'
-$: << 'rubycode.zip'
+$: << 'rubycode.zip' << 'rubycode2.zip'
 
 Dir.chdir "test"
 
@@ -19,10 +19,14 @@ class ZipRequireTest < RUNIT::TestCase
     assert(require 'zippedruby2')
     assert(!require('zippedruby2'))
 
+    assert(require 'zippedruby3')
+    assert(!require('zippedruby3'))
+
     c1 = NotZippedRuby.new
     assert(c1.returnTrue)
     assert(ZippedRuby1.returnTrue)
     assert(!ZippedRuby2.returnFalse)
+    assert_equals(4, ZippedRuby3.multiplyValues(2, 2))
   end
 
   def test_getResource
