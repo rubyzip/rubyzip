@@ -5,6 +5,7 @@ require 'zip'
 
 include Zip
 
+
 class AbstractInputStreamTest < RUNIT::TestCase
   # AbstractInputStream subclass that provides a read method
   
@@ -84,12 +85,12 @@ class ZipEntryTest < RUNIT::TestCase
   TEST_ISDIRECTORY = false
 
   def test_constructorAndGetters
-    entry = ZipEntry.new(TEST_COMMENT,
+    entry = ZipEntry.new(TEST_NAME,
+			 TEST_COMMENT,
+			 TEST_EXTRA,
 			 TEST_COMPRESSED_SIZE,
 			 TEST_CRC,
-			 TEST_EXTRA,
 			 TEST_COMPRESSIONMETHOD,
-			 TEST_NAME,
 			 TEST_SIZE)
 
     assert_equals(TEST_COMMENT, entry.comment)
@@ -100,6 +101,38 @@ class ZipEntryTest < RUNIT::TestCase
     assert_equals(TEST_NAME, entry.name)
     assert_equals(TEST_SIZE, entry.size)
     assert_equals(TEST_ISDIRECTORY, entry.isDirectory)
+  end
+
+  def test_equality
+    entry1 = ZipEntry.new("name",  "isNotCompared",    "something extra", 
+			  123, 1234, ZipEntry::DEFLATED, 10000)  
+    entry2 = ZipEntry.new("name",  "isNotComparedXXX", "something extra", 
+			  123, 1234, ZipEntry::DEFLATED, 10000)  
+    entry3 = ZipEntry.new("name2", "isNotComparedXXX", "something extra", 
+			  123, 1234, ZipEntry::DEFLATED, 10000)  
+    entry4 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
+			  123, 1234, ZipEntry::DEFLATED, 10000)  
+    entry5 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
+			  12,  1234, ZipEntry::DEFLATED, 10000)  
+    entry6 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
+			  12,  123,  ZipEntry::DEFLATED, 10000)  
+    entry7 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
+			  12,  123,  ZipEntry::STORED,   10000)  
+    entry8 = ZipEntry.new("name2", "isNotComparedXXX", "something extraXX", 
+			  12,  123,  ZipEntry::STORED,   100000)  
+
+    assert_equals(entry1, entry1)
+    assert_equals(entry1, entry2)
+
+    assert(entry2 != entry3)
+    assert(entry3 != entry4)
+    assert(entry4 != entry5)
+    assert(entry5 != entry6)
+    assert(entry6 != entry7)
+    assert(entry7 != entry8)
+
+    assert(entry7 != "hello")
+    assert(entry7 != 12)
   end
 end
 
@@ -171,8 +204,8 @@ class ZipLocalEntryTest < RUNIT::TestCase
   end
 
   def test_writeEntry
-    entry = ZipEntry.new("my little comment", 100, 987654, "thisIsSomeExtraInformation", 
-			 ZipEntry::DEFLATED, "entryName", 400)
+    entry = ZipEntry.new("entryName", "my little comment", "thisIsSomeExtraInformation", 100, 987654, 
+			 ZipEntry::DEFLATED, 400)
     writeToFile("localEntryHeader.bin", "centralEntryHeader.bin",  entry)
     entryReadLocal, entryReadCentral = readFromFile("localEntryHeader.bin", "centralEntryHeader.bin")
     compareLocalEntryHeaders(entry, entryReadLocal)
@@ -299,6 +332,8 @@ module AssertEntry
   end
 end
 
+
+
 class ZipInputStreamTest < RUNIT::TestCase
   include AssertEntry
 
@@ -410,6 +445,7 @@ class TestZipFile
 			      "my zip comment")
   TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
 end
+
 
 class AbstractOutputStreamTest < RUNIT::TestCase
   class TestOutputStream
@@ -549,6 +585,7 @@ class DeflaterTest < RUNIT::TestCase
   end
 end
 
+
 class ZipOutputStreamTest < RUNIT::TestCase
   include AssertEntry
 
@@ -587,10 +624,11 @@ class ZipOutputStreamTest < RUNIT::TestCase
     TEST_ZIP.entryNames.each {
       |entryName|
       zos.putNextEntry(entryName)
-      File.open(entryName) { |f| zos.write(f) }
+      File.open(entryName) { |f| zos.write(f.read) }
     }
   end
 end
+
 
 
 module Enumerable
@@ -713,6 +751,45 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
     entry.readFromStream(fragment)
     fail "ZipError expected"
   rescue ZipError
+  end
+
+  def test_writeToStream
+    entries = [ ZipEntry.new("flimse", "myComment", "somethingExtra"),
+      ZipEntry.new("secondEntryName"),
+      ZipEntry.new("lastEntry.txt", "Has a comment too") ]
+    cdir = ZipCentralDirectory.new(entries, "my zip comment")
+    File.open("cdirtest.bin", "wb") { |f| cdir.writeToStream(f) }
+    cdirReadback = ZipCentralDirectory.new
+    File.open("cdirtest.bin", "rb") { |f| cdirReadback.readFromStream(f) }
+    
+    assert_equals(cdir.entries, cdirReadback.entries)
+  end
+
+  def test_equality
+    cdir1 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
+				     ZipEntry.new("secondEntryName"),
+				     ZipEntry.new("lastEntry.txt") ], 
+				   "my zip comment")
+    cdir2 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
+				     ZipEntry.new("secondEntryName"),
+				     ZipEntry.new("lastEntry.txt") ], 
+				   "my zip comment")
+    cdir3 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
+				     ZipEntry.new("secondEntryName"),
+				     ZipEntry.new("lastEntry.txt") ], 
+				   "comment?")
+    cdir4 = ZipCentralDirectory.new([ ZipEntry.new("flimse", nil, "somethingExtra"),
+				     ZipEntry.new("lastEntry.txt") ], 
+				   "comment?")
+    assert_equals(cdir1, cdir1)
+    assert_equals(cdir1, cdir2)
+
+    assert(cdir1 !=  cdir3)
+    assert(cdir2 !=  cdir3)
+    assert(cdir2 !=  cdir3)
+    assert(cdir3 !=  cdir4)
+
+    assert(cdir3 !=  "hello")
   end
 end
 

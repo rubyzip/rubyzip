@@ -3,6 +3,13 @@
 require 'singleton'
 require 'zlib'
 
+module Enumerable
+  def inject(n = 0)
+    each { |value| n = yield(n, value) }
+    n
+  end
+end
+
 module Zip
 
   # Implements many of the convenience methods of IO
@@ -241,8 +248,8 @@ module Zip
     attr_accessor  :comment, :compressedSize, :crc, :extra, :compressionMethod, 
       :name, :size, :localHeaderOffset
     
-    def initialize(comment = nil, compressedSize = nil, crc = nil, extra = nil, 
-		   compressionMethod = ZipEntry::DEFLATED, name = nil, size = nil)
+    def initialize(name = "", comment = "", extra = "", compressedSize = 0,   
+		   crc = 0, compressionMethod = ZipEntry::STORED, size = 0)
       @comment, @compressedSize, @crc, @extra, @compressionMethod, 
 	@name, @size, @isDirectory = comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
@@ -257,7 +264,12 @@ module Zip
     end
     
     def localHeaderSize
-      30 + name.size + extra.size
+      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.size : 0) + (@extra ? @extra.size : 0)
+    end
+
+    def cdirHeaderSize
+      CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.size : 0) + 
+	(@extra ? @extra.size : 0) + (@comment ? @comment.size : 0)
     end
     
     def nextHeaderOffset
@@ -340,11 +352,11 @@ module Zip
     end
     
     CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
-    CDIR_STATIC_HEADER_LENGTH = 46
+    CDIR_ENTRY_STATIC_HEADER_LENGTH = 46
     
     def readCDirEntry(io)
-      staticSizedFieldsBuf = io.read(CDIR_STATIC_HEADER_LENGTH)
-      unless (staticSizedFieldsBuf.size == CDIR_STATIC_HEADER_LENGTH)
+      staticSizedFieldsBuf = io.read(CDIR_ENTRY_STATIC_HEADER_LENGTH)
+      unless (staticSizedFieldsBuf.size == CDIR_ENTRY_STATIC_HEADER_LENGTH)
 	raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
       end
       
@@ -379,7 +391,6 @@ module Zip
       unless (@comment && @comment.length == commentLength)
 	raise ZipError, "Truncated cdir zip entry header"
       end
-      
     end
     
     def ZipEntry.readCDirEntry(io)
@@ -418,7 +429,18 @@ module Zip
       io << @extra
       io << @comment
     end
+    
+    def == (other)
+      return false unless other.kind_of?(ZipEntry)
 
+      # Compares contents of local entry and exposed fields
+      (@compressionMethod == other.compressionMethod &&
+       @crc               == other.crc		     &&
+       @compressedSize    == other.compressedSize    &&
+       @size              == other.size	             &&
+       @name              == other.name	             &&
+       @extra             == other.extra)
+      end
   end
 
 
@@ -437,7 +459,7 @@ module Zip
     def ZipOutputStream.open(fileName)
       return new(fileName) unless block_given?
       zos = new(fileName)
-      yield
+      yield zos
       zos.close
     end
 
@@ -454,40 +476,60 @@ module Zip
       raise ZipError, "zip stream is closed" if @closed
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(entry.to_s)
       initNextEntry(newEntry)
-      newEntry
+      @currentEntry=newEntry
     end
 
     private
     def finalizeCurrentEntry
       return unless @currentEntry
-      flush
-      @currentEntry.compressedSize = @outputStream.tell - @currentEntry.localHeaderOffset
+      finish
+      @currentEntry.compressedSize = @outputStream.tell - @currentEntry.localHeaderOffset - @currentEntry.localHeaderSize
+#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING:
+      @currentEntry.size = 105896
       @currentEntry = nil
       @compressor = NullCompressor
     end
     
     def initNextEntry(entry, level = Zlib::DEFAULT_COMPRESSION)
       finalizeCurrentEntry
-      entry.localHeaderOffset = @outputStream.tell
       @entries << entry
-      @compressor = ZipOutputStream::getCompressor(entry, level)
-      entry.writeLocalEntryToOutputStream(@outputStream)
+      entry.writeLocalEntry(@outputStream)
+      @compressor = getCompressor(entry, level)
     end
 
-    def ZipOutputStream::getCompressor(entry)
+    def getCompressor(entry, level)
       case entry.compressionMethod
 	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
-	when ZipEntry::DEFLATED then PassThruCompressor.new(@outputStream)
+	when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
       else raise ZipError, "Invalid compression method: '#{entry.compressionMethod}'"
       end
     end
 
     def updateLocalHeaders
-      raise "implement"
+      pos = @outputStream.tell
+      @entries.each {
+	|entry|
+	@outputStream.pos = entry.localHeaderOffset
+	entry.writeLocalEntry(@outputStream)
+      }
+      @outputStream.pos = pos
     end
 
     def writeCentralDirectory
-      raise "implement"
+      cdir = ZipCentralDirectory.new(@entries, @comment)
+      cdir.writeToStream(@outputStream)
+    end
+
+    protected
+    def << (data)
+      @compressor << data
+    end
+
+    def finish
+      @compressor.finish
     end
   end
 
@@ -536,9 +578,40 @@ module Zip
     
     END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054b50
     MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE = 65536 + 18
+    STATIC_EOCD_SIZE = 22
+
+    attr_reader :size, :comment, :entries
     
-    attr_reader :size, :comment
-    
+    def initialize(entries = [], comment = "")
+      @entries = entries
+      @comment = comment
+    end
+
+    def writeToStream(io)
+      offset = io.tell
+      @entries.each { |entry| entry.writeCDirEntry(io) }
+      writeEOCD(io, offset)
+    end
+
+    def writeEOCD(io, offset)
+      io <<
+	[END_OF_CENTRAL_DIRECTORY_SIGNATURE,
+        0                                  , # @numberOfThisDisk
+	0                                  , # @numberOfDiskWithStartOfCDir
+	@entries? @entries.size : 0        ,
+	@entries? @entries.size : 0        ,
+	cdirSize                           ,
+	offset                             ,
+	@comment ? @comment.length : 0     ].pack('VvvvvVVv')
+      io << @comment
+    end
+    private :writeEOCD
+
+    def cdirSize
+      @entries.inject { |value, entry| entry.cdirHeaderSize + value } + STATIC_EOCD_SIZE + (@comment ? @comment.size : 0 )
+    end
+    private :cdirSize
+
     def readEOCD(io)
       buf = getEOCD(io)
       @numberOfThisDisk                     = ZipEntry::readZipShort(buf)
@@ -588,13 +661,18 @@ module Zip
     def each(&proc)
       @entries.each &proc
     end
-    
+
     def ZipCentralDirectory.readFromStream(io)
       cdir  = new
       cdir.readFromStream(io)
       return cdir
     rescue ZipError
       return nil
+    end
+
+    def == (other)
+      return false unless other.kind_of?(ZipCentralDirectory)
+      @entries == other.entries && comment == other.comment
     end
   end
   
