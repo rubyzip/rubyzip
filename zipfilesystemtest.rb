@@ -78,6 +78,13 @@ class ZipFsFileTest < RUNIT::TestCase
     assert_equals(0, @zipFsFile.size("dir2/dir21"))
   end
 
+  def test_size?
+    assert_equals(nil, @zipFsFile.size?("notAFile"))
+    assert_equals(72, @zipFsFile.size?("file1"))
+    assert_equals(nil, @zipFsFile.size?("dir2/dir21"))
+  end
+
+
   def test_file?
     assert(@zipFsFile.file?("file1"))
     assert(@zipFsFile.file?("dir2/file21"))
@@ -222,10 +229,6 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_stat
-    fail "implement test"
-  end
-
-  def test_size?
     fail "implement test"
   end
 
