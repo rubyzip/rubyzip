@@ -1,43 +1,3 @@
-Refactoring - plan II (Better I think)
-LocalFileSystem should be just this:
-
-class LocalFileSystem
-  include Singleton
-
-  def directory
-    Directory
-  end
-
-  def file
-    File
-  end
-end
-
-The convenience methods in ZipFile should be cleaned up/out.
-
-class ZipFileSystem
-  def initialize(zipFile)
-    @zipfile = zipfile
-  end
-
-  def directory
-    ZipFsDirectory.new(@zipfile)
-  end
-  once :directory
-
-  def file
-    ZipFsFile.new(@zipfile)
-  end
-  once :file
-end
-
-class ZipFile
-  def fileSystem
-    ZipFileSystem.new(self)
-  end
-  once: fileSystem
-end
-
 AbstractFileSystemUtils.copy will continue as below.
 
 
@@ -61,6 +21,7 @@ Change ZipFile (and ZipFileTest)
 
 
 unit test and implement:
+* openmode (binary, ascii) - only relevant on windows
 * globbing (Glob module implemented and unit tested, but not used)
 * adding directories recursively
 * recursive extract
