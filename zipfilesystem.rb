@@ -110,6 +110,10 @@ module Zip
       def link(fileName, symlinkName)
 	raise NotImplementedError, "The link() function is not implemented to ZipFileSystem"
       end
+
+      def pipe
+	raise NotImplementedError, "The pipe() function is not implemented to ZipFileSystem"
+      end
     end
   end
 end

@@ -253,9 +253,9 @@ class ZipFsFileTest < RUNIT::TestCase
     }
   end
 
-#  def test_readable?
-#    fail "implement test"
-#  end
+  def test_readable?
+    fail "implement test"
+  end
 
   def test_delete
     fail "implement test"
@@ -271,21 +271,23 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
-#  def test_chmod
-#    fail "implement test"
-#  end
+  def test_chmod
+    fail "implement test"
+  end
 
   def test_chardev?
     fail "implement test"
   end
 
-#  def test_writable_real?
-#    fail "implement test"
-#  end
+  def test_writable_real?
+    fail "implement test"
+  end
 
-#  def test_pipe
-#    fail "implement test"
-#  end
+  def test_pipe
+    assert_exception(NotImplementedError) {
+      @zipFsFile.pipe
+    }
+  end
 
   def test_foreach
     fail "implement test"
@@ -295,9 +297,9 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
-#  def test_select
-#    fail "implement test"
-#  end
+  def test_select
+    fail "implement test"
+  end
 
   def test_readlines
     fail "implement test"
