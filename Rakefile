@@ -6,6 +6,7 @@ require 'rake/testtask'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
+require 'rake/contrib/sshpublisher'
 
 PKG_NAME = 'rubyzip'
 PKG_VERSION = File.read('lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
@@ -63,4 +64,10 @@ Rake::RDocTask.new do |rd|
   rd.rdoc_files.add %W{ lib/zip/*.rb README NEWS TODO  }
   rd.options << "--title 'rubyzip documentation' --webcvs http://cvs.sourceforge.net/viewcvs.py/rubyzip/rubyzip/"
 #  rd.options << "--all"
+end
+
+desc "Publish documentation"
+task :pdoc => [:rdoc] do
+  Rake::SshFreshDirPublisher.
+       new("thomas@rubyzip.sourceforge.net", "rubyzip/htdocs", "html").upload
 end

@@ -1,4 +1,6 @@
 
+* Add documentation to ziprequire, ZipInputStream and ZipOutputStream,
+  AbstractInputStream, AbstractOutputStream, FakeIO etc
 * Add web target to Rakefile to update rubyzip.sourceforge.net website
 * Add upload target which uploads dist to sourceforge and gem to where-ever
 * Release 0.5.7
