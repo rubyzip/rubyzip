@@ -1,18 +1,19 @@
 #!/usr/bin/env ruby
 
-require 'runit/testcase'
-require 'runit/cui/testrunner'
+require 'rubyunit'
 require 'zip'
 
-class PseudoIOTest < RUNIT::TestCase
-  # PseudoIO subclass that provides a read method
+include Zip
+
+class AbstractInputStreamTest < RUNIT::TestCase
+  # AbstractInputStream subclass that provides a read method
   
   TEST_LINES = [ "Hello world#{$/}", 
     "this is the second line#{$/}", 
     "this is the last line"]
   TEST_STRING = TEST_LINES.join
-  class TestPseudoIO 
-    include PseudoIO
+  class TestAbstractInputStream 
+    include AbstractInputStream
     def initialize(aString)
       @contents = aString
       @readPointer = 0
@@ -34,7 +35,7 @@ class PseudoIOTest < RUNIT::TestCase
   end
 
   def setup
-    @io = TestPseudoIO.new(TEST_STRING)
+    @io = TestAbstractInputStream.new(TEST_STRING)
   end
   
   def test_gets
@@ -133,10 +134,10 @@ module IOizeString
 end
 
 class ZipLocalEntryTest < RUNIT::TestCase
-  def test_ReadLocalEntryHeaderOfFirstTestZipEntry
+  def test_readLocalEntryHeaderOfFirstTestZipEntry
     File.open(TestZipFile::TEST_ZIP3.zipName) {
       |file|
-      entry = ZipLocalEntry.readFromStream(file)
+      entry = ZipEntry.readLocalEntry(file)
       
       assert_equal(nil, entry.comment)
       # Differs from windows and unix because of CR LF
@@ -152,21 +153,46 @@ class ZipLocalEntryTest < RUNIT::TestCase
     }
   end
 
-  def test_ReadLocalEntryFromNonZipFile
+  def test_readLocalEntryFromNonZipFile
     File.open("ziptest.rb") {
       |file|
-      assert_equals(nil, ZipLocalEntry.readFromStream(file))
+      assert_equals(nil, ZipEntry.readLocalEntry(file))
     }
   end
 
-  def test_ReadLocalEntryFromTruncatedZipFile
+  def test_readLocalEntryFromTruncatedZipFile
     zipFragment=""
     File.open(TestZipFile::TEST_ZIP2.zipName) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
     zipFragment.extend(IOizeString)
-    entry = ZipLocalEntry.new
-    entry.readFromStream(zipFragment)
+    entry = ZipEntry.new
+    entry.readLocalEntry(zipFragment)
     fail "ZipError expected"
   rescue ZipError
+  end
+
+  def test_writeLocalEntry
+    entry = ZipEntry.new("my little comment", 100, 987654, "thisIsSomeExtraInformation", 
+			 ZipEntry::DEFLATED, "entryName", 400)
+    writeToFile("localEntryHeader.bin", entry)
+    entryRead = readFromFile("localEntryHeader.bin")
+    
+    assert_equals(entry.compressedSize   , entryRead.compressedSize)
+    assert_equals(entry.crc              , entryRead.crc)
+    assert_equals(entry.extra            , entryRead.extra)
+    assert_equals(entry.compressionMethod, entryRead.compressionMethod)
+    assert_equals(entry.name             , entryRead.name)
+    assert_equals(entry.size             , entryRead.size)
+    assert_equals(entry.localHeaderOffset, entryRead.localHeaderOffset)
+  end
+
+  def writeToFile(fileName, entry)
+    File.open(fileName, "wb") { |f| entry.writeLocalEntry(f) }
+  end
+
+  def readFromFile(fileName)
+    entry = nil
+    File.open(fileName, "rb") { |f| entry = ZipEntry.readLocalEntry(f) }
+    return entry
   end
 end
 
@@ -241,6 +267,23 @@ module AssertEntry
       end
     }
   end
+
+
+  def assertStreamContents(zis, testZipFile)
+    assert(zis != nil)
+    testZipFile.entryNames.each {
+      |entryName|
+      assertNextEntry(entryName, zis)
+    }
+    assert_equals(nil, zis.getNextEntry)
+  end
+
+  def assertTestZipContents(testZipFile)
+    ZipInputStream.open(testZipFile.zipName) {
+      |zis|
+      assertStreamContents(zis, testZipFile)
+    }
+  end
 end
 
 class ZipInputStreamTest < RUNIT::TestCase
@@ -248,20 +291,20 @@ class ZipInputStreamTest < RUNIT::TestCase
 
   def test_new
     zis = ZipInputStream.new(TestZipFile::TEST_ZIP2.zipName)
-    assertTestfileContents(zis)
+    assertStreamContents(zis, TestZipFile::TEST_ZIP2)
     zis.close    
   end
 
   def test_openWithBlock
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zipName) {
       |zis|
-      assertTestfileContents(zis)
+      assertStreamContents(zis, TestZipFile::TEST_ZIP2)
     }
   end
 
   def test_openWithoutBlock
     zis = ZipInputStream.open(TestZipFile::TEST_ZIP2.zipName)
-    assertTestfileContents(zis)
+    assertStreamContents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_incompleteReads
@@ -283,36 +326,19 @@ class ZipInputStreamTest < RUNIT::TestCase
     }
   end
   
-  private
-  
-  def assertTestfileContents(zis)
-    assert(zis != nil)
-    assertNextEntry(TestZipFile::TEST_ZIP2.entryNames[0], zis)
-    assertNextEntry(TestZipFile::TEST_ZIP2.entryNames[1], zis)
-    assertNextEntry(TestZipFile::TEST_ZIP2.entryNames[2], zis)
-    assertNextEntry(TestZipFile::TEST_ZIP2.entryNames[3], zis)
-    assert_equals(nil, zis.getNextEntry)
-  end    
 end
 
 
 # For representation and creation of
 # test data
 class TestZipFile
-  attr_reader :zipName, :entryNames, :comment
+  attr_accessor :zipName, :entryNames, :comment
 
   def initialize(zipName, entryNames, comment = "")
     @zipName=zipName
     @entryNames=entryNames
     @comment = comment
-    @@testZips << self
   end
-
-  def TestZipFile.testZips
-    @@testZips
-  end
-
-  @@testZips = []
 
   def TestZipFile.createTestZips(recreate)
     files = Dir.entries(".")
@@ -372,6 +398,158 @@ class TestZipFile
   TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
 end
 
+class AbstractOutputStreamTest < RUNIT::TestCase
+  class TestOutputStream
+    include AbstractOutputStream
+
+    attr_accessor :buffer
+
+    def initialize
+      @buffer = ""
+    end
+
+    def << (data)
+      @buffer << data
+      self
+    end
+  end
+
+  def setup
+    @outputStream = TestOutputStream.new
+
+    @origCommaSep = $,
+    @origOutputSep = $\
+  end
+
+  def teardown
+    $, = @origCommaSep
+    $\ = @origOutputSep
+  end
+
+  def test_write
+    count = @outputStream.write("a little string")
+    assert_equals("a little string", @outputStream.buffer)
+    assert_equals("a little string".length, count)
+
+    count = @outputStream.write(". a little more")
+    assert_equals("a little string. a little more", @outputStream.buffer)
+    assert_equals(". a little more".length, count)
+  end
+  
+  def test_dollarUnderscore
+    fail "test AbstractOutputStream::print with out params, so it uses $_"
+  end
+
+  def test_print
+    $\ = nil # record separator set to nil
+    @outputStream.print("hello")
+    assert_equals("hello", @outputStream.buffer)
+
+    @outputStream.print(" world.")
+    assert_equals("hello world.", @outputStream.buffer)
+    
+    @outputStream.print(" You ok ",  "out ", "there?")
+    assert_equals("hello world. You ok out there?", @outputStream.buffer)
+
+    $\ = "\n"
+    @outputStream.print
+    assert_equals("hello world. You ok out there?\n", @outputStream.buffer)
+
+    @outputStream.print("I sure hope so!")
+    assert_equals("hello world. You ok out there?\nI sure hope so!\n", @outputStream.buffer)
+
+    $, = "X"
+    @outputStream.buffer = ""
+    @outputStream.print("monkey", "duck", "zebra")
+    assert_equals("monkeyXduckXzebra\n", @outputStream.buffer)
+
+    $\ = nil
+    @outputStream.buffer = ""
+    @outputStream.print(20)
+    assert_equals("20", @outputStream.buffer)
+  end
+  
+  def test_printf
+    @outputStream.printf("%d %04x", 123, 123) 
+    assert_equals("123 007b", @outputStream.buffer)
+  end
+  
+  def test_putc
+    @outputStream.putc("A")
+    assert_equals("A", @outputStream.buffer)
+    @outputStream.putc(65)
+    assert_equals("AA", @outputStream.buffer)
+  end
+
+  def test_puts
+    @outputStream.puts
+    assert_equals("\n", @outputStream.buffer)
+
+    @outputStream.puts("hello", "world")
+    assert_equals("\nhello\nworld\n", @outputStream.buffer)
+
+    @outputStream.buffer = ""
+    @outputStream.puts("hello\n", "world\n")
+    assert_equals("hello\nworld\n", @outputStream.buffer)
+    
+    @outputStream.buffer = ""
+    @outputStream.puts(["hello\n", "world\n"])
+    assert_equals("hello\nworld\n", @outputStream.buffer)
+
+    @outputStream.buffer = ""
+    @outputStream.puts(["hello\n", "world\n"], "bingo")
+    assert_equals("hello\nworld\nbingo\n", @outputStream.buffer)
+
+    @outputStream.buffer = ""
+    @outputStream.puts(16, 20, 50, "hello")
+    assert_equals("16\n20\n50\nhello\n", @outputStream.buffer)
+  end
+end
+
+class ZipOutputStreamTest < RUNIT::TestCase
+  include AssertEntry
+
+  TEST_ZIP = TestZipFile::TEST_ZIP2.clone
+  TEST_ZIP.zipName = "output.zip"
+
+  def test_new
+    zos = ZipOutputStream.new(TEST_ZIP.zipName)
+    writeTestZip(zos)
+    zos.close
+    assertTestZipContents(TEST_ZIP)
+  end
+
+  def test_open
+    ZipOutputStream.open(TEST_ZIP.zipName) {
+      |zos|
+      writeTestZip(zos)
+    }
+    assertTestZipContents(TEST_ZIP)
+  end
+
+  def test_putOnClosedStream
+    fail "implement and expect ZipError"
+  end
+
+  def test_writingToClosedStream
+    fail "implement this test and make sure behaviour is similar to closed File object"
+  end
+
+  def test_cannotOpenFile
+    fail "implement and expect zip.closed? and exception from constructor"
+  end
+
+
+  def writeTestZip(zos)
+    TEST_ZIP.entryNames.each {
+      |entryName|
+      zos.putNextEntry(entryName)
+      File.open(entryName) { |f| zos.write(f) }
+    }
+  end
+end
+
+
 module Enumerable
   def compareEnumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
@@ -390,7 +568,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
   def test_readFromStream
     File.open("testDirectory.bin", "rb") {
       |file|
-      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      entry = ZipEntry.readCDirEntry(file)
       
       assert_equals("longAscii.txt", entry.name)
       assert_equals(ZipEntry::DEFLATED, entry.compressionMethod)
@@ -399,7 +577,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
       assert_equals(0xfcd1799c, entry.crc)
       assert_equals("", entry.comment)
 
-      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      entry = ZipEntry.readCDirEntry(file)
       assert_equals("empty.txt", entry.name)
       assert_equals(ZipEntry::STORED, entry.compressionMethod)
       assert_equals(0, entry.size)
@@ -407,7 +585,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
       assert_equals(0x0, entry.crc)
       assert_equals("", entry.comment)
 
-      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      entry = ZipEntry.readCDirEntry(file)
       assert_equals("short.txt", entry.name)
       assert_equals(ZipEntry::STORED, entry.compressionMethod)
       assert_equals(6, entry.size)
@@ -415,7 +593,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
       assert_equals(0xbb76fe69, entry.crc)
       assert_equals("", entry.comment)
 
-      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      entry = ZipEntry.readCDirEntry(file)
       assert_equals("longBinary.bin", entry.name)
       assert_equals(ZipEntry::DEFLATED, entry.compressionMethod)
       assert_equals(1000024, entry.size)
@@ -423,7 +601,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
       assert_equals(0x10da7d59, entry.crc)
       assert_equals("", entry.comment)
 
-      entry = ZipCentralDirectoryEntry.readFromStream(file)
+      entry = ZipEntry.readCDirEntry(file)
       assert_equals(nil, entry)
 # Fields that are not check by this test:
 #          version made by                 2 bytes
@@ -449,8 +627,8 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
     fragment=""
     File.open("testDirectory.bin") { |f| fragment = f.read(12) } # cdir entry header is at least 46 bytes
     fragment.extend(IOizeString)
-    entry = ZipCentralDirectoryEntry.new
-    entry.readFromStream(fragment)
+    entry = ZipEntry.new
+    entry.readCDirEntry(fragment)
     fail "ZipError expected"
   rescue ZipError
   end
@@ -548,5 +726,4 @@ end
 
 TestZipFile::createTestZips(ARGV.index("recreate") != nil)
 
-RUNIT::CUI::TestRunner.run(RUNIT::TestCase.all_suite)
 

@@ -6,7 +6,7 @@ require 'zip'
 
 ## Using ZipInputStream alone:
 
-ZipInputStream.open("example.zip") {
+Zip::ZipInputStream.open("example.zip") {
   |zis|
   entry = zis.getNextEntry
   puts "********* Zip entry '#{entry.name} (#{entry.size} bytes)' contains: ********"
@@ -17,7 +17,7 @@ ZipInputStream.open("example.zip") {
 }
 
 
-zf = ZipFile.new("example.zip")
+zf = Zip::ZipFile.new("example.zip")
 zf.each_with_index {
   |entry, index|
   
