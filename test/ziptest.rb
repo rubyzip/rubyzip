@@ -1409,6 +1409,9 @@ class ZipFileExtractTest < Test::Unit::TestCase
     assert(! File.exists?(outFile))
   end
 
+  def test_extract_to_nonexisting_path
+    fail "Implement this test"
+  end
 end
 
 class ZipFileExtractDirectoryTest < Test::Unit::TestCase
