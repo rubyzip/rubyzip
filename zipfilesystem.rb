@@ -32,6 +32,8 @@ module Zip
         forwardMessage :forwardInvoke, :readable?, :readable_real?
         forwardMessage :forwardInvoke, :writable?, :writable_real?
         forwardMessage :forwardInvoke, :executable?, :executable_real?
+        forwardMessage :forwardInvoke, :sticky?, :owned?, :grpowned?
+        forwardMessage :forwardInvoke, :setuid?, :setgid?
 
       end
 
@@ -45,12 +47,26 @@ module Zip
       alias :exist? :exists?
       
       # Permissions not implemented, so if the file exists it is accessible
-      alias readable? exists?
-      alias readable_real? exists?
-      alias writable? exists?
-      alias writable_real? exists?
-      alias executable? exists?
+      alias readable?        exists?
+      alias readable_real?   exists?
+      alias writable?        exists?
+      alias writable_real?   exists?
+      alias executable?      exists?
       alias executable_real? exists?
+      alias owned?           exists?
+      alias grpowned?        exists?
+
+      def setuid?(fileName)
+        false
+      end
+
+      def setgid?(fileName)
+        false
+      end
+      
+      def sticky?(fileName)
+        false
+      end
 
       def directory?(fileName)
 	entry = @zipFile.findEntry(fileName)

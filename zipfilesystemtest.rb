@@ -84,10 +84,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
       @zipFile.file.symlink("file1", "aSymlink")
     }
   end
-
-  def test_sticky?
-    fail "implement test"
-  end
   
   def test_size
     assert_exception(Errno::ENOENT) { @zipFile.file.size("notAFile") }
@@ -203,18 +199,10 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert_equals("directory", @zipFile.file.ftype("dir1/dir11/"))
   end
 
-  def test_grpowned?
-    fail "implement test"
-  end
-
   def test_link
     assert_exception(NotImplementedError) {
       @zipFile.file.link("file1", "someOtherString")
     }
-  end
-
-  def test_setgid?
-    fail "implement test"
   end
 
   def test_ctime
@@ -225,9 +213,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_owned?
-    fail "implement test"
-  end
 
   def test_directory?
     assert(! @zipFile.file.directory?("notAFile"))
@@ -246,10 +231,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_chown
-    fail "implement test"
-  end
-
-  def test_setuid?
     fail "implement test"
   end
 
@@ -304,6 +285,26 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 
   def test_executable_real?
     assertTrueIfEntryExists(:executable_real?)
+  end
+
+  def test_owned?
+    assertTrueIfEntryExists(:executable_real?)
+  end
+
+  def test_grpowned?
+    assertTrueIfEntryExists(:executable_real?)
+  end
+
+  def test_setgid?
+    assertAlwaysFalse(:setgid?)
+  end
+
+  def test_setuid?
+    assertAlwaysFalse(:setgid?)
+  end
+
+  def test_sticky?
+    assertAlwaysFalse(:sticky?)
   end
 
   def test_readlink
@@ -377,25 +378,6 @@ end
 
 class ZipFsFileStatTest #< RUNIT::TestCase
 
-  def test_setuid?
-    fail "Implement test"
-  end
-
-  def test_setgid?
-    fail "Implement test"
-  end
-
-  def test_sticky?
-    fail "Implement test"
-  end
-
-  def test_owned?
-    fail "Implement test"
-  end
-
-  def test_grpowned?
-    fail "Implement test"
-  end
   def test_blocks
     fail "Implement test"
   end
