@@ -1,9 +1,11 @@
 
 unit test and implement:
-* adding directories recursively
+* glob module to support:
+** adding directories recursively
+** recursive extract
+** recursive extract with block for determining whether directories should be created.
+
 * ZipFile.checkIntegrity method
-* recursive extract
-* recursive extract with block for determining whether directories should be created.
 
 performance improve method
 ZipStreamableZipEntry.writeToZipOutputStream by not
