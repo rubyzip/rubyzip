@@ -1101,6 +1101,42 @@ class ZipFileTest < CommonZipFileFixture
     zfRead.close
   end
 
+  def test_renameToExistingEntry
+    oldEntries = nil
+    ZipFile.open(TEST_ZIP.zipName) { |zf| oldEntries = zf.entries }
+
+    assert_exception(ZipError) {
+      ZipFile.open(TEST_ZIP.zipName) {
+	|zf|
+	zf.rename(zf.entries[0], zf.entries[1].name)
+      }
+    }
+
+    ZipFile.open(TEST_ZIP.zipName) { 
+      |zf| 
+      assert_equals(oldEntries.map{ |e| e.name }, zf.entries.map{ |e| e.name })
+    }
+  end
+
+  def test_renameToExistingEntryOverwrite
+    oldEntries = nil
+    ZipFile.open(TEST_ZIP.zipName) { |zf| oldEntries = zf.entries }
+    
+    gotCalled = false
+    ZipFile.open(TEST_ZIP.zipName) {
+      |zf|
+      zf.rename(zf.entries[0], zf.entries[1].name) { gotCalled = true; true }
+    }
+
+    assert(gotCalled)
+    oldEntries.delete_at(0)
+    ZipFile.open(TEST_ZIP.zipName) { 
+      |zf| 
+      assert_equals(oldEntries.map{ |e| e.name }, 
+		    zf.entries.map{ |e| e.name })
+    }
+  end
+
   def test_renameNonEntry
     nonEntry = "bogusEntry"
     targetEntry = "targetEntryName"
@@ -1321,11 +1357,13 @@ class ZipFileExtractTest < CommonZipFileFixture
     writtenText = "written text"
     File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
 
+    gotCalled = false
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
       zf.extract(zf.entries.first, EXTRACTED_FILENAME) { gotCalled = true; true }
     }
 
+    assert(gotCalled)
     File.open(EXTRACTED_FILENAME, "r") {
       |f|
       assert(writtenText != f.read)

@@ -791,7 +791,8 @@ module Zip
       @entries.delete(getEntry(entry))
     end
     
-    def rename(entry, newName, continueOnExistsProc = proc { false })
+    def rename(entry, newName, &continueOnExistsProc)
+      continueOnExistsProc ||= proc { false }
       foundEntry = getEntry(entry)
       if @entries.detect { |e| e.name == newName }
 	if continueOnExistsProc.call

@@ -1,6 +1,6 @@
 define finer grained exceptions
+
 unit test adding entry that already exists (and fix)
-unit test rename onExistsProc
 unit test yield on ZipFile::getInputStream
 unit test adding directories (and implement)
 unit test adding directories recursively (and implement)
