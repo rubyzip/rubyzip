@@ -284,6 +284,36 @@ class FileArchiveTest < RUNIT::TestCase
     }
   end
 
+  def test_extractRegex
+    @testArchive.extract(/entry/, "odir")
+
+    expectedOutput = ["odir/entry11", "odir/entry121", "odir/entry341"]
+    expectedOutput.each { 
+      |filename| 
+      assert(MockFileSystem.instance.exists?(filename), 
+	     "filename #{filename} must exist. "+
+	     "Filesystem contains:\n#{MockFileSystem.instance.entries.join($/)}")
+    }
+  end
+
+  def test_extractList
+    @testArchive.extract(["dir1/dir2/entry121", "dir3/dir4/entry341"], 
+			 "odir", FileArchive::RECURSIVE)
+    assert(MockFileSystem.instance.exists?("odir/entry121"))
+    assert(MockFileSystem.instance.exists?("odir/entry341"))
+  end
+
+  def test_extractCreateDestDirProc
+    procArg = nil
+    @testArchive.extract(["dir1/dir2/entry121", "dir3/dir4/entry341"], 
+			 "odir", FileArchive::RECURSIVE, 
+			 proc { false }, 
+			 proc { |directoryname| procArg = directoryname; true })
+    assert_equals("odir", procArg)
+    assert(MockFileSystem.instance.exists?("odir"))
+    
+  end
+
   def assertExtracted(expectedExtractedEntries)
     assert_equals(expectedExtractedEntries.sort, MockFileSystem.instance.entries.sort)
   end

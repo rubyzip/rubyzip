@@ -176,7 +176,7 @@ module FileArchive
     elsif File.exists?(filepath) && ! File.directory?(filepath)
       raise Errno::EEXIST, 
 	"Could not create directory '#{filepath}' - a file already exists with that name"
-    elsif createDirectoryProc.call
+    elsif createDirectoryProc.call(filepath)
       Dir.mkdir(filepath) # replace with something that does mkdir -p (create all dirs)
     else
       raise Errno::ENOENT, "No such file or directory - '#{filepath}'"
