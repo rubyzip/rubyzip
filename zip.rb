@@ -12,12 +12,6 @@ module Enumerable
   end
 end
 
-class Module
-  def instance_respond_to? aSymbol
-    public_instance_methods(true).include?(aSymbol.to_s)
-  end
-end
-
 module Zip
   
   # Implements many of the convenience methods of IO
