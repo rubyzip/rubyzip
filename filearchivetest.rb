@@ -92,6 +92,30 @@ class TestArchive
   end
 end
 
+class MockFileSystem
+  include Singleton
+
+  def initialize
+    deleteAll
+  end
+
+  def deleteAll
+    @entries = {}
+  end
+
+  def mkdir(aPath)
+    @entries[aPath] = nil
+  end
+
+  def exists?(aPath)
+    @entries.include?(aPath)
+  end
+
+  def directory?(aPath)
+    exists?(aPath) && aPath.endsWith(File::SEPARATOR)
+  end
+end
+
 class FileArchiveTest < RUNIT::TestCase
   def setup
     @testArchive = TestArchive.new([ "dir1/",
@@ -104,6 +128,46 @@ class FileArchiveTest < RUNIT::TestCase
 				   [ "odir1/", 
 				     "odir1/odir2/", 
 				     "odir3/"])
+    configureMockFileSystem
+  end
+
+  def teardown
+    unconfigureMockFileSystem
+  end
+
+  def configureMockFileSystem
+    MockFileSystem.instance.deleteAll
+
+    class << Dir
+      alias :origMkdir :mkdir
+      
+      def mkdir(aPath)
+	MockFileSystem.instance.mkdir(aPath)
+      end
+    end
+
+    class << File
+      alias :origExists? :exists?
+      alias :origDirectory? :directory?
+      
+      def exists?(aPath)
+	MockFileSystem.instance.exists?(aPath)
+      end
+
+      def directory?(aPath)
+	MockFileSystem.instance.directory?(aPath)
+      end
+    end
+  end
+
+  def unconfigureMockFileSystem
+    class << Dir
+      alias :mkdir :origMkdir
+    end
+    class << File
+      alias :exists? :origExists?
+      alias :directory? :origDirectory?
+    end
   end
 
   def test_extractAllRecursiveToDirectory
