@@ -91,6 +91,12 @@ end
 module Zip
 
   RUBY_MINOR_VERSION = VERSION.split(".")[1].to_i
+
+  # Ruby 1.7.x compatibility
+  # In ruby 1.6.x and 1.8.0 reading from an empty stream returns 
+  # an empty string the first time and then nil.
+  #  not so in 1.7.x
+  EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST = RUBY_MINOR_VERSION != 7
   
   module FakeIO
     def kind_of?(object)
@@ -282,7 +288,7 @@ module Zip
       super
       @zlibInflater = Zlib::Inflate.new(-Zlib::MAX_WBITS)
       @outputBuffer=""
-      @hasReturnedEmptyString = (RUBY_MINOR_VERSION >= 7)
+      @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
     end
     
     def read(numberOfBytes = nil)
@@ -332,7 +338,7 @@ module Zip
       super inputStream
       @charsToRead = charsToRead
       @readSoFar = 0
-      @hasReturnedEmptyString = (RUBY_MINOR_VERSION >= 7)
+      @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
     end
     
     # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
@@ -1054,10 +1060,7 @@ module Zip
       if foundEntry.isDirectory
 	createDirectory(foundEntry, destPath, &onExistsProc)
       else
-	writeFile(destPath, onExistsProc) { 
-	  |os|
-	  foundEntry.getInputStream { |is| os << is.read }
-	}
+	writeFile(foundEntry, destPath, &onExistsProc) 
       end
     end
     
@@ -1141,12 +1144,15 @@ module Zip
       end
     end
 
-    def writeFile(destPath, continueOnExistsProc = proc { false }, &writeFileProc)
-      if File.exists?(destPath) && ! continueOnExistsProc.call
+    def writeFile(entry, destPath, continueOnExistsProc = proc { false })
+      if File.exists?(destPath) && ! yield(entry, destPath)
 	raise ZipDestinationFileExistsError,
 	  "Destination '#{destPath}' already exists"
       end
-      File.open(destPath, "wb", &writeFileProc)
+      File.open(destPath, "wb") { 
+	  |os|
+	  entry.getInputStream { |is| os << is.read }
+	}
     end
     
     def checkFile(path)

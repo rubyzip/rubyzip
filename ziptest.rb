@@ -1680,13 +1680,18 @@ class ZipFileExtractTest < CommonZipFileFixture
     writtenText = "written text"
     File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
 
-    gotCalled = false
+    gotCalledCorrectly = false
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
-      zf.extract(zf.entries.first, EXTRACTED_FILENAME) { gotCalled = true; true }
+      zf.extract(zf.entries.first, EXTRACTED_FILENAME) { 
+        |entry, extractLoc| 
+        gotCalledCorrectly = zf.entries.first == entry && 
+                                    extractLoc == EXTRACTED_FILENAME
+        true 
+        }
     }
 
-    assert(gotCalled)
+    assert(gotCalledCorrectly)
     File.open(EXTRACTED_FILENAME, "r") {
       |f|
       assert(writtenText != f.read)
