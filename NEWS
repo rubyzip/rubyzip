@@ -5,7 +5,8 @@ object that can be used like Dir and File only for the contents of the
 zip file. Added FileArchive module which ZipFile mix in. FileArchive
 provides filename globbing, regex selection, recursive
 extraction/addition, and other convenience methods. Now works with
-ruby 1.7.2.
+ruby 1.7.2. Added sample application zipfind which works like
+Find.find, only Zip::ZipFind.find traverses into zip archives too.
 
 Bug fixes:
 * AbstractInputStream.each_line with different separator
