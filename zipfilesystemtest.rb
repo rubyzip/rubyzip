@@ -198,7 +198,9 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_symlink?
-    fail "implement test"
+    assert(! @zipFsFile.symlink?("noSuchFile"))
+    assert(! @zipFsFile.symlink?("file1"))
+    assert(! @zipFsFile.symlink?("dir1"))
   end
 
   def test_readable?

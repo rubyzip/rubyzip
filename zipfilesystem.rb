@@ -56,5 +56,9 @@ class ZipFileSystem
     def mtime(fileName)
       @zipFile.getEntry(fileName).mtime
     end
+
+    def symlink?(fileName)
+      false
+    end
   end
 end
