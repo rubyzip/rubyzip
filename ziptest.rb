@@ -668,9 +668,12 @@ class ZipOutputStreamTest < RUNIT::TestCase
   def test_cannotOpenFile
     name = "emptytestdir"
     ensureDir(name)
-    assert_exception(Errno::EISDIR, "Is a director") {
+    begin
       zos = ZipOutputStream.open(name)
-    }
+    rescue Exception
+      assert ($!.kind_of?(Errno::EISDIR) || $!.kind_of?(Errno::EEXIST),
+	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!}")
+    end
   end
 
   def ensureDir(name) 
