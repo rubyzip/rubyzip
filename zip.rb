@@ -447,7 +447,11 @@ module Zip
        @size              == other.size	             &&
        @name              == other.name	             &&
        @extra             == other.extra)
-      end
+    end
+
+    def getInputStreamForZipFile(zipFileName)
+      zis = ZipInputStream.new(zipFileName, localHeaderOffset)
+    end
   end
 
 
@@ -723,34 +727,85 @@ module Zip
     end
     
     def getInputStream(entry)
-      selectedEntry = @entries.detect { |e| e.name == entry.to_s }
-      raise ZipError, "No matching entry found in zip file '#{@name}' for '#{}'" unless selectedEntry
-      zis = ZipInputStream.new(@name, selectedEntry.localHeaderOffset)
+      selectedEntry = getEntry(entry)
+      zis = selectedEntry.getInputStreamForZipFile(name)
       zis.getNextEntry
       return zis
     end
+
+    protected
+    def getEntry(entry)
+      selectedEntry = @entries.detect { |e| e.name == entry.to_s }
+      raise ZipError, "No matching entry found in zip file '#{@name}' for '#{}'" unless selectedEntry
+      selectedEntry
+    end
   end
 
-
+  module Utility
+    def Utility.toIO(anObject)
+      return anObject if anObject.kind_of?(IO)
+      return File.new(anObject) if anObject.kind_of?(String)
+      raise TypeError, "toIO: Only IO and String supported"
+    end
+  end
 
   class ZipFile < BasicZipFile
-    def initialize(fileName); end
+    def initialize(fileName)
+      @name = name
+      if (File.exists?(fileName))
+	super
+	fixEntries
+      else
+	@entries = []
+      end
+    end
+
+#    def open(fileName); end
     def add(entry, srcPath); end
     def remove(entry); end
     def extract(entry, destPath); end
     def rename(entry, newName); end
     def replace(entry, srcPath); end
-    def entries(entry); end
-    def each; end
-    def entries; end
-    def getInputStream(entry); end
-    def foreach(entry); end
+
+    def getInputStream(entry)
+      getEntry(entry).getInputStream
+    end
     
     def commit; end
     def close; end
+
+    private
+
+    def fixEntries
+      each { 
+	|e| 
+	unless e.respond_to?("getInputStream")
+	  e.extend(SourceZipEntry)
+	  e.zipFile = @name
+	end
+      }
+    end
+    
+  end
+
+  ## These needs unit tests
+  module SourceZipEntry
+    attr_accessor :zipFile
+    def getInputStream
+      BasicZipFile.new(zipFile).getInputStream(name)
+    end
   end
   
-end
+  module SourceFileEntry
+  end
+
+  module SourceIOEntry
+  end
+  
+end # Zip namespace module
+
+
+
 
 # Copyright (C) 2002 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
