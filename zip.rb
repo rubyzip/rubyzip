@@ -471,7 +471,8 @@ module Zip
       return new(fileName) unless block_given?
       zos = new(fileName)
       yield zos
-      zos.close
+    ensure
+      zos.close if zos
     end
 
     def close
@@ -750,18 +751,26 @@ module Zip
   end
 
   class ZipFile < BasicZipFile
-    def initialize(fileName)
+    CREATE = 1
+
+    def initialize(fileName, create = nil)
       @name = name
       if (File.exists?(fileName))
-	super
+	super(fileName)
 	fixEntries
-      else
+      elsif (create == ZipFile::CREATE)
 	@entries = []
+      else
+	raise ZipError, "File #{fileName} not found"
       end
     end
 
 #    def open(fileName); end
-    def add(entry, srcPath); end
+    def add(entry, srcPath)
+      is = toIO(srcPatch)
+      entries << 
+    end
+
     def remove(entry); end
     def extract(entry, destPath); end
     def rename(entry, newName); end
@@ -771,10 +780,30 @@ module Zip
       getEntry(entry).getInputStream
     end
     
-    def commit; end
-    def close; end
+    def commit
+      ZipOutputStream.new(getTempfilename) {
+	|zos|
+	zos.comment = comment
+	each {
+	  |entry|
+	  zos.putNextEntry(entry)
+	  entry.getInputStream {
+	    |is|
+	    zos.writeIO(is)
+	  }
+	}
+      }
+    end
+
+    def close
+      commit
+    end
 
     private
+
+    def getTempfilename
+      return @name+$$.to_s+".tmp"
+    end
 
     def fixEntries
       each { 
@@ -792,7 +821,13 @@ module Zip
   module SourceZipEntry
     attr_accessor :zipFile
     def getInputStream
-      BasicZipFile.new(zipFile).getInputStream(name)
+      is = BasicZipFile.new(zipFile).getInputStream(name)
+      return is unless block_given?
+      begin
+	yield is
+      ensure
+	is.close
+      end
     end
   end
   

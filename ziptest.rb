@@ -1180,9 +1180,9 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_commit
-    var newName = "renamedFirst"
+    newName = "renamedFirst"
     zf = ZipFile.new(TEST_ZIP.zipName)
-    var oldName = zf.entries.first
+    oldName = zf.entries.first
     zf.rename(oldName, newName)
     zf.commit
 
