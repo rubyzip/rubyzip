@@ -1,3 +1,31 @@
+# With ziprequire you can load ruby modules from a zip file. This means
+# ruby's module include path can include zip-files.
+#
+# The following example creates a zip file with a single entry 
+# <code>log/simplelog.rb</code> that contains a single function 
+# <code>simpleLog</code>: 
+#
+#   require 'zip/zipfilesystem'
+#   
+#   Zip::ZipFile.open("my.zip", true) {
+#     |zf| 
+#     zf.file.open("log/simplelog.rb", "w") { 
+#       |f|
+#       f.puts "def simpleLog(v)"
+#       f.puts '  Kernel.puts "INFO: #{v}"'
+#       f.puts "end"
+#     }
+#   }
+#
+# To use the ruby module stored in the zip archive simply require
+# <code>zip/ziprequire</code> and include the zip en the search path. 
+# The following command shows one way to do this:
+#
+#   ruby -rzip/ziprequire -Imy.zip  -e " require 'log/simplelog'; simpleLog 'Hello world' "
+
+#$: << 'data/rubycode.zip' << 'data/rubycode2.zip'
+
+
 require 'zip/zip'
 
 class ZipList #:nodoc:all
