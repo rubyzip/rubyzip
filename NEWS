@@ -3,6 +3,7 @@
 List of changes:
 * Ruby 1.8.0 and ruby-zlib 0.6.0 compatibility
 * Changed method names from camelCase to rubys underscore style. 
+* Installs to zip/ subdir instead of directly to site_ruby
 * Added ZipFile.directory and ZipFile.file - each method return an
 object that can be used like Dir and File only for the contents of the
 zip file. 

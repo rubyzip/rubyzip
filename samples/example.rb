@@ -3,7 +3,7 @@
 $: << ".."
 system("zip example.zip example.rb gtkRubyzip.rb")
 
-require 'zip'
+require 'zip/zip'
 
 ####### Using ZipInputStream alone: #######
 

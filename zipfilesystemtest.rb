@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-require 'zipfilesystem'
+require 'zip/zipfilesystem'
 require 'rubyunit'
 
 module ExtraAssertions

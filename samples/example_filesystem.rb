@@ -2,7 +2,7 @@
 
 $: << ".."
 
-require 'zipfilesystem'
+require 'zip/zipfilesystem'
 require 'ftools'
 
 EXAMPLE_ZIP = "filesystem.zip"

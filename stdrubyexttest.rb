@@ -3,7 +3,7 @@
 $VERBOSE = true
 
 require 'rubyunit'
-require 'stdrubyext'
+require 'zip/stdrubyext'
 
 class ModuleTest < RUNIT::TestCase
 

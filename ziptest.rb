@@ -3,7 +3,7 @@
 $VERBOSE = true
 
 require 'rubyunit'
-require 'zip'
+require 'zip/zip'
 
 include Zip
 

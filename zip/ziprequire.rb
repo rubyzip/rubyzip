@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'zip'
+require 'zip/zip'
 
 class ZipList
   def initialize(zipFileList)

@@ -4,7 +4,7 @@ $VERBOSE = true
 
 $: << ".."
 
-require 'zip'
+require 'zip/zip'
 require 'find'
 
 module Zip

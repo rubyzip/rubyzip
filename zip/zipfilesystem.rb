@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'zip'
+require 'zip/zip'
 
 module Zip
   module ZipFileSystem

@@ -5,7 +5,7 @@ $: << ".."
 $VERBOSE = true
 
 require 'gtk'
-require 'zip'
+require 'zip/zip'
 
 class MainApp < Gtk::Window
   def initialize

@@ -8,10 +8,12 @@ require 'ftools'
 
 include Config
 
-files = %w{ zip.rb zipfilesystem.rb stdrubyext.rb ziprequire.rb }
+files = %w{ stdrubyext.rb zip.rb zipfilesystem.rb ziprequire.rb }
 
+INSTALL_DIR = File.join(CONFIG["sitelibdir"], "zip")
+File.makedirs(INSTALL_DIR)
 files.each { 
   |filename|
-  installPath = File.join(CONFIG["sitelibdir"], filename)
+  installPath = File.join(INSTALL_DIR, filename)
   File::install(filename, installPath, 0644, true)
 }

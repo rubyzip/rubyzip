@@ -5,7 +5,7 @@ require 'singleton'
 require 'tempfile'
 require 'ftools'
 require 'zlib'
-require 'stdrubyext'
+require 'zip/stdrubyext'
 
 
 module Zlib

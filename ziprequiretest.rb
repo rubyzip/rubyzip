@@ -3,7 +3,7 @@
 $VERBOSE = true
 
 require 'rubyunit'
-require 'ziprequire'
+require 'zip/ziprequire'
 $: << 'rubycode.zip' << 'rubycode2.zip'
 
 if __FILE__ == $0
