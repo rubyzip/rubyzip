@@ -140,7 +140,8 @@ module Zip
       elsif @currentEntry.compressionMethod == ZipEntry::DEFLATED
 	@decompressor = Inflater.new(@archiveIO)
       else
-	raise "Unsupported compression method #{@currentEntry.compressionMethod}"
+	raise ZipCompressionMethodError,
+	  "Unsupported compression method #{@currentEntry.compressionMethod}"
       end
       flush
       return @currentEntry
@@ -539,7 +540,8 @@ module Zip
       case entry.compressionMethod
 	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
 	when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
-      else raise ZipError, "Invalid compression method: '#{entry.compressionMethod}'"
+      else raise ZipCompressionMethodError, 
+	  "Invalid compression method: '#{entry.compressionMethod}'"
       end
     end
 
@@ -732,10 +734,13 @@ module Zip
   end
   
   
-  
-  class ZipError < RuntimeError
-  end
-  
+  class ZipError < StandardError ; end
+
+  class ZipEntryExistsError            < ZipError; end
+  class ZipNoSuchEntryError            < ZipError; end
+  class ZipDestinationFileExistsError  < ZipError; end
+  class ZipCompressionMethodError      < ZipError; end
+
   class ZipFile < ZipCentralDirectory
     CREATE = 1
 
@@ -839,7 +844,7 @@ module Zip
 	if continueOnExistsProc.call
 	  remove getEntry(entryName)
 	else
-	  raise ZipError, 
+	  raise ZipEntryExistsError, 
 	    procedureName+" failed. Entry #{entryName} already exists"
 	end
       end
@@ -847,7 +852,7 @@ module Zip
 
     def writeFile(destPath, continueOnExistsProc = proc { false }, &writeFileProc)
       if File.exists?(destPath) && ! continueOnExistsProc.call
-	raise ZipError,
+	raise ZipDestinationFileExistsError,
 	  "Destination '#{destPath}' already exists"
       end
       File.open(destPath, "wb", &writeFileProc)
@@ -855,7 +860,8 @@ module Zip
     
     def checkFile(path)
       unless File.readable? path
-	raise ZipError, "'#{path}' does not exist or cannot be opened reading"
+	raise ZipNoSuchEntryError, 
+	  "'#{path}' does not exist or cannot be opened reading"
       end
     end
     
@@ -875,7 +881,7 @@ module Zip
     def getEntry(entry)
       selectedEntry = @entries.detect { |e| e.name == entry.to_s }
       unless selectedEntry
-      raise ZipError, 
+      raise ZipNoSuchEntryError, 
 	"No matching entry found in zip file '#{@name}' for '#{entry}'"
       end
       return selectedEntry

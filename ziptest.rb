@@ -1061,7 +1061,7 @@ class ZipFileTest < CommonZipFileFixture
   end
 
   def test_addExistingEntryName
-    assert_exception(ZipError) {
+    assert_exception(ZipEntryExistsError) {
       ZipFile.open(TEST_ZIP.zipName) {
 	|zf|
 	zf.add(zf.entries.first.name, "ziptest.rb")
@@ -1139,7 +1139,7 @@ class ZipFileTest < CommonZipFileFixture
     oldEntries = nil
     ZipFile.open(TEST_ZIP.zipName) { |zf| oldEntries = zf.entries }
 
-    assert_exception(ZipError) {
+    assert_exception(ZipEntryExistsError) {
       ZipFile.open(TEST_ZIP.zipName) {
 	|zf|
 	zf.rename(zf.entries[0], zf.entries[1].name)
@@ -1176,7 +1176,7 @@ class ZipFileTest < CommonZipFileFixture
     targetEntry = "targetEntryName"
     zf = ZipFile.new(TEST_ZIP.zipName)
     assert(! zf.entries.include?(nonEntry))
-    assert_exception(ZipError) {
+    assert_exception(ZipNoSuchEntryError) {
       zf.rename(nonEntry, targetEntry)
     }
     zf.commit
@@ -1188,7 +1188,7 @@ class ZipFileTest < CommonZipFileFixture
   def test_renameEntryToExistingEntry
     entry1, entry2, *remaining = TEST_ZIP.entryNames
     zf = ZipFile.new(TEST_ZIP.zipName)
-    assert_exception(ZipError) {
+    assert_exception(ZipEntryExistsError) {
       zf.rename(entry1, entry2)
     }
   ensure 
@@ -1215,7 +1215,7 @@ class ZipFileTest < CommonZipFileFixture
     entryToReplace = "nonExistingEntryname"
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
-      assert_exception(ZipError) {
+      assert_exception(ZipNoSuchEntryError) {
 	zf.replace(entryToReplace, "ziptest.rb")
       }
     }
@@ -1375,7 +1375,7 @@ class ZipFileExtractTest < CommonZipFileFixture
     writtenText = "written text"
     File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
 
-    assert_exception(ZipError) {
+    assert_exception(ZipDestinationFileExistsError) {
       ZipFile.open(TEST_ZIP.zipName) { 
 	|zf| 
 	zf.extract(zf.entries.first, EXTRACTED_FILENAME) 
@@ -1406,14 +1406,14 @@ class ZipFileExtractTest < CommonZipFileFixture
 
   def test_extractNonEntry
     zf = ZipFile.new(TEST_ZIP.zipName)
-    assert_exception(ZipError) { zf.extract("nonExistingEntry", "nonExistingEntry") }
+    assert_exception(ZipNoSuchEntryError) { zf.extract("nonExistingEntry", "nonExistingEntry") }
   ensure
     zf.close if zf
   end
 
   def test_extractNonEntry2
     outFile = "outfile"
-    assert_exception(ZipError) {
+    assert_exception(ZipNoSuchEntryError) {
       zf = ZipFile.new(TEST_ZIP.zipName)
       nonEntry = "hotdog-diddelidoo"
       assert(! zf.entries.include?(nonEntry))
