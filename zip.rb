@@ -818,10 +818,14 @@ module Zip
     def extract(entry, destPath, &onExistsProc)
       onExistsProc ||= proc { false }
       foundEntry = getEntry(entry)
-      writeFile(destPath, onExistsProc) { 
-	|os|
-	foundEntry.getInputStream { |is| os << is.read }
-      }
+      if foundEntry.isDirectory
+	createDirectory(foundEntry, destPath)
+      else
+	writeFile(destPath, onExistsProc) { 
+	  |os|
+	  foundEntry.getInputStream { |is| os << is.read }
+	}
+      end
     end
     
     def commit
@@ -843,7 +847,19 @@ module Zip
     end
     
     private
-    
+
+    def createDirectory(entry, destPath)
+      if File.directory? destPath
+	return
+      elsif File.exists? destPath
+	raise ZipDestinationFileExistsError,
+	  "Cannot create directory '#{destPath}'. "+
+	  "A file already exists with that name"
+      else
+	Dir.mkdir destPath
+      end
+    end
+
     def isDirectory(newEntry, srcPath)
       srcPathIsDirectory = File.directory?(srcPath)
       if newEntry.isDirectory && ! srcPathIsDirectory
@@ -897,7 +913,10 @@ module Zip
     end
     
     def getEntry(entry)
-      selectedEntry = @entries.detect { |e| e.name == entry.to_s }
+      selectedEntry = @entries.detect { 
+	|e| 
+	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
+      }
       unless selectedEntry
       raise ZipNoSuchEntryError, 
 	"No matching entry found in zip file '#{@name}' for '#{entry}'"

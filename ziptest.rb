@@ -495,6 +495,7 @@ class TestZipFile
 	    ! (files.index(TEST_ZIP1.zipName) &&
 	       files.index(TEST_ZIP2.zipName) &&
 	       files.index(TEST_ZIP3.zipName) &&
+	       files.index(TEST_ZIP4.zipName) &&
 	       files.index("empty.txt")      &&
 	       files.index("short.txt")      &&
 	       files.index("longAscii.txt")  &&
@@ -533,6 +534,9 @@ class TestZipFile
 
       raise "failed to create test zip '#{TEST_ZIP3.zipName}'" unless 
 	system("zip #{TEST_ZIP3.zipName} #{TEST_ZIP3.entryNames.join(' ')}")
+
+      raise "failed to create test zip '#{TEST_ZIP4.zipName}'" unless 
+	system("zip #{TEST_ZIP4.zipName} #{TEST_ZIP4.entryNames.join(' ')}")
     end
   rescue 
     raise $!.to_s + 
@@ -545,6 +549,8 @@ class TestZipFile
   TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin}, 
 			      "my zip comment")
   TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
+  TEST_ZIP4 = TestZipFile.new("zipWithDir.zip", [ "file1.txt", 
+				TestFiles::EMPTY_TEST_DIR])
 end
 
 
@@ -1348,6 +1354,44 @@ class ZipFileTest < CommonZipFileFixture
   end
 end
 
+class ZipFileExtractDirectoryTest < CommonZipFileFixture
+  TEST_OUT_NAME = "emptyOutDir"
+
+  def openZip(&aProc)
+    assert(aProc != nil)
+    ZipFile.open(TestZipFile::TEST_ZIP4.zipName, &aProc)
+  end
+
+  def extractTestDir
+    openZip {
+      |zf|
+      zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME)
+    }
+  end
+
+  def setup
+    super
+
+    Dir.rmdir(TEST_OUT_NAME)   if File.directory? TEST_OUT_NAME
+    File.delete(TEST_OUT_NAME) if File.exists?    TEST_OUT_NAME
+  end
+    
+  def test_extractDirectory
+    extractTestDir
+    assert(File.directory? TEST_OUT_NAME)
+  end
+  
+  def test_extractDirectoryExistsAsDir
+    Dir.mkdir TEST_OUT_NAME
+    extractTestDir
+    assert(File.directory? TEST_OUT_NAME)
+  end
+
+  def test_extractDirectoryExistsAsFile
+    File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
+    assert_exception(ZipDestinationFileExistsError) { extractTestDir }
+  end
+end
 
 class ZipFileExtractTest < CommonZipFileFixture
   EXTRACTED_FILENAME = "extEntry"
@@ -1424,8 +1468,8 @@ class ZipFileExtractTest < CommonZipFileFixture
 end
 
 
-TestZipFile::createTestZips(ARGV.index("recreate") != nil)
 TestFiles::createTestFiles(ARGV.index("recreate") != nil)
+TestZipFile::createTestZips(ARGV.index("recreate") != nil)
 
 # Copyright (C) 2002 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
