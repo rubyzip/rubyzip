@@ -1,14 +1,5 @@
-Refactoring to consider:
-* Change the extract/add code so it becomes the same.
-** requires an abstract "FileSystem view" of the real fs and the contents of the zip file.
-** "FileSystem" should provide stuff like mkdir, exists?, directory? etc. 
-** extract entry and add could then be unified to one function:
-** copy(src, dst, srcFileSystem, dstFileSystem, 
-        recursive = RECURSIVE,
-	continueOnExistsProc = proc { false }, 
-	createDestDirectoryProc = proc { true })
-
-That would be nice!
+Refactoring:
+Rename the FileArchive module to AbstractFileSystemUtils, and refactor FileArchive.extract to AbstractFileSystemUtils.copy. Write (Local)FileSystem, which implements exists?, mkdir, open, etc in terms of calls to Dir and File. Implement a module ZipFileSystem, which has the same interface. AbstractFileSystemUtils.copy should then use the abstract FileSystem interface for access.
 
 change order of parameters in Zip::ZipFile.add (so it becomes src, dst)
 
