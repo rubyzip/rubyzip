@@ -125,7 +125,7 @@ module FileArchive
     selectedEntries = expandSelection(src)
     case (selectedEntries.size)
     when 0
-      raise Zip::ZipNoSuchEntryError, "'#{src}' not found in archive #{self.to_s}"
+      raise Errno::ENOENT, "'#{src}' not found in archive #{self.to_s}"
     when 1
       extractSingle(selectedEntries[0], dst, recursive, 
 		    continueOnExistsProc, createDestDirectoryProc)

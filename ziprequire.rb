@@ -14,11 +14,11 @@ class ZipList
 	|zf|
 	begin
 	  return zf.getInputStream(entry, &aProc) 
-	rescue Zip::ZipNoSuchEntryError
+	rescue Errno::ENOENT
 	end
       }
     }
-    raise Zip::ZipNoSuchEntryError,
+    raise Errno::ENOENT,
       "No matching entry found in zip files '#{@zipFileList.join(', ')}' "+
       " for '#{entry}'"
   end
@@ -39,7 +39,7 @@ module Kernel
       eval(zis.read); $" << moduleName 
     }
     return true
-  rescue Zip::ZipNoSuchEntryError => ex
+  rescue Errno::ENOENT => ex
     return false
   end
 

@@ -814,7 +814,6 @@ module Zip
   class ZipError < StandardError ; end
 
   class ZipEntryExistsError            < ZipError; end
-  class ZipNoSuchEntryError            < ZipError; end
   class ZipDestinationFileExistsError  < ZipError; end
   class ZipCompressionMethodError      < ZipError; end
 
@@ -940,6 +939,15 @@ module Zip
       }
     end
     
+    def getEntry(entry)
+      selectedEntry = findEntry(entry)
+      unless selectedEntry
+	raise Errno::ENOENT, 
+	  "No matching entry found in zip file '#{@name}' for '#{entry}'"
+      end
+      return selectedEntry
+    end
+
     private
 
     def createDirectory(entry, destPath)
@@ -991,7 +999,7 @@ module Zip
     
     def checkFile(path)
       unless File.readable? path
-	raise ZipNoSuchEntryError, 
+	raise Errno::ENOENT, 
 	  "'#{path}' does not exist or cannot be opened reading"
       end
     end
@@ -1009,14 +1017,6 @@ module Zip
       Tempfile.new(File.basename(name), File.dirname(name)).binmode
     end
     
-    def getEntry(entry)
-      selectedEntry = findEntry(entry)
-      unless selectedEntry
-	raise ZipNoSuchEntryError, 
-	  "No matching entry found in zip file '#{@name}' for '#{entry}'"
-      end
-      return selectedEntry
-    end
   end
 
   class ZipStreamableFile < DelegateClass(ZipEntry) #:nodoc:all

@@ -37,5 +37,9 @@ class ZipFileSystem
       raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
       @zipFile.getInputStream(fileName, &block)
     end
+
+    def size(fileName)
+      @zipFile.getEntry(fileName).size
+    end
   end
 end

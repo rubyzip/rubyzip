@@ -1200,7 +1200,7 @@ class ZipFileTest < CommonZipFileFixture
     targetEntry = "targetEntryName"
     zf = ZipFile.new(TEST_ZIP.zipName)
     assert(! zf.entries.include?(nonEntry))
-    assert_exception(ZipNoSuchEntryError) {
+    assert_exception(Errno::ENOENT) {
       zf.rename(nonEntry, targetEntry)
     }
     zf.commit
@@ -1239,7 +1239,7 @@ class ZipFileTest < CommonZipFileFixture
     entryToReplace = "nonExistingEntryname"
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
-      assert_exception(ZipNoSuchEntryError) {
+      assert_exception(Errno::ENOENT) {
 	zf.replace(entryToReplace, "file2.txt")
       }
     }
@@ -1429,14 +1429,14 @@ class ZipFileExtractTest < CommonZipFileFixture
 
   def test_extractNonEntry
     zf = ZipFile.new(TEST_ZIP.zipName)
-    assert_exception(ZipNoSuchEntryError) { zf.extract("nonExistingEntry", "nonExistingEntry") }
+    assert_exception(Errno::ENOENT) { zf.extract("nonExistingEntry", "nonExistingEntry") }
   ensure
     zf.close if zf
   end
 
   def test_extractNonEntry2
     outFile = "outfile"
-    assert_exception(ZipNoSuchEntryError) {
+    assert_exception(Errno::ENOENT) {
       zf = ZipFile.new(TEST_ZIP.zipName)
       nonEntry = "hotdog-diddelidoo"
       assert(! zf.entries.include?(nonEntry))

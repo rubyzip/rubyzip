@@ -284,7 +284,7 @@ class FileArchiveExtractTest < RUNIT::TestCase
   end
 
   def test_extractNoMatchForSource
-    assert_exception(Zip::ZipNoSuchEntryError) {
+    assert_exception(Errno::ENOENT) {
       @testArchive.extract("noMatchForThis*", "outdir", FileArchive::RECURSIVE)
     }
   end

@@ -54,6 +54,10 @@ class ZipFsFileTest < RUNIT::TestCase
       @zipFsFile.open("file1", "w") { blockCalled = true }
     }
     assert(! blockCalled)
+
+    assert_exception(Errno::ENOENT) {
+      @zipFsFile.open("noSuchEntry")
+    }
   end
 
 #  def test_symlink
@@ -65,7 +69,9 @@ class ZipFsFileTest < RUNIT::TestCase
 #  end
 
   def test_size
-    fail "implement test"
+    assert_exception(Errno::ENOENT) { @zipFsFile.size("notAFile") }
+    assert_equals(72, @zipFsFile.size("file1"))
+    assert_equals(0, @zipFsFile.size("dir2/dir21"))
   end
 
   def test_file?
