@@ -4,9 +4,10 @@ require 'rubygems'
 require 'rake/clean'
 require 'rake/testtask'
 require 'rake/packagetask'
+require 'rake/gempackagetask'
 
 PKG_NAME = 'rubyzip'
-PKG_VERSION = '0.5.6'
+PKG_VERSION = '0.5.7'
 
 CLOBBER.add File.readlines('test/.cvsignore').map { |f| 'test/'+f }
 
@@ -20,21 +21,20 @@ end
 # Shortcuts for test targets
 task :ut => [:test]
 
-#task :gemtest do
-#  ruby %{-Ilib -rscripts/runtest -e 'run_tests("test/test_gempaths.rb", true)'}
-#end
+spec = Gem::Specification.new do |s|
+  s.name = PKG_NAME
+  s.version = PKG_VERSION
+  s.author = "Thomas Sondergaard"
+  s.email = "thomas(at)sondergaard.cc"
+  s.homepage = "http://rubyzip.sourceforge.net/"
+  s.platform = Gem::Platform::RUBY
+  s.summary = "rubyzip is a ruby module for reading and writing zip files"
+  s.files = Dir.glob("{samples,lib,test,docs}/**/*").delete_if {|item| item.include?("CVS") || item.include?("rdoc") || item =~ /~$/ }
+  s.require_path = 'lib'
+  s.autorequire = 'zip/zip'
+end
 
-Rake::PackageTask.new("package") do |p|
-  p.name = PKG_NAME
-  p.version = PKG_VERSION
-  p.need_tar = true
-  p.need_zip = true
-  p.package_files.include(
-    "NEWS", "README", "Rakefile", "TODO", 
-    "install.rb",
-    "rubyzip.gemspec",
-    "samples/*.rb",
-    "zip/*.rb",
-    "test/*"
-    )
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.need_zip = true
+  pkg.need_tar = true
 end
