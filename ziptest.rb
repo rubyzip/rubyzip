@@ -1003,11 +1003,23 @@ class ZipEntrySetTest < RUNIT::TestCase
   end
 
   def testCompound
-    fail "implement compound test"
+    newEntry = ZipEntry.new("zf.zip", "new entry", "new entry's comment")
+    assert_equals(ZIP_ENTRIES.size, @zipEntrySet.size)
+    @zipEntrySet << newEntry
+    assert_equals(ZIP_ENTRIES.size + 1, @zipEntrySet.size)
+    assert(@zipEntrySet.include?(newEntry))
+
+    @zipEntrySet.delete(newEntry)
+    assert_equals(ZIP_ENTRIES.size, @zipEntrySet.size)
   end
 
   def testDup
-    fail "Implement test for dup"
+    copy = @zipEntrySet.dup
+    assert_equals(@zipEntrySet, copy)
+
+    # demonstrate that this is a deep copy
+    copy.entries[0].name = "a totally different name"
+    assert(@zipEntrySet != copy)
   end
 end
 
