@@ -1042,8 +1042,7 @@ module Zip
     def get_entry(entry)
       selectedEntry = find_entry(entry)
       unless selectedEntry
-	raise Errno::ENOENT, 
-	  "No matching entry found in zip file '#{@name}' for '#{entry}'"
+	raise Errno::ENOENT, entry
       end
       return selectedEntry
     end
@@ -1109,8 +1108,7 @@ module Zip
     
     def check_file(path)
       unless File.readable? path
-	raise Errno::ENOENT, 
-	  "'#{path}' does not exist or cannot be opened reading"
+	raise Errno::ENOENT, path
       end
     end
     

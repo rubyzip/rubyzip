@@ -118,11 +118,12 @@ module Zip
       end
       
       def open(fileName, openMode = "r", &block)
+        entryName = @zipFile.dir.expand_to_entry(fileName)
         case openMode
         when "r" 
-          @zipFile.get_input_stream(fileName, &block)
+          @zipFile.get_input_stream(entryName, &block)
         when "w"
-          @zipFile.get_output_stream(fileName, &block)
+          @zipFile.get_output_stream(entryName, &block)
         else
           raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
         end

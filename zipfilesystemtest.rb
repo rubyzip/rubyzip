@@ -48,7 +48,11 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(@zipFile.file.exists?("dir1"))
     assert(@zipFile.file.exists?("dir1/"))
     assert(@zipFile.file.exists?("dir1/file12"))
-    assert(@zipFile.file.exist?("dir1/file12")) # notice, tests exist? alias of exists?
+    assert(@zipFile.file.exist?("dir1/file12")) # notice, tests exist? alias of exists? !
+
+    @zipFile.dir.chdir "dir1/"
+    assert(!@zipFile.file.exists?("file1"))
+    assert(@zipFile.file.exists?("file12"))
   end
 
   def test_open_read
@@ -61,6 +65,17 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     }
     assert(blockCalled)
 
+    blockCalled = false
+    @zipFile.dir.chdir "dir2"
+    @zipFile.file.open("file21", "r") {
+      |f|
+      blockCalled = true
+      assert_equals("this is the entry 'dir2/file21' in my test archive!", 
+		    f.readline.chomp)
+    }
+    assert(blockCalled)
+    @zipFile.dir.chdir "/"
+    
     assert_exception(Errno::ENOENT) {
       @zipFile.file.open("noSuchEntry")
     }
