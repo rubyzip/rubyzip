@@ -201,7 +201,12 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_directory?
-    fail "implement test"
+    assert(! @zipFsFile.directory?("notAFile"))
+    assert(! @zipFsFile.directory?("file1"))
+    assert(! @zipFsFile.directory?("dir1/file11"))
+    assert(@zipFsFile.directory?("dir1"))
+    assert(@zipFsFile.directory?("dir1/"))
+    assert(@zipFsFile.directory?("dir2/dir21"))
   end
 
   def test_chown

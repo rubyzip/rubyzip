@@ -42,10 +42,8 @@ class ZipFileSystem
 
     # nil for not found and nil for directories
     def size?(fileName)
-      entry = @zipFile.getEntry(fileName)
-      return entry.directory? ? nil : entry.size
-    rescue Errno::ENOENT
-      nil
+      entry = @zipFile.findEntry(fileName)
+      return (entry == nil || entry.directory?) ? nil : entry.size
     end
 
     def file?(fileName)
