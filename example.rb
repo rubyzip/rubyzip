@@ -47,3 +47,7 @@ Zip::ZipOutputStream.open("exampleout.zip") {
 
 
 # For other examples, look at zip.rb and ziptest.rb
+
+# Copyright (C) 2002 Thomas Sondergaard
+# rubyzip is free software; you can redistribute it and/or
+# modify it under the terms of the ruby license.
