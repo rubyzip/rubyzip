@@ -484,11 +484,7 @@ module Zip
       return unless @currentEntry
       finish
       @currentEntry.compressedSize = @outputStream.tell - @currentEntry.localHeaderOffset - @currentEntry.localHeaderSize
-#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING
-#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING
-#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING
-#  TESTING TESTING TESTING TESTING TESTING TESTING TESTING:
-      @currentEntry.size = 105896
+      @currentEntry.size = @compressor.size
       @currentEntry = nil
       @compressor = NullCompressor
     end
@@ -542,11 +538,16 @@ module Zip
   class PassThruCompressor < Compressor
     def initialize(outputStream)
       @outputStream = outputStream
+      @size = 0
     end
 
     def << (data)
-      @outputStream << data
+      val = data.to_s
+      @size += val.size
+      @outputStream << val
     end
+
+    attr_reader :size
   end
 
   class NullCompressor < Compressor
@@ -554,15 +555,20 @@ module Zip
 
     def << (data)
     end
+
+    attr_reader :size, :compressedSize
   end
 
   class Deflater < Compressor
     def initialize(outputStream, level = Zlib::DEFAULT_COMPRESSION)
       @outputStream = outputStream
       @zlibDeflater = Zlib::Deflate.new(level, -Zlib::Deflate::MAX_WBITS)
+      @size = 0
     end
     
     def << (data)
+      val = data.to_s
+      @size += val.size
       @outputStream << @zlibDeflater.deflate(data)
     end
 
@@ -571,6 +577,8 @@ module Zip
 	@outputStream << @zlibDeflater.finish
       end
     end
+
+    attr_reader :size
   end
   
   class ZipCentralDirectory
@@ -608,7 +616,8 @@ module Zip
     private :writeEOCD
 
     def cdirSize
-      @entries.inject { |value, entry| entry.cdirHeaderSize + value } + STATIC_EOCD_SIZE + (@comment ? @comment.size : 0 )
+      # does not include eocd
+      @entries.inject { |value, entry| entry.cdirHeaderSize + value }
     end
     private :cdirSize
 

@@ -172,7 +172,7 @@ class ZipLocalEntryTest < RUNIT::TestCase
       |file|
       entry = ZipEntry.readLocalEntry(file)
       
-      assert_equal(nil, entry.comment)
+      assert_equal("", entry.comment)
       # Differs from windows and unix because of CR LF
       # assert_equal(480, entry.compressedSize)
       # assert_equal(0x2a27930f, entry.crc)
@@ -551,6 +551,30 @@ class AbstractOutputStreamTest < RUNIT::TestCase
   end
 end
 
+class PassThruCompressorTest < RUNIT::TestCase
+  def test_size
+    File.open("dummy.txt", "wb") {
+      |file|
+      compressor = PassThruCompressor.new(file)
+      
+      assert_equals(0, compressor.size)
+      
+      t1 = "hello world"
+      t2 = ""
+      t3 = "bingo"
+      
+      compressor << t1
+      assert_equals(compressor.size, t1.size)
+      
+      compressor << t2
+      assert_equals(compressor.size, t1.size + t2.size)
+      
+      compressor << t3
+      assert_equals(compressor.size, t1.size + t2.size + t3.size)
+    }
+  end
+end
+
 class DeflaterTest < RUNIT::TestCase
   def test_outputOperator
     txt = loadFile("ziptest.rb")
@@ -571,6 +595,7 @@ class DeflaterTest < RUNIT::TestCase
       deflater = Deflater.new(file)
       deflater << data
       deflater.finish
+      assert_equals(deflater.size, data.size)
       file << "trailing data for zlib with -MAX_WBITS"
     }
   end
@@ -594,6 +619,7 @@ class ZipOutputStreamTest < RUNIT::TestCase
 
   def test_new
     zos = ZipOutputStream.new(TEST_ZIP.zipName)
+    zos.comment = TEST_ZIP.comment
     writeTestZip(zos)
     zos.close
     assertTestZipContents(TEST_ZIP)
@@ -602,6 +628,7 @@ class ZipOutputStreamTest < RUNIT::TestCase
   def test_open
     ZipOutputStream.open(TEST_ZIP.zipName) {
       |zos|
+      zos.comment = TEST_ZIP.comment
       writeTestZip(zos)
     }
     assertTestZipContents(TEST_ZIP)
