@@ -450,7 +450,7 @@ module Zip
       @closed = true
     end
 
-    def putNextEntry(entry)
+    def putNextEntry(entry, level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(entry.to_s)
       initNextEntry(newEntry)
@@ -466,18 +466,18 @@ module Zip
       @compressor = NullCompressor
     end
     
-    def initNextEntry(entry)
+    def initNextEntry(entry, level = Zlib::DEFAULT_COMPRESSION)
       finalizeCurrentEntry
       entry.localHeaderOffset = @outputStream.tell
       @entries << entry
-      @compressor = ZipOutputStream::getCompressor(entry)
+      @compressor = ZipOutputStream::getCompressor(entry, level)
       entry.writeLocalEntryToOutputStream(@outputStream)
     end
 
     def ZipOutputStream::getCompressor(entry)
       case entry.compressionMethod
-	when ZipEntry::DEFLATED then Deflater.new
-	when ZipEntry::DEFLATED then PassThruCompressor.new
+	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
+	when ZipEntry::DEFLATED then PassThruCompressor.new(@outputStream)
       else raise ZipError, "Invalid compression method: '#{entry.compressionMethod}'"
       end
     end
@@ -492,7 +492,12 @@ module Zip
   end
 
 
-  class PassThruCompressor
+  class Compressor
+    def finish
+    end
+  end
+
+  class PassThruCompressor < Compressor
     def initialize(outputStream)
       @outputStream = outputStream
     end
@@ -502,14 +507,29 @@ module Zip
     end
   end
 
-  class NullCompressor
+  class NullCompressor < Compressor
     include Singleton
 
     def << (data)
     end
   end
 
-  
+  class Deflater < Compressor
+    def initialize(outputStream, level = Zlib::DEFAULT_COMPRESSION)
+      @outputStream = outputStream
+      @zlibDeflater = Zlib::Deflate.new(level, -Zlib::Deflate::MAX_WBITS)
+    end
+    
+    def << (data)
+      @outputStream << @zlibDeflater.deflate(data)
+    end
+
+    def finish
+      until @zlibDeflater.finished?
+	@outputStream << @zlibDeflater.finish
+      end
+    end
+  end
   
   class ZipCentralDirectory
     include Enumerable

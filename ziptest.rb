@@ -449,10 +449,6 @@ class AbstractOutputStreamTest < RUNIT::TestCase
     assert_equals(". a little more".length, count)
   end
   
-  def test_dollarUnderscore
-    fail "test AbstractOutputStream::print with out params, so it uses $_"
-  end
-
   def test_print
     $\ = nil # record separator set to nil
     @outputStream.print("hello")
@@ -519,9 +515,37 @@ class AbstractOutputStreamTest < RUNIT::TestCase
   end
 end
 
-class CompressorTest < RUNIT::TestCase
+class DeflaterTest < RUNIT::TestCase
   def test_outputOperator
-    fail "implement test for <<"
+    txt = loadFile("ziptest.rb")
+    deflate(txt, "deflatertest.bin")
+    inflatedTxt = inflate("deflatertest.bin")
+    assert_equals(txt, inflatedTxt)
+  end
+
+  private
+  def loadFile(fileName)
+    txt = nil
+    File.open(fileName, "rb") { |f| txt = f.read }
+  end
+
+  def deflate(data, fileName)
+    File.open(fileName, "wb") {
+      |file|
+      deflater = Deflater.new(file)
+      deflater << data
+      deflater.finish
+      file << "trailing data for zlib with -MAX_WBITS"
+    }
+  end
+
+  def inflate(fileName)
+    txt = nil
+    File.open(fileName, "rb") {
+      |file|
+      inflater = Inflater.new(file)
+      txt = inflater.read
+    }
   end
 end
 
