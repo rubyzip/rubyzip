@@ -21,9 +21,8 @@ This library requires ruby/zlib version 0.5.0 or newer.
 
 = LICENSE =
 
-rubyzip is distributed under the GPL. I'm considering a more liberal
-license, though.
-
+rubyzip is distributed under the same license as ruby. See
+http://www.ruby-lang.org/en/LICENSE.txt
 
 = AUTHOR =
 
