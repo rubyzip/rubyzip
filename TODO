@@ -1,22 +1,7 @@
-Rename ZipFile to SimpleZipFile and add
+write ZipFile.
 
-class ZipFile < SimpleZipFile
-  def initialize(fileName); end
-  def add(entry, srcPath); end
-  def remove(entry); end
-  def rename(entry, newName); end
-  def replace(entry, srcPath); end
-  def extract(entry, destPath); end
-  def entries(entry); end
-  def each; end
-  def entries; end
-  def getInputStream(entry); end
-  def foreach(entry); end
-
-  def commit; end
-  def close; end
-end
-
+Refactor ZipFileTest to reduce duplicated code, divide into different
+test classes if different fixtures are required and use setup/teardown
+some more.
 
 Add install.rb file
-
