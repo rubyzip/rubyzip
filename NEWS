@@ -1,6 +1,8 @@
 = Version 0.4.3 =
 
-Source reorganized.
+Source reorganized. Added ziprequire, which can be used to load ruby
+modules from a zip file, in a fashion similar to jar files in
+Java. Added gtkRubyzip, another sample application.
 
 = Version 0.4.2 =
 
