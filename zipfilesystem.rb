@@ -31,10 +31,6 @@ class ZipFileSystem
       entry != nil && entry.directory?
     end
 
-    def pipe?(filename)
-      false
-    end
-
     def open(fileName, openMode = "r", &block)
       raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
       @zipFile.getInputStream(fileName, &block)
@@ -63,6 +59,14 @@ class ZipFileSystem
 
     def mtime(fileName)
       @zipFile.getEntry(fileName).mtime
+    end
+
+    def pipe?(filename)
+      false
+    end
+
+    def blockdev?(filename)
+      false
     end
 
     def symlink?(fileName)

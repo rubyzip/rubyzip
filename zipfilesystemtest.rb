@@ -25,11 +25,6 @@ class ZipFsFileTest < RUNIT::TestCase
 #    fail "implement test"
 #  end
 
-  def test_pipe?
-    assert(! @zipFsFile.pipe?("notAFile"))
-    assert(! @zipFsFile.pipe?("file1"))
-  end
-
   def test_exists?
     assert(! @zipFsFile.exists?("notAFile"))
     assert(@zipFsFile.exists?("file1"))
@@ -102,8 +97,23 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
+
+  def assertAlwaysFalse(operation)
+    assert(! @zipFsFile.send(operation, "noSuchFile"))
+    assert(! @zipFsFile.send(operation, "file1"))
+    assert(! @zipFsFile.send(operation, "dir1"))
+  end
+
+  def test_pipe?
+    assertAlwaysFalse(:pipe?)
+  end
+
   def test_blockdev?
-    fail "implement test"
+    assertAlwaysFalse(:blockdev?)
+  end
+
+  def test_symlink?
+    assertAlwaysFalse(:symlink?)
   end
 
   def test_writable?
@@ -202,12 +212,6 @@ class ZipFsFileTest < RUNIT::TestCase
     assert_exception(Errno::ENOENT) {
       @zipFsFile.mtime("noSuchEntry")
     }
-  end
-
-  def test_symlink?
-    assert(! @zipFsFile.symlink?("noSuchFile"))
-    assert(! @zipFsFile.symlink?("file1"))
-    assert(! @zipFsFile.symlink?("dir1"))
   end
 
 #  def test_readable?
