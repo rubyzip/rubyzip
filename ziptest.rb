@@ -880,11 +880,11 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
 end
 
 
-class SimpleZipFileTest < RUNIT::TestCase
+class BasicZipFileTest < RUNIT::TestCase
   include AssertEntry
 
   def zipFileClass
-    SimpleZipFile
+    BasicZipFile
   end
 
   def setup
@@ -928,7 +928,7 @@ class SimpleZipFileTest < RUNIT::TestCase
   end
 end
 
-class ZipFileSimpleZipFileTest < SimpleZipFileTest
+class ZipFileBasicZipFileTest < BasicZipFileTest
   def zipFileClass
     ZipFile
   end
