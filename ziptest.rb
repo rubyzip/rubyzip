@@ -899,12 +899,7 @@ class SimpleZipFileTest < RUNIT::TestCase
   end
     
   def test_entries
-    entries = @zipFile.entries
-    assert_equals(4, entries.size)
-    assert_equals(nextTestEntryName, entries[0].name)
-    assert_equals(nextTestEntryName, entries[1].name)
-    assert_equals(nextTestEntryName, entries[2].name)
-    assert_equals(nextTestEntryName, entries[3].name)
+    assert_equals(TestZipFile::TEST_ZIP2.entryNames, @zipFile.entries.map {|e| e.name} )
   end
 
   def test_each
@@ -1050,38 +1045,45 @@ class ZipFileTest < RUNIT::TestCase
     zfRead.close    
   end
 
-  def test_entries
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    assert_equals(TEST_ZIP.entryNames, zf.entries.map {|e| e.name} )
-    zf.close
-  end
-
-  def test_each
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    zf.each_with_index { 
-      |entry, index| 
-      assert_equals(entry.name, TEST_ZIP.entryNames[index])
-    }
-    zf.close
-  end
-
-  def test_foreach
-    fail "implement"
-  end
-  
   def test_commit
-    fail "implement"
+    var newName = "renamedFirst"
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    var oldName = zf.entries.first
+    zf.rename(oldName, newName)
+    zf.commit
+
+    zfRead = ZipFile.new(TEST_ZIP.zipName)
+    assert(zfRead.entries.include?(newName))
+    assert(! zfRead.entries.include?(oldName))
+    zfRead.close
+
+    zf.close
+  end
+
+  def test_close
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    zf.close
+    assert_exception(IOError) {
+      zf.extract(TEST_ZIP.entryNames.first, "hullubullu")
+    }
   end
 
   def test_compound1
+    # Add a few big files
+    # commit
+    # assert contents
+    # remove a few entries, rename some, delete one
+    # assert contents
     fail "implement"
   end
 
   def test_compound2
+    # remove all entries, add three new, rename one of the new ones
     fail "implement"
   end
 
   def test_compound3
+    # add 15 new entries, rename some of them, commit, replace one
     fail "implement"
   end
 
