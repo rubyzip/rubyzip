@@ -44,7 +44,7 @@ module Kernel
   end
 
   def getResource(resourceName, &aProc)
-    zl = ZipList.new($:.grep /\.zip$/)
+    zl = ZipList.new($:.grep(/\.zip$/))
     zl.getInputStream(resourceName, &aProc)
   end
 
