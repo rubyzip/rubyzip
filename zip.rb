@@ -7,10 +7,12 @@ require 'ftools'
 require 'zlib'
 require 'zipfilesystem'
 
-module Enumerable  #:nodoc:all
-  def inject(n = 0)
-    each { |value| n = yield(n, value) }
-    n
+unless Enumerable.instance_methods.include?("inject")
+  module Enumerable  #:nodoc:all
+    def inject(n = 0)
+      each { |value| n = yield(n, value) }
+      n
+    end
   end
 end
 
@@ -529,7 +531,7 @@ module Zip
       zis.getNextEntry
       if block_given?
 	begin
-	  return yield zis
+	  return yield(zis)
 	ensure
 	  zis.close
 	end
@@ -1047,7 +1049,7 @@ module Zip
     end
 
     def getInputStream(&aProc)
-      return yield NullInputStream.instance if block_given?
+      return yield(NullInputStream.instance) if block_given?
       NullInputStream.instance
     end
     

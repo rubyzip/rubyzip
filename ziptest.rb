@@ -1086,7 +1086,7 @@ class ZipFileTest < CommonZipFileFixture
   def test_add
     srcFile   = "file2.txt"
     entryName = "newEntryName.rb" 
-    assert(File.exists? srcFile)
+    assert(File.exists?(srcFile))
     zf = ZipFile.new(EMPTY_FILENAME, ZipFile::CREATE)
     zf.add(entryName, srcFile)
     zf.close
@@ -1158,18 +1158,18 @@ class ZipFileTest < CommonZipFileFixture
     entryToRename, *remainingEntries = TEST_ZIP.entryNames
     
     zf = ZipFile.new(TEST_ZIP.zipName)
-    assert(zf.entries.map { |e| e.name }.include?  entryToRename)
+    assert(zf.entries.map { |e| e.name }.include?(entryToRename))
     
     newName = "changed name"
     assert(! zf.entries.map { |e| e.name }.include?(newName))
 
     zf.rename(entryToRename, newName)
-    assert(zf.entries.map { |e| e.name }.include?  newName)
+    assert(zf.entries.map { |e| e.name }.include?(newName))
 
     zf.close
 
     zfRead = ZipFile.new(TEST_ZIP.zipName)
-    assert(zfRead.entries.map { |e| e.name }.include?  newName)
+    assert(zfRead.entries.map { |e| e.name }.include?(newName))
     zfRead.close
   end
 
@@ -1402,7 +1402,7 @@ class ZipFileExtractTest < CommonZipFileFixture
       |zf|
       zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
       
-      assert(File.exists? EXTRACTED_FILENAME)
+      assert(File.exists?(EXTRACTED_FILENAME))
       AssertEntry::assertContents(EXTRACTED_FILENAME, 
 				  zf.getInputStream(ENTRY_TO_EXTRACT) { |is| is.read })
     }
@@ -1486,13 +1486,13 @@ class ZipFileExtractDirectoryTest < CommonZipFileFixture
     
   def test_extractDirectory
     extractTestDir
-    assert(File.directory? TEST_OUT_NAME)
+    assert(File.directory?(TEST_OUT_NAME))
   end
   
   def test_extractDirectoryExistsAsDir
     Dir.mkdir TEST_OUT_NAME
     extractTestDir
-    assert(File.directory? TEST_OUT_NAME)
+    assert(File.directory?(TEST_OUT_NAME))
   end
 
   def test_extractDirectoryExistsAsFile
@@ -1511,7 +1511,7 @@ class ZipFileExtractDirectoryTest < CommonZipFileFixture
       true
     }
     assert(gotCalled)
-    assert(File.directory? TEST_OUT_NAME)
+    assert(File.directory?(TEST_OUT_NAME))
   end
 end
 
