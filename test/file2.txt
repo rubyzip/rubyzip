@@ -205,7 +205,7 @@ class ZipLocalEntryTest < RUNIT::TestCase
   end
 
   def test_readLocalEntryFromNonZipFile
-    File.open("file2.txt") {
+    File.open("ziptest.rb") {
       |file|
       assert_equals(nil, ZipEntry.readLocalEntry(file))
     }
@@ -503,15 +503,15 @@ class TestZipFile
 	       files.index("longAscii.txt")  &&
 	       files.index("longBinary.bin") ))
       raise "failed to create test zip '#{TEST_ZIP1.zipName}'" unless 
-	system("zip #{TEST_ZIP1.zipName} file2.txt")
+	system("zip #{TEST_ZIP1.zipName} ziptest.rb")
       raise "failed to remove entry from '#{TEST_ZIP1.zipName}'" unless 
-	system("zip #{TEST_ZIP1.zipName} -d file2.txt")
+	system("zip #{TEST_ZIP1.zipName} -d ziptest.rb")
       
       File.open("empty.txt", "w") {}
       
       File.open("short.txt", "w") { |file| file << "ABCDEF" }
       ziptestTxt=""
-      File.open("file2.txt") { |file| ziptestTxt=file.read }
+      File.open("ziptest.rb") { |file| ziptestTxt=file.read }
       File.open("longAscii.txt", "w") {
 	|file|
 	while (file.tell < 1E5)
@@ -711,7 +711,7 @@ class DeflaterTest < RUNIT::TestCase
   include CrcTest
 
   def test_outputOperator
-    txt = loadFile("file2.txt")
+    txt = loadFile("ziptest.rb")
     deflate(txt, "deflatertest.bin")
     inflatedTxt = inflate("deflatertest.bin")
     assert_equals(txt, inflatedTxt)
@@ -910,7 +910,7 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   end
 
   def test_readFromInvalidStream
-    File.open("file2.txt", "rb") {
+    File.open("ziptest.rb", "rb") {
       |zipFile|
       cdir = ZipCentralDirectory.new
       cdir.readFromStream(zipFile)
@@ -1058,7 +1058,7 @@ class ZipFileTest < CommonZipFileFixture
   end
 
   def test_add
-    srcFile   = "file2.txt"
+    srcFile   = "ziptest.rb"
     entryName = "newEntryName.rb" 
     assert(File.exists? srcFile)
     zf = ZipFile.new(EMPTY_FILENAME, ZipFile::CREATE)
@@ -1077,7 +1077,7 @@ class ZipFileTest < CommonZipFileFixture
     assert_exception(ZipEntryExistsError) {
       ZipFile.open(TEST_ZIP.zipName) {
 	|zf|
-	zf.add(zf.entries.first.name, "file2.txt")
+	zf.add(zf.entries.first.name, "ziptest.rb")
       }
     }
   end
@@ -1088,12 +1088,12 @@ class ZipFileTest < CommonZipFileFixture
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
       replacedEntry = zf.entries.first.name
-      zf.add(replacedEntry, "file2.txt") { gotCalled = true; true }
+      zf.add(replacedEntry, "ziptest.rb") { gotCalled = true; true }
     }
     assert(gotCalled)
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
-      assertContains(zf, replacedEntry, "file2.txt")
+      assertContains(zf, replacedEntry, "ziptest.rb")
     }
   end
 
@@ -1210,7 +1210,7 @@ class ZipFileTest < CommonZipFileFixture
   def test_replace
     unchangedEntries = TEST_ZIP.entryNames.dup
     entryToReplace = unchangedEntries.delete_at(2)
-    newEntrySrcFilename = "file2.txt" 
+    newEntrySrcFilename = "ziptest.rb" 
 
     zf = ZipFile.new(TEST_ZIP.zipName)
     zf.replace(entryToReplace, newEntrySrcFilename)
@@ -1228,7 +1228,7 @@ class ZipFileTest < CommonZipFileFixture
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
       assert_exception(ZipNoSuchEntryError) {
-	zf.replace(entryToReplace, "file2.txt")
+	zf.replace(entryToReplace, "ziptest.rb")
       }
     }
   end
