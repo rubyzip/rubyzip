@@ -880,12 +880,15 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
 end
 
 
-
 class SimpleZipFileTest < RUNIT::TestCase
   include AssertEntry
 
+  def zipFileClass
+    SimpleZipFile
+  end
+
   def setup
-    @zipFile = SimpleZipFile.new(TestZipFile::TEST_ZIP2.zipName)
+    @zipFile = zipFileClass.new(TestZipFile::TEST_ZIP2.zipName)
     @testEntryNameIndex=0
   end
 
@@ -913,7 +916,7 @@ class SimpleZipFileTest < RUNIT::TestCase
   end
 
   def test_foreach
-    SimpleZipFile.foreach(TestZipFile::TEST_ZIP2.zipName) {
+    zipFileClass.foreach(TestZipFile::TEST_ZIP2.zipName) {
       |entry|
       assert_equals(nextTestEntryName, entry.name)
     }
@@ -930,6 +933,11 @@ class SimpleZipFileTest < RUNIT::TestCase
   end
 end
 
+class ZipFileSimpleZipFileTest < SimpleZipFileTest
+  def zipFileClass
+    ZipFile
+  end
+end
 
 class ZipFileTest < RUNIT::TestCase
   EMPTY_FILENAME = "emptyZipFile.zip"
@@ -1043,19 +1051,18 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_entries
-    fail "implement"
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    assert_equals(TEST_ZIP.entryNames, zf.entries.map {|e| e.name} )
+    zf.close
   end
 
   def test_each
-    fail "implement"
-  end
-
-  def test_entries
-    fail "implement"
-  end
-
-  def test_getInputStream
-    fail "implement"
+    zf = ZipFile.new(TEST_ZIP.zipName)
+    zf.each_with_index { 
+      |entry, index| 
+      assert_equals(entry.name, TEST_ZIP.entryNames[index])
+    }
+    zf.close
   end
 
   def test_foreach
