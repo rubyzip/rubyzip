@@ -7,7 +7,7 @@ require 'ftools'
 require 'zlib'
 require 'zipfilesystem'
 
-unless Enumerable.instance_methods.include?("inject")
+unless Enumerable.instance_methods(true).include?("inject")
   module Enumerable  #:nodoc:all
     def inject(n = 0)
       each { |value| n = yield(n, value) }
