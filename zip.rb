@@ -118,7 +118,7 @@ end
 class Inflater < Decompressor
   def initialize(inputStream)
     super
-    @zlibInflater = Inflate.new(-Inflate::MAX_WBITS)
+    @zlibInflater = Zlib::Inflate.new(-Zlib::Inflate::MAX_WBITS)
     @outputBuffer=""
   end
 
