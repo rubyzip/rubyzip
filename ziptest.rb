@@ -951,7 +951,7 @@ class ZipOutputStreamTest < RUNIT::TestCase
       assert($!.kind_of?(Errno::EISDIR) || # Linux 
 	     $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
 	     $!.kind_of?(Errno::EACCES),   # Windows
-	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.type}")
+	      "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.class}")
     end
   end
 
