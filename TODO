@@ -1,9 +1,8 @@
 
-define finer grained exceptions
-
 unit test adding directories (and implement)
 unit test adding directories recursively (and implement)
 unit test ZipFile.checkIntegrity method (and implement)
+unit test and implement directory extract (and implement)
 unit test and implement recursive extract (and implement)
 
 performance improve method

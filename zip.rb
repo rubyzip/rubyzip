@@ -3,6 +3,7 @@
 require 'delegate'
 require 'singleton'
 require 'tempfile'
+require 'ftools'
 require 'zlib'
 
 module Enumerable

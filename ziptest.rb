@@ -3,7 +3,6 @@
 $VERBOSE = true
 
 require 'rubyunit'
-require 'ftools'
 require 'zip'
 
 include Zip
