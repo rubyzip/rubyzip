@@ -82,6 +82,12 @@ class Time
   end
 end
 
+module Zlib
+  if ! const_defined? :MAX_WBITS
+    MAX_WBITS = Zlib::Deflate.MAX_WBITS
+  end
+end
+
 module Zip
 
   RUBY_MINOR_VERSION = VERSION.split(".")[1].to_i
@@ -274,7 +280,7 @@ module Zip
   class Inflater < Decompressor  #:nodoc:all
     def initialize(inputStream)
       super
-      @zlibInflater = Zlib::Inflate.new(-Zlib::Inflate::MAX_WBITS)
+      @zlibInflater = Zlib::Inflate.new(-Zlib::MAX_WBITS)
       @outputBuffer=""
       @hasReturnedEmptyString = (RUBY_MINOR_VERSION >= 7)
     end
@@ -770,7 +776,7 @@ module Zip
     def initialize(outputStream, level = Zlib::DEFAULT_COMPRESSION)
       super()
       @outputStream = outputStream
-      @zlibDeflater = Zlib::Deflate.new(level, -Zlib::Deflate::MAX_WBITS)
+      @zlibDeflater = Zlib::Deflate.new(level, -Zlib::MAX_WBITS)
       @size = 0
       @crc = Zlib::crc32
     end

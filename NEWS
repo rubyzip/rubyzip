@@ -10,7 +10,7 @@ Find.find, only Zip::ZipFind.find traverses into zip archives too.
 
 Bug fixes:
 * AbstractInputStream.each_line with different separator
-
+* ruby-zlib 0.6.0 compatibility fix
 
 = Version 0.5.0a =
 
