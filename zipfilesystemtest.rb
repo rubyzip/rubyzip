@@ -197,13 +197,13 @@ class ZipFsFileTest < RUNIT::TestCase
     }
   end
 
-#  def test_setgid?
-#    fail "implement test"
-#  end
+  def test_setgid?
+    fail "implement test"
+  end
 
-#  def test_executable_real?
-#    fail "implement test"
-#  end
+  def test_executable_real?
+    fail "implement test"
+  end
 
   def test_ctime
     fail "implement test"
