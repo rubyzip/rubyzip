@@ -676,7 +676,12 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   end
 
   def test_chroot
-    fail "implement test"
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert_exception(NotImplementedError) {
+        zf.dir.chroot
+      }
+    }
   end
 
   def test_glob

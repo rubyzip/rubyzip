@@ -238,19 +238,19 @@ module Zip
       end
       
       def readlink(fileName)
-	raise NotImplementedError, "The readlink() function is not implemented to ZipFileSystem"
+	raise NotImplementedError, "The readlink() function is not implemented"
       end
       
       def symlink(fileName, symlinkName)
-	raise NotImplementedError, "The symlink() function is not implemented to ZipFileSystem"
+	raise NotImplementedError, "The symlink() function is not implemented"
       end
 
       def link(fileName, symlinkName)
-	raise NotImplementedError, "The link() function is not implemented to ZipFileSystem"
+	raise NotImplementedError, "The link() function is not implemented"
       end
 
       def pipe
-	raise NotImplementedError, "The pipe() function is not implemented to ZipFileSystem"
+	raise NotImplementedError, "The pipe() function is not implemented"
       end
 
       def stat(fileName)
@@ -345,6 +345,10 @@ module Zip
         @mappedZip.mkdir(entryName, permissionInt)
       end
       
+      def chroot(*args)
+      	raise NotImplementedError, "The chroot() function is not implemented"
+      end
+
     end
 
     # All access to ZipFile from ZipFsFile and ZipFsDir goes through a
@@ -400,7 +404,7 @@ module Zip
           yield("/"+e.to_s.chomp("/"))
         }
       end
-
+      
       def expand_path(aPath)
         expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
         expanded.gsub!(/\/\.(\/|$)/, "")
