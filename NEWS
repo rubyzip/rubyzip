@@ -1,0 +1,10 @@
+= Version 0.2.0 =
+
+Class ZipFile added. Where ZipInputStream is used to read the
+individual entries in a zip file, ZipFile reads the central directory
+in the zip archive, so you can get to any entry in the zip archive
+without having to skipping through all the preceeding entries.
+
+= Version 0.1.0 =
+
+First working version of ZipInputStream.
