@@ -1,3 +1,7 @@
+= Version 0.4.3 =
+
+Source reorganized.
+
 = Version 0.4.2 =
 
 Performance optimizations. Test suite runs in half the time.

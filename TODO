@@ -6,10 +6,8 @@ unit test and implement:
 * recursive extract with block for determining whether directories should be created.
 * ZipFile.checkIntegrity method
 
-make release
-
 implement small gui app on top, to exercise library and to discover
-what features should be added to rubyzip.
+what features should be added to rubyzip next.
 
 implement setting the date correctly in ZipEntry with now as default
 
@@ -17,13 +15,9 @@ implement storing attributes and ownership information
 
 make release with small gui demo app and fixes
 
-unit test compressing and extracting with file permissions (and implement)
-
 Refactor ZipFileTest to reduce duplicated code, divide into different
 test classes if different fixtures are required and use setup/teardown
 some more.
-
-make release
 
 Write scarf-like
 (http://www.pragmaticprogrammer.com/ruby/downloads/scarf.html) ruby
