@@ -529,8 +529,11 @@ class TestZipFile
       }
       raise "failed to create test zip '#{TEST_ZIP2.zipName}'" unless 
 	system("zip #{TEST_ZIP2.zipName} #{TEST_ZIP2.entryNames.join(' ')}")
+
+      # without bash system interprets everything after echo as parameters to
+      # echo including | zip -z ...
       raise "failed to add comment to test zip '#{TEST_ZIP2.zipName}'" unless 
-	system("echo #{TEST_ZIP2.comment} | zip -z #{TEST_ZIP2.zipName}")
+	system("bash -c \"echo #{TEST_ZIP2.comment} | zip -z #{TEST_ZIP2.zipName}\"")
 
       raise "failed to create test zip '#{TEST_ZIP3.zipName}'" unless 
 	system("zip #{TEST_ZIP3.zipName} #{TEST_ZIP3.entryNames.join(' ')}")
