@@ -593,9 +593,9 @@ class ZipFsDirectoryTest < RUNIT::TestCase
       assert_exception(Errno::EINVAL, "Invalid argument - file1") {
         zf.dir.delete("file1")
       }
-      assert(zf.entries.find { |e| e.name == "dir1/" })
+      assert(zf.file.exists?("dir1"))
       zf.dir.delete("dir1")
-      assert_nil(zf.entries.find { |e| e.name == "dir1/" })
+      assert(! zf.file.exists?("dir1"))
     }
   end
 
@@ -609,7 +609,21 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   end
 
   def test_mkdir
-    fail "implement test"
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert_exception(Errno::EEXIST, "File exists - dir1") { 
+        zf.dir.mkdir("file1") 
+      }
+      assert_exception(Errno::EEXIST, "File exists - dir1") { 
+        zf.dir.mkdir("dir1") 
+      }
+      assert(!zf.file.exists?("newDir"))
+      zf.dir.mkdir("newDir")
+      assert(zf.file.directory?("newDir"))
+      assert(!zf.file.exists?("newDir2"))
+      zf.dir.mkdir("newDir2", 3485)
+      assert(zf.file.directory?("newDir2"))
+    }
   end
 
   def test_chdir

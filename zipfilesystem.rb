@@ -301,6 +301,9 @@ module Zip
     alias rmdir  delete
     alias unlink delete
 
+    def mkdir(entryName, permissionInt = 0)
+      @zipFile.mkdir(entryName, permissionInt)
+    end
   end
 
   class ZipFile

@@ -1047,6 +1047,13 @@ module Zip
       return selectedEntry
     end
 
+    def mkdir(entryName, permissionInt = 0) #permissionInt ignored
+      if find_entry(entryName)
+        raise Errno::EEXIST, "File exists - #{entryName}"
+      end
+      @entrySet << ZipEntry.new(name, entryName.to_s.ensure_end("/"))
+    end
+
     private
 
     def create_directory(entry, destPath)
