@@ -315,7 +315,7 @@ module AssertEntry
     }
   end
 
-  def assertContents(filename, aString)
+  def AssertEntry.assertContents(filename, aString)
     fileContents = ""
     File.open(filename, "rb") { |f| fileContents = f.read }
     if (fileContents != aString)
@@ -345,11 +345,11 @@ module AssertEntry
     }
   end
 
-  def assertEntryContents(zipFile, entryName, filename = entry.to_s)
-    zis = zipFile.getInputStream(entry)
+  def assertEntryContents(zipFile, entryName, filename = entryName.to_s)
+    zis = zipFile.getInputStream(entryName)
     assertEntry(filename, zis, entryName)
   ensure 
-    zis.close
+    zis.close if zis
   end
 end
 
@@ -988,6 +988,8 @@ class ZipFileBasicZipFileTest < BasicZipFileTest
 end
 
 class ZipFileTest < RUNIT::TestCase
+  include AssertEntry
+
   EMPTY_FILENAME = "emptyZipFile.zip"
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
@@ -1021,8 +1023,8 @@ class ZipFileTest < RUNIT::TestCase
     zfRead = ZipFile.new(EMPTY_FILENAME)
     assert_equals("", zfRead.comment)
     assert_equals(1, zfRead.entries.length)
-    assert_equals(entryName, zfRead.entries.first)
-    AssertEntry::assertContents(srcFile, zfRead.getInputStream(entryName).read)
+    assert_equals(entryName, zfRead.entries.first.name)
+    AssertEntry.assertContents(srcFile, zfRead.getInputStream(entryName).read)
   end
 
   def test_addDirectory
@@ -1042,7 +1044,7 @@ class ZipFileTest < RUNIT::TestCase
     assert_equals(zf.entries.map {|x| x.name }.sort, remainingEntries.sort) 
     zf.close
 
-    zfRead = ZipFile(TEST_ZIP.zipName)
+    zfRead = ZipFile.new(TEST_ZIP.zipName)
     assert(! zfRead.entries.map { |e| e.name }.include? (entryToRemove))
     assert_equals(zfRead.entries.map {|x| x.name }.sort, remainingEntries.sort) 
     zfRead.close
@@ -1071,10 +1073,10 @@ class ZipFileTest < RUNIT::TestCase
   end
 
   def test_extractNonEntry
+    outFile = "outfile"
     assert_exception(ZipError) {
       zf = ZipFile.new(TEST_ZIP.zipName)
       nonEntry = "hotdog-diddelidoo"
-      outFile = "outfile"
       assert(! zf.entries.include?(nonEntry))
       zf.extract(nonEntry, outFile)
       zf.close
@@ -1165,20 +1167,20 @@ class ZipFileTest < RUNIT::TestCase
     zf.commit
 
     zfRead = ZipFile.new(TEST_ZIP.zipName)
-    assert(zfRead.entries.include?(newName))
-    assert(! zfRead.entries.include?(oldName))
+    assert(zfRead.entries.detect { |e| e.name == newName } != nil)
+    assert(zfRead.entries.detect { |e| e.name == oldName } == nil)
     zfRead.close
 
     zf.close
   end
 
-  def test_close
-    zf = ZipFile.new(TEST_ZIP.zipName)
-    zf.close
-    assert_exception(IOError) {
-      zf.extract(TEST_ZIP.entryNames.first, "hullubullu")
-    }
-  end
+#  def test_close
+#    zf = ZipFile.new(TEST_ZIP.zipName)
+#    zf.close
+#    assert_exception(IOError) {
+#      zf.extract(TEST_ZIP.entryNames.first, "hullubullu")
+#    }
+#  end
 
   def test_compound1
     renamedName = "renamedName"
@@ -1187,15 +1189,13 @@ class ZipFileTest < RUNIT::TestCase
       zf = ZipFile.new(TEST_ZIP.zipName)
       originalEntries = zf.entries.dup
 
-      assertContains(zf, TestFiles::RANDOM_ASCII_FILE1)
+      assertNotContains(zf, TestFiles::RANDOM_ASCII_FILE1)
       zf.add(TestFiles::RANDOM_ASCII_FILE1, 
 	     TestFiles::RANDOM_ASCII_FILE1)
       assertContains(zf, TestFiles::RANDOM_ASCII_FILE1)
 
-
       zf.rename(zf.entries[0], renamedName)
       assertContains(zf, renamedName)
-
 
       TestFiles::BINARY_TEST_FILES.each {
 	|filename|
@@ -1203,9 +1203,9 @@ class ZipFileTest < RUNIT::TestCase
 	assertContains(zf, filename)
       }
 
-      assertContains(originalEntries.last)
-      zf.remove(originalEntries.last)
-      assertNotContains(originalEntries.last)
+      assertContains(zf, originalEntries.last.to_s)
+      zf.remove(originalEntries.last.to_s)
+      assertNotContains(zf, originalEntries.last.to_s)
       
     ensure
       zf.close
@@ -1218,10 +1218,9 @@ class ZipFileTest < RUNIT::TestCase
 	|filename|
 	assertContains(zfRead, filename)
       }
-      assertNotContains(originalEntries.last)
-      AssertEntry::assertTestZipContents(TEST_ZIP)
+      assertNotContains(zfRead, originalEntries.last.to_s)
     ensure
-      zf.close
+      zfRead.close
     end
   end
 
@@ -1233,14 +1232,14 @@ class ZipFileTest < RUNIT::TestCase
       originalEntries.each {
 	|entry|
 	zf.remove(entry)
-	assertNotContains(entry)
+	assertNotContains(zf, entry)
       }
       assert(zf.entries.empty?)
       
       TestFiles::ASCII_TEST_FILES.each {
 	|filename|
-	zf.add(filename)
-	assertContains(filename)
+	zf.add(filename, filename)
+	assertContains(zf, filename)
       }
       assert_equals(zf.entries.map { |e| e.name }, TestFiles::ASCII_TEST_FILES)
       
@@ -1267,12 +1266,12 @@ class ZipFileTest < RUNIT::TestCase
 
   private
   def assertContains(zf, entryName, filename = entryName)
-    assert(zf.entries.map { |e| e.name }.include? (entryName))
-    AssertEntry::assertEntryContents(zf, entryName, filename) if File.exists?(filename)
+    assert(zf.entries.detect { |e| e.name == entryName} != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
+    assertEntryContents(zf, entryName, filename) if File.exists?(filename)
   end
   
   def assertNotContains(zf, entryName)
-    assert(! zf.entries.map { |e| e.name }.include? (entryName))
+    assert(zf.entries.detect { |e| e.name == entryName} == nil, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
   end
 end
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'delegate'
 require 'singleton'
 require 'tempfile'
 require 'zlib'
@@ -8,6 +9,12 @@ module Enumerable
   def inject(n = 0)
     each { |value| n = yield(n, value) }
     n
+  end
+end
+
+class Module
+  def instance_respond_to? aSymbol
+    public_instance_methods(true).include?(aSymbol.to_s)
   end
 end
 
@@ -452,6 +459,16 @@ module Zip
 
     def getInputStreamForZipFile(zipFileName)
       zis = ZipInputStream.new(zipFileName, localHeaderOffset)
+      zis.getNextEntry
+      if block_given?
+	begin
+	  return yield zis
+	ensure
+	  zis.close
+	end
+      else
+	return zis
+      end
     end
   end
 
@@ -731,10 +748,13 @@ module Zip
     def getInputStream(entry)
       selectedEntry = getEntry(entry)
       zis = selectedEntry.getInputStreamForZipFile(name)
-      zis.getNextEntry
       return zis
     end
 
+    def to_s
+      @name
+    end
+    
     protected
     def getEntry(entry)
       selectedEntry = @entries.detect { |e| e.name == entry.to_s }
@@ -747,10 +767,9 @@ module Zip
   end
 
 
-
   class ZipFile < BasicZipFile
     CREATE = 1
-    
+
     def initialize(fileName, create = nil)
       @name = fileName
       if (File.exists?(fileName))
@@ -775,9 +794,12 @@ module Zip
 	zf
       end
     end
-    
+
+    attr_writer :comment
+
     def add(entry, srcPath) 
-      zipStreamable = ZipStreamableFile.new(entry, srcPath)
+      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(entry.to_s)
+      zipStreamable = ZipStreamableFile.new(newEntry, srcPath)
       @entries << zipStreamable
     end
     
@@ -787,7 +809,7 @@ module Zip
     
     def rename(entry, newName, continueOnExistsProc = proc { false })
       foundEntry = getEntry(entry)
-      if getEntry(newName) 
+      if @entries.detect { |e| e.name == newName }
 	if continueOnExistsProc.call
 	  remove getEntry(newName)
 	else
@@ -836,7 +858,7 @@ module Zip
 	raise ZipError,
 	  "Destination '#{destPath}' already exists"
       end
-      File.open(destPath, "wb") &writeFileProc
+      File.open(destPath, "wb", &writeFileProc)
     end
     
     def checkFile(path)
@@ -855,7 +877,7 @@ module Zip
     end
     
     def fixEntries
-      @entries.map! { |e| ZipStreamableZipEntry.new(e) }
+      @entries.map! { |e| ZipStreamableZipEntry.new(e, name) }
     end
     
     def getTempfile
@@ -863,27 +885,39 @@ module Zip
     end
     
   end
-  
-  
-  class ZipStreamable < ZipEntry
+
+
+  module ZipStreamable
     def writeToZipOutputStream(aZipOutputStream)
-      raise "implement 'writeToZipOutputStream' in subclass"
-    end
-    
-    def getInputStream
-      raise "implement 'getInputStream' in subclass"
-    end
-    
-    def ==(other)
-      raise "implement '==' in subclass"
+      aZipOutputStream.putNextEntry(self)
+      aZipOutputStream << getInputStream { |is| is.read }
     end
   end
-  
-  class ZipStreamableFile < ZipStreamable
+
+  class ZipStreamableFile < DelegateClass(ZipEntry)
+    include ZipStreamable
+
+    def initialize(entry, filepath)
+      super(entry)
+      @filepath = filepath
+    end
+
+    def getInputStream(&aProc)
+      File.open(@filepath, "rb", &aProc)
+    end
+    
   end
   
-  class ZipStreamableZipEntry < ZipStreamable
-    def initialize(entry)
+  class ZipStreamableZipEntry < DelegateClass(ZipEntry)
+    include ZipStreamable
+
+    def initialize(entry, zipfile)
+      super(entry)
+      @zipfile = zipfile
+    end
+
+    def getInputStream(&aProc)
+      getInputStreamForZipFile @zipfile, &aProc
     end
   end
   
