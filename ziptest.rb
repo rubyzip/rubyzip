@@ -1482,8 +1482,11 @@ class ZipFileExtractDirectoryTest < CommonZipFileFixture
 end
 
 
-TestFiles::createTestFiles(ARGV.index("recreate") != nil)
-TestZipFile::createTestZips(ARGV.index("recreate") != nil)
+TestFiles::createTestFiles(ARGV.index("recreate") != nil || 
+			   ARGV.index("recreateonly") != nil)
+TestZipFile::createTestZips(ARGV.index("recreate") != nil || 
+			    ARGV.index("recreateonly") != nil)
+exit if ARGV.index("recreateonly") != nil
 
 # Copyright (C) 2002 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
