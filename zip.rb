@@ -316,7 +316,7 @@ module Zip
     DEFLATED = 8
     
     attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
-      :name, :size, :localHeaderOffset, :time
+      :name, :size, :localHeaderOffset, :time, :zipfile
     
     alias :mtime :time
 
@@ -1172,7 +1172,7 @@ module Zip
   class ZipStreamableStream < DelegateClass(ZipEntry) #nodoc:all
     def initialize(entry)
       super(entry)
-      @tempFile = Tempfile.new(File.basename(name), File.dirname(name))
+      @tempFile = Tempfile.new(File.basename(name), File.dirname(zipfile))
       @tempFile.binmode
     end
 

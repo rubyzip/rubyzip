@@ -26,6 +26,7 @@ Zip::ZipFile.open(EXAMPLE_ZIP) {
   |zf|
   puts "Entries from reloaded zip: #{zf.entries.join(', ')}"
 }
+
 # For other examples, look at zip.rb and ziptest.rb
 
 # Copyright (C) 2003 Thomas Sondergaard
