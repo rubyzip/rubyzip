@@ -10,7 +10,6 @@ include Zip
 class ZipFsFileTest < RUNIT::TestCase
   def setup
     @zipFile = ZipFile.new("zipWithDirs.zip")
-    @zipFsFile = @zipFile.file
   end
 
   def teardown
@@ -26,17 +25,17 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_exists?
-    assert(! @zipFsFile.exists?("notAFile"))
-    assert(@zipFsFile.exists?("file1"))
-    assert(@zipFsFile.exists?("dir1"))
-    assert(@zipFsFile.exists?("dir1/"))
-    assert(@zipFsFile.exists?("dir1/file12"))
-    assert(@zipFsFile.exist?("dir1/file12")) # notice, tests exist? alias of exists?
+    assert(! @zipFile.file.exists?("notAFile"))
+    assert(@zipFile.file.exists?("file1"))
+    assert(@zipFile.file.exists?("dir1"))
+    assert(@zipFile.file.exists?("dir1/"))
+    assert(@zipFile.file.exists?("dir1/file12"))
+    assert(@zipFile.file.exist?("dir1/file12")) # notice, tests exist? alias of exists?
   end
 
   def test_open
     blockCalled = false
-    @zipFsFile.open("file1", "r") {
+    @zipFile.file.open("file1", "r") {
       |f|
       blockCalled = true
       assert_equals("this is the entry 'file1' in my test archive!", 
@@ -46,16 +45,16 @@ class ZipFsFileTest < RUNIT::TestCase
 
     blockCalled = false
     assert_exception(StandardError) {
-      @zipFsFile.open("file1", "w") { blockCalled = true }
+      @zipFile.file.open("file1", "w") { blockCalled = true }
     }
     assert(! blockCalled)
 
     assert_exception(Errno::ENOENT) {
-      @zipFsFile.open("noSuchEntry")
+      @zipFile.file.open("noSuchEntry")
     }
 
     begin
-      is = @zipFsFile.open("file1")
+      is = @zipFile.file.open("file1")
       assert_equals("this is the entry 'file1' in my test archive!", 
 		    is.readline.chomp)
     ensure
@@ -65,14 +64,14 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def test_new
     begin
-      is = @zipFsFile.new("file1")
+      is = @zipFile.file.new("file1")
       assert_equals("this is the entry 'file1' in my test archive!", 
 		    is.readline.chomp)
     ensure
       is.close if is
     end
     begin
-      is = @zipFsFile.new("file1") {
+      is = @zipFile.file.new("file1") {
 	fail "should not call block"
       }
     ensure
@@ -82,7 +81,7 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def test_symlink
     assert_exception(NotImplementedError) {
-      @zipFsFile.symlink("file1", "aSymlink")
+      @zipFile.file.symlink("file1", "aSymlink")
     }
   end
 
@@ -91,48 +90,48 @@ class ZipFsFileTest < RUNIT::TestCase
   end
   
   def test_size
-    assert_exception(Errno::ENOENT) { @zipFsFile.size("notAFile") }
-    assert_equals(72, @zipFsFile.size("file1"))
-    assert_equals(0, @zipFsFile.size("dir2/dir21"))
+    assert_exception(Errno::ENOENT) { @zipFile.file.size("notAFile") }
+    assert_equals(72, @zipFile.file.size("file1"))
+    assert_equals(0, @zipFile.file.size("dir2/dir21"))
   end
 
   def test_size?
-    assert_equals(nil, @zipFsFile.size?("notAFile"))
-    assert_equals(72, @zipFsFile.size?("file1"))
-    assert_equals(nil, @zipFsFile.size?("dir2/dir21"))
+    assert_equals(nil, @zipFile.file.size?("notAFile"))
+    assert_equals(72, @zipFile.file.size?("file1"))
+    assert_equals(nil, @zipFile.file.size?("dir2/dir21"))
   end
 
 
   def test_file?
-    assert(@zipFsFile.file?("file1"))
-    assert(@zipFsFile.file?("dir2/file21"))
-    assert(! @zipFsFile.file?("dir1"))
-    assert(! @zipFsFile.file?("dir1/dir11"))
+    assert(@zipFile.file.file?("file1"))
+    assert(@zipFile.file.file?("dir2/file21"))
+    assert(! @zipFile.file.file?("dir1"))
+    assert(! @zipFile.file.file?("dir1/dir11"))
   end
 
   def test_dirname
-    assert_equals("a/b/c", @zipFsFile.dirname("a/b/c/d"))
-    assert_equals(".", @zipFsFile.dirname("c"))
-    assert_equals("a/b", @zipFsFile.dirname("a/b/"))
+    assert_equals("a/b/c", @zipFile.file.dirname("a/b/c/d"))
+    assert_equals(".", @zipFile.file.dirname("c"))
+    assert_equals("a/b", @zipFile.file.dirname("a/b/"))
   end
 
   def test_basename
-    assert_equals("d", @zipFsFile.basename("a/b/c/d"))
-    assert_equals("c", @zipFsFile.basename("c"))
-    assert_equals("", @zipFsFile.basename("a/b/"))
+    assert_equals("d", @zipFile.file.basename("a/b/c/d"))
+    assert_equals("c", @zipFile.file.basename("c"))
+    assert_equals("", @zipFile.file.basename("a/b/"))
   end
 
   def test_split
-    assert_equals(["a/b/c", "d"], @zipFsFile.split("a/b/c/d"))
-    assert_equals(["a/b/c/d", ""], @zipFsFile.split("a/b/c/d/"))
-    assert_equals([".", "a"], @zipFsFile.split("a"))
+    assert_equals(["a/b/c", "d"], @zipFile.file.split("a/b/c/d"))
+    assert_equals(["a/b/c/d", ""], @zipFile.file.split("a/b/c/d/"))
+    assert_equals([".", "a"], @zipFile.file.split("a"))
   end
 
   def test_join
-    assert_equals("a/b/c", @zipFsFile.join("a/b", "c"))
-    assert_equals("a/b/c/d", @zipFsFile.join("a/b", "c/d"))
-    assert_equals("/c/d", @zipFsFile.join("", "c/d"))
-    assert_equals("a/b/c/d", @zipFsFile.join("a", "b", "c", "d"))
+    assert_equals("a/b/c", @zipFile.file.join("a/b", "c"))
+    assert_equals("a/b/c/d", @zipFile.file.join("a/b", "c/d"))
+    assert_equals("/c/d", @zipFile.file.join("", "c/d"))
+    assert_equals("a/b/c/d", @zipFile.file.join("a", "b", "c", "d"))
   end
 
   def test_utime
@@ -141,9 +140,9 @@ class ZipFsFileTest < RUNIT::TestCase
 
 
   def assertAlwaysFalse(operation)
-    assert(! @zipFsFile.send(operation, "noSuchFile"))
-    assert(! @zipFsFile.send(operation, "file1"))
-    assert(! @zipFsFile.send(operation, "dir1"))
+    assert(! @zipFile.file.send(operation, "noSuchFile"))
+    assert(! @zipFile.file.send(operation, "file1"))
+    assert(! @zipFile.file.send(operation, "dir1"))
   end
 
   def test_pipe?
@@ -162,6 +161,10 @@ class ZipFsFileTest < RUNIT::TestCase
     assertAlwaysFalse(:socket?)
   end
 
+  def test_chardev?
+    assertAlwaysFalse(:chardev?)
+  end
+
   def test_writable?
     fail "implement test"
   end
@@ -176,15 +179,15 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def assertENOENT(operation, args = ["NoSuchFile"])
     assert_exception(Errno::ENOENT) {
-      @zipFsFile.send(operation, *args)
+      @zipFile.file.send(operation, *args)
     }
   end
 
   def test_ftype
     assertENOENT(:ftype)
-    assert_equals("file", @zipFsFile.ftype("file1"))
-    assert_equals("directory", @zipFsFile.ftype("dir1/dir11"))
-    assert_equals("directory", @zipFsFile.ftype("dir1/dir11/"))
+    assert_equals("file", @zipFile.file.ftype("file1"))
+    assert_equals("directory", @zipFile.file.ftype("dir1/dir11"))
+    assert_equals("directory", @zipFile.file.ftype("dir1/dir11/"))
   end
 
   def test_grpowned?
@@ -193,7 +196,7 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def test_link
     assert_exception(NotImplementedError) {
-      @zipFsFile.link("file1", "someOtherString")
+      @zipFile.file.link("file1", "someOtherString")
     }
   end
 
@@ -226,12 +229,12 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_directory?
-    assert(! @zipFsFile.directory?("notAFile"))
-    assert(! @zipFsFile.directory?("file1"))
-    assert(! @zipFsFile.directory?("dir1/file11"))
-    assert(@zipFsFile.directory?("dir1"))
-    assert(@zipFsFile.directory?("dir1/"))
-    assert(@zipFsFile.directory?("dir2/dir21"))
+    assert(! @zipFile.file.directory?("notAFile"))
+    assert(! @zipFile.file.directory?("file1"))
+    assert(! @zipFile.file.directory?("dir1/file11"))
+    assert(@zipFile.file.directory?("dir1"))
+    assert(@zipFile.file.directory?("dir1/"))
+    assert(@zipFile.file.directory?("dir2/dir21"))
   end
 
   def test_chown
@@ -243,9 +246,9 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_zero?
-    assert(! @zipFsFile.zero?("notAFile"))
-    assert(! @zipFsFile.zero?("file1"))
-    assert(@zipFsFile.zero?("dir1"))
+    assert(! @zipFile.file.zero?("notAFile"))
+    assert(! @zipFile.file.zero?("file1"))
+    assert(@zipFile.file.zero?("dir1"))
     blockCalled = false
     ZipFile.open("4entry.zip") {
       |zf|
@@ -266,11 +269,11 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def test_mtime
     assert_equals(Time.local(2002, "Jul", 26, 16, 38, 26),
-		  @zipFsFile.mtime("dir2/file21"))
+		  @zipFile.file.mtime("dir2/file21"))
     assert_equals(Time.local(2002, "Jul", 26, 15, 41, 04),
-		  @zipFsFile.mtime("dir2/dir21"))
+		  @zipFile.file.mtime("dir2/dir21"))
     assert_exception(Errno::ENOENT) {
-      @zipFsFile.mtime("noSuchEntry")
+      @zipFile.file.mtime("noSuchEntry")
     }
   end
 
@@ -284,7 +287,7 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def test_readlink
     assert_exception(NotImplementedError) {
-      @zipFsFile.readlink("someString")
+      @zipFile.file.readlink("someString")
     }
   end
 
@@ -296,26 +299,49 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_chardev?
-    fail "implement test"
-  end
-
   def test_writable_real?
     fail "implement test"
   end
 
   def test_pipe
     assert_exception(NotImplementedError) {
-      @zipFsFile.pipe
+      @zipFile.file.pipe
     }
   end
 
   def test_foreach
-    fail "implement test"
+    ZipFile.open("zipWithDir.zip") {
+      |zf|
+      ref = []
+      File.foreach("file1.txt") { |e| ref << e }
+      
+      index = 0
+      zf.file.foreach("file1.txt") { 
+	|l|
+	assert_equals(ref[index], l)
+	index = index.next
+      }
+      assert_equals(ref.size, index)
+    }
+    
+    ZipFile.open("zipWithDir.zip") {
+      |zf|
+      ref = []
+      File.foreach("file1.txt", " ") { |e| ref << e }
+      
+      index = 0
+      zf.file.foreach("file1.txt", " ") { 
+	|l|
+	assert_equals(ref[index], l)
+	index = index.next
+      }
+      assert_equals(ref.size, index)
+    }
   end
 
   def test_popen
-    fail "implement test"
+    assert_equals(File.popen("ls")          { |f| f.read }, 
+		  @zipFile.file.popen("ls") { |f| f.read })
   end
 
   def test_select
@@ -323,13 +349,17 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_readlines
-    fail "implement test"
+    ZipFile.open("zipWithDir.zip") {
+      |zf|
+      assert_equals(File.readlines("file1.txt"), 
+		    zf.file.readlines("file1.txt"))
+    }
   end
 
 end
 
 
-class ZipFsDirectoryTest < RUNIT::TestCase
+class ZipFsDirectoryTest #< RUNIT::TestCase
   def test_rmdir
     fail "implement test"
   end

@@ -88,6 +88,10 @@ module Zip
 	false
       end
       
+      def chardev?(filename)
+	false
+      end
+      
       def symlink?(fileName)
 	false
       end
@@ -114,6 +118,18 @@ module Zip
 
       def pipe
 	raise NotImplementedError, "The pipe() function is not implemented to ZipFileSystem"
+      end
+
+      def readlines(fileName)
+	open(fileName) { |is| is.readlines }
+      end
+
+      def popen(*args, &aProc)
+	File.popen(*args, &aProc)
+      end
+
+      def foreach(fileName, aSep = $/, &aProc)
+	open(fileName) { |is| is.each_line(aSep, &aProc) }
       end
     end
   end

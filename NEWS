@@ -6,15 +6,21 @@ zip file. Added FileArchive module which ZipFile mix in. FileArchive
 provides filename globbing, regex selection, recursive
 extraction/addition, and other convenience methods.
 
+Bug fixes:
+* AbstractInputStream.each_line with different separator
+
 = Version 0.5.0a =
 
 Source reorganized. Added ziprequire, which can be used to load ruby
 modules from a zip file, in a fashion similar to jar files in
-Java. Added gtkRubyzip, another sample application. Bug fix: Read and
-write date and time information correctly for zip entries. Fixed
-read() using separate buffer, causing mix of gets/readline/read to
-cause problems. Implemented ZipInputStream.lineno and
-ZipInputStream.rewind
+Java. Added gtkRubyzip, another sample application. Implemented
+ZipInputStream.lineno and ZipInputStream.rewind
+
+Bug fixes: 
+
+* Read and write date and time information correctly for zip entries. 
+* Fixed read() using separate buffer, causing mix of gets/readline/read to
+cause problems. 
 
 = Version 0.4.2 =
 
