@@ -6,7 +6,7 @@ require 'tempfile'
 require 'ftools'
 require 'zlib'
 
-module Enumerable
+module Enumerable  #:nodoc:all
   def inject(n = 0)
     each { |value| n = yield(n, value) }
     n
@@ -18,7 +18,7 @@ module Zip
   # Implements many of the convenience methods of IO
   # such as gets, getc, readline and readlines 
   # depends on: inputFinished?, produceInput and read
-  module AbstractInputStream
+  module AbstractInputStream  
     include Enumerable
     
     def readlines(aSepString = $/)
@@ -69,7 +69,7 @@ module Zip
 
 
   #relies on <<
-  module AbstractOutputStream
+  module AbstractOutputStream 
     def write(data)
       self << data
       data.to_s.length
@@ -163,14 +163,14 @@ module Zip
   
   
   
-  class Decompressor
+  class Decompressor  #:nodoc:all
     CHUNK_SIZE=32768
     def initialize(inputStream)
       @inputStream=inputStream
     end
   end
   
-  class Inflater < Decompressor
+  class Inflater < Decompressor  #:nodoc:all
     def initialize(inputStream)
       super
       @zlibInflater = Zlib::Inflate.new(-Zlib::Inflate::MAX_WBITS)
@@ -206,7 +206,7 @@ module Zip
     end
   end
   
-  class PassThruDecompressor < Decompressor
+  class PassThruDecompressor < Decompressor  #:nodoc:all
     def initialize(inputStream, charsToRead)
       super inputStream
       @charsToRead = charsToRead
@@ -238,7 +238,7 @@ module Zip
     end
   end
   
-  class NullDecompressor
+  class NullDecompressor  #:nodoc:all
     include Singleton
     def read(numberOfBytes = nil)
       nil
@@ -253,7 +253,7 @@ module Zip
     end
   end
   
-  class NullInputStream < NullDecompressor
+  class NullInputStream < NullDecompressor  #:nodoc:all
     include AbstractInputStream
   end
   
@@ -277,20 +277,20 @@ module Zip
       return (%r{\/$} =~ @name) != nil
     end
     
-    def localEntryOffset
+    def localEntryOffset  #:nodoc:all
       localHeaderOffset + localHeaderSize
     end
     
-    def localHeaderSize
+    def localHeaderSize  #:nodoc:all
       LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.size : 0) + (@extra ? @extra.size : 0)
     end
 
-    def cdirHeaderSize
+    def cdirHeaderSize  #:nodoc:all
       CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.size : 0) + 
 	(@extra ? @extra.size : 0) + (@comment ? @comment.size : 0)
     end
     
-    def nextHeaderOffset
+    def nextHeaderOffset  #:nodoc:all
       localEntryOffset + self.compressedSize
     end
     
@@ -312,7 +312,7 @@ module Zip
     LOCAL_ENTRY_SIGNATURE = 0x04034b50
     LOCAL_ENTRY_STATIC_HEADER_LENGTH = 30
     
-    def readLocalEntry(io)
+    def readLocalEntry(io)  #:nodoc:all
       @localHeaderOffset = io.tell
       staticSizedFieldsBuf = io.read(LOCAL_ENTRY_STATIC_HEADER_LENGTH)
       unless (staticSizedFieldsBuf.size==LOCAL_ENTRY_STATIC_HEADER_LENGTH)
@@ -350,7 +350,7 @@ module Zip
       return nil
     end
   
-    def writeLocalEntry(io)
+    def writeLocalEntry(io)   #:nodoc:all
       @localHeaderOffset = io.tell
       
       io << 
@@ -372,7 +372,7 @@ module Zip
     CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
     CDIR_ENTRY_STATIC_HEADER_LENGTH = 46
     
-    def readCDirEntry(io)
+    def readCDirEntry(io)  #:nodoc:all
       staticSizedFieldsBuf = io.read(CDIR_ENTRY_STATIC_HEADER_LENGTH)
       unless (staticSizedFieldsBuf.size == CDIR_ENTRY_STATIC_HEADER_LENGTH)
 	raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
@@ -411,7 +411,7 @@ module Zip
       end
     end
     
-    def ZipEntry.readCDirEntry(io)
+    def ZipEntry.readCDirEntry(io)  #:nodoc:all
       entry = new(io.path)
       entry.readCDirEntry(io)
       return entry
@@ -420,7 +420,7 @@ module Zip
     end
 
 
-    def writeCDirEntry(io)
+    def writeCDirEntry(io)  #:nodoc:all
       io << 
 	[CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
 	0                                 , # @version                          ,
@@ -475,7 +475,7 @@ module Zip
     end
 
 
-    def writeToZipOutputStream(aZipOutputStream)
+    def writeToZipOutputStream(aZipOutputStream)  #:nodoc:all
       aZipOutputStream.putNextEntry(self.dup)
       aZipOutputStream << getRawInputStream { 
 	|is| 
@@ -586,12 +586,12 @@ module Zip
   end
   
   
-  class Compressor
+  class Compressor #:nodoc:all
     def finish
     end
   end
   
-  class PassThruCompressor < Compressor
+  class PassThruCompressor < Compressor #:nodoc:all
     def initialize(outputStream)
       @outputStream = outputStream
       @crc = Zlib::crc32
@@ -608,7 +608,7 @@ module Zip
     attr_reader :size, :crc
   end
 
-  class NullCompressor < Compressor
+  class NullCompressor < Compressor #:nodoc:all
     include Singleton
 
     def << (data)
@@ -618,7 +618,7 @@ module Zip
     attr_reader :size, :compressedSize
   end
 
-  class Deflater < Compressor
+  class Deflater < Compressor #:nodoc:all
     def initialize(outputStream, level = Zlib::DEFAULT_COMPRESSION)
       @outputStream = outputStream
       @zlibDeflater = Zlib::Deflate.new(level, -Zlib::Deflate::MAX_WBITS)
@@ -642,7 +642,7 @@ module Zip
     attr_reader :size, :crc
   end
   
-  class ZipCentralDirectory
+  class ZipCentralDirectory #:nodoc:all
     include Enumerable
     
     END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054b50
@@ -786,7 +786,7 @@ module Zip
       end
     end
 
-    attr_writer :comment
+    attr_accessor :comment
 
     def ZipFile.foreach(aZipFileName, &block)
       zipFile = ZipFile.new(aZipFileName)
@@ -945,7 +945,7 @@ module Zip
     end
   end
 
-  class ZipStreamableFile < DelegateClass(ZipEntry)
+  class ZipStreamableFile < DelegateClass(ZipEntry) #:nodoc:all
     def initialize(entry, filepath)
       super(entry)
       @filepath = filepath
@@ -961,7 +961,7 @@ module Zip
     end
   end
 
-  class ZipStreamableDirectory < DelegateClass(ZipEntry)
+  class ZipStreamableDirectory < DelegateClass(ZipEntry) #:nodoc:all
     def initialize(entry)
       super(entry)
     end
