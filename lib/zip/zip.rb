@@ -19,7 +19,7 @@ end
 
 module Zip
 
-  VERSION = '0.5.7'
+  VERSION = '0.5.8'
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 

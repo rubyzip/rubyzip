@@ -4,15 +4,16 @@ rubyzip is a ruby library for reading and writing zip files.
 
 = Install
 
-To install from source run 
+If you have rubygems you can install rubyzip directly from the gem
+repository
+
+  gem install rubyzip
+
+Otherwise obtain the source (see below) and run
 
   ruby install.rb
 
-If you have Rake installed you can build a rubyzip gem with 
-
-  rake package
-
-To run the unit tests you need to have test::unit installed.
+To run the unit tests you need to have test::unit installed
 
   rake test
 

@@ -1,9 +1,13 @@
+= Version 0.5.8
+
+Fixed install script.
+
 = Version 0.5.7
 
 install.rb no longer assumes it is being run from the toplevel source
 dir. Directory structure changed to reflect common ruby library
 project structure. Migrated from RubyUnit to Test::Unit format.  Now
-uses Rake to build source packages and gems and run unit tests
+uses Rake to build source packages and gems and run unit tests.
 
 = Version 0.5.6
 
