@@ -13,7 +13,7 @@ implement setting the date correctly in ZipEntry with now as default
 
 implement storing attributes and ownership information
 
-make release with small gui demo app and fixes
+make release
 
 Refactor ZipFileTest to reduce duplicated code, divide into different
 test classes if different fixtures are required and use setup/teardown
