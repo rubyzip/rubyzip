@@ -7,6 +7,7 @@ file format. the actual compression/decompression is handled by zlib
 
 
 = Resources =
+
 zlib http://www.gzip.org/zlib/
 ruby-zlib: http://www.blue.sky.or.jp/atelier/#ruby-zlib
 
@@ -28,3 +29,12 @@ patch -p0 < RUBYZIP_PATH/zlib.c.diff
 
 zip.rb is under 500 lines. Go through it and check for each line
 whether there is a test for it!
+
+= LICENSE =
+
+rubyzip is distributed under the GPL. I'm considering a more liberal
+license, though.
+
+= AUTHOR =
+
+Thomas Sondergaard thomass@deltadata.dk
