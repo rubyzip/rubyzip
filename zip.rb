@@ -173,14 +173,14 @@ module Zip
       @currentEntry = ZipEntry.read_local_entry(@archiveIO)
       if (@currentEntry == nil) 
 	@decompressor = NullDecompressor.instance
-      elsif @currentEntry.compressionMethod == ZipEntry::STORED
+      elsif @currentEntry.compression_method == ZipEntry::STORED
 	@decompressor = PassThruDecompressor.new(@archiveIO, 
 						 @currentEntry.size)
-      elsif @currentEntry.compressionMethod == ZipEntry::DEFLATED
+      elsif @currentEntry.compression_method == ZipEntry::DEFLATED
 	@decompressor = Inflater.new(@archiveIO)
       else
 	raise ZipCompressionMethodError,
-	  "Unsupported compression method #{@currentEntry.compressionMethod}"
+	  "Unsupported compression method #{@currentEntry.compression_method}"
       end
       flush
       return @currentEntry
@@ -315,23 +315,23 @@ module Zip
     STORED = 0
     DEFLATED = 8
     
-    attr_accessor  :comment, :compressedSize, :crc, :extra, :compressionMethod, 
+    attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
       :name, :size, :localHeaderOffset, :time
     
     alias :mtime :time
 
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
-		   compressedSize = 0, crc = 0, 
-		   compressionMethod = ZipEntry::DEFLATED, size = 0,
+		   compressed_size = 0, crc = 0, 
+		   compression_method = ZipEntry::DEFLATED, size = 0,
 		   time  = Time.now)
       super()
       if name.starts_with("/")
 	raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
       end
       @localHeaderOffset = 0
-      @zipfile, @comment, @compressedSize, @crc, @extra, @compressionMethod, 
-	@name, @size = zipfile, comment, compressedSize, crc, 
-	extra, compressionMethod, name, size
+      @zipfile, @comment, @compressed_size, @crc, @extra, @compression_method, 
+	@name, @size = zipfile, comment, compressed_size, crc, 
+	extra, compression_method, name, size
       @time = time
     end
     
@@ -358,7 +358,7 @@ module Zip
     end
     
     def next_header_offset  #:nodoc:all
-      local_entry_offset + self.compressedSize
+      local_entry_offset + self.compressed_size
     end
     
     def to_s
@@ -389,11 +389,11 @@ module Zip
       localHeader       ,
 	@version          ,
 	@gpFlags          ,
-	@compressionMethod,
+	@compression_method,
 	lastModTime       ,
 	lastModDate       ,
 	@crc              ,
-	@compressedSize   ,
+	@compressed_size   ,
 	@size             ,
 	nameLength        ,
 	extraLength       = staticSizedFieldsBuf.unpack('VvvvvvVVVvv') 
@@ -425,11 +425,11 @@ module Zip
 	[LOCAL_ENTRY_SIGNATURE    ,
 	0                         , # @version                  ,
 	0                         , # @gpFlags                  ,
-	@compressionMethod        ,
+	@compression_method        ,
 	@time.to_binary_dos_date     , # @lastModTime              ,
 	@time.to_binary_dos_time     , # @lastModDate              ,
 	@crc                      ,
-	@compressedSize           ,
+	@compressed_size           ,
 	@size                     ,
 	@name ? @name.length   : 0,
 	@extra? @extra.length : 0 ].pack('VvvvvvVVVvv')
@@ -450,11 +450,11 @@ module Zip
 	@version               ,
 	@versionNeededToExtract,
 	@gpFlags               ,
-	@compressionMethod     ,
+	@compression_method     ,
 	lastModTime            ,
 	lastModDate            ,
 	@crc                   ,
-	@compressedSize        ,
+	@compressed_size        ,
 	@size                  ,
 	nameLength             ,
 	extraLength            ,
@@ -495,11 +495,11 @@ module Zip
 	0                                 , # @version                          ,
 	0                                 , # @versionNeededToExtract           ,
 	0                                 , # @gpFlags                          ,
-	@compressionMethod                ,
+	@compression_method                ,
         @time.to_binary_dos_date             , # @lastModTime                      ,
 	@time.to_binary_dos_time             , # @lastModDate                      ,
 	@crc                              ,
-	@compressedSize                   ,
+	@compressed_size                   ,
 	@size                             ,
 	@name  ?  @name.length  : 0       ,
 	@extra ? @extra.length : 0        ,
@@ -520,9 +520,9 @@ module Zip
     def == (other)
       return false unless other.class == ZipEntry
       # Compares contents of local entry and exposed fields
-      (@compressionMethod == other.compressionMethod &&
+      (@compression_method == other.compression_method &&
        @crc               == other.crc		     &&
-       @compressedSize    == other.compressedSize    &&
+       @compressed_size    == other.compressed_size    &&
        @size              == other.size	             &&
        @name              == other.name	             &&
        @extra             == other.extra             &&
@@ -553,7 +553,7 @@ module Zip
       aZipOutputStream << get_raw_input_stream { 
 	|is| 
 	is.seek(local_entry_offset, IO::SEEK_SET)
-	is.read(compressedSize)
+	is.read(compressed_size)
       }
     end
 
@@ -619,7 +619,7 @@ module Zip
     def finalize_current_entry
       return unless @currentEntry
       finish
-      @currentEntry.compressedSize = @outputStream.tell - @currentEntry.localHeaderOffset - 
+      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - 
 	@currentEntry.local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
@@ -635,11 +635,11 @@ module Zip
     end
 
     def get_compressor(entry, level)
-      case entry.compressionMethod
+      case entry.compression_method
 	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
 	when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
       else raise ZipCompressionMethodError, 
-	  "Invalid compression method: '#{entry.compressionMethod}'"
+	  "Invalid compression method: '#{entry.compression_method}'"
       end
     end
 
@@ -701,7 +701,7 @@ module Zip
       raise IOError, "closed stream"
     end
 
-    attr_reader :size, :compressedSize
+    attr_reader :size, :compressed_size
   end
 
   class Deflater < Compressor #:nodoc:all
@@ -779,7 +779,7 @@ module Zip
       @entrySet[entry.parent_as_string]
     end
 
-#TODO    attr_accessor :autoCreateDirectories
+#TODO    attr_accessor :auto_create_directories
     protected
     attr_accessor :entrySet
   end

@@ -13,7 +13,7 @@ module Zip
       Find.find(path) {
 	|fileName|
 	yield(fileName)
-	if fileName =~ zipFilePattern && File.file?(fileName)
+	if zipFilePattern.match(fileName)  && File.file?(fileName)
 	  begin
 	    Zip::ZipFile.foreach(fileName)  {
 	      |zipEntry|
@@ -29,7 +29,7 @@ module Zip
     def self.find_file(path, fileNamePattern, zipFilePattern = /\.zip$/i)
       self.find(path, zipFilePattern) {
 	|fileName|
-	yield(fileName) if fileName =~ fileNamePattern
+	yield(fileName) if fileNamePattern.match(fileName)
       }
     end
 

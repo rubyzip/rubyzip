@@ -24,7 +24,7 @@ zf = Zip::ZipFile.new("example.zip")
 zf.each_with_index {
   |entry, index|
   
-  puts "entry #{index} is #{entry.name}, size = #{entry.size}, compressed size = #{entry.compressedSize}"
+  puts "entry #{index} is #{entry.name}, size = #{entry.size}, compressed size = #{entry.compressed_size}"
   # use zf.get_input_stream(entry) to get a ZipInputStream for the entry
   # entry can be the ZipEntry object or any object which has a to_s method that
   # returns the name of the entry.
