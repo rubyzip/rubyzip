@@ -224,6 +224,7 @@ module Zip
 
     def rewind
       return if @currentEntry.nil?
+      @lineno = 0
       @archiveIO.seek(@currentEntry.localHeaderOffset, 
 		      IO::SEEK_SET)
       openEntry
@@ -280,8 +281,8 @@ module Zip
     def read(numberOfBytes = nil)
       readEverything = (numberOfBytes == nil)
       while (readEverything || @outputBuffer.length < numberOfBytes)
-	break if inputFinished?
-	@outputBuffer << produceInput
+	break if internalInputFinished?
+	@outputBuffer << internalProduceInput
       end
       return valueWhenFinished if @outputBuffer.length==0 && inputFinished?
       endIndex= numberOfBytes==nil ? @outputBuffer.length : numberOfBytes
@@ -289,15 +290,29 @@ module Zip
     end
     
     def produceInput
-      @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE))
+      if (@outputBuffer.empty?)
+	return internalProduceInput
+      else
+	return @outputBuffer.slice!(0...(@outputBuffer.length))
+      end
     end
-    
+
     # to be used with produceInput, not read (as read may still have more data cached)
     def inputFinished?
-      @zlibInflater.finished?
+      @outputBuffer.empty? && internalInputFinished?
     end
 
     private
+
+    def internalProduceInput
+      @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE))
+    end
+
+    def internalInputFinished?
+      @zlibInflater.finished?
+    end
+
+    # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
     def valueWhenFinished   # mimic behaviour of ruby File object.
       return nil if @hasReturnedEmptyString
       @hasReturnedEmptyString=true
@@ -313,6 +328,7 @@ module Zip
       @isFirst=true
     end
     
+    # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
     def read(numberOfBytes = nil)
       if inputFinished?
 	isFirstVal=@isFirst

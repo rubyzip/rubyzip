@@ -382,7 +382,15 @@ end
 
 
 module DecompressorTests
-  # expects @refText and @decompressor
+  # expects @refText, @refLines and @decompressor
+
+  TEST_FILE="file1.txt"
+
+  def setup
+    @refText=""
+    File.open(TEST_FILE) { |f| @refText = f.read }
+    @refLines = @refText.split($/)
+  end
 
   def test_readEverything
     assert_equals(@refText, @decompressor.read)
@@ -395,15 +403,27 @@ module DecompressorTests
     end
     assert_equals(0, @refText.size)
   end
+
+  def test_mixingReadsAndProduceInput
+    # Just some preconditions to make sure we have enough data for this test
+    assert(@refText.length > 1000)
+    assert(@refLines.length > 40)
+
+    
+    assert_equals(@refText[0...100], @decompressor.read(100))
+
+    assert(! @decompressor.inputFinished?)
+    buf = @decompressor.produceInput
+    assert_equals(@refText[100...(100+buf.length)], buf)
+  end
 end
 
 class InflaterTest < RUNIT::TestCase
   include DecompressorTests
 
   def setup
+    super
     @file = File.new("file1.txt.deflatedData", "rb")
-    @refText=""
-    File.open("file1.txt") { |f| @refText = f.read }
     @decompressor = Inflater.new(@file)
   end
 
@@ -415,11 +435,9 @@ end
 
 class PassThruDecompressorTest < RUNIT::TestCase
   include DecompressorTests
-  TEST_FILE="file1.txt"
   def setup
+    super
     @file = File.new(TEST_FILE)
-    @refText=""
-    File.open(TEST_FILE) { |f| @refText = f.read }
     @decompressor = PassThruDecompressor.new(@file, File.size(TEST_FILE))
   end
 

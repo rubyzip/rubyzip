@@ -6,7 +6,9 @@ Java. Added gtkRubyzip, another sample application. Added FileArchive
 module which ZipFile mix in. FileArchive provides filename globbing,
 regex selection, recursive extraction/addition, and other convenience
 methods. Bug fix: Reads and writes date and time information correctly
-for zip entries.
+for zip entries. Fixed read() using separate buffer, causing mixing of
+gets/readline/read to cause problems. Implemented
+ZipInputStream.lineno and ZipInputStream.rewind
 
 = Version 0.4.2 =
 
