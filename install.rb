@@ -8,7 +8,7 @@ require 'ftools'
 
 include Config
 
-files = %w{ zip.rb zipfilesystem.rb stdrubyext.rb filearchive.rb ziprequire.rb }
+files = %w{ zip.rb zipfilesystem.rb stdrubyext.rb ziprequire.rb }
 
 files.each { 
   |filename|

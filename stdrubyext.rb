@@ -7,6 +7,23 @@ unless Enumerable.instance_methods(true).include?("inject")
   end
 end
 
+unless Object.instance_methods(true).include?("object_id")
+  class Object
+    # Using object_id which is the new thing, so we need
+    # to make that work in versions prior to 1.8.0
+    alias object_id id
+  end
+end
+
+unless File.respond_to?(:read)
+  class File
+    # singleton method read does not exist in 1.6.x
+    def self.read(fileName)
+      open(fileName) { |f| f.read }
+    end
+  end
+end
+
 class String
   def starts_with(aString)
     slice(0, aString.size) == aString

@@ -5,6 +5,27 @@ $VERBOSE = true
 require 'zipfilesystem'
 require 'rubyunit'
 
+module ExtraAssertions
+
+  def assert_forwarded(anObject, method, retVal, *expectedArgs)
+    callArgs = nil
+    setCallArgsProc = proc { |args| callArgs = args }
+    anObject.instance_eval <<-"end_eval"
+      alias #{method}_org #{method}
+      def #{method}(*args)
+        ObjectSpace._id2ref(#{setCallArgsProc.object_id}).call(args)
+        ObjectSpace._id2ref(#{retVal.object_id})
+        end
+    end_eval
+
+    assert_equals(retVal, yield) # Invoke test
+    assert_equals(expectedArgs, callArgs)
+  ensure
+    anObject.instance_eval "alias #{method} #{method}_org"
+  end
+
+end
+
 include Zip
 
 class ZipFsFileNonmutatingTest < RUNIT::TestCase
@@ -30,7 +51,7 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(@zipFile.file.exist?("dir1/file12")) # notice, tests exist? alias of exists?
   end
 
-  def test_open
+  def test_open_read
     blockCalled = false
     @zipFile.file.open("file1", "r") {
       |f|
@@ -39,12 +60,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 		    f.readline.chomp)
     }
     assert(blockCalled)
-
-    blockCalled = false
-    assert_exception(StandardError) {
-      @zipFile.file.open("file1", "w") { blockCalled = true }
-    }
-    assert(! blockCalled)
 
     assert_exception(Errno::ENOENT) {
       @zipFile.file.open("noSuchEntry")
@@ -113,22 +128,24 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(! @zipFile.file.stat("dir1/dir11").file?)
   end
 
+  include ExtraAssertions
+
   def test_dirname
-    assert_equals("a/b/c", @zipFile.file.dirname("a/b/c/d"))
-    assert_equals(".", @zipFile.file.dirname("c"))
-    assert_equals("a/b", @zipFile.file.dirname("a/b/"))
+    assert_forwarded(File, :dirname, "retVal", "a/b/c/d") { 
+      @zipFile.file.dirname("a/b/c/d")
+    }
   end
 
   def test_basename
-    assert_equals("d", @zipFile.file.basename("a/b/c/d"))
-    assert_equals("c", @zipFile.file.basename("c"))
-    assert_equals("", @zipFile.file.basename("a/b/"))
+    assert_forwarded(File, :basename, "retVal", "a/b/c/d") { 
+      @zipFile.file.basename("a/b/c/d")
+    }
   end
 
   def test_split
-    assert_equals(["a/b/c", "d"], @zipFile.file.split("a/b/c/d"))
-    assert_equals(["a/b/c/d", ""], @zipFile.file.split("a/b/c/d/"))
-    assert_equals([".", "a"], @zipFile.file.split("a"))
+    assert_forwarded(File, :split, "retVal", "a/b/c/d") { 
+      @zipFile.file.split("a/b/c/d")
+    }
   end
 
   def test_join
@@ -401,6 +418,14 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     }
   end
 
+  def test_read
+    ZipFile.open("zipWithDir.zip") {
+      |zf|
+      assert_equals(File.read("file1.txt"), 
+		    zf.file.read("file1.txt"))
+    }
+  end
+
 end
 
 class ZipFsFileStatTest < RUNIT::TestCase
@@ -479,6 +504,29 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
 
   def test_unlink
     do_test_delete_or_unlink(:unlink)
+  end
+  
+  def test_open_write
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+
+      zf.file.open("test_open_write_entry", "w") {
+        |f|
+        blockCalled = true
+        f.puts "This is what I'm writing"
+      }
+      assert_equals("This is what I'm writing",
+                    zf.file.read("test_open_write_entry"))
+
+      # Test with existing entry
+      zf.file.open("file1", "w") {
+        |f|
+        blockCalled = true
+        f.puts "This is what I'm writing too"
+      }
+      assert_equals("This is what I'm writing too",
+                    zf.file.read("file1"))
+    }
   end
 
   def test_rename

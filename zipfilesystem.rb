@@ -27,7 +27,7 @@ module Zip
         end
 
         def kind_of?(t)
-          super || t == File::Stat 
+          super || t == ::File::Stat 
         end
         
         forward_message :forward_invoke, :file?, :directory?, :pipe?, :chardev?
@@ -104,7 +104,7 @@ module Zip
       end
 
       def umask(*args)
-        File.umask(*args)
+        ::File.umask(*args)
       end
 
       def truncate(fileName, len)
@@ -246,6 +246,10 @@ module Zip
 
       def readlines(fileName)
 	open(fileName) { |is| is.readlines }
+      end
+
+      def read(fileName)
+	open(fileName) { |is| is.read }
       end
 
       def popen(*args, &aProc)
