@@ -1,11 +1,13 @@
-Glob.expandPath(List) needs to be changed to work with non-string
-objects. To stay untied to ZipEntry, it will need to be configured
-with an abstract factory for creating entries from strings. It may be
-necessary to change Glob.glob to not call expandPathList because it
-will be unnatural to have to pass down an entry factory. Tests will
-have to be refactored.
+More unit tests for FileArchive.extract
+* Test createDirProc and continueIfExistProc
+* Test more error conditions
 
-FileArchive needs to be completed.
+Implement FileArchive.add() which relies on addEntry
+
+Change ZipFile (and ZipFileTest)
+* extract -> extractEntry
+* add -> addEntry
+* include FileArchive (and import filearchive.rb"
 
 
 unit test and implement:
