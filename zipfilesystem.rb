@@ -16,6 +16,43 @@ module Zip
     end
     
     class ZipFsFile
+
+      class ZipFsStat
+        def initialize(zipFsFile, entryName)
+          @zipFsFile = zipFsFile
+          @entryName = entryName
+        end
+
+        def file?
+          @zipFsFile.file?(@entryName)
+        end
+
+        def directory?
+          @zipFsFile.directory?(@entryName)
+        end
+
+        def pipe?
+          @zipFsFile.pipe?(@entryName)
+        end
+
+        def chardev?
+          @zipFsFile.chardev?(@entryName)
+        end
+
+        def blockdev?
+          @zipFsFile.blockdev?(@entryName)
+        end
+
+        def symlink?
+          @zipFsFile.symlink?(@entryName)
+        end
+
+        def socket?
+          @zipFsFile.socket?(@entryName)
+        end
+
+      end
+
       def initialize(zipFile)
 	@zipFile = zipFile
       end
@@ -127,6 +164,10 @@ module Zip
 
       def pipe
 	raise NotImplementedError, "The pipe() function is not implemented to ZipFileSystem"
+      end
+
+      def stat(fileName)
+        ZipFsStat.new(self, fileName)
       end
 
       def readlines(fileName)

@@ -363,6 +363,179 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 
 end
 
+class ZipFsFileStatTest < RUNIT::TestCase
+
+  def setup
+    @zipFile = ZipFile.new("zipWithDirs.zip")
+  end
+
+  def teardown
+    @zipFile.close if @zipFile
+  end
+
+  def assertAlwaysFalse(operation)
+    assert(! @zipFile.file.stat("noSuchFile").send(operation))
+    assert(! @zipFile.file.stat("file1").send(operation))
+    assert(! @zipFile.file.stat("dir1").send(operation))
+  end
+
+  def test_file?
+    assert(@zipFile.file.stat("file1").file?)
+    assert(@zipFile.file.stat("dir2/file21").file?)
+    assert(! @zipFile.file.stat("dir1").file?)
+    assert(! @zipFile.file.stat("dir1/dir11").file?)
+  end
+
+  def test_directory?
+    assert(! @zipFile.file.stat("notAFile").directory?)
+    assert(! @zipFile.file.stat("file1").directory?)
+    assert(! @zipFile.file.stat("dir1/file11").directory?)
+    assert(@zipFile.file.stat("dir1").directory?)
+    assert(@zipFile.file.stat("dir1/").directory?)
+    assert(@zipFile.file.stat("dir2/dir21").directory?)
+  end
+
+  def test_pipe?
+    assertAlwaysFalse(:pipe?)
+  end
+
+  def test_chardev?
+    assertAlwaysFalse(:chardev?)
+  end
+
+  def test_blockdev?
+    assertAlwaysFalse(:blockdev?)
+  end
+
+  def test_symlink?
+    assertAlwaysFalse(:symlink?)
+  end
+
+  def test_socket?
+    assertAlwaysFalse(:socket?)
+  end
+
+  def test_readable?
+    fail "Implement test"
+  end
+
+  def test_readable_real?
+    fail "Implement test"
+  end
+
+  def test_writable?
+    fail "Implement test"
+  end
+
+  def test_writable_real?
+    fail "Implement test"
+  end
+
+  def test_executable?
+    fail "Implement test"
+  end
+
+  def test_executable_real?
+    fail "Implement test"
+  end
+
+  def test_setuid?
+    fail "Implement test"
+  end
+
+  def test_setgid?
+    fail "Implement test"
+  end
+
+  def test_sticky?
+    fail "Implement test"
+  end
+
+  def test_owned?
+    fail "Implement test"
+  end
+
+  def test_grpowned?
+    fail "Implement test"
+  end
+  def test_blocks
+    fail "Implement test"
+  end
+
+  def test_ino
+    fail "Implement test"
+  end
+
+  def test_ftype
+    fail "Implement test"
+  end
+
+  def test_rdev
+    fail "Implement test"
+  end
+
+  def test_to_s
+    fail "Implement test"
+  end
+
+  def test_mode
+    fail "Implement test"
+  end
+
+  def test_rdev_major
+    fail "Implement test"
+  end
+
+  def test_atime
+    fail "Implement test"
+  end
+
+  def test_size?
+    fail "Implement test"
+  end
+
+  def test_nlink
+    fail "Implement test"
+  end
+
+  def test_mtime
+    fail "Implement test"
+  end
+
+  def test_rdev_minor
+    fail "Implement test"
+  end
+
+  def test_uid
+    fail "Implement test"
+  end
+
+  def test_blksize
+    fail "Implement test"
+  end
+
+  def test_ctime
+    fail "Implement test"
+  end
+
+  def test_zero?
+    fail "Implement test"
+  end
+
+  def test_size
+    fail "Implement test"
+  end
+
+  def test_dev
+    fail "Implement test"
+  end
+
+  def test_gid
+    fail "Implement test"
+  end
+
+end
+
 class ZipFsFileMutatingTest < RUNIT::TestCase
   TEST_ZIP = "zipWithDirs_copy.zip"
   def setup
