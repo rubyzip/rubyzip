@@ -9,6 +9,12 @@ zlib. zlib is accessible from ruby thanks to ruby/zlib (see resources)
 To run the unit tests you need to have rubyunit or test::unit
 installed.
 
+
+= Install =
+
+ruby install.rb
+
+
 = Ruby/zlib =
 
 This library requires ruby/zlib version 0.5.0 or newer.

@@ -1,4 +1,8 @@
 
+test on windows
+
+release 0.4.0
+
 unit test and implement adding directories recursively
 unit test and implement  ZipFile.checkIntegrity method
 unit test and implement recursive extract
@@ -11,14 +15,11 @@ decompressing/compressing the data.
 release 0.4.1
 
 implement small gui app on top, to exercise library and to discover
-what features should be added to rubyzip. Use Tk. (add as separate
-module in CVS)
+what features should be added to rubyzip.
 
 implement setting the date correctly in ZipEntry with now as default
 
 implement storing attributes and ownership information
-
-Add install.rb file
 
 release 0.4.2 with small gui demo app and fixes
 
