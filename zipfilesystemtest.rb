@@ -146,7 +146,10 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_join
-    fail "implement test"
+    assert_equals("a/b/c", @zipFsFile.join("a/b", "c"))
+    assert_equals("a/b/c/d", @zipFsFile.join("a/b", "c/d"))
+    assert_equals("/c/d", @zipFsFile.join("", "c/d"))
+    assert_equals("a/b/c/d", @zipFsFile.join("a", "b", "c", "d"))
   end
 
   def test_link

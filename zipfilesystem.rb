@@ -80,5 +80,9 @@ class ZipFileSystem
     def ftype(fileName)
       @zipFile.getEntry(fileName).directory? ? "directory" : "file"
     end
+
+    def join(*fragments)
+      ::File.join(*fragments)
+    end
   end
 end
