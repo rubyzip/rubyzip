@@ -813,6 +813,28 @@ class ZipEntrySetTest < Test::Unit::TestCase
     assert_equal(entries[3], entrySet.parent(entries[4]))
     assert_equal(entries[3], entrySet.parent(entries[5]))
   end
+
+  def test_glob
+    res = @zipEntrySet.glob('name[2-4]')
+    assert_equal(3, res.size)
+    assert_equal(ZIP_ENTRIES[1,3], res)
+  end
+
+  def test_glob2
+    entries = [ 
+      ZipEntry.new("zf.zip", "a/"),
+      ZipEntry.new("zf.zip", "a/b/b1"),
+      ZipEntry.new("zf.zip", "a/b/c/"),
+      ZipEntry.new("zf.zip", "a/b/c/c1")
+    ]
+    entrySet = ZipEntrySet.new(entries)
+
+    assert_equal(entries[0,1], entrySet.glob("*"))
+#    assert_equal(entries[FIXME], entrySet.glob("**"))
+#    res = entrySet.glob('a*')
+#    assert_equal(entries.size, res.size)
+#    assert_equal(entrySet.map { |e| e.name }, res.map { |e| e.name })
+  end
 end
 
 

@@ -811,6 +811,13 @@ module Zip
       @entrySet[entry.parent_as_string]
     end
 
+    def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
+      entries.select { 
+	|entry| 
+	File.fnmatch(pattern, entry.name.chomp('/'), flags) 
+      } 
+    end	
+
 #TODO    attr_accessor :auto_create_directories
     protected
     attr_accessor :entrySet
