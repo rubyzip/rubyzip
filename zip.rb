@@ -129,7 +129,6 @@ module Zip
     end
     
     def flush
-      @outputBuffer ||= ""
       retVal=@outputBuffer
       @outputBuffer=""
       return retVal
