@@ -631,7 +631,7 @@ class TestFiles
     File.open(filename, "wb") {
       |file|
       while (file.tell < size)
-	file << rand.to_a.pack("V")
+	file << [rand].pack("V")
       end
     }
   end
