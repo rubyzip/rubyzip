@@ -21,7 +21,7 @@ To run the unit tests you need to have test::unit installed.
 
 There is more than one way to access or create a zip archive with
 rubyzip. The basic API is modeled after the classes in
-java.util.zip.* from the Java SDK. This means there are classes such
+java.util.zip from the Java SDK. This means there are classes such
 as Zip::ZipInputStream, Zip::ZipOutputStream and
 Zip::ZipFile. Zip::ZipInputStream provides a basic interface for
 iterating through the entries in a zip archive and reading from the
@@ -41,7 +41,7 @@ classes allows files to be read from and written to the file system.
 The samples/ directory is a good place to start to get a feel for
 using the library. For details about the specific behaviour of classes
 and methods refer to the test suite. Finally you can generate the rdoc
-documentation or visit http://rubyzip.sourceforge.net/doc.
+documentation or visit http://rubyzip.sourceforge.net.
 
 = License
 
