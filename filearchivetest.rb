@@ -4,35 +4,54 @@ $VERBOSE = true
 
 require 'rubyunit'
 require 'filearchive'
-require 'zip'
 
 class TestArchive
   include Enumerable
   include FileArchive
 
   def initialize(entries, fakeKnownDirectories)
-    @entries = Glob.expandPathList(entries)
+    @entries = entries
     @fakeKnownDirectories = fakeKnownDirectories
+    @extractedEntries = []
   end
 
   def each(&aProc)
     @entries.each(&aProc)
   end
 
+  def extractEntry(src, dst)
+    getEntry(src)
+    @extractedEntries << dst
+  end
+
+  def getEntry(src)
+    entry = @entries.find { 
+      |e| 
+      Glob.pruneLeadingAndTrailingSeparator(e) == src
+    }
+    if (entry == nil)
+      throw StandardError, "'#{src}' not found in #{@entries.join(", ")}"
+    end
+    entry
+  end
+
   def extractedEntries
-    []
+    @extractedEntries
   end
 end
 
 class FileArchiveTest < RUNIT::TestCase
   def setup
-    @testArchive = TestArchive.new([ "dir1/dir2/",
+    @testArchive = TestArchive.new([ "dir1/",
+				     "dir1/dir2/",
 				     "dir1/dir2/entry121",
 				     "dir1/entry11",
+				     "dir3/",
+				     "dir3/dir4/",
 				     "dir3/dir4/entry341"],
-				   [ "odir1", 
-				     "odir1/odir2", 
-				     "odir3"])
+				   [ "odir1/", 
+				     "odir1/odir2/", 
+				     "odir3/"])
   end
 
   def test_extractAllRecursiveToDirectory
@@ -75,8 +94,22 @@ class FileArchiveTest < RUNIT::TestCase
     assertExtracted(["newname"])
   end
 
-  def assertExtracted(expectedExtractedEntries, testArchive = @testArchive)
-    assert_equals(expectedExtractedEntries.sort,
-		  testArchive.extractedEntries.sort)
+  def test_noMatchForSource
+    assert_exception(ZipNoSuchEntryError) {
+      @testArchive.extract("noMatchForThis*", "outdir", FileArchive::RECURSIVE)
+    }
   end
+
+  def assertExtracted(expectedExtractedEntries, testArchive = @testArchive)
+    expected = expectedExtractedEntries.sort.map {
+      |e|
+      Glob.pruneLeadingAndTrailingSeparator(e)
+    }
+    actual = testArchive.extractedEntries.sort.map {
+      |e|
+      Glob.pruneLeadingAndTrailingSeparator(e)
+    }
+    assert_equals(expected, actual)
+  end
+
 end
