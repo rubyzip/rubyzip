@@ -938,8 +938,8 @@ module Zip
 	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
       }
       unless selectedEntry
-      raise ZipNoSuchEntryError, 
-	"No matching entry found in zip file '#{@name}' for '#{entry}'"
+	raise ZipNoSuchEntryError, 
+	  "No matching entry found in zip file '#{@name}' for '#{entry}'"
       end
       return selectedEntry
     end

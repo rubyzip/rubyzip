@@ -1,4 +1,7 @@
 
+write unit tests for ziprequire and improve the current
+proof-of-concept implementation.
+
 unit test and implement:
 * globbing
 * adding directories recursively
@@ -18,9 +21,4 @@ make release
 Refactor ZipFileTest to reduce duplicated code, divide into different
 test classes if different fixtures are required and use setup/teardown
 some more. Clean up AssertEntry module.
-
-Write scarf-like
-(http://www.pragmaticprogrammer.com/ruby/downloads/scarf.html) ruby
-module that uses rubyzip. Perhaps based on RubyGems
-(http://rubygems.sf.net)
 
