@@ -1,9 +1,12 @@
 = Version 0.4.0 =
 
 ZipFile is now mutable and provides a more convenient way of modifying
-zip archives than ZipOutputStream.
+zip archives than ZipOutputStream. Operations such as adding,
+extracting, renaming, replacing and removing entries to zip archives
+are available.
 
 Runs without warnings with -w switch.
+
 
 = Version 0.3.1 =
 
