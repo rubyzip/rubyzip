@@ -1036,7 +1036,6 @@ class CommonZipFileFixture < RUNIT::TestCase
   TEST_ZIP.zipName = "4entry_copy.zip"
 
   def setup
-    GC.start # TODO: remove
     File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)
     File.copy(TestZipFile::TEST_ZIP2.zipName, TEST_ZIP.zipName)
   end
@@ -1068,7 +1067,8 @@ class ZipFileTest < CommonZipFileFixture
     assert_equals("", zfRead.comment)
     assert_equals(1, zfRead.entries.length)
     assert_equals(entryName, zfRead.entries.first.name)
-    AssertEntry.assertContents(srcFile, zfRead.getInputStream(entryName).read)
+    AssertEntry.assertContents(srcFile, 
+			       zfRead.getInputStream(entryName) { |zis| zis.read })
   end
 
   def test_addExistingEntryName
