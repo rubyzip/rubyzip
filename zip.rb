@@ -56,13 +56,14 @@ end
 class ZipInputStream 
   include PseudoIO
 
-  def initialize(filename)
+  def initialize(filename, offset = 0)
     @archiveIO = File.open(filename, "rb")
+    @archiveIO.seek(offset, IO::SEEK_SET)
     @decompressor = NullDecompressor.instance
   end
 
   def close
-    puts "IMPLEMENT ME: ZipInputStream::close"
+    @archiveIO.close
   end
   
   def ZipInputStream.open(filename)
@@ -220,6 +221,10 @@ class ZipEntry
     localEntryOffset + self.compressedSize
   end
 
+  def to_s
+    @name
+  end
+
   protected
 
   def ZipEntry.readZipShort(io)
@@ -229,7 +234,6 @@ class ZipEntry
   def ZipEntry.readZipLong(io)
     io.read(4).unpack('V')[0]
   end
-
 end
 
 
@@ -305,31 +309,69 @@ class ZipCentralDirectoryEntry < ZipEntry
 end
 
 
+class ZipCentralDirectory
+  include Enumerable
 
-#        File header:
+  END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054b50
+  MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE = 65536 + 18
 
-#          central file header signature   4 bytes  (0x02014b50)
-#          version made by                 2 bytes
-#          version needed to extract       2 bytes
-#          general purpose bit flag        2 bytes
-#          compression method              2 bytes
-#          last mod file time              2 bytes
-#          last mod file date              2 bytes
-#          crc-32                          4 bytes
-#          compressed size                 4 bytes
-#          uncompressed size               4 bytes
-#          file name length                2 bytes
-#          extra field length              2 bytes
-#          file comment length             2 bytes
-#          disk number start               2 bytes
-#          internal file attributes        2 bytes
-#          external file attributes        4 bytes
-#          relative offset of local header 4 bytes
+  attr_reader :size, :comment
 
-#          file name (variable size)
-#          extra field (variable size)
-#          file comment (variable size)
+  def readEOCD(io)
+    buf = getEOCD(io)
+    puts "*************** CRAP *******" unless buf
+    @numberOfThisDisk                     = ZipEntry::readZipShort(buf)
+    @numberOfDiskWithStartOfCDir          = ZipEntry::readZipShort(buf)
+    @totalNumberOfEntriesInCDirOnThisDisk = ZipEntry::readZipShort(buf)
+    @size                                 = ZipEntry::readZipShort(buf)
+    @sizeInBytes                          = ZipEntry::readZipLong(buf)
+    @cdirOffset                           = ZipEntry::readZipLong(buf)
+    commentLength                         = ZipEntry::readZipShort(buf)
+    @comment                              = buf.read(commentLength)
+    raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
+  end
 
+  def readCentralDirectoryEntries(io)
+    io.seek(@cdirOffset, IO::SEEK_SET)
+    @entries = []
+    @size.times {
+      @entries << ZipCentralDirectoryEntry.readFromStream(io)
+    }
+  end
+
+  def readFromStream(io)
+    readEOCD(io)
+    readCentralDirectoryEntries(io)
+  end
+
+  def getEOCD(io)
+    begin
+      io.seek(-MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE, IO::SEEK_END)
+    rescue Errno::EINVAL
+      io.seek(0, IO::SEEK_SET)
+    end
+    buf = io.read
+    sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
+    raise ZipError, "Zip end of central directory signature not found" unless sigIndex
+    buf=buf.slice!((sigIndex+4)...(buf.size))
+    def buf.read(count)
+      slice!(0, count)
+    end
+    return buf
+  end
+
+  def each(&proc)
+    @entries.each &proc
+  end
+
+  def ZipCentralDirectory.readFromStream(io)
+    cdir  = new
+    cdir.readFromStream(io)
+    return cdir
+  rescue ZipError
+    return nil
+  end
+end
 
 #  end of central dir signature    4 bytes  (0x06054b50)
 #          number of this disk             2 bytes
@@ -347,24 +389,20 @@ end
 #          .ZIP file comment       (variable size)
 
 
-
-#        Digital signature:
-
-#          header signature                4 bytes  (0x05054b50)
-#          size of data                    2 bytes
-#          signature data (variable size)
-
-
 class ZipError < RuntimeError
 end
 
-class ZipFile
+class ZipFile < ZipCentralDirectory
   include Enumerable
 
   attr_reader :name
 
   def initialize(name)
     @name=name
+    File.open(name) {
+      |file|
+      readFromStream(file)
+    }
   end
 
   def ZipFile.foreach(aZipFileName, &block)
@@ -372,10 +410,12 @@ class ZipFile
     zipFile.each &block
   end
 
-  def each
-  end
-
   def getInputStream(entry)
+    selectedEntry = @entries.detect { |e| e.name == entry.to_s }
+    raise ZipError, "No matching entry found in zip file '#{@name}' for '#{}'" unless selectedEntry
+    zis = ZipInputStream.new(@name, selectedEntry.localHeaderOffset)
+    zis.getNextEntry
+    return zis
   end
 end
 

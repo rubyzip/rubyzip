@@ -274,8 +274,7 @@ class TestZipFile
   end
 
   TEST_ZIP1 = TestZipFile.new("empty.zip", [])
-  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin},
-			      "a nice comment")
+  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin})
   TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
 end
 
@@ -285,7 +284,7 @@ module Enumerable
     index=0
     each_with_index {
       |element, index|
-      return false unless yield element otherAsArray[index]
+      return false unless yield (element, otherAsArray[index])
     }
     return index+1 == otherAsArray.size
   end
@@ -358,10 +357,10 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   def test_readFromStream
     File.open(TestZipFile::TEST_ZIP2.zipName, "rb") {
       |zipFile|
-      cdir = ZipCentralDirectory.new(zipFile)
+      cdir = ZipCentralDirectory.readFromStream(zipFile)
 
-      assert_equals(TestZipFile::TEST_ZIP2.entryNames.size, cdir)
-      assert_equals(cdir.compareEnumerables(TestZipFile::TEST_ZIP2.entryNames) { 
+      assert_equals(TestZipFile::TEST_ZIP2.entryNames.size, cdir.size)
+      assert(cdir.compareEnumerables(TestZipFile::TEST_ZIP2.entryNames) { 
 		      |cdirEntry, testEntryName|
 		      cdirEntry.name == testEntryName
 		    })
@@ -372,7 +371,8 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   def test_readFromInvalidStream
     File.open("ziptest.rb", "rb") {
       |zipFile|
-      cdir = ZipCentralDirectory.new(zipFile)
+      cdir = ZipCentralDirectory.new
+      cdir.readFromStream(zipFile)
     }
     fail "ZipError expected!"
   rescue ZipError
@@ -398,10 +398,10 @@ class ZipFileTest < RUNIT::TestCase
   def test_entries
     entries = @zipFile.entries
     assert_equals(4, entries.size)
-    assert_equals(nextTestEntryName, entries[0])
-    assert_equals(nextTestEntryName, entries[1])
-    assert_equals(nextTestEntryName, entries[2])
-    assert_equals(nextTestEntryName, entries[3])
+    assert_equals(nextTestEntryName, entries[0].name)
+    assert_equals(nextTestEntryName, entries[1].name)
+    assert_equals(nextTestEntryName, entries[2].name)
+    assert_equals(nextTestEntryName, entries[3].name)
   end
 
   def test_each
