@@ -12,8 +12,10 @@ class ZipList
       |zfName|
       Zip::ZipFile.open(zfName) {
 	|zf|
-	return zf.getInputStream(entry, &aProc) rescue 
-	Zip::ZipNoSuchEntryError
+	begin
+	  return zf.getInputStream(entry, &aProc) 
+	rescue Zip::ZipNoSuchEntryError
+	end
       }
     }
     raise Zip::ZipNoSuchEntryError,
@@ -32,14 +34,18 @@ module Kernel
 
   def zipRequire(moduleName)
     return false if alreadyLoaded?(moduleName)
-    zl = ZipList.new($:.grep /\.zip$/)
-    zl.getInputStream(ensureRbExtension(moduleName)) { 
+    getResource(ensureRbExtension(moduleName)) { 
       |zis| 
       eval(zis.read); $" << moduleName 
     }
     return true
   rescue Zip::ZipNoSuchEntryError => ex
     return false
+  end
+
+  def getResource(resourceName, &aProc)
+    zl = ZipList.new($:.grep /\.zip$/)
+    zl.getInputStream(resourceName, &aProc)
   end
 
   def alreadyLoaded?(moduleName)
@@ -51,11 +57,3 @@ module Kernel
     aString.sub(/(\.rb)?$/i, ".rb")
   end
 end
-
-
-$: << "zippedRuby.zip"
-
-require "mymodule"
-require 'gtk'
-
-MyRubyClass.new
