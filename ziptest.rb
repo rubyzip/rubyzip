@@ -674,8 +674,10 @@ class ZipOutputStreamTest < RUNIT::TestCase
   end
 
   def ensureDir(name) 
-    return if File.stat(name).directory?
-    File.delete(name)
+    if File.exists?(name)
+      return if File.stat(name).directory?
+      File.delete(name)
+    end
     Dir.mkdir(name)
   end
 

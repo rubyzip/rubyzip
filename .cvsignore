@@ -9,3 +9,8 @@ example.zip
 localEntryHeader.bin
 centralEntryHeader.bin
 output.zip
+dummy.txt
+deflatertest.bin
+emptytestdir
+test_putOnClosedStream.zip
+cdirtest.bin
