@@ -242,7 +242,7 @@ module Zip
       :name, :size, :localHeaderOffset
     
     def initialize(comment = nil, compressedSize = nil, crc = nil, extra = nil, 
-		   compressionMethod = nil, name = nil, size = nil)
+		   compressionMethod = ZipEntry::DEFLATED, name = nil, size = nil)
       @comment, @compressedSize, @crc, @extra, @compressionMethod, 
 	@name, @size, @isDirectory = comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
@@ -390,6 +390,35 @@ module Zip
       return nil
     end
 
+
+    def writeCDirEntry(io)
+      io << 
+	[CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
+	@version                          ,
+	@versionNeededToExtract           ,
+	@gpFlags                          ,
+	@compressionMethod                ,
+	@lastModTime                      ,
+	@lastModDate                      ,
+	@crc                              ,
+	@compressedSize                   ,
+	@size                             ,
+	@name  ?  @name.length  : 0       ,
+	@extra ? @extra.length : 0        ,
+	@comment ? comment.length : 0     ,
+	0                                 , # disk number start
+	@internalFileAttributes           ,
+	@externalFileAttributes           ,
+	@localHeaderOffset                ,
+	@name                             ,
+	@extra                            ,
+	@comment                          ].pack('VvvvvvvVVVvvvvvVV')
+
+      io << @name
+      io << @extra
+      io << @comment
+    end
+
   end
 
 
@@ -437,19 +466,19 @@ module Zip
       @compressor = NullCompressor
     end
     
-    def initNextEntry(newEntry)
+    def initNextEntry(entry)
       finalizeCurrentEntry
-      newEntry.localHeaderOffset = @outputStream.tell
-      @entries << newEntry
-      @compressor = getCompressor(entry)
-      newEntry.writeLocalEntryToOutputStream(@outputStream)
+      entry.localHeaderOffset = @outputStream.tell
+      @entries << entry
+      @compressor = ZipOutputStream::getCompressor(entry)
+      entry.writeLocalEntryToOutputStream(@outputStream)
     end
 
     def ZipOutputStream::getCompressor(entry)
       case entry.compressionMethod
 	when ZipEntry::DEFLATED then Deflater.new
 	when ZipEntry::DEFLATED then PassThruCompressor.new
-	else raise ZipError, "Invalid compression method"
+      else raise ZipError, "Invalid compression method: '#{entry.compressionMethod}'"
       end
     end
 
@@ -468,15 +497,15 @@ module Zip
       @outputStream = outputStream
     end
 
-    def write(data)
-      @outputStream.write(data)
+    def << (data)
+      @outputStream << data
     end
   end
 
   class NullCompressor
     include Singleton
 
-    def write(data)
+    def << (data)
     end
   end
 

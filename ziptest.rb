@@ -170,29 +170,42 @@ class ZipLocalEntryTest < RUNIT::TestCase
   rescue ZipError
   end
 
-  def test_writeLocalEntry
+  def test_writeEntry
     entry = ZipEntry.new("my little comment", 100, 987654, "thisIsSomeExtraInformation", 
 			 ZipEntry::DEFLATED, "entryName", 400)
-    writeToFile("localEntryHeader.bin", entry)
-    entryRead = readFromFile("localEntryHeader.bin")
-    
-    assert_equals(entry.compressedSize   , entryRead.compressedSize)
-    assert_equals(entry.crc              , entryRead.crc)
-    assert_equals(entry.extra            , entryRead.extra)
-    assert_equals(entry.compressionMethod, entryRead.compressionMethod)
-    assert_equals(entry.name             , entryRead.name)
-    assert_equals(entry.size             , entryRead.size)
-    assert_equals(entry.localHeaderOffset, entryRead.localHeaderOffset)
+    writeToFile("localEntryHeader.bin", "centralEntryHeader.bin",  entry)
+    entryReadLocal, entryReadCentral = readFromFile("localEntryHeader.bin", "centralEntryHeader.bin")
+    compareLocalEntryHeaders(entry, entryReadLocal)
+    compareCDirEntryHeaders(entry, entryReadCentral)
+  end
+  
+  private
+  def compareLocalEntryHeaders(entry1, entry2)
+    assert_equals(entry1.compressedSize   , entry2.compressedSize)
+    assert_equals(entry1.crc              , entry2.crc)
+    assert_equals(entry1.extra            , entry2.extra)
+    assert_equals(entry1.compressionMethod, entry2.compressionMethod)
+    assert_equals(entry1.name             , entry2.name)
+    assert_equals(entry1.size             , entry2.size)
+    assert_equals(entry1.localHeaderOffset, entry2.localHeaderOffset)
   end
 
-  def writeToFile(fileName, entry)
-    File.open(fileName, "wb") { |f| entry.writeLocalEntry(f) }
+  def compareCDirEntryHeaders(entry1, entry2)
+    compareLocalEntryHeaders(entry1, entry2)
+    assert_equals(entry1.comment, entry2.comment)
   end
 
-  def readFromFile(fileName)
-    entry = nil
-    File.open(fileName, "rb") { |f| entry = ZipEntry.readLocalEntry(f) }
-    return entry
+  def writeToFile(localFileName, centralFileName, entry)
+    File.open(localFileName,   "wb") { |f| entry.writeLocalEntry(f) }
+    File.open(centralFileName, "wb") { |f| entry.writeCDirEntry(f)  }
+  end
+
+  def readFromFile(localFileName, centralFileName)
+    localEntry = nil
+    cdirEntry  = nil
+    File.open(localFileName,   "rb") { |f| localEntry = ZipEntry.readLocalEntry(f) }
+    File.open(centralFileName, "rb") { |f| cdirEntry  = ZipEntry.readCDirEntry(f) }
+    return [localEntry, cdirEntry]
   end
 end
 
@@ -506,6 +519,12 @@ class AbstractOutputStreamTest < RUNIT::TestCase
   end
 end
 
+class CompressorTest < RUNIT::TestCase
+  def test_outputOperator
+    fail "implement test for <<"
+  end
+end
+
 class ZipOutputStreamTest < RUNIT::TestCase
   include AssertEntry
 
@@ -632,6 +651,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
     fail "ZipError expected"
   rescue ZipError
   end
+
 end
 
 class ZipCentralDirectoryTest < RUNIT::TestCase
