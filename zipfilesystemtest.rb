@@ -93,6 +93,25 @@ class ZipFsFileTest < RUNIT::TestCase
     assert_equals("a/b", @zipFsFile.dirname("a/b/"))
   end
 
+  def test_basename
+    assert_equals("d", @zipFsFile.basename("a/b/c/d"))
+    assert_equals("c", @zipFsFile.basename("c"))
+    assert_equals("", @zipFsFile.basename("a/b/"))
+  end
+
+  def test_split
+    assert_equals(["a/b/c", "d"], @zipFsFile.split("a/b/c/d"))
+    assert_equals(["a/b/c/d", ""], @zipFsFile.split("a/b/c/d/"))
+    assert_equals([".", "a"], @zipFsFile.split("a"))
+  end
+
+  def test_join
+    assert_equals("a/b/c", @zipFsFile.join("a/b", "c"))
+    assert_equals("a/b/c/d", @zipFsFile.join("a/b", "c/d"))
+    assert_equals("/c/d", @zipFsFile.join("", "c/d"))
+    assert_equals("a/b/c/d", @zipFsFile.join("a", "b", "c", "d"))
+  end
+
   def test_utime
     fail "implement test"
   end
@@ -114,6 +133,10 @@ class ZipFsFileTest < RUNIT::TestCase
 
   def test_symlink?
     assertAlwaysFalse(:symlink?)
+  end
+
+  def test_socket?
+    assertAlwaysFalse(:socket?)
   end
 
   def test_writable?
@@ -145,13 +168,6 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_join
-    assert_equals("a/b/c", @zipFsFile.join("a/b", "c"))
-    assert_equals("a/b/c/d", @zipFsFile.join("a/b", "c/d"))
-    assert_equals("/c/d", @zipFsFile.join("", "c/d"))
-    assert_equals("a/b/c/d", @zipFsFile.join("a", "b", "c", "d"))
-  end
-
   def test_link
     fail "implement test"
   end
@@ -164,15 +180,7 @@ class ZipFsFileTest < RUNIT::TestCase
 #    fail "implement test"
 #  end
 
-  def test_basename
-    fail "implement test"
-  end
-
   def test_ctime
-    fail "implement test"
-  end
-
-  def test_socket?
     fail "implement test"
   end
 
@@ -229,12 +237,6 @@ class ZipFsFileTest < RUNIT::TestCase
 #  def test_readable?
 #    fail "implement test"
 #  end
-
-  def test_split
-    assert_equals(["a/b/c", "d"], @zipFsFile.split("a/b/c/d"))
-    assert_equals(["a/b/c/d", ""], @zipFsFile.split("a/b/c/d/"))
-    assert_equals([".", "a"], @zipFsFile.split("a"))
-  end
 
   def test_delete
     fail "implement test"

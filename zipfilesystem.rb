@@ -57,6 +57,18 @@ class ZipFileSystem
       ::File.dirname(fileName)
     end
 
+    def basename(fileName)
+      ::File.basename(fileName)
+    end
+
+    def split(fileName)
+      ::File.split(fileName)
+    end
+
+    def join(*fragments)
+      ::File.join(*fragments)
+    end
+
     def mtime(fileName)
       @zipFile.getEntry(fileName).mtime
     end
@@ -73,16 +85,12 @@ class ZipFileSystem
       false
     end
 
-    def split(fileName)
-      ::File.split(fileName)
+    def socket?(fileName)
+      false
     end
 
     def ftype(fileName)
       @zipFile.getEntry(fileName).directory? ? "directory" : "file"
-    end
-
-    def join(*fragments)
-      ::File.join(*fragments)
     end
   end
 end
