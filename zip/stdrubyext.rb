@@ -66,13 +66,13 @@ class Time
   # bits 9-15 year (four digit year minus 1980)
   
   
-  def to_binary_dos_date
+  def to_binary_dos_time
     (sec/2) +
       (min  << 5) +
       (hour << 11)
   end
 
-  def to_binary_dos_time
+  def to_binary_dos_date
     (day) +
       (month << 5) +
       ((year - 1980) << 9)
