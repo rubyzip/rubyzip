@@ -12,10 +12,11 @@ files = %w{ stdrubyext.rb ioextras.rb zip.rb zipfilesystem.rb ziprequire.rb temp
 
 INSTALL_DIR = File.join(CONFIG["sitelibdir"], "zip")
 File.makedirs(INSTALL_DIR)
-Dir.chdir "zip"
+
+SOURCE_DIR = File.join(File.dirname($0), "zip")
+
 files.each { 
   |filename|
   installPath = File.join(INSTALL_DIR, filename)
-  File::install(filename, installPath, 0644, true)
+  File::install(File.join(SOURCE_DIR, filename), installPath, 0644, true)
 }
-Dir.chdir ".."
