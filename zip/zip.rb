@@ -351,8 +351,7 @@ module Zip
       
       io << 
 	[LOCAL_ENTRY_SIGNATURE    ,
-	@version                  ,
-        @fstype                   , 
+	0                  ,
 	0                         , # @gpFlags                  ,
 	@compression_method        ,
 	@time.to_binary_dos_time     , # @lastModTime              ,
@@ -361,7 +360,7 @@ module Zip
 	@compressed_size           ,
 	@size                     ,
 	@name ? @name.length   : 0,
-	@extra? @extra.local_length : 0 ].pack('VCCvvvvVVVvv')
+	@extra? @extra.local_length : 0 ].pack('VvvvvvVVVvv')
       io << @name
       io << (@extra ? @extra.to_local_bin : "")
     end

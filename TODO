@@ -1,9 +1,4 @@
-It appears to me that the ZipInputStream and ZipOutputStream should
-not know about the Compressors. Instead the ZipEntry should handle
-this bit. The ZipInputStream, ZipOutputStream and ZipFile understands that the zip file consists of ZipEntries, the ZipEntry class understands everything about a particular ZipEntry including the compressor it needs to use.
-
-
-
+* Fix problem with mixing AbstractInputStream::gets and AbstractInputStream::red
 * Implement ZipFsDir.glob
 * ZipFile.checkIntegrity method
 * non-MSDOS permission attributes
