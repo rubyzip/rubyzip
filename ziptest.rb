@@ -1090,8 +1090,7 @@ class ZipFileTest < CommonZipFileFixture
     }
     ZipFile.open(TEST_ZIP.zipName) {
       |zf|
-      dirEntry = zf.entries.detect { |e| e == TestFiles::EMPTY_TEST_DIR+"/" } 
-      assert(dirEntry != nil)
+      dirEntry = zf.entries.detect { |e| e.name == TestFiles::EMPTY_TEST_DIR+"/" } 
       assert(dirEntry.isDirectory)
     }
   end

@@ -1,9 +1,9 @@
 
-unit test adding directories (and implement)
+unit test and implement directory extract (and implement)
 unit test adding directories recursively (and implement)
 unit test ZipFile.checkIntegrity method (and implement)
-unit test and implement directory extract (and implement)
 unit test and implement recursive extract (and implement)
+unit test and implement recursive extract with block for determining whether directories should be created.
 
 performance improve method
 ZipStreamableZipEntry.writeToZipOutputStream by not
@@ -19,6 +19,8 @@ what features should be added to rubyzip. Use Tk. (add as separate
 module in CVS)
 
 implement setting the date correctly in ZipEntry with now as default
+
+implement storing attributes and ownership information
 
 Add install.rb file
 

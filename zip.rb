@@ -66,7 +66,7 @@ module Zip
     
     alias_method :each, :each_line
   end
-  
+
 
   #relies on <<
   module AbstractOutputStream
@@ -253,7 +253,9 @@ module Zip
     end
   end
   
-  
+  class NullInputStream < NullDecompressor
+    include AbstractInputStream
+  end
   
   class ZipEntry
     STORED = 0
@@ -267,7 +269,7 @@ module Zip
 		   compressionMethod = ZipEntry::DEFLATED, size = 0)
       @localHeaderOffset = 0
       @zipfile, @comment, @compressedSize, @crc, @extra, @compressionMethod, 
-	@name, @size, @isDirectory = zipfile, comment, compressedSize, crc, 
+	@name, @size = zipfile, comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
     end
     
@@ -791,8 +793,11 @@ module Zip
       continueOnExistsProc ||= proc { false }
       checkEntryExists(entry, continueOnExistsProc, "add")
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
-      zipStreamable = ZipStreamableFile.new(newEntry, srcPath)
-      @entries << zipStreamable
+      if isDirectory(newEntry, srcPath)
+	@entries << ZipStreamableDirectory.new(newEntry)
+      else
+	@entries << ZipStreamableFile.new(newEntry, srcPath)
+      end
     end
     
     def remove(entry)
@@ -839,6 +844,18 @@ module Zip
     
     private
     
+    def isDirectory(newEntry, srcPath)
+      srcPathIsDirectory = File.directory?(srcPath)
+      if newEntry.isDirectory && ! srcPathIsDirectory
+	raise ArgumentError,
+	  "entry name '#{newEntry}' indicates directory entry, but "+
+	  "'#{srcPath}' is not a directory"
+      elsif ! newEntry.isDirectory && srcPathIsDirectory
+	newEntry.name += "/"
+      end
+      return newEntry.isDirectory && srcPathIsDirectory
+    end
+
     def checkEntryExists(entryName, continueOnExistsProc, procedureName)
       continueOnExistsProc ||= proc { false }
       if @entries.detect { |e| e.name == entryName }
@@ -904,7 +921,22 @@ module Zip
       aZipOutputStream << getInputStream { |is| is.read }
     end
   end
-  
+
+  class ZipStreamableDirectory < DelegateClass(ZipEntry)
+    def initialize(entry)
+      super(entry)
+    end
+
+    def getInputStream(&aProc)
+      return yield NullInputStream.instance if block_given?
+      NullInputStream.instance
+    end
+    
+    def writeToZipOutputStream(aZipOutputStream)
+      aZipOutputStream.putNextEntry(self)
+    end
+  end
+
 end # Zip namespace module
 
 
