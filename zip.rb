@@ -136,7 +136,8 @@ class Inflater < Decompressor
   def produceInput
     @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE))
   end
-  
+
+  # to be used with produceInput, not read (as read may still have more data cached)
   def inputFinished?
     @zlibInflater.finished?
   end
@@ -240,25 +241,36 @@ end
 
 class ZipLocalEntry < ZipEntry
   LOCAL_ENTRY_SIGNATURE = 0x04034b50
+  STATIC_HEADER_LENGTH = 30
 
   def readFromStream(io)
-    unless (ZipEntry::readZipLong(io) == LOCAL_ENTRY_SIGNATURE)
-      raise ZipError,
-	"Zip local header magic '#{LOCAL_ENTRY_SIGNATURE} not found"
+    @localHeaderOffset = io. tell
+    staticSizedFieldsBuf = io.read(STATIC_HEADER_LENGTH)
+    unless (staticSizedFieldsBuf.size==STATIC_HEADER_LENGTH)
+      raise ZipError, "Premature end of file. Not enough data for zip entry local header"
     end
-    @localHeaderOffset = io. tell - 4
-    @version           = ZipEntry::readZipShort(io)
-    @gpFlags           = ZipEntry::readZipShort(io)
-    @compressionMethod = ZipEntry::readZipShort(io)
-    @lastModTime       = ZipEntry::readZipShort(io) 
-    @lastModDate       = ZipEntry::readZipShort(io) 
-    @crc               = ZipEntry::readZipLong(io) 
-    @compressedSize    = ZipEntry::readZipLong(io)
-    @size              = ZipEntry::readZipLong(io)
-    nameLength         = ZipEntry::readZipShort(io)
-    extraLength        = ZipEntry::readZipShort(io)
+    
+    localHeader       ,
+    @version          ,
+    @gpFlags          ,
+    @compressionMethod,
+    @lastModTime      ,
+    @lastModDate      ,
+    @crc              ,
+    @compressedSize   ,
+    @size             ,
+    nameLength        ,
+    extraLength       = staticSizedFieldsBuf.unpack('VvvvvvVVVvv') 
+    
+    unless (localHeader == LOCAL_ENTRY_SIGNATURE)
+      raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
+    end
+
     @name              = io.read(nameLength)
     @extra             = io.read(extraLength)
+    unless (@extra && @extra.length == extraLength)
+      raise ZipError, "Truncated local zip entry header"
+    end
   end
 
   def ZipLocalEntry.readFromStream(io)
@@ -272,31 +284,46 @@ end
 
 class ZipCentralDirectoryEntry < ZipEntry
   CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
+  STATIC_HEADER_LENGTH = 46
 
   def readFromStream(io)
-    unless (ZipEntry::readZipLong(io) == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
-      raise ZipError,
-	"Zip central directory header magic '#{CENTRAL_DIRECTORY_ENTRY_SIGNATURE} not found"
+    staticSizedFieldsBuf = io.read(STATIC_HEADER_LENGTH)
+    unless (staticSizedFieldsBuf.size == STATIC_HEADER_LENGTH)
+      raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
     end
-    @version                = ZipEntry::readZipShort(io)
-    @versionNeededToExtract = ZipEntry::readZipShort(io)
-    @gpFlags                = ZipEntry::readZipShort(io)
-    @compressionMethod      = ZipEntry::readZipShort(io)
-    @lastModTime            = ZipEntry::readZipShort(io) 
-    @lastModDate            = ZipEntry::readZipShort(io) 
-    @crc                    = ZipEntry::readZipLong(io) 
-    @compressedSize         = ZipEntry::readZipLong(io)
-    @size                   = ZipEntry::readZipLong(io)
-    nameLength              = ZipEntry::readZipShort(io)
-    extraLength             = ZipEntry::readZipShort(io)
-    commentLength           = ZipEntry::readZipShort(io)
-    diskNumberStart         = ZipEntry::readZipShort(io)
-    @internalFileAttributes = ZipEntry::readZipShort(io)
-    @externalFileAttributes = ZipEntry::readZipLong(io)
-    @localHeaderOffset      = ZipEntry::readZipLong(io)
-    @name                   = io.read(nameLength)
-    @extra                  = io.read(extraLength)
-    @comment                = io.read(commentLength)
+    
+    cdirSignature          ,
+    @version               ,
+    @versionNeededToExtract,
+    @gpFlags               ,
+    @compressionMethod     ,
+    @lastModTime           ,
+    @lastModDate           ,
+    @crc                   ,
+    @compressedSize        ,
+    @size                  ,
+    nameLength             ,
+    extraLength            ,
+    commentLength          ,
+    diskNumberStart        ,
+    @internalFileAttributes,
+    @externalFileAttributes,
+    @localHeaderOffset     ,
+    @name                  ,
+    @extra                 ,
+    @comment               = staticSizedFieldsBuf.unpack('VvvvvvvVVVvvvvvVV')
+
+    unless (cdirSignature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
+      raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
+    end
+
+    @name                  = io.read(nameLength)
+    @extra                 = io.read(extraLength)
+    @comment               = io.read(commentLength)
+    unless (@comment && @comment.length == commentLength)
+      raise ZipError, "Truncated cdir zip entry header"
+    end
+
   end
 
   def ZipCentralDirectoryEntry.readFromStream(io)
@@ -319,7 +346,6 @@ class ZipCentralDirectory
 
   def readEOCD(io)
     buf = getEOCD(io)
-    puts "*************** CRAP *******" unless buf
     @numberOfThisDisk                     = ZipEntry::readZipShort(buf)
     @numberOfDiskWithStartOfCDir          = ZipEntry::readZipShort(buf)
     @totalNumberOfEntriesInCDirOnThisDisk = ZipEntry::readZipShort(buf)
@@ -332,7 +358,11 @@ class ZipCentralDirectory
   end
 
   def readCentralDirectoryEntries(io)
-    io.seek(@cdirOffset, IO::SEEK_SET)
+    begin
+      io.seek(@cdirOffset, IO::SEEK_SET)
+    rescue Errno::EINVAL
+      raise ZipError, "Zip consistency problem while reading central directory entry"
+    end
     @entries = []
     @size.times {
       @entries << ZipCentralDirectoryEntry.readFromStream(io)
@@ -379,8 +409,6 @@ class ZipError < RuntimeError
 end
 
 class ZipFile < ZipCentralDirectory
-  include Enumerable
-
   attr_reader :name
 
   def initialize(name)

@@ -102,6 +102,36 @@ class ZipEntryTest < RUNIT::TestCase
   end
 end
 
+module IOizeString
+  attr_reader :tell
+  
+  def read(count = nil)
+    @tell = 0 unless @tell
+    count = size unless count
+    retVal = slice(@tell, count)
+    @tell += count
+    return retVal
+  end
+
+  def seek(index, offset)
+    case offset
+    when IO::SEEK_END
+      newPos = size + index
+    when IO::SEEK_SET
+      newPos = index
+    when IO::SEEK_CUR
+      newPos = @tell + index
+    else
+      raise "Error in test method IOizeString::seek"
+    end
+    if (newPos < 0 || newPos >= size)
+      raise Errno::EINVAL
+    else
+      @tell=newPos
+    end
+  end
+end
+
 class ZipLocalEntryTest < RUNIT::TestCase
   def test_ReadLocalEntryHeaderOfFirstTestZipEntry
     File.open(TestZipFile::TEST_ZIP3.zipName) {
@@ -121,15 +151,73 @@ class ZipLocalEntryTest < RUNIT::TestCase
       assert(! entry.isDirectory)
     }
   end
+
   def test_ReadLocalEntryFromNonZipFile
     File.open("ziptest.rb") {
       |file|
-      ZipLocalEntry.readFromStream(file)
+      assert_equals(nil, ZipLocalEntry.readFromStream(file))
     }
-    fail "Excepted exception"
-    rescue
+  end
+
+  def test_ReadLocalEntryFromTruncatedZipFile
+    zipFragment=""
+    File.open(TestZipFile::TEST_ZIP2.zipName) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
+    zipFragment.extend(IOizeString)
+    entry = ZipLocalEntry.new
+    entry.readFromStream(zipFragment)
+    fail "ZipError expected"
+  rescue ZipError
   end
 end
+
+
+module DecompressorTests
+  # expects @refText and @decompressor
+
+  def test_readEverything
+    assert_equals(@refText, @decompressor.read)
+  end
+    
+  def test_readInChunks
+    chunkSize = 5
+    while (decompressedChunk = @decompressor.read(chunkSize))
+      assert_equals(@refText.slice!(0, chunkSize), decompressedChunk)
+    end
+    assert_equals(0, @refText.size)
+  end
+end
+
+class InflaterTest < RUNIT::TestCase
+  include DecompressorTests
+
+  def setup
+    @file = File.new("file1.txt.deflatedData", "rb")
+    @refText=""
+    File.open("file1.txt") { |f| @refText = f.read }
+    @decompressor = Inflater.new(@file)
+  end
+
+  def teardown
+    @file.close
+  end
+end
+
+
+class PassThruDecompressorTest < RUNIT::TestCase
+  include DecompressorTests
+  TEST_FILE="file1.txt"
+  def setup
+    @file = File.new(TEST_FILE)
+    @refText=""
+    File.open(TEST_FILE) { |f| @refText = f.read }
+    @decompressor = PassThruDecompressor.new(@file, File.size(TEST_FILE))
+  end
+
+  def teardown
+    @file.close
+  end
+end
+
  
 module AssertEntry
   def assertNextEntry(filename, zis)
@@ -351,6 +439,16 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
 
     }
   end
+
+  def test_ReadEntryFromTruncatedZipFile
+    fragment=""
+    File.open("testDirectory.bin") { |f| fragment = f.read(12) } # cdir entry header is at least 46 bytes
+    fragment.extend(IOizeString)
+    entry = ZipCentralDirectoryEntry.new
+    entry.readFromStream(fragment)
+    fail "ZipError expected"
+  rescue ZipError
+  end
 end
 
 class ZipCentralDirectoryTest < RUNIT::TestCase
@@ -376,6 +474,17 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
       cdir.readFromStream(zipFile)
     }
     fail "ZipError expected!"
+  rescue ZipError
+  end
+
+  def test_ReadFromTruncatedZipFile
+    fragment=""
+    File.open("testDirectory.bin") { |f| fragment = f.read }
+    fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
+    fragment.extend(IOizeString)
+    entry = ZipCentralDirectory.new
+    entry.readFromStream(fragment)
+    fail "ZipError expected"
   rescue ZipError
   end
 end
@@ -430,7 +539,6 @@ class ZipFileTest < RUNIT::TestCase
     assert_equals(4, @testEntryNameIndex)
   end
 end
-
 
 
 TestZipFile::createTestZips(ARGV.index("recreate") != nil)
