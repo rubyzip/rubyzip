@@ -4,16 +4,26 @@ require 'zip'
 
 module Zip
   module ZipFileSystem
-    
+
+    def initialize
+      @zipFsDir  = ZipFsDir.new(self)
+      @zipFsFile = ZipFsFile.new(self)
+      @zipFsDir.file = @zipFsFile
+      @zipFsFile.dir = @zipFsDir
+    end
+
     def dir
-      @zipFsDir ||= ZipFsDir.new(self)
+      @zipFsDir
     end
     
     def file
-      @zipFsFile ||= ZipFsFile.new(self)
+      @zipFsFile
     end
     
     class ZipFsFile
+
+      attr_writer :dir
+#      protected :dir
 
       class ZipFsStat
         def initialize(zipFsFile, entryName)
@@ -78,7 +88,7 @@ module Zip
       end
       
       def exists?(fileName)
-        expand_path(fileName) == "/" || @zipFile.find_entry(@zipFile.dir.expand_to_entry(fileName)) != nil
+        expand_path(fileName) == "/" || @zipFile.find_entry(@dir.expand_to_entry(fileName)) != nil
       end
       alias :exist? :exists?
       
@@ -113,12 +123,12 @@ module Zip
       end
 
       def directory?(fileName)
-	entry = @zipFile.find_entry(@zipFile.dir.expand_to_entry(fileName))
+	entry = @zipFile.find_entry(@dir.expand_to_entry(fileName))
 	expand_path(fileName) == "/" || (entry != nil && entry.directory?)
       end
       
       def open(fileName, openMode = "r", &block)
-        entryName = @zipFile.dir.expand_to_entry(fileName)
+        entryName = @dir.expand_to_entry(fileName)
         case openMode
         when "r" 
           @zipFile.get_input_stream(entryName, &block)
@@ -285,64 +295,66 @@ module Zip
       alias :unlink :delete
 
       def expand_path(aPath)
-        @zipFile.dir.expand_path(aPath)
+        @dir.expand_path(aPath)
       end
     end
-  end
 
-  class ZipFsDir
-
-    def initialize(zipFile)
-      @zipFile = zipFile
-      @file = @zipFile.file
-      @pwd = "/"
-    end
-    
-    attr_reader :pwd
-    alias getwd pwd
-
-    def chdir(aDirectoryName)
-      unless @file.stat(aDirectoryName).directory?
-        raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
+    class ZipFsDir
+      
+      def initialize(zipFile)
+        @zipFile = zipFile
+        @pwd = "/"
       end
-      @pwd = expand_path(aDirectoryName)
-    end
-
-    def entries(aDirectoryName)
-      unless @file.stat(aDirectoryName).directory?
-        raise Errno::ENOTDIR, aDirectoryName
+      
+      attr_writer :file
+#      protected :file
+      
+      attr_reader :pwd
+      alias getwd pwd
+      
+      def chdir(aDirectoryName)
+        unless @file.stat(aDirectoryName).directory?
+          raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
+        end
+        @pwd = expand_path(aDirectoryName)
       end
-      path = expand_path(aDirectoryName).lchop.ensure_end("/")
-
-      @zipFile.entries.select { 
-        |e| 
-        parent = e.parent_as_string
-        parent == path || (path == "/" && parent == nil ) 
-      }.map { |e| @file.basename(e.to_s.chomp("/")) }
-    end
-
-    def delete(entryName)
-      unless @zipFile.file.stat(entryName).directory?
-        raise Errno::EINVAL, "Invalid argument - #{entryName}"
+      
+      def entries(aDirectoryName)
+        unless @file.stat(aDirectoryName).directory?
+          raise Errno::ENOTDIR, aDirectoryName
+        end
+        path = expand_path(aDirectoryName).lchop.ensure_end("/")
+        
+        @zipFile.entries.select { 
+          |e| 
+          parent = e.parent_as_string
+          parent == path || (path == "/" && parent == nil ) 
+        }.map { |e| @file.basename(e.to_s.chomp("/")) }
       end
-      @zipFile.remove(entryName)
-    end
-    alias rmdir  delete
-    alias unlink delete
-
-    def mkdir(entryName, permissionInt = 0)
-      @zipFile.mkdir(entryName, permissionInt)
-    end
-
-    def expand_path(aPath)
-      expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
-      expanded.gsub!(/\/\.(\/|$)/, "")
-      expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
-      expanded.empty? ? "/" : expanded
-    end
-
-    def expand_to_entry(aPath)
-      expand_path(aPath).lchop
+      
+      def delete(entryName)
+        unless @file.stat(entryName).directory?
+          raise Errno::EINVAL, "Invalid argument - #{entryName}"
+        end
+        @zipFile.remove(entryName)
+      end
+      alias rmdir  delete
+      alias unlink delete
+      
+      def mkdir(entryName, permissionInt = 0)
+        @zipFile.mkdir(entryName, permissionInt)
+      end
+      
+      def expand_path(aPath)
+        expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
+        expanded.gsub!(/\/\.(\/|$)/, "")
+        expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
+        expanded.empty? ? "/" : expanded
+      end
+      
+      def expand_to_entry(aPath)
+        expand_path(aPath).lchop
+      end
     end
   end
 
