@@ -981,28 +981,6 @@ class BasicZipFileTest < RUNIT::TestCase
   end
 end
 
-class UtilityTest < RUNIT::TestCase
-  def test_toIOforIO
-    File.open("ziptest.rb") {
-      |io|
-      assert_equals(io, Utility.toIO(io))
-    }
-  end
-
-  def test_toIOforString
-    io = Utility.toIO("ziptest.rb")
-    assert(io.kind_of?(IO))
-  ensure
-      io.close      
-  end
-
-  def test_toIOforFixnum
-    assert_exception(TypeError) {
-      Utility.toIO(5)
-    }
-  end
-end
-
 class ZipFileBasicZipFileTest < BasicZipFileTest
   def zipFileClass
     ZipFile

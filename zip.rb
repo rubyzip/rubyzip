@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'singleton'
+require 'tempfile'
 require 'zlib'
 
 module Enumerable
@@ -11,13 +12,13 @@ module Enumerable
 end
 
 module Zip
-
+  
   # Implements many of the convenience methods of IO
   # such as gets, getc, readline and readlines 
   # depends on: inputFinished?, produceInput and read
   module AbstractInputStream
     include Enumerable
-
+    
     def readlines(aSepString = $/)
       retVal = []
       each_line(aSepString) { |line| retVal << line }
@@ -544,20 +545,20 @@ module Zip
       @compressor << data
     end
   end
-
-
+  
+  
   class Compressor
     def finish
     end
   end
-
+  
   class PassThruCompressor < Compressor
     def initialize(outputStream)
       @outputStream = outputStream
       @crc = Zlib::crc32
       @size = 0
     end
-
+    
     def << (data)
       val = data.to_s
       @crc = Zlib::crc32(val, @crc)
@@ -737,24 +738,21 @@ module Zip
     protected
     def getEntry(entry)
       selectedEntry = @entries.detect { |e| e.name == entry.to_s }
-      raise ZipError, "No matching entry found in zip file '#{@name}' for '#{}'" unless selectedEntry
-      selectedEntry
+      unless selectedEntry
+      raise ZipError, 
+	"No matching entry found in zip file '#{@name}' for '#{entry}'"
+      end
+      return selectedEntry
     end
   end
 
-  module Utility
-    def Utility.toIO(anObject)
-      return anObject if anObject.kind_of?(IO)
-      return File.new(anObject) if anObject.kind_of?(String)
-      raise TypeError, "toIO: Only IO and String supported"
-    end
-  end
+
 
   class ZipFile < BasicZipFile
     CREATE = 1
-
+    
     def initialize(fileName, create = nil)
-      @name = name
+      @name = fileName
       if (File.exists?(fileName))
 	super(fileName)
 	fixEntries
@@ -764,77 +762,129 @@ module Zip
 	raise ZipError, "File #{fileName} not found"
       end
     end
-
-#    def open(fileName); end
-    def add(entry, srcPath)
-      is = toIO(srcPatch)
-      # not done
+    
+    def ZipFile.open(fileName, create = nil)
+      zf = ZipFile.new(fileName, create)
+      if block_given?
+	begin
+	  yield zf
+	ensure
+	  zf.close
+	end
+      else
+	zf
+      end
     end
-
-    def remove(entry); end
-    def extract(entry, destPath); end
-    def rename(entry, newName); end
-    def replace(entry, srcPath); end
-
-    def getInputStream(entry)
-      getEntry(entry).getInputStream
+    
+    def add(entry, srcPath) 
+      zipStreamable = ZipStreamableFile.new(entry, srcPath)
+      @entries << zipStreamable
+    end
+    
+    def remove(entry)
+      @entries.delete(getEntry(entry))
+    end
+    
+    def rename(entry, newName, continueOnExistsProc = proc { false })
+      foundEntry = getEntry(entry)
+      if getEntry(newName) 
+	if continueOnExistsProc.call
+	  remove getEntry(newName)
+	else
+	  raise ZipError, "Cannot rename to #{newName}. An entry with that name exists"
+	end
+      end
+      foundEntry.name=newName
+    end
+    
+    def replace(entry, srcPath)
+      checkFile(srcPath)
+      add(remove(entry), srcPath)
+    end
+    
+    def getInputStream(entry, &aProc)
+      getEntry(entry).getInputStream &aProc
+    end
+    
+    def extract(entry, destPath, onExistsProc = proc { false })
+      foundEntry = getEntry(entry)
+      writeFile(destPath, onExistsProc) { 
+	|os|
+	foundEntry.getInputStream { |is| os << is.read }
+      }
     end
     
     def commit
-      ZipOutputStream.new(getTempfilename) {
-	|zos|
-	zos.comment = comment
-	each {
-	  |entry|
-	  zos.putNextEntry(entry)
-	  entry.getInputStream {
-	    |is|
-	    zos.writeIO(is)
-	  }
+      onSuccessReplace(name) {
+	|tmpFile|
+	ZipOutputStream.open(tmpFile) {
+	  |zos|
+	  @entries.each { |e| e.writeToZipOutputStream(zos) }
 	}
-      }
-    end
-
-    def close
-      commit
-    end
-
-    private
-
-    def getTempfilename
-      return @name+$$.to_s+".tmp"
-    end
-
-    def fixEntries
-      each { 
-	|e| 
-	unless e.respond_to?("getInputStream")
-	  e.extend(SourceZipEntry)
-	  e.zipFile = @name
-	end
+	true
       }
     end
     
-  end
-
-  ## These needs unit tests
-  module SourceZipEntry
-    attr_accessor :zipFile
-    def getInputStream
-      is = BasicZipFile.new(zipFile).getInputStream(name)
-      return is unless block_given?
-      begin
-	yield is
-      ensure
-	is.close
+    def close
+      commit
+    end
+    
+    private
+    
+    def writeFile(destPath, continueOnExistsProc = proc { false }, &writeFileProc)
+      if File.exists?(destPath) && ! continueOnExistsProc.call
+	raise ZipError,
+	  "Destination '#{destPath}' already exists"
       end
+      File.open(destPath, "wb") &writeFileProc
+    end
+    
+    def checkFile(path)
+      unless File.readable? path
+	raise ZipError, "'#{path}' does not exist or cannot be opened reading"
+      end
+    end
+    
+    def onSuccessReplace(aFilename)
+      tmpfile = getTempfile
+      tmpFilename = tmpfile.path
+      tmpfile.close
+      if yield tmpFilename
+	File.move(tmpFilename, name)
+      end
+    end
+    
+    def fixEntries
+      @entries.map! { |e| ZipStreamableZipEntry.new(e) }
+    end
+    
+    def getTempfile
+      Tempfile.new(File.basename(name), File.dirname(name)).binmode
+    end
+    
+  end
+  
+  
+  class ZipStreamable < ZipEntry
+    def writeToZipOutputStream(aZipOutputStream)
+      raise "implement 'writeToZipOutputStream' in subclass"
+    end
+    
+    def getInputStream
+      raise "implement 'getInputStream' in subclass"
+    end
+    
+    def ==(other)
+      raise "implement '==' in subclass"
     end
   end
   
-  module SourceFileEntry
+  class ZipStreamableFile < ZipStreamable
   end
-
-  module SourceIOEntry
+  
+  class ZipStreamableZipEntry < ZipStreamable
+    def initialize(entry)
+    end
   end
   
 end # Zip namespace module

@@ -1,5 +1,9 @@
 write ZipFile.
 
+unit test writeFile (onExistsProc)
+unit test rename onExistsProc
+unit test yield on ZipFile::getInputStream
+
 release 0.4.0
 
 Refactor ZipFileTest to reduce duplicated code, divide into different
