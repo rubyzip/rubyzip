@@ -7,11 +7,11 @@ module Zip
     
     
     def dir
-      @zipFsDir ||= Dir.new(self)
+      @zipFsDir ||= ZipFsDir.new(self)
     end
     
     def file
-      @zipFsDir ||= ZipFsFile.new(self)
+      @zipFsFile ||= ZipFsFile.new(self)
     end
     
     class ZipFsFile
@@ -285,6 +285,22 @@ module Zip
       alias :unlink :delete
 
     end
+  end
+
+  class ZipFsDir
+    def initialize(zipFile)
+      @zipFile = zipFile
+    end
+
+    def delete(entryName)
+      unless @zipFile.file.stat(entryName).directory?
+        raise Errno::EINVAL, "Invalid argument - #{entryName}"
+      end
+      @zipFile.remove(entryName)
+    end
+    alias rmdir  delete
+    alias unlink delete
+
   end
 
   class ZipFile

@@ -577,10 +577,28 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
 
 end
 
-class ZipFsDirectoryTest #< RUNIT::TestCase
-  def test_rmdir
-    fail "implement test"
+class ZipFsDirectoryTest < RUNIT::TestCase
+  TEST_ZIP = "zipWithDirs_copy.zip"
+
+  def setup
+    File.copy("zipWithDirs.zip", TEST_ZIP)
   end
+
+  def test_delete
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert_exception(Errno::ENOENT, "No such file or directory - NoSuchFile.txt") {
+        zf.dir.delete("NoSuchFile.txt")
+      }
+      assert_exception(Errno::EINVAL, "Invalid argument - file1") {
+        zf.dir.delete("file1")
+      }
+      assert(zf.entries.find { |e| e.name == "dir1/" })
+      zf.dir.delete("dir1")
+      assert_nil(zf.entries.find { |e| e.name == "dir1/" })
+    }
+  end
+
 
   def test_open
     fail "implement test"
@@ -602,10 +620,6 @@ class ZipFsDirectoryTest #< RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_unlink
-    fail "implement test"
-  end
-
   def test_entries
     fail "implement test"
   end
@@ -622,9 +636,6 @@ class ZipFsDirectoryTest #< RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_delete
-    fail "implement test"
-  end
 
   def test_pwd
     fail "implement test"
