@@ -6,21 +6,15 @@ entries are supported. All this library does is handling of the zip
 file format. the actual compression/decompression is handled by
 zlib. zlib is accessible from ruby thanks to ruby/zlib (see resources)
 
-To run the unit tests you need to have rubyunit installed.
-
-= Resources =
-
-zlib http://www.gzip.org/zlib/
-ruby-zlib: http://www.blue.sky.or.jp/atelier/#ruby-zlib
-
+To run the unit tests you need to have rubyunit or test::unit
+installed.
 
 = Ruby/zlib =
 
 This library requires ruby/zlib version 0.5.0 or newer.
 
-As of this writing ruby/zlib 0.5.0 is only available as
-ruby-zlib-0.5.0-pre3 at http://www.blue.sky.or.jp/atelier/ruby/
-
+zlib http://www.gzip.org/zlib/
+ruby-zlib: http://www.blue.sky.or.jp/atelier/#ruby-zlib
 
 = LICENSE =
 
