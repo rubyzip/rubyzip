@@ -159,6 +159,29 @@ class ZipEntryTest < RUNIT::TestCase
     assert(entry7 != "hello")
     assert(entry7 != 12)
   end
+
+  def testCompare
+    assert_equals(0,  (ZipEntry.new("zf.zip", "a") <=> ZipEntry.new("zf.zip", "a")))
+    assert_equals(1, (ZipEntry.new("zf.zip", "b") <=> ZipEntry.new("zf.zip", "a")))
+    assert_equals(-1,  (ZipEntry.new("zf.zip", "a") <=> ZipEntry.new("zf.zip", "b")))
+
+    entries = [ 
+      ZipEntry.new("zf.zip", "5"),
+      ZipEntry.new("zf.zip", "1"),
+      ZipEntry.new("zf.zip", "3"),
+      ZipEntry.new("zf.zip", "4"),
+      ZipEntry.new("zf.zip", "0"),
+      ZipEntry.new("zf.zip", "2")
+    ]
+
+    entries.sort!
+    assert_equals("0", entries[0].to_s)
+    assert_equals("1", entries[1].to_s)
+    assert_equals("2", entries[2].to_s)
+    assert_equals("3", entries[3].to_s)
+    assert_equals("4", entries[4].to_s)
+    assert_equals("5", entries[5].to_s)
+  end
 end
 
 module IOizeString

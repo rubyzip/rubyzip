@@ -526,6 +526,10 @@ module Zip
        @time.dosEquals(other.time))
     end
 
+    def <=> (other)
+      return self.to_s <=> other.to_s
+    end
+
     def getInputStream
       zis = ZipInputStream.new(@zipfile, localHeaderOffset)
       zis.getNextEntry
