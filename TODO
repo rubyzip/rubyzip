@@ -1,3 +1,8 @@
+Glob.expandPathList needs to be changed so directories have a trailing
+slash.
+
+FileArchive needs to be completed.
+
 
 unit test and implement:
 * globbing (Glob module implemented and unit tested, but not used)
