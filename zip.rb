@@ -386,7 +386,7 @@ module Zip
       unless (localHeader == LOCAL_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
-      @time = Time.parseBinaryDosFormat(lastModDate, lastModTime)
+      setTime(lastModDate, lastModTime)
       
       @name              = io.read(nameLength)
       @extra             = io.read(extraLength)
@@ -455,7 +455,7 @@ module Zip
       unless (cdirSignature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
-      @time = Time.parseBinaryDosFormat(lastModDate, lastModTime)
+      setTime(lastModDate, lastModTime)
       
       @name                  = io.read(nameLength)
       @extra                 = io.read(extraLength)
@@ -542,6 +542,12 @@ module Zip
     private
     def getRawInputStream(&aProc)
       File.open(@zipfile, "rb", &aProc)
+    end
+
+    def setTime(binaryDosDate, binaryDosTime)
+      @time = Time.parseBinaryDosFormat(binaryDosDate, binaryDosTime)
+    rescue ArgumentError
+      puts "Invalid date/time in zip entry"
     end
   end
 
