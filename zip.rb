@@ -177,7 +177,7 @@ module Zip
 	break if inputFinished?
 	@outputBuffer << produceInput
       end
-      return nil if @outputBuffer.length==0 && inputFinished?
+      return valueWhenFinished if @outputBuffer.length==0 && inputFinished?
       endIndex= numberOfBytes==nil ? @outputBuffer.length : numberOfBytes
       return @outputBuffer.slice!(0...endIndex)
     end
@@ -189,6 +189,13 @@ module Zip
     # to be used with produceInput, not read (as read may still have more data cached)
     def inputFinished?
       @zlibInflater.finished?
+    end
+
+    private
+    def valueWhenFinished   # mimic behaviour of ruby File object.
+      return nil if @hasReturnedEmptyString
+      @hasReturnedEmptyString=true
+      return ""
     end
   end
   
@@ -249,7 +256,7 @@ module Zip
       :name, :size, :localHeaderOffset
     
     def initialize(name = "", comment = "", extra = "", compressedSize = 0,   
-		   crc = 0, compressionMethod = ZipEntry::STORED, size = 0)
+		   crc = 0, compressionMethod = ZipEntry::DEFLATED, size = 0)
       @comment, @compressedSize, @crc, @extra, @compressionMethod, 
 	@name, @size, @isDirectory = comment, compressedSize, crc, 
 	extra, compressionMethod, name, size
