@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-$: << ".."
+$: << "../lib"
 
 require 'rubyunit'
 require 'zip/ioextras'

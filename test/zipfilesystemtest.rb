@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-$: << ".."
+$: << "../lib"
 
 require 'zip/zipfilesystem'
 require 'rubyunit'
@@ -32,7 +32,7 @@ include Zip
 
 class ZipFsFileNonmutatingTest < RUNIT::TestCase
   def setup
-    @zipFile = ZipFile.new("zipWithDirs.zip")
+    @zipFile = ZipFile.new("data/zipWithDirs.zip")
   end
 
   def teardown
@@ -270,26 +270,26 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(! @zipFile.file.zero?("file1"))
     assert(@zipFile.file.zero?("dir1"))
     blockCalled = false
-    ZipFile.open("4entry.zip") {
+    ZipFile.open("data/generated/4entry.zip") {
       |zf|
       blockCalled = true
-      assert(zf.file.zero?("empty.txt"))
+      assert(zf.file.zero?("data/generated/empty.txt"))
     }
     assert(blockCalled)
 
     assert(! @zipFile.file.stat("file1").zero?)
     assert(@zipFile.file.stat("dir1").zero?)
     blockCalled = false
-    ZipFile.open("4entry.zip") {
+    ZipFile.open("data/generated/4entry.zip") {
       |zf|
       blockCalled = true
-      assert(zf.file.stat("empty.txt").zero?)
+      assert(zf.file.stat("data/generated/empty.txt").zero?)
     }
     assert(blockCalled)
   end
 
   def test_expand_path
-    ZipFile.open("zipWithDirs.zip") {
+    ZipFile.open("data/zipWithDirs.zip") {
       |zf|
       assert_equals("/", zf.file.expand_path("."))
       zf.dir.chdir "dir1"
@@ -426,13 +426,13 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_foreach
-    ZipFile.open("zipWithDir.zip") {
+    ZipFile.open("data/generated/zipWithDir.zip") {
       |zf|
       ref = []
-      File.foreach("file1.txt") { |e| ref << e }
+      File.foreach("data/file1.txt") { |e| ref << e }
       
       index = 0
-      zf.file.foreach("file1.txt") { 
+      zf.file.foreach("data/file1.txt") { 
 	|l|
 	assert_equals(ref[index], l)
 	index = index.next
@@ -440,13 +440,13 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
       assert_equals(ref.size, index)
     }
     
-    ZipFile.open("zipWithDir.zip") {
+    ZipFile.open("data/generated/zipWithDir.zip") {
       |zf|
       ref = []
-      File.foreach("file1.txt", " ") { |e| ref << e }
+      File.foreach("data/file1.txt", " ") { |e| ref << e }
       
       index = 0
-      zf.file.foreach("file1.txt", " ") { 
+      zf.file.foreach("data/file1.txt", " ") { 
 	|l|
 	assert_equals(ref[index], l)
 	index = index.next
@@ -466,18 +466,18 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 #  end
 
   def test_readlines
-    ZipFile.open("zipWithDir.zip") {
+    ZipFile.open("data/generated/zipWithDir.zip") {
       |zf|
-      assert_equals(File.readlines("file1.txt"), 
-		    zf.file.readlines("file1.txt"))
+      assert_equals(File.readlines("data/file1.txt"), 
+		    zf.file.readlines("data/file1.txt"))
     }
   end
 
   def test_read
-    ZipFile.open("zipWithDir.zip") {
+    ZipFile.open("data/generated/zipWithDir.zip") {
       |zf|
-      assert_equals(File.read("file1.txt"), 
-		    zf.file.read("file1.txt"))
+      assert_equals(File.read("data/file1.txt"), 
+		    zf.file.read("data/file1.txt"))
     }
   end
 
@@ -486,7 +486,7 @@ end
 class ZipFsFileStatTest < RUNIT::TestCase
 
   def setup
-    @zipFile = ZipFile.new("zipWithDirs.zip")
+    @zipFile = ZipFile.new("data/zipWithDirs.zip")
   end
 
   def teardown
@@ -550,7 +550,7 @@ end
 class ZipFsFileMutatingTest < RUNIT::TestCase
   TEST_ZIP = "zipWithDirs_copy.zip"
   def setup
-    File.copy("zipWithDirs.zip", TEST_ZIP)
+    File.copy("data/zipWithDirs.zip", TEST_ZIP)
   end
 
   def teardown
@@ -638,7 +638,7 @@ class ZipFsDirectoryTest < RUNIT::TestCase
   TEST_ZIP = "zipWithDirs_copy.zip"
 
   def setup
-    File.copy("zipWithDirs.zip", TEST_ZIP)
+    File.copy("data/zipWithDirs.zip", TEST_ZIP)
   end
 
   def test_delete

@@ -2,17 +2,17 @@
 
 $VERBOSE = true
 
-$: << ".."
+$: << "../lib"
 
 require 'rubyunit'
 require 'zip/ziprequire'
 
-$: << 'rubycode.zip' << 'rubycode2.zip'
+$: << 'data/rubycode.zip' << 'data/rubycode2.zip'
 
 class ZipRequireTest < RUNIT::TestCase
   def test_require
-    assert(require('notzippedruby'))
-    assert(!require('notzippedruby'))
+    assert(require('data/notzippedruby'))
+    assert(!require('data/notzippedruby'))
 
     assert(require('zippedruby1'))
     assert(!require('zippedruby1'))

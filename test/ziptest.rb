@@ -2,10 +2,11 @@
 
 $VERBOSE = true
 
-$: << ".."
+$: << "../lib"
 
 require 'rubyunit'
 require 'zip/zip'
+require 'gentestfiles'
 
 include Zip
 
@@ -197,7 +198,7 @@ class ZipLocalEntryTest < RUNIT::TestCase
   end
 
   def test_readDateTime
-    File.open("rubycode.zip", "rb") {
+    File.open("data/rubycode.zip", "rb") {
       |file|
       entry = ZipEntry.read_local_entry(file)
       assert_equals("zippedruby1.rb", entry.name)
@@ -206,7 +207,7 @@ class ZipLocalEntryTest < RUNIT::TestCase
   end
 
   def test_read_local_entryFromNonZipFile
-    File.open("file2.txt") {
+    File.open("data/file2.txt") {
       |file|
       assert_equals(nil, ZipEntry.read_local_entry(file))
     }
@@ -266,7 +267,7 @@ end
 module DecompressorTests
   # expects @refText, @refLines and @decompressor
 
-  TEST_FILE="file1.txt"
+  TEST_FILE="data/file1.txt"
 
   def setup
     @refText=""
@@ -305,7 +306,7 @@ class InflaterTest < RUNIT::TestCase
 
   def setup
     super
-    @file = File.new("file1.txt.deflatedData", "rb")
+    @file = File.new("data/file1.txt.deflatedData", "rb")
     @decompressor = Inflater.new(@file)
   end
 
@@ -465,145 +466,6 @@ class ZipInputStreamTest < RUNIT::TestCase
   
 end
 
-class TestFiles
-  RANDOM_ASCII_FILE1  = "randomAscii1.txt"
-  RANDOM_ASCII_FILE2  = "randomAscii2.txt"
-  RANDOM_ASCII_FILE3  = "randomAscii3.txt"
-  RANDOM_BINARY_FILE1 = "randomBinary1.bin"
-  RANDOM_BINARY_FILE2 = "randomBinary2.bin"
-
-  EMPTY_TEST_DIR      = "emptytestdir"
-
-  ASCII_TEST_FILES  = [ RANDOM_ASCII_FILE1, RANDOM_ASCII_FILE2, RANDOM_ASCII_FILE3 ] 
-  BINARY_TEST_FILES = [ RANDOM_BINARY_FILE1, RANDOM_BINARY_FILE2 ]
-  TEST_DIRECTORIES  = [ EMPTY_TEST_DIR ]
-  TEST_FILES        = [ ASCII_TEST_FILES, BINARY_TEST_FILES, EMPTY_TEST_DIR ].flatten!
-
-  def TestFiles.create_test_files(recreate)
-    if (recreate || 
-	! (TEST_FILES.inject(true) { |accum, element| accum && File.exists?(element) }))
-      
-      ASCII_TEST_FILES.each_with_index { 
-	|filename, index| 
-	create_random_ascii(filename, 1E4 * (index+1))
-      }
-      
-      BINARY_TEST_FILES.each_with_index { 
-	|filename, index| 
-	create_random_binary(filename, 1E4 * (index+1))
-      }
-
-      ensure_dir(EMPTY_TEST_DIR)
-    end
-  end
-
-  private
-  def TestFiles.create_random_ascii(filename, size)
-    File.open(filename, "wb") {
-      |file|
-      while (file.tell < size)
-	file << rand
-      end
-    }
-  end
-
-  def TestFiles.create_random_binary(filename, size)
-    File.open(filename, "wb") {
-      |file|
-      while (file.tell < size)
-	file << [rand].pack("V")
-      end
-    }
-  end
-
-  def TestFiles.ensure_dir(name) 
-    if File.exists?(name)
-      return if File.stat(name).directory?
-      File.delete(name)
-    end
-    Dir.mkdir(name)
-  end
-
-end
-
-# For representation and creation of
-# test data
-class TestZipFile
-  attr_accessor :zip_name, :entry_names, :comment
-
-  def initialize(zip_name, entry_names, comment = "")
-    @zip_name=zip_name
-    @entry_names=entry_names
-    @comment = comment
-  end
-
-  def TestZipFile.create_test_zips(recreate)
-    files = Dir.entries(".")
-    if (recreate || 
-	    ! (files.index(TEST_ZIP1.zip_name) &&
-	       files.index(TEST_ZIP2.zip_name) &&
-	       files.index(TEST_ZIP3.zip_name) &&
-	       files.index(TEST_ZIP4.zip_name) &&
-	       files.index("empty.txt")      &&
-	       files.index("short.txt")      &&
-	       files.index("longAscii.txt")  &&
-	       files.index("longBinary.bin") ))
-      raise "failed to create test zip '#{TEST_ZIP1.zip_name}'" unless 
-	system("zip #{TEST_ZIP1.zip_name} file2.txt")
-      raise "failed to remove entry from '#{TEST_ZIP1.zip_name}'" unless 
-	system("zip #{TEST_ZIP1.zip_name} -d file2.txt")
-      
-      File.open("empty.txt", "w") {}
-      
-      File.open("short.txt", "w") { |file| file << "ABCDEF" }
-      ziptestTxt=""
-      File.open("file2.txt") { |file| ziptestTxt=file.read }
-      File.open("longAscii.txt", "w") {
-	|file|
-	while (file.tell < 1E5)
-	  file << ziptestTxt
-	end
-      }
-      
-      testBinaryPattern=""
-      File.open("empty.zip") { |file| testBinaryPattern=file.read }
-      testBinaryPattern *= 4
-      
-      File.open("longBinary.bin", "wb") {
-	|file|
-	while (file.tell < 3E5)
-	  file << testBinaryPattern << rand
-	end
-      }
-      raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" unless 
-	system("zip #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}")
-
-      # without bash system interprets everything after echo as parameters to
-      # echo including | zip -z ...
-      raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" unless 
-	system("bash -c \"echo #{TEST_ZIP2.comment} | zip -z #{TEST_ZIP2.zip_name}\"")
-
-      raise "failed to create test zip '#{TEST_ZIP3.zip_name}'" unless 
-	system("zip #{TEST_ZIP3.zip_name} #{TEST_ZIP3.entry_names.join(' ')}")
-
-      raise "failed to create test zip '#{TEST_ZIP4.zip_name}'" unless 
-	system("zip #{TEST_ZIP4.zip_name} #{TEST_ZIP4.entry_names.join(' ')}")
-    end
-  rescue 
-    raise $!.to_s + 
-      "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" +
-      "to create test data. If you don't have it you can download\n"   +
-      "the necessary test files at http://sf.net/projects/rubyzip."
-  end
-
-  TEST_ZIP1 = TestZipFile.new("empty.zip", [])
-  TEST_ZIP2 = TestZipFile.new("4entry.zip", %w{ longAscii.txt empty.txt short.txt longBinary.bin}, 
-			      "my zip comment")
-  TEST_ZIP3 = TestZipFile.new("test1.zip", %w{ file1.txt })
-  TEST_ZIP4 = TestZipFile.new("zipWithDir.zip", [ "file1.txt", 
-				TestFiles::EMPTY_TEST_DIR])
-end
-
 
 module CrcTest
 
@@ -668,7 +530,7 @@ class DeflaterTest < RUNIT::TestCase
   include CrcTest
 
   def test_outputOperator
-    txt = load_file("file2.txt")
+    txt = load_file("data/file2.txt")
     deflate(txt, "deflatertest.bin")
     inflatedTxt = inflate("deflatertest.bin")
     assert_equals(txt, inflatedTxt)
@@ -781,7 +643,7 @@ end
 class ZipCentralDirectoryEntryTest < RUNIT::TestCase
 
   def test_read_from_stream
-    File.open("testDirectory.bin", "rb") {
+    File.open("data/testDirectory.bin", "rb") {
       |file|
       entry = ZipEntry.read_c_dir_entry(file)
       
@@ -840,7 +702,7 @@ class ZipCentralDirectoryEntryTest < RUNIT::TestCase
 
   def test_ReadEntryFromTruncatedZipFile
     fragment=""
-    File.open("testDirectory.bin") { |f| fragment = f.read(12) } # cdir entry header is at least 46 bytes
+    File.open("data/testDirectory.bin") { |f| fragment = f.read(12) } # cdir entry header is at least 46 bytes
     fragment.extend(IOizeString)
     entry = ZipEntry.new
     entry.read_c_dir_entry(fragment)
@@ -971,7 +833,7 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
   end
 
   def test_readFromInvalidStream
-    File.open("file2.txt", "rb") {
+    File.open("data/file2.txt", "rb") {
       |zipFile|
       cdir = ZipCentralDirectory.new
       cdir.read_from_stream(zipFile)
@@ -982,7 +844,7 @@ class ZipCentralDirectoryTest < RUNIT::TestCase
 
   def test_ReadFromTruncatedZipFile
     fragment=""
-    File.open("testDirectory.bin") { |f| fragment = f.read }
+    File.open("data/testDirectory.bin") { |f| fragment = f.read }
     fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
     fragment.extend(IOizeString)
     entry = ZipCentralDirectory.new
@@ -1141,12 +1003,12 @@ class ZipFileTest < CommonZipFileFixture
       assert_equals(entryCount+1, zf.size)
       assert_equals("Putting stuff in newEntry.txt", zf.read("newEntry.txt")) 
 
-      zf.get_output_stream(zf.get_entry('empty.txt')) {
+      zf.get_output_stream(zf.get_entry('data/generated/empty.txt')) {
         |os|
-        os.write "Putting stuff in empty.txt"
+        os.write "Putting stuff in data/generated/empty.txt"
       }
       assert_equals(entryCount+1, zf.size)
-      assert_equals("Putting stuff in empty.txt", zf.read("empty.txt")) 
+      assert_equals("Putting stuff in data/generated/empty.txt", zf.read("data/generated/empty.txt")) 
 
     }
     
@@ -1154,12 +1016,12 @@ class ZipFileTest < CommonZipFileFixture
       |zf|
       assert_equals(entryCount+1, zf.size)
       assert_equals("Putting stuff in newEntry.txt", zf.read("newEntry.txt")) 
-      assert_equals("Putting stuff in empty.txt", zf.read("empty.txt")) 
+      assert_equals("Putting stuff in data/generated/empty.txt", zf.read("data/generated/empty.txt")) 
     }
   end
 
   def test_add
-    srcFile   = "file2.txt"
+    srcFile   = "data/file2.txt"
     entryName = "newEntryName.rb" 
     assert(File.exists?(srcFile))
     zf = ZipFile.new(EMPTY_FILENAME, ZipFile::CREATE)
@@ -1178,7 +1040,7 @@ class ZipFileTest < CommonZipFileFixture
     assert_exception(ZipEntryExistsError) {
       ZipFile.open(TEST_ZIP.zip_name) {
 	|zf|
-	zf.add(zf.entries.first.name, "file2.txt")
+	zf.add(zf.entries.first.name, "data/file2.txt")
       }
     }
   end
@@ -1189,12 +1051,12 @@ class ZipFileTest < CommonZipFileFixture
     ZipFile.open(TEST_ZIP.zip_name) {
       |zf|
       replacedEntry = zf.entries.first.name
-      zf.add(replacedEntry, "file2.txt") { gotCalled = true; true }
+      zf.add(replacedEntry, "data/file2.txt") { gotCalled = true; true }
     }
     assert(gotCalled)
     ZipFile.open(TEST_ZIP.zip_name) {
       |zf|
-      assert_contains(zf, replacedEntry, "file2.txt")
+      assert_contains(zf, replacedEntry, "data/file2.txt")
     }
   end
 
@@ -1312,7 +1174,7 @@ class ZipFileTest < CommonZipFileFixture
 
   def test_replace
     entryToReplace = TEST_ZIP.entry_names[2]
-    newEntrySrcFilename = "file2.txt" 
+    newEntrySrcFilename = "data/file2.txt" 
     zf = ZipFile.new(TEST_ZIP.zip_name)
     zf.replace(entryToReplace, newEntrySrcFilename)
     
@@ -1334,7 +1196,7 @@ class ZipFileTest < CommonZipFileFixture
     ZipFile.open(TEST_ZIP.zip_name) {
       |zf|
       assert_exception(Errno::ENOENT) {
-	zf.replace(entryToReplace, "file2.txt")
+	zf.replace(entryToReplace, "data/file2.txt")
       }
     }
   end
@@ -1618,14 +1480,6 @@ class ZipStreamableFileTest < RUNIT::TestCase
     assert(zipStreamableFile1 != "hej")
   end
 end
-
-END {
-  TestFiles::create_test_files(ARGV.index("recreate") != nil || 
-			     ARGV.index("recreateonly") != nil)
-  TestZipFile::create_test_zips(ARGV.index("recreate") != nil || 
-			      ARGV.index("recreateonly") != nil)
-  exit if ARGV.index("recreateonly") != nil
-}
 
 class ZipExtraFieldTest < RUNIT::TestCase
   def test_new
