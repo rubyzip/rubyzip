@@ -128,8 +128,17 @@ class ZipFsFileTest < RUNIT::TestCase
     fail "implement test"
   end
 
+  def assertENOENT(operation, args = ["NoSuchFile"])
+    assert_exception(Errno::ENOENT) {
+      @zipFsFile.send(operation, *args)
+    }
+  end
+
   def test_ftype
-    fail "implement test"
+    assertENOENT(:ftype)
+    assert_equals("file", @zipFsFile.ftype("file1"))
+    assert_equals("directory", @zipFsFile.ftype("dir1/dir11"))
+    assert_equals("directory", @zipFsFile.ftype("dir1/dir11/"))
   end
 
   def test_grpowned?

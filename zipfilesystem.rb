@@ -76,5 +76,9 @@ class ZipFileSystem
     def split(fileName)
       ::File.split(fileName)
     end
+
+    def ftype(fileName)
+      @zipFile.getEntry(fileName).directory? ? "directory" : "file"
+    end
   end
 end
