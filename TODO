@@ -1,5 +1,3 @@
-write ZipFile.
-
 unit test writeFile (onExistsProc)
 unit test rename onExistsProc
 unit test yield on ZipFile::getInputStream
@@ -15,25 +13,25 @@ decompressing/compressing the data.
 release 0.4.0
 
 implement small gui app on top, to exercise library and to discover
-what features should be added to rubyzip. Use tk.
+what features should be added to rubyzip. Use Tk. (add as separate
+module in CVS)
 
 implement setting the date correctly in ZipEntry with now as default
 
+Add install.rb file
+
 release 0.4.1 with small gui demo app and fixes
+
+unit test compressing and extracting with file permissions (and implement)
 
 Refactor ZipFileTest to reduce duplicated code, divide into different
 test classes if different fixtures are required and use setup/teardown
 some more.
 
-run with -w switch
-
-Add install.rb file
 
 move test files into test/ (remember binary CVS tags, when moving)
 
-release 0.4.1
-
-Write Tk or FOX zip demo application (add as separate module in CVS)
+release 0.4.2
 
 Write scarf-like
 (http://www.pragmaticprogrammer.com/ruby/downloads/scarf.html) ruby
