@@ -65,6 +65,7 @@ class AbstractInputStreamTest < RUNIT::TestCase
   class TestAbstractInputStream 
     include AbstractInputStream
     def initialize(aString)
+      super()
       @contents = aString
       @readPointer = 0
     end
@@ -90,9 +91,13 @@ class AbstractInputStreamTest < RUNIT::TestCase
   
   def test_gets
     assert_equals(TEST_LINES[0], @io.gets)
+    assert_equals(1, @io.lineno)
     assert_equals(TEST_LINES[1], @io.gets)
+    assert_equals(2, @io.lineno)
     assert_equals(TEST_LINES[2], @io.gets)
+    assert_equals(3, @io.lineno)
     assert_equals(nil, @io.gets)
+    assert_equals(4, @io.lineno)
   end
 
   def test_getsMultiCharSeperator
@@ -528,6 +533,33 @@ class ZipInputStreamTest < RUNIT::TestCase
       entry = zis.getNextEntry
       assert_equals(TestZipFile::TEST_ZIP2.entryNames[3], entry.name)
       assert zis.gets.length > 0
+    }
+  end
+
+  def test_rewind
+    ZipInputStream.open(TestZipFile::TEST_ZIP2.zipName) {
+      |zis|
+      e = zis.getNextEntry
+      assert_equals(TestZipFile::TEST_ZIP2.entryNames[0], e.name)
+
+      # Do a little reading
+      buf = ""
+      buf << zis.read(100)
+      buf << (zis.gets || "")
+      buf << (zis.gets || "")
+
+      zis.rewind
+
+      buf2 = ""
+      buf2 << zis.read(100)
+      buf2 << (zis.gets || "")
+      buf2 << (zis.gets || "")
+
+      assert_equals(buf, buf2)
+
+      zis.rewind
+
+      assertEntry(e.name, zis, e.name)
     }
   end
   

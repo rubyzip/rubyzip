@@ -97,6 +97,14 @@ module Zip
     include Enumerable
     include FakeIO
 
+    def initialize
+      super
+      @lineno = 0
+      @outputBuffer = ""
+    end
+
+    attr_accessor :lineno
+
     def readlines(aSepString = $/)
       retVal = []
       each_line(aSepString) { |line| retVal << line }
@@ -104,7 +112,7 @@ module Zip
     end
     
     def gets(aSepString=$/)
-      @outputBuffer ||= ""
+      @lineno = @lineno.next
       return read if aSepString == nil
       aSepString="#{$/}#{$/}" if aSepString == ""
       
@@ -112,7 +120,7 @@ module Zip
       while ((matchIndex = @outputBuffer.index(aSepString, bufferIndex)) == nil)
 	bufferIndex=@outputBuffer.length
 	if inputFinished?
-	  return @outputBuffer.length==0 ? nil : flush 
+	  return @outputBuffer.empty? ? nil : flush 
 	end
 	@outputBuffer << produceInput
       end
@@ -188,6 +196,7 @@ module Zip
     include AbstractInputStream
 
     def initialize(filename, offset = 0)
+      super()
       @archiveIO = File.open(filename, "rb")
       @archiveIO.seek(offset, IO::SEEK_SET)
       @decompressor = NullDecompressor.instance
@@ -210,7 +219,17 @@ module Zip
     def getNextEntry
       @archiveIO.seek(@currentEntry.nextHeaderOffset, 
 		      IO::SEEK_SET) if @currentEntry
-      
+      openEntry
+    end
+
+    def rewind
+      return if @currentEntry.nil?
+      @archiveIO.seek(@currentEntry.localHeaderOffset, 
+		      IO::SEEK_SET)
+      openEntry
+    end
+
+    def openEntry
       @currentEntry = ZipEntry.readLocalEntry(@archiveIO)
       if (@currentEntry == nil) 
 	@decompressor = NullDecompressor.instance
@@ -226,7 +245,7 @@ module Zip
       flush
       return @currentEntry
     end
-    
+
     def read(numberOfBytes = nil)
       @decompressor.read(numberOfBytes)
     end
@@ -245,6 +264,7 @@ module Zip
   class Decompressor  #:nodoc:all
     CHUNK_SIZE=32768
     def initialize(inputStream)
+      super()
       @inputStream=inputStream
     end
   end
@@ -349,6 +369,7 @@ module Zip
 		   compressedSize = 0, crc = 0, 
 		   compressionMethod = ZipEntry::DEFLATED, size = 0,
 		   time  = Time.now)
+      super()
       if name.startsWith("/")
 	raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
       end
@@ -605,6 +626,7 @@ module Zip
     attr_accessor :comment
 
     def initialize(fileName)
+      super()
       @fileName = fileName
       @outputStream = File.new(@fileName, "wb")
       @entrySet = ZipEntrySet.new
@@ -701,6 +723,7 @@ module Zip
   
   class PassThruCompressor < Compressor #:nodoc:all
     def initialize(outputStream)
+      super()
       @outputStream = outputStream
       @crc = Zlib::crc32
       @size = 0
@@ -728,6 +751,7 @@ module Zip
 
   class Deflater < Compressor #:nodoc:all
     def initialize(outputStream, level = Zlib::DEFAULT_COMPRESSION)
+      super()
       @outputStream = outputStream
       @zlibDeflater = Zlib::Deflate.new(level, -Zlib::Deflate::MAX_WBITS)
       @size = 0
@@ -755,6 +779,7 @@ module Zip
     include Enumerable
     
     def initialize(anEnumerable = [])
+      super()
       @entrySet = {}
       anEnumerable.each { |o| push(o) }
     end
@@ -819,6 +844,7 @@ module Zip
     end
 
     def initialize(entries = ZipEntrySet.new, comment = "")
+      super()
       @entrySet = entries.kind_of?(ZipEntrySet) ? entries : ZipEntrySet.new(entries)
       @comment = comment
     end
@@ -927,6 +953,7 @@ module Zip
     attr_reader :name
 
     def initialize(fileName, create = nil)
+      super()
       @name = fileName
       @comment = ""
       if (File.exists?(fileName))
