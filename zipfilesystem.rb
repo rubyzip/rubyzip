@@ -39,7 +39,7 @@ module Zip
         forward_message :forward_invoke, :setuid?, :setgid?
         forward_message :forward_invoke, :zero?
         forward_message :forward_invoke, :size, :size?
-        forward_message :forward_invoke, :mtime
+        forward_message :forward_invoke, :mtime, :atime, :ctime
         
         def blocks; nil; end
 
@@ -177,10 +177,24 @@ module Zip
 	::File.join(*fragments)
       end
       
+      def utime(accessTime, *fileNames)
+        raise StandardError, "utime not supported"
+      end
+
       def mtime(fileName)
 	@zipFile.get_entry(fileName).mtime
       end
       
+      def atime(fileName)
+        @zipFile.get_entry(fileName)
+        nil
+      end
+      
+      def ctime(fileName)
+        @zipFile.get_entry(fileName)
+        nil
+      end
+
       def pipe?(filename)
 	false
       end

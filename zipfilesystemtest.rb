@@ -21,10 +21,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     @zipFile.file.umask(0006)
   end
 
-  def test_atime
-    fail "implement test"
-  end
-
   def test_exists?
     assert(! @zipFile.file.exists?("notAFile"))
     assert(@zipFile.file.exists?("file1"))
@@ -143,7 +139,9 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_utime
-    fail "implement test"
+    assert_exception(StandardError, "utime not supported") {
+      @zipFile.file.utime(100, "file1", "dir1")
+    }
   end
 
 
@@ -208,11 +206,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     }
   end
 
-  def test_ctime
-    fail "implement test"
-  end
-
-
   def test_directory?
     assert(! @zipFile.file.directory?("notAFile"))
     assert(! @zipFile.file.directory?("file1"))
@@ -275,6 +268,15 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 		  @zipFile.file.stat("dir2/dir21").mtime)
   end
 
+  def test_ctime
+    assert_nil(@zipFile.file.ctime("file1"))
+    assert_nil(@zipFile.file.stat("file1").ctime)
+  end
+
+  def test_atime
+    assert_nil(@zipFile.file.atime("file1"))
+    assert_nil(@zipFile.file.stat("file1").atime)
+  end
 
   def test_readable?
     assert_true_if_entry_exists(:readable?)
