@@ -1,5 +1,4 @@
 
-unit test and implement directory extract
 unit test and implement adding directories recursively
 unit test and implement  ZipFile.checkIntegrity method
 unit test and implement recursive extract
@@ -9,10 +8,7 @@ performance improve method
 ZipStreamableZipEntry.writeToZipOutputStream by not
 decompressing/compressing the data.
 
-RDoc main files (short, must not get in the way in the source)
-Put rdoc on website
-
-release 0.4.0
+release 0.4.1
 
 implement small gui app on top, to exercise library and to discover
 what features should be added to rubyzip. Use Tk. (add as separate
@@ -24,7 +20,7 @@ implement storing attributes and ownership information
 
 Add install.rb file
 
-release 0.4.1 with small gui demo app and fixes
+release 0.4.2 with small gui demo app and fixes
 
 unit test compressing and extracting with file permissions (and implement)
 
@@ -35,7 +31,7 @@ some more.
 
 move test files into test/ (remember binary CVS tags, when moving)
 
-release 0.4.2
+release 0.4.3
 
 Write scarf-like
 (http://www.pragmaticprogrammer.com/ruby/downloads/scarf.html) ruby

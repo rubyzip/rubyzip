@@ -1,9 +1,9 @@
 = Version 0.4.0 =
 
 ZipFile is now mutable and provides a more convenient way of modifying
-zip archives than ZipOutputStream. Operations such as adding,
-extracting, renaming, replacing and removing entries to zip archives
-are available.
+zip archives than ZipOutputStream. Operations for adding, extracting,
+renaming, replacing and removing entries to zip archives are now
+available.
 
 Runs without warnings with -w switch.
 
@@ -12,10 +12,12 @@ Runs without warnings with -w switch.
 
 Rudimentary support for writing zip archives.
 
+
 = Version 0.2.2 =
 
 Fixed and extended unit test suite. Updated to work with ruby/zlib
 0.5. It doesn't work with earlier versions of ruby/zlib.
+
 
 = Version 0.2.0 =
 
@@ -23,6 +25,7 @@ Class ZipFile added. Where ZipInputStream is used to read the
 individual entries in a zip file, ZipFile reads the central directory
 in the zip archive, so you can get to any entry in the zip archive
 without having to skipping through all the preceeding entries.
+
 
 = Version 0.1.0 =
 
