@@ -2,7 +2,6 @@
 
 $VERBOSE = true
 
-#require 'filearchivetest'
 require 'ziptest'
 require 'zipfilesystemtest'
 require 'ziprequiretest'

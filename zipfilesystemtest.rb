@@ -17,7 +17,8 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_umask
-    fail "implement test"
+    assert_equals(File.umask, @zipFile.file.umask)
+    @zipFile.file.umask(0006)
   end
 
   def test_atime
@@ -89,12 +90,18 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert_exception(Errno::ENOENT) { @zipFile.file.size("notAFile") }
     assert_equals(72, @zipFile.file.size("file1"))
     assert_equals(0, @zipFile.file.size("dir2/dir21"))
+
+    assert_equals(72, @zipFile.file.stat("file1").size)
+    assert_equals(0, @zipFile.file.stat("dir2/dir21").size)
   end
 
   def test_size?
     assert_equals(nil, @zipFile.file.size?("notAFile"))
     assert_equals(72, @zipFile.file.size?("file1"))
     assert_equals(nil, @zipFile.file.size?("dir2/dir21"))
+
+    assert_equals(72, @zipFile.file.stat("file1").size?)
+    assert_equals(nil, @zipFile.file.stat("dir2/dir21").size?)
   end
 
 
@@ -144,7 +151,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(! @zipFile.file.send(operation, "noSuchFile"))
     assert(! @zipFile.file.send(operation, "file1"))
     assert(! @zipFile.file.send(operation, "dir1"))
-    assert(! @zipFile.file.stat("noSuchFile").send(operation))
     assert(! @zipFile.file.stat("file1").send(operation))
     assert(! @zipFile.file.stat("dir1").send(operation))
   end
@@ -153,7 +159,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(! @zipFile.file.send(operation, "noSuchFile"))
     assert(@zipFile.file.send(operation, "file1"))
     assert(@zipFile.file.send(operation, "dir1"))
-    assert(! @zipFile.file.stat("noSuchFile").send(operation))
     assert(@zipFile.file.stat("file1").send(operation))
     assert(@zipFile.file.stat("dir1").send(operation))
   end
@@ -179,11 +184,9 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_truncate
-    fail "implement test"
-  end
-
-  def test_rename
-    fail "implement test"
+    assert_exception(StandardError, "truncate not supported") {
+      @zipFile.file.truncate("file1", 100)
+    }
   end
 
   def assertENOENT(operation, args = ["NoSuchFile"])
@@ -209,10 +212,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     fail "implement test"
   end
 
-  def test_lstat
-    fail "implement test"
-  end
-
 
   def test_directory?
     assert(! @zipFile.file.directory?("notAFile"))
@@ -222,7 +221,6 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert(@zipFile.file.directory?("dir1/"))
     assert(@zipFile.file.directory?("dir2/dir21"))
 
-    assert(! @zipFile.file.stat("notAFile").directory?)
     assert(! @zipFile.file.stat("file1").directory?)
     assert(! @zipFile.file.stat("dir1/file11").directory?)
     assert(@zipFile.file.stat("dir1").directory?)
@@ -231,7 +229,7 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_chown
-    fail "implement test"
+    assert_equals(2, @zipFile.file.chown(1,2, "noSuchFile", "file1"))
   end
 
   def test_zero?
@@ -243,6 +241,16 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
       |zf|
       blockCalled = true
       assert(zf.file.zero?("empty.txt"))
+    }
+    assert(blockCalled)
+
+    assert(! @zipFile.file.stat("file1").zero?)
+    assert(@zipFile.file.stat("dir1").zero?)
+    blockCalled = false
+    ZipFile.open("4entry.zip") {
+      |zf|
+      blockCalled = true
+      assert(zf.file.stat("empty.txt").zero?)
     }
     assert(blockCalled)
   end
@@ -260,6 +268,11 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
     assert_exception(Errno::ENOENT) {
       @zipFile.file.mtime("noSuchEntry")
     }
+
+    assert_equals(Time.local(2002, "Jul", 26, 16, 38, 26),
+		  @zipFile.file.stat("dir2/file21").mtime)
+    assert_equals(Time.local(2002, "Jul", 26, 15, 41, 04),
+		  @zipFile.file.stat("dir2/dir21").mtime)
   end
 
 
@@ -314,11 +327,23 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
   end
 
   def test_stat
-    fail "implement test"
+    s = @zipFile.file.stat("file1")
+    assert(s.kind_of?(File::Stat)) # It pretends
+    assert_exception(Errno::ENOENT, "No such file or directory - noSuchFile") {
+      @zipFile.file.stat("noSuchFile")
+    }
   end
 
+  def test_lstat
+    assert(@zipFile.file.lstat("file1").file?)
+  end
+
+
   def test_chmod
-    fail "implement test"
+    assert_exception(Errno::ENOENT, "No such file or directory - noSuchFile") {
+      @zipFile.file.chmod(0644, "file1", "NoSuchFile")
+    }
+    assert_equals(2, @zipFile.file.chmod(0644, "file1", "dir1"))
   end
 
   def test_pipe
@@ -376,82 +401,63 @@ class ZipFsFileNonmutatingTest < RUNIT::TestCase
 
 end
 
-class ZipFsFileStatTest #< RUNIT::TestCase
+class ZipFsFileStatTest < RUNIT::TestCase
+
+  def setup
+    @zipFile = ZipFile.new("zipWithDirs.zip")
+  end
+
+  def teardown
+    @zipFile.close if @zipFile
+  end
 
   def test_blocks
-    fail "Implement test"
+    assert_equals(nil, @zipFile.file.stat("file1").blocks)
   end
 
   def test_ino
-    fail "Implement test"
+    assert_equals(0, @zipFile.file.stat("file1").ino)
+  end
+
+  def test_uid
+    assert_equals(0, @zipFile.file.stat("file1").uid)
+  end
+
+  def test_gid
+    assert_equals(0, @zipFile.file.stat("file1").gid)
   end
 
   def test_ftype
-    fail "Implement test"
-  end
-
-  def test_rdev
-    fail "Implement test"
-  end
-
-  def test_to_s
-    fail "Implement test"
+    assert_equals("file", @zipFile.file.stat("file1").ftype)
+    assert_equals("directory", @zipFile.file.stat("dir1").ftype)
   end
 
   def test_mode
     fail "Implement test"
   end
 
+  def test_dev
+    assert_equals(0, @zipFile.file.stat("file1").dev)
+  end
+
+  def test_rdev
+    assert_equals(0, @zipFile.file.stat("file1").rdev)
+  end
+
   def test_rdev_major
-    fail "Implement test"
-  end
-
-  def test_atime
-    fail "Implement test"
-  end
-
-  def test_size?
-    fail "Implement test"
-  end
-
-  def test_nlink
-    fail "Implement test"
-  end
-
-  def test_mtime
-    fail "Implement test"
+    assert_equals(0, @zipFile.file.stat("file1").rdev_major)
   end
 
   def test_rdev_minor
-    fail "Implement test"
+    assert_equals(0, @zipFile.file.stat("file1").rdev_minor)
   end
 
-  def test_uid
-    fail "Implement test"
+  def test_nlink
+    assert_equals(1, @zipFile.file.stat("file1").nlink)
   end
 
   def test_blksize
-    fail "Implement test"
-  end
-
-  def test_ctime
-    fail "Implement test"
-  end
-
-  def test_zero?
-    fail "Implement test"
-  end
-
-  def test_size
-    fail "Implement test"
-  end
-
-  def test_dev
-    fail "Implement test"
-  end
-
-  def test_gid
-    fail "Implement test"
+    assert_nil(@zipFile.file.stat("file1").blksize)
   end
 
 end
@@ -471,6 +477,22 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
 
   def test_unlink
     doTest_deleteOrUnlink(:unlink)
+  end
+
+  def test_rename
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert_exception(Errno::ENOENT, "") { 
+        zf.file.rename("NoSuchFile", "bimse")
+      }
+      zf.file.rename("file1", "newNameForFile1")
+    }
+
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert(! zf.file.exists?("file1"))
+      assert(zf.file.exists?("newNameForFile1"))
+    }
   end
 
   def doTest_deleteOrUnlink(symbol)

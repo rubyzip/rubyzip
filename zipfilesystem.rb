@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'zip'
-require 'filearchive'
 
 module Zip
   module ZipFileSystem
@@ -27,6 +26,10 @@ module Zip
           @zipFsFile.send(msg, @entryName)
         end
 
+        def kind_of?(t)
+          super || t == File::Stat 
+        end
+        
         forwardMessage :forwardInvoke, :file?, :directory?, :pipe?, :chardev?
         forwardMessage :forwardInvoke, :symlink?, :socket?, :blockdev?
         forwardMessage :forwardInvoke, :readable?, :readable_real?
@@ -34,7 +37,39 @@ module Zip
         forwardMessage :forwardInvoke, :executable?, :executable_real?
         forwardMessage :forwardInvoke, :sticky?, :owned?, :grpowned?
         forwardMessage :forwardInvoke, :setuid?, :setgid?
+        forwardMessage :forwardInvoke, :zero?
+        forwardMessage :forwardInvoke, :size, :size?
+        forwardMessage :forwardInvoke, :mtime
+        
+        def blocks; nil; end
 
+        def gid; 0; end
+
+        def uid; 0; end
+
+        def ino; 0; end
+
+        def dev; 0; end
+
+        def rdev; 0; end
+
+        def rdev_major; 0; end
+
+        def rdev_minor; 0; end
+
+        def ftype
+          if file?
+            return "file"
+          elsif directory?
+            return "directory"
+          else
+            raise StandardError, "Unknown file type"
+          end
+        end
+
+        def nlink; 1; end
+        
+        def blksize; nil; end
       end
 
       def initialize(zipFile)
@@ -68,6 +103,14 @@ module Zip
         false
       end
 
+      def umask(*args)
+        File.umask(*args)
+      end
+
+      def truncate(fileName, len)
+        raise StandardError, "truncate not supported"
+      end
+
       def directory?(fileName)
 	entry = @zipFile.findEntry(fileName)
 	entry != nil && entry.directory?
@@ -92,6 +135,20 @@ module Zip
 	return (entry == nil || entry.directory?) ? nil : entry.size
       end
       
+      def chown(ownerInt, groupInt, *filenames) 
+        filenames.size
+      end
+
+      def chmod (modeInt, *filenames)
+        filenames.each { 
+          |elem|
+          if ! exists?(elem)
+            raise Errno::ENOENT, "No such file or directory - #{elem}"
+          end
+        }
+        filenames.size
+      end
+
       def zero?(fileName)
 	sz = size(fileName)
 	sz == nil || sz == 0
@@ -165,8 +222,13 @@ module Zip
       end
 
       def stat(fileName)
+        if ! exists?(fileName)
+          raise Errno::ENOENT, "No such file or directory - #{fileName}"
+        end
         ZipFsStat.new(self, fileName)
       end
+
+      alias lstat stat
 
       def readlines(fileName)
 	open(fileName) { |is| is.readlines }
@@ -188,6 +250,10 @@ module Zip
 	  end
 	  @zipFile.remove(fileName) 
 	}
+      end
+
+      def rename(fileToRename, newName)
+        @zipFile.rename(fileToRename, newName) { true }
       end
 
       alias :unlink :delete
