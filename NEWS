@@ -1,3 +1,7 @@
+= Version 0.5.1 =
+
+fixed ZipFile.get_output_stream bug.
+
 = Version 0.5.0 =
 
 List of changes:

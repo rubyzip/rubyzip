@@ -1206,6 +1206,7 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
+      aZipOutputStream << get_input_stream { |is| is.read }
     end
   end
 
