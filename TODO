@@ -23,9 +23,6 @@ Refactor ZipFileTest to reduce duplicated code, divide into different
 test classes if different fixtures are required and use setup/teardown
 some more.
 
-
-move test files into test/ (remember binary CVS tags, when moving)
-
 make release
 
 Write scarf-like
