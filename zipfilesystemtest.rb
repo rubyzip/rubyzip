@@ -235,6 +235,7 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_expand_path
+    # Cannot implement before we have a concept of current dir for zip filesystem
     fail "implement test"
   end
 
@@ -257,7 +258,9 @@ class ZipFsFileTest < RUNIT::TestCase
   end
 
   def test_readlink
-    fail "implement test"
+    assert_exception(NotImplementedError) {
+      @zipFsFile.readlink("someString")
+    }
   end
 
   def test_stat
