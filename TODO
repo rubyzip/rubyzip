@@ -1,12 +1,11 @@
-unit test writeFile (onExistsProc)
+define finer grained exceptions
+unit test adding entry that already exists (and fix)
 unit test rename onExistsProc
 unit test yield on ZipFile::getInputStream
 unit test adding directories (and implement)
 unit test adding directories recursively (and implement)
 unit test ZipFile.checkIntegrity method (and implement)
 unit test and implement recursive extract (and implement)
-
-define finer grained exceptions
 
 performance improve method
 ZipStreamableZipEntry.writeToZipOutputStream by not
