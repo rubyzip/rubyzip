@@ -7,11 +7,6 @@ require 'zip'
 
 include Zip
 
-module RUNIT
-  class TestCaseDummy
-  end
-end
-
 class AbstractInputStreamTest < RUNIT::TestCase
   # AbstractInputStream subclass that provides a read method
   
