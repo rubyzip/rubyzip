@@ -384,6 +384,16 @@ class ZipFsFileMutatingTest < RUNIT::TestCase
       assert_exception(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11") }
       assert_exception(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11/") }
     }
+
+    ZipFile.open(TEST_ZIP) {
+      |zf|
+      assert(! zf.file.exists?("dir2/dir21/dir221/file2221"))
+      assert(! zf.file.exists?("dir1/file11"))
+      assert(! zf.file.exists?("dir1/file12"))
+
+      assert(zf.file.exists?("dir1/dir11"))
+      assert(zf.file.exists?("dir1/dir11/"))
+    }
   end
 
 end
