@@ -9,7 +9,25 @@ require 'rake/gempackagetask'
 PKG_NAME = 'rubyzip'
 PKG_VERSION = '0.5.7'
 
-CLOBBER.add File.readlines('test/.cvsignore').map { |f| 'test/'+f }
+PKG_FILES = FileList.new
+
+PKG_FILES.add %w{ README NEWS TODO install.rb Rakefile }
+PKG_FILES.add %w{ samples/*.rb }
+PKG_FILES.add %w{ test/*.rb }
+PKG_FILES.add %w{ test/data/* }
+PKG_FILES.exclude "test/data/generated"
+PKG_FILES.add %w{ lib/**/*.rb }
+
+def clobberFromCvsIgnore(path)
+  CLOBBER.add File.readlines(path+'/.cvsignore').map { 
+    |f| File.join(path, f.chomp) 
+  }
+end
+
+clobberFromCvsIgnore '.'
+clobberFromCvsIgnore 'samples'
+clobberFromCvsIgnore 'test'
+clobberFromCvsIgnore 'test/data'
 
 task :default => [:test]
 
@@ -29,7 +47,7 @@ spec = Gem::Specification.new do |s|
   s.homepage = "http://rubyzip.sourceforge.net/"
   s.platform = Gem::Platform::RUBY
   s.summary = "rubyzip is a ruby module for reading and writing zip files"
-  s.files = Dir.glob("{samples,lib,test,docs}/**/*").delete_if {|item| item.include?("CVS") || item.include?("rdoc") || item =~ /~$/ }
+  s.files = PKG_FILES.to_a #Dir.glob("{samples,lib,test,docs}/**/*").delete_if {|item| item.include?("CVS") || item.include?("rdoc") || item =~ /~$/ }
   s.require_path = 'lib'
   s.autorequire = 'zip/zip'
 end
@@ -38,3 +56,4 @@ Rake::GemPackageTask.new(spec) do |pkg|
   pkg.need_zip = true
   pkg.need_tar = true
 end
+

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$: << ".."
+$: << "../lib"
 
 require 'zip/zip'
 

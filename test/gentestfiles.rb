@@ -20,7 +20,7 @@ class TestFiles
     if (recreate || 
 	! (TEST_FILES.inject(true) { |accum, element| accum && File.exists?(element) }))
       
-      Dir.mkdir "data/generated"
+      Dir.mkdir "data/generated" rescue Errno::EEXIST
 
       ASCII_TEST_FILES.each_with_index { 
 	|filename, index| 
