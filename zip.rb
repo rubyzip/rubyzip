@@ -768,7 +768,7 @@ module Zip
 #    def open(fileName); end
     def add(entry, srcPath)
       is = toIO(srcPatch)
-      entries << 
+      # not done
     end
 
     def remove(entry); end
