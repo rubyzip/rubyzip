@@ -550,11 +550,13 @@ module Zip
 
     def write_to_zip_output_stream(aZipOutputStream)  #:nodoc:all
       aZipOutputStream.put_next_entry(self.dup)
-      aZipOutputStream << get_raw_input_stream { 
-	|is| 
-	is.seek(local_entry_offset, IO::SEEK_SET)
-	is.read(compressed_size)
-      }
+      aZipOutputStream << get_input_stream { |is| is.read }
+#      aZipOutputStream.put_next_entry(self.dup)
+#      aZipOutputStream << get_raw_input_stream { 
+#	|is| 
+#	is.seek(local_entry_offset, IO::SEEK_SET)
+#	is.read(compressed_size)
+#      }
     end
 
     def parent_as_string
