@@ -63,7 +63,7 @@ module Glob
     end
 
     def self.filename(aFilePath)
-      aFilePath.to_s.slice(Regexp.new("#{NOT_PATH_SEPARATOR}*$"))
+      aFilePath.to_s.slice(Regexp.new("#{GlobPattern::NOT_PATH_SEPARATOR}*$"))
     end
   end
   
@@ -104,7 +104,8 @@ module FileArchive
 
   # src can be String, ZipEntry or Enumerable of either
   def extract(src, dst, recursive = RECURSIVE, 
-	      continueOnExistsProc = proc { false }, createDestDirectoryProc = proc { false } )
+	      continueOnExistsProc = proc { false }, 
+	      createDestDirectoryProc = proc { true } )
     selectedEntries = selectEntries(src)
     case (selectedEntries.size)
     when 0
@@ -118,18 +119,18 @@ module FileArchive
 
   def extractMultiple(srcList, dst, continueOnExistsProc, createDestDirectoryProc)
     FileArchive.ensureDirectory(dst, &createDestDirectoryProc)
-    srcList.each { |srcFilename| extractSingle(srcFilename) }
+    srcList.each { |srcFilename| extractSingle(srcFilename, dst, continueOnExistsProc) }
   end
   private :extractMultiple
 
   def extractSingle(src, dst, continueOnExistsProc)
-    extractEntry(src, destinationFileName(dst), &continueOnExistsProc)
+    extractEntry(src, destinationFilename(src, dst), &continueOnExistsProc)
   end
   private :extractSingle
 
   def destinationFilename(sourceFilePath, destinationPath)
     if File.directory?(destinationPath)
-      return destinationPath + File::SEPARATOR + FilePath.filename(sourceFilePath)
+      return destinationPath + File::SEPARATOR + Glob::FilePath.filename(sourceFilePath)
     else
       return sourceFilePath
     end
@@ -151,9 +152,9 @@ puts "selectEntries should have unit test"
   # If filepath doesn't exist create if createDirectoryProc
   def self.ensureDirectory(filepath, &createDirectoryProc)
 puts "ensureDirectory should have unit test"
-    if File.exists(filepath) && File.directory?(filepath)
+    if File.exists?(filepath) && File.directory?(filepath)
       return
-    elsif File.exists(filepath) && ! File.directory?(filepath)
+    elsif File.exists?(filepath) && ! File.directory?(filepath)
       raise Errno::EEXIST, 
 	"Could not create directory '#{filepath}' - a file already exists with that name"
     elsif createDirectoryProc.call
