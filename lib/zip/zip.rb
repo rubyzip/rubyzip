@@ -19,6 +19,8 @@ end
 
 module Zip
 
+  CHUNK_SIZE=32768
+
   VERSION = '0.5.8'
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
@@ -155,7 +157,6 @@ module Zip
   
   
   class Decompressor  #:nodoc:all
-    CHUNK_SIZE=32768
     def initialize(inputStream)
       super()
       @inputStream=inputStream
@@ -1278,7 +1279,10 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
-      aZipOutputStream << get_input_stream { |is| is.read }
+      get_input_stream { 
+	|is| 
+	aZipOutputStream.write(is.read(CHUNK_SIZE)) until is.eof? 
+      }
     end
 
     def == (other)
@@ -1342,7 +1346,10 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
-      aZipOutputStream << get_input_stream { |is| is.read }
+      get_input_stream { 
+	|is| 
+	aZipOutputStream.write(is.read(CHUNK_SIZE)) until is.eof? 
+      }
     end
   end
 
