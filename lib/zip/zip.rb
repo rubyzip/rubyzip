@@ -19,11 +19,11 @@ end
 
 module Zip
 
-  CHUNK_SIZE=32768
-
   VERSION = '0.5.8'
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
+
+  CHUNK_SIZE=32768
 
   # Ruby 1.7.x compatibility
   # In ruby 1.6.x and 1.8.0 reading from an empty stream returns 
@@ -1279,10 +1279,7 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
-      get_input_stream { 
-	|is| 
-	aZipOutputStream.write(is.read(CHUNK_SIZE)) until is.eof? 
-      }
+      get_input_stream { |is| copy_stream(aZipOutputStream, is) } 
     end
 
     def == (other)
@@ -1346,10 +1343,7 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
-      get_input_stream { 
-	|is| 
-	aZipOutputStream.write(is.read(CHUNK_SIZE)) until is.eof? 
-      }
+      get_input_stream { |is| copy_stream(aZipOutputStream, is) } 
     end
   end
 

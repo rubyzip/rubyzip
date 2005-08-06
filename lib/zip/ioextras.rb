@@ -1,5 +1,13 @@
 module IOExtras  #:nodoc:
 
+  CHUNK_SIZE = 32768
+
+  def copy_stream(ostream, istream)
+    s = ''
+    ostream.write(istream.read(CHUNK_SIZE, s)) until istream.eof? 
+  end
+
+
   # Implements kind_of? in order to pretend to be an IO object
   module FakeIO
     def kind_of?(object)
