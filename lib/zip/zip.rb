@@ -23,8 +23,6 @@ module Zip
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
-  CHUNK_SIZE=32768
-
   # Ruby 1.7.x compatibility
   # In ruby 1.6.x and 1.8.0 reading from an empty stream returns 
   # an empty string the first time and then nil.
@@ -157,6 +155,7 @@ module Zip
   
   
   class Decompressor  #:nodoc:all
+    CHUNK_SIZE=32768
     def initialize(inputStream)
       super()
       @inputStream=inputStream
