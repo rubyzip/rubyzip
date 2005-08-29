@@ -1278,7 +1278,7 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
-      get_input_stream { |is| IOExtras::copy_stream(aZipOutputStream, is) } 
+      get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) } 
     end
 
     def == (other)
@@ -1342,7 +1342,7 @@ module Zip
     
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
-      get_input_stream { |is| IOExtras::copy_stream(aZipOutputStream, is) } 
+      get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) } 
     end
   end
 
