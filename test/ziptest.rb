@@ -276,12 +276,12 @@ module DecompressorTests
   end
 
   def test_readEverything
-    assert_equal(@refText, @decompressor.read)
+    assert_equal(@refText, @decompressor.sysread)
   end
     
   def test_readInChunks
     chunkSize = 5
-    while (decompressedChunk = @decompressor.read(chunkSize))
+    while (decompressedChunk = @decompressor.sysread(chunkSize))
       assert_equal(@refText.slice!(0, chunkSize), decompressedChunk)
     end
     assert_equal(0, @refText.size)
@@ -293,7 +293,7 @@ module DecompressorTests
     assert(@refLines.length > 40)
 
     
-    assert_equal(@refText[0...100], @decompressor.read(100))
+    assert_equal(@refText[0...100], @decompressor.sysread(100))
 
     assert(! @decompressor.input_finished?)
     buf = @decompressor.produce_input
@@ -568,7 +568,7 @@ class DeflaterTest < Test::Unit::TestCase
     File.open(fileName, "rb") {
       |file|
       inflater = Inflater.new(file)
-      txt = inflater.read
+      txt = inflater.sysread
     }
   end
 

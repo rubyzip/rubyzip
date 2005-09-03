@@ -120,8 +120,8 @@ module Zip
     end
 
     # Modeled after IO.read
-    def read(numberOfBytes = nil)
-      @decompressor.read(numberOfBytes)
+    def sysread(numberOfBytes = nil, buf = nil)
+      @decompressor.sysread(numberOfBytes, buf)
     end
 
     protected
@@ -170,7 +170,8 @@ module Zip
       @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
     end
     
-    def read(numberOfBytes = nil)
+    # BUG: do something with buf
+    def sysread(numberOfBytes = nil, buf = nil)
       readEverything = (numberOfBytes == nil)
       while (readEverything || @outputBuffer.length < numberOfBytes)
 	break if internal_input_finished?
@@ -221,7 +222,7 @@ module Zip
     end
     
     # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
-    def read(numberOfBytes = nil)
+    def sysread(numberOfBytes = nil, buf = nil)
       if input_finished?
 	hasReturnedEmptyStringVal=@hasReturnedEmptyString
 	@hasReturnedEmptyString=true
@@ -233,11 +234,11 @@ module Zip
 	numberOfBytes = @charsToRead-@readSoFar
       end
       @readSoFar += numberOfBytes
-      @inputStream.read(numberOfBytes)
+      @inputStream.read(numberOfBytes, buf)
     end
     
     def produce_input
-      read(Decompressor::CHUNK_SIZE)
+      sysread(Decompressor::CHUNK_SIZE)
     end
     
     def input_finished?
@@ -247,7 +248,7 @@ module Zip
   
   class NullDecompressor  #:nodoc:all
     include Singleton
-    def read(numberOfBytes = nil)
+    def sysread(numberOfBytes = nil, buf = nil)
       nil
     end
     

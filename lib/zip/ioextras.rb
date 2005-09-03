@@ -2,6 +2,8 @@ module IOExtras  #:nodoc:
 
   CHUNK_SIZE = 32768
 
+  RANGE_ALL = 0..-1
+
   def self.copy_stream(ostream, istream)
     s = ''
     ostream.write(istream.read(CHUNK_SIZE, s)) until istream.eof? 
@@ -29,6 +31,32 @@ module IOExtras  #:nodoc:
     end
 
     attr_accessor :lineno
+
+    def read(numberOfBytes = nil, buf = nil)
+      buf = "" unless (buf)
+
+      if numberOfBytes
+        if numberOfBytes <= @outputBuffer.length
+          buf[RANGE_ALL] = @outputBuffer.slice!(0, numberOfBytes)
+        else
+          if @outputBuffer.length > 0
+            buf[RANGE_ALL] = @outputBuffer + sysread(numberOfBytes - @outputBuffer.length, buf)
+            @outputBuffer.slice!(RANGE_ALL)
+          else
+            buf[RANGE_ALL] = sysread(nil, buf)
+          end
+        end
+      else
+        if @outputBuffer.length > 0
+          buf[RANGE_ALL] = @outputBuffer + sysread(nil, buf)
+          @outputBuffer.slice!(RANGE_ALL)
+        else
+          buf[RANGE_ALL] = sysread(nil, buf)
+        end
+      end
+
+      buf
+    end
 
     def readlines(aSepString = $/)
       retVal = []
