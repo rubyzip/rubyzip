@@ -463,6 +463,16 @@ class ZipInputStreamTest < Test::Unit::TestCase
       assert_entry(e.name, zis, e.name)
     }
   end
+
+  def test_mix_read_and_gets
+    ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+      |zis|
+      e = zis.get_next_entry
+      assert_equal("#!/usr/bin/env ruby\n", zis.gets)
+      assert_equal("\n", zis.gets)
+      assert_equal("$VERBOSE =", zis.read(10))
+    }
+  end
   
 end
 
@@ -1574,6 +1584,6 @@ class ZipExtraFieldTest < Test::Unit::TestCase
 
 end
 
-# Copyright (C) 2002, 2003 Thomas Sondergaard
+# Copyright (C) 2002-2005 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
 # modify it under the terms of the ruby license.
