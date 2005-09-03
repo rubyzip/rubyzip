@@ -1,3 +1,11 @@
+= Version 0.5.11
+
+Fixed name clash file method copy_stream from fileutils.rb. Fixed
+problem with references to constant CHUNK_SIZE.
+ZipInputStream/AbstractInputStream read is now buffered like ruby IO's
+read method, which means that read and gets etc can be mixed. The
+unbuffered read method has been renamed to sysread.
+
 = Version 0.5.10
 
 Fixed method name resolution problem with FileUtils::copy_stream and
