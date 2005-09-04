@@ -468,8 +468,8 @@ class ZipInputStreamTest < Test::Unit::TestCase
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
       e = zis.get_next_entry
-      assert_equal("#!/usr/bin/env ruby\n", zis.gets)
-      assert_equal("\n", zis.gets)
+      assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
+      assert_equal("", zis.gets.chomp)
       assert_equal("$VERBOSE =", zis.read(10))
     }
   end
