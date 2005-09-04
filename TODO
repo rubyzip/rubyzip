@@ -1,4 +1,8 @@
 
+* Adjust rdoc stylesheet to advertise inherited methods if possible
+* Suggestion: Add ZipFile/ZipInputStream example that demonstrates extracting all entries.
+* Suggestion: ZipFile#extract destination should default to "."
+* Suggestion: ZipEntry should have extract(), get_input_stream() methods etc
 * rename write to syswrite
 * provide alias for write -> syswrite in ioextras.rb
 * (is buffering used anywhere with write?)
