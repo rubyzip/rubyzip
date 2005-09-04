@@ -24,7 +24,7 @@ PKG_FILES.add %w{ lib/**/*.rb }
 def clobberFromCvsIgnore(path)
   CLOBBER.add File.readlines(path+'/.cvsignore').map { 
     |f| File.join(path, f.chomp) 
-  }
+  } rescue StandardError
 end
 
 clobberFromCvsIgnore '.'
