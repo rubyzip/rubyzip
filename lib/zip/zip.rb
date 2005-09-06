@@ -1330,6 +1330,7 @@ module Zip
         raise StandardError, "cannot open entry for reading while its open for writing - #{name}"
       end
       @tempFile.open # reopens tempfile from top
+      @tempFile.binmode
       if block_given?
         begin
           yield(@tempFile)

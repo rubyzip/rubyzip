@@ -1043,13 +1043,18 @@ class ZipFileTest < Test::Unit::TestCase
       assert_equal(entryCount+1, zf.size)
       assert_equal("Putting stuff in data/generated/empty.txt", zf.read("data/generated/empty.txt")) 
 
+      zf.get_output_stream('entry.bin') {
+	|os|
+	os.write(File.open('data/generated/4entry.zip', 'rb').read)
+      }
     }
     
     ZipFile.open(TEST_ZIP.zip_name) {
       |zf|
-      assert_equal(entryCount+1, zf.size)
+      assert_equal(entryCount+2, zf.size)
       assert_equal("Putting stuff in newEntry.txt", zf.read("newEntry.txt")) 
       assert_equal("Putting stuff in data/generated/empty.txt", zf.read("data/generated/empty.txt")) 
+      assert_equal(File.open('data/generated/4entry.zip', 'rb').read, zf.read("entry.bin")) 
     }
   end
 

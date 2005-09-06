@@ -113,7 +113,7 @@ class TestZipFile
       File.open("data/generated/longBinary.bin", "wb") {
 	|file|
 	while (file.tell < 3E5)
-	  file << testBinaryPattern << rand
+	  file << testBinaryPattern << rand << "\0"
 	end
       }
       raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" unless 
