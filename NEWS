@@ -1,3 +1,7 @@
+= Version 0.5.12
+
+Fixed problem with writing binary content to a ZipFile in MS Windows.
+
 = Version 0.5.11
 
 Fixed name clash file method copy_stream from fileutils.rb. Fixed
