@@ -43,7 +43,7 @@ module IOExtras  #:nodoc:
             buf[RANGE_ALL] = @outputBuffer + sysread(numberOfBytes - @outputBuffer.length, buf)
             @outputBuffer.slice!(RANGE_ALL)
           else
-            buf[RANGE_ALL] = sysread(nil, buf)
+            buf[RANGE_ALL] = sysread(numberOfBytes, buf)
           end
         end
       else
