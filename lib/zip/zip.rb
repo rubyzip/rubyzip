@@ -104,9 +104,11 @@ module Zip
     # method on a newly created ZipInputStream before reading from 
     # the first entry in the archive. Returns nil when there are 
     # no more entries.
+
+
     def get_next_entry
       @archiveIO.seek(@currentEntry.next_header_offset, 
-		      IO::SEEK_SET) if @currentEntry
+                      IO::SEEK_SET) if @currentEntry
       open_entry
     end
 
@@ -119,7 +121,7 @@ module Zip
       open_entry
     end
 
-    # Modeled after IO.read
+    # Modeled after IO.sysread
     def sysread(numberOfBytes = nil, buf = nil)
       @decompressor.sysread(numberOfBytes, buf)
     end
@@ -270,7 +272,7 @@ module Zip
     DEFLATED = 8
     
     attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
-      :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes
+      :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes, :gp_flags, :header_signature
     
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
                    compressed_size = 0, crc = 0, 
@@ -338,7 +340,7 @@ module Zip
     def next_header_offset  #:nodoc:all
       local_entry_offset + self.compressed_size
     end
-    
+        
     def to_s
       @name
     end
@@ -356,6 +358,7 @@ module Zip
     
     LOCAL_ENTRY_SIGNATURE = 0x04034b50
     LOCAL_ENTRY_STATIC_HEADER_LENGTH = 30
+    LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4+4+4
     
     def read_local_entry(io)  #:nodoc:all
       @localHeaderOffset = io.tell
@@ -364,10 +367,10 @@ module Zip
 	raise ZipError, "Premature end of file. Not enough data for zip entry local header"
       end
       
-      localHeader       ,
+      @header_signature       ,
         @version          ,
 	@fstype           ,
-	@gpFlags          ,
+	@gp_flags          ,
 	@compression_method,
 	lastModTime       ,
 	lastModDate       ,
@@ -377,7 +380,7 @@ module Zip
 	nameLength        ,
 	extraLength       = staticSizedFieldsBuf.unpack('VCCvvvvVVVvv') 
 
-      unless (localHeader == LOCAL_ENTRY_SIGNATURE)
+      unless (@header_signature == LOCAL_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
       set_time(lastModDate, lastModTime)
@@ -410,7 +413,7 @@ module Zip
       io << 
 	[LOCAL_ENTRY_SIGNATURE    ,
 	0                  ,
-	0                         , # @gpFlags                  ,
+	0                         , # @gp_flags                  ,
 	@compression_method        ,
 	@time.to_binary_dos_time     , # @lastModTime              ,
 	@time.to_binary_dos_date     , # @lastModDate              ,
@@ -432,11 +435,11 @@ module Zip
 	raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
       end
       
-      cdirSignature          ,
+      @header_signature          ,
 	@version               , # version of encoding software
         @fstype                , # filesystem type
 	@versionNeededToExtract,
-	@gpFlags               ,
+	@gp_flags               ,
 	@compression_method     ,
 	lastModTime            ,
 	lastModDate            ,
@@ -454,7 +457,7 @@ module Zip
 	@extra                 ,
 	@comment               = staticSizedFieldsBuf.unpack('VCCvvvvvVVVvvvvvVV')
 
-      unless (cdirSignature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
+      unless (@header_signature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
       set_time(lastModDate, lastModTime)
@@ -486,7 +489,7 @@ module Zip
         @version                          , # version of encoding software
 	@fstype                           , # filesystem type
 	0                                 , # @versionNeededToExtract           ,
-	0                                 , # @gpFlags                          ,
+	0                                 , # @gp_flags                          ,
 	@compression_method                ,
         @time.to_binary_dos_time             , # @lastModTime                      ,
 	@time.to_binary_dos_date             , # @lastModDate                      ,
