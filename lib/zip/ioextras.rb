@@ -33,26 +33,28 @@ module IOExtras  #:nodoc:
     attr_accessor :lineno
 
     def read(numberOfBytes = nil, buf = nil)
-      buf = "" unless (buf)
+      tbuf = nil
 
-      if numberOfBytes
+      if @outputBuffer.length > 0
         if numberOfBytes <= @outputBuffer.length
-          buf[RANGE_ALL] = @outputBuffer.slice!(0, numberOfBytes)
+          tbuf = @outputBuffer.slice!(0, numberOfBytes)
         else
-          if @outputBuffer.length > 0
-            buf[RANGE_ALL] = @outputBuffer + sysread(numberOfBytes - @outputBuffer.length, buf)
-            @outputBuffer.slice!(RANGE_ALL)
-          else
-            buf[RANGE_ALL] = sysread(numberOfBytes, buf)
-          end
+          numberOfBytes -= @outputBuffer.length if (numberOfBytes)
+          rbuf = sysread(numberOfBytes, buf)
+          tbuf = @outputBuffer
+          tbuf << rbuf if (rbuf)
+          @outputBuffer = ""
         end
       else
-        if @outputBuffer.length > 0
-          buf[RANGE_ALL] = @outputBuffer + sysread(nil, buf)
-          @outputBuffer.slice!(RANGE_ALL)
-        else
-          buf[RANGE_ALL] = sysread(nil, buf)
-        end
+        tbuf = sysread(numberOfBytes, buf)
+      end
+
+      return nil unless (tbuf)
+
+      if buf
+        buf.replace(tbuf)
+      else
+        buf = tbuf
       end
 
       buf

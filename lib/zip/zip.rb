@@ -177,7 +177,7 @@ module Zip
       readEverything = (numberOfBytes == nil)
       while (readEverything || @outputBuffer.length < numberOfBytes)
 	break if internal_input_finished?
-	@outputBuffer << internal_produce_input
+	@outputBuffer << internal_produce_input(buf)
       end
       return value_when_finished if @outputBuffer.length==0 && input_finished?
       endIndex= numberOfBytes==nil ? @outputBuffer.length : numberOfBytes
@@ -199,8 +199,8 @@ module Zip
 
     private
 
-    def internal_produce_input
-      @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE))
+    def internal_produce_input(buf = nil)
+      @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE, buf))
     end
 
     def internal_input_finished?
