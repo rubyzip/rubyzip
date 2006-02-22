@@ -482,7 +482,7 @@ module Zip
       alias rmdir  delete
       alias unlink delete
       
-      def mkdir(entryName, permissionInt = 0)
+      def mkdir(entryName, permissionInt = 0755)
         @mappedZip.mkdir(entryName, permissionInt)
       end
       
@@ -571,7 +571,7 @@ module Zip
                         &continueOnExistsProc)
       end
 
-      def mkdir(fileName, permissionInt = 0)
+      def mkdir(fileName, permissionInt = 0755)
         @zipFile.mkdir(expand_to_entry(fileName), permissionInt)
       end
 
