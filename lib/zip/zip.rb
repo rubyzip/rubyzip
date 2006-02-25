@@ -1500,16 +1500,6 @@ module Zip
     
   end
 
-  class ZipStreamableFile < ZipEntry
-    def initialize(zipfile, entry, srcPath = nil, permissionInt = nil)
-      super(zipfile, entry)
-
-      @ftype = :file
-      entry.get_extra_attributes_from_path(srcPath) if (srcPath)
-      @unix_perms = permissionInt if (permissionInt)
-    end
-  end
-
   class ZipStreamableDirectory < ZipEntry
     def initialize(zipfile, entry, srcPath = nil, permissionInt = nil)
       super(zipfile, entry)

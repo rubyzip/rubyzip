@@ -94,8 +94,6 @@ class ZipEntryTest < Test::Unit::TestCase
 
     assert(entry7 != "hello")
     assert(entry7 != 12)
-
-    assert(entry7 != ZipStreamableFile.new(entry7, "aPath"))
   end
 
   def test_compare
@@ -1499,25 +1497,6 @@ class ZipFileExtractDirectoryTest < Test::Unit::TestCase
     }
     assert(gotCalled)
     assert(File.directory?(TEST_OUT_NAME))
-  end
-end
-
-class ZipStreamableFileTest < Test::Unit::TestCase
-  def test_equality
-    zipEntry1 = ZipEntry.new("zf.zip", "entryname1", "comment")
-    zipEntry2 = ZipEntry.new("zf.zip", "entryname2", "comment")
-
-    zipStreamableFile1 = ZipStreamableFile.new(zipEntry1, "path")
-    zipStreamableFile2 = ZipStreamableFile.new(zipEntry1, "path")
-    zipStreamableFile3 = ZipStreamableFile.new(zipEntry1, "anotherPath")
-    zipStreamableFile4 = ZipStreamableFile.new(zipEntry2, "path")
-    
-    assert_equal(zipStreamableFile1, zipStreamableFile1)
-    assert_equal(zipStreamableFile1, zipStreamableFile2)
-    assert(zipStreamableFile1 != zipStreamableFile3)
-    assert(zipStreamableFile1 != zipStreamableFile4)
-    assert(zipStreamableFile1 != zipEntry1)
-    assert(zipStreamableFile1 != "hej")
   end
 end
 
