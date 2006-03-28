@@ -336,7 +336,10 @@ module Zip
     
     attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
       :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes, :gp_flags, :header_signature
-    attr_accessor  :follow_symlinks
+
+    attr_accessor :follow_symlinks
+    attr_accessor :restore_times, :restore_permissions, :restore_ownership
+    attr_accessor :unix_uid, :unix_gid, :unix_perms
 
     attr_reader :ftype, :filepath
     
@@ -363,7 +366,19 @@ module Zip
 	@name, @size = zipfile, comment, compressed_size, crc, 
 	extra, compression_method, name, size
       @time = time
+
       @follow_symlinks = false
+
+      @restore_times = true
+      @restore_permissions = false
+      @restore_ownership = false
+
+# BUG: need an extra field to support uid/gid's
+      @unix_uid = nil
+      @unix_gid = nil
+      @unix_perms = nil
+#      @posix_acl = nil
+#      @ntfs_acl = nil
 
       if name_is_directory?
         @ftype = :directory
@@ -606,6 +621,8 @@ module Zip
     def get_extra_attributes_from_path(path)
       unless Zip::RUNNING_ON_WINDOWS
         stat = file_stat(path)
+        @unix_uid = stat.uid
+        @unix_gid = stat.gid
         @unix_perms = stat.mode
       end
     end
@@ -616,9 +633,11 @@ module Zip
       case @fstype
       when FSTYPE_UNIX
         # BUG: does not update timestamps or take uid/gid into account
-        # ignore setuid/setgid bits
-      	File::chmod(@unix_perms & 01777, destPath) if (@unix_perms)
-      	# File::chown if some_safety_flag && uid && gid && root
+        # ignore setuid/setgid bits by default.  honor if @restore_ownership
+        unix_perms_mask = 01777
+        unix_perms_mask = 07777 if (@restore_ownership)
+      	File::chmod(@unix_perms & unix_perms_mask, destPath) if (@restore_permissions && @unix_perms)
+        File::chown(@unix_uid, @unix_gid, destPath) if (@restore_ownership && @unix_uid && @unix_gid && Process::egid == 0)
         # File::utimes()
       end
     end
