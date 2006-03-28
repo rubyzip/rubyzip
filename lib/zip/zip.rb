@@ -129,6 +129,11 @@ module Zip
       @decompressor.sysread(numberOfBytes, buf)
     end
 
+    def eof
+      @outputBuffer.empty? && @decompressor.eof
+    end
+    alias :eof? :eof
+
     protected
 
     def open_entry
@@ -151,7 +156,7 @@ module Zip
     def produce_input
       @decompressor.produce_input
     end
-    
+
     def input_finished?
       @decompressor.input_finished?
     end
@@ -175,7 +180,6 @@ module Zip
       @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
     end
     
-    # BUG: do something with buf
     def sysread(numberOfBytes = nil, buf = nil)
       readEverything = (numberOfBytes == nil)
       while (readEverything || @outputBuffer.length < numberOfBytes)
@@ -196,9 +200,12 @@ module Zip
     end
 
     # to be used with produce_input, not read (as read may still have more data cached)
+    # is data cached anywhere other than @outputBuffer?  the comment above may be out of wrong
     def input_finished?
       @outputBuffer.empty? && internal_input_finished?
     end
+    alias :eof :input_finished?
+    alias :eof? :input_finished?
 
     private
 
@@ -249,6 +256,8 @@ module Zip
     def input_finished?
       (@readSoFar >= @charsToRead)
     end
+    alias :eof :input_finished?
+    alias :eof? :input_finished?
   end
   
   class NullDecompressor  #:nodoc:all
@@ -264,6 +273,11 @@ module Zip
     def input_finished?
       true
     end
+
+    def eof
+      true
+    end
+    alias :eof? :eof
   end
   
   class NullInputStream < NullDecompressor  #:nodoc:all
