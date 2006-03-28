@@ -200,7 +200,7 @@ module Zip
     end
 
     # to be used with produce_input, not read (as read may still have more data cached)
-    # is data cached anywhere other than @outputBuffer?  the comment above may be out of wrong
+    # is data cached anywhere other than @outputBuffer?  the comment above may be wrong
     def input_finished?
       @outputBuffer.empty? && internal_input_finished?
     end
@@ -336,6 +336,7 @@ module Zip
     
     attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
       :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes, :gp_flags, :header_signature
+    attr_accessor  :follow_symlinks
 
     attr_reader :ftype, :filepath
     
@@ -362,6 +363,7 @@ module Zip
 	@name, @size = zipfile, comment, compressed_size, crc, 
 	extra, compression_method, name, size
       @time = time
+      @follow_symlinks = false
 
       if name_is_directory?
         @ftype = :directory
@@ -593,9 +595,17 @@ module Zip
       return nil
     end
 
+    def file_stat(path)
+      if @follow_symlinks
+        return File::stat(path)
+      else
+        return File::lstat(path)
+      end
+    end
+
     def get_extra_attributes_from_path(path)
       unless Zip::RUNNING_ON_WINDOWS
-        stat = File::lstat(path)
+        stat = file_stat(path)
         @unix_perms = stat.mode
       end
     end
@@ -712,7 +722,7 @@ module Zip
     end
 
     def gather_fileinfo_from_srcpath(srcPath)
-      stat = File::lstat(srcPath)
+      stat = file_stat(srcPath)
       case stat.ftype
       when 'file'
         if name_is_directory?
