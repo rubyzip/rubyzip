@@ -401,6 +401,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
   def test_new
     zis = ZipInputStream.new(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+    assert_equal(true, zis.eof?)
     zis.close    
   end
 
@@ -408,6 +409,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+      assert_equal(true, zis.eof?)
     }
   end
 
@@ -420,12 +422,15 @@ class ZipInputStreamTest < Test::Unit::TestCase
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
       entry = zis.get_next_entry
+      assert_equal(false, zis.eof?)
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], entry.name)
       assert zis.gets.length > 0
+      assert_equal(false, zis.eof?)
       entry = zis.get_next_entry
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
       assert_equal(0, entry.size)
       assert_equal(nil, zis.gets)
+      assert_equal(true, zis.eof?)
       entry = zis.get_next_entry
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[2], entry.name)
       assert zis.gets.length > 0
@@ -446,6 +451,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
       buf << zis.read(100)
       buf << (zis.gets || "")
       buf << (zis.gets || "")
+      assert_equal(false, zis.eof?)
 
       zis.rewind
 
@@ -457,6 +463,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
       assert_equal(buf, buf2)
 
       zis.rewind
+      assert_equal(false, zis.eof?)
 
       assert_entry(e.name, zis, e.name)
     }
@@ -467,8 +474,11 @@ class ZipInputStreamTest < Test::Unit::TestCase
       |zis|
       e = zis.get_next_entry
       assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
+      assert_equal(false, zis.eof?)
       assert_equal("", zis.gets.chomp)
+      assert_equal(false, zis.eof?)
       assert_equal("$VERBOSE =", zis.read(10))
+      assert_equal(false, zis.eof?)
     }
   end
   
