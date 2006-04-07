@@ -421,21 +421,26 @@ class ZipInputStreamTest < Test::Unit::TestCase
   def test_incompleteReads
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
-      entry = zis.get_next_entry
+      entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], entry.name)
       assert zis.gets.length > 0
       assert_equal(false, zis.eof?)
-      entry = zis.get_next_entry
+      entry = zis.get_next_entry # empty.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
       assert_equal(0, entry.size)
       assert_equal(nil, zis.gets)
       assert_equal(true, zis.eof?)
-      entry = zis.get_next_entry
+      entry = zis.get_next_entry # empty_chmod640.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[2], entry.name)
-      assert zis.gets.length > 0
-      entry = zis.get_next_entry
+      assert_equal(0, entry.size)
+      assert_equal(nil, zis.gets)
+      assert_equal(true, zis.eof?)
+      entry = zis.get_next_entry # short.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[3], entry.name)
+      assert zis.gets.length > 0
+      entry = zis.get_next_entry # longBinary.bin
+      assert_equal(TestZipFile::TEST_ZIP2.entry_names[4], entry.name)
       assert zis.gets.length > 0
     }
   end
@@ -1007,7 +1012,7 @@ module CommonZipFileFixture
   EMPTY_FILENAME = "emptyZipFile.zip"
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-  TEST_ZIP.zip_name = "4entry_copy.zip"
+  TEST_ZIP.zip_name = "5entry_copy.zip"
 
   def setup
     File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)
@@ -1053,7 +1058,7 @@ class ZipFileTest < Test::Unit::TestCase
 
       zf.get_output_stream('entry.bin') {
 	|os|
-	os.write(File.open('data/generated/4entry.zip', 'rb').read)
+	os.write(File.open('data/generated/5entry.zip', 'rb').read)
       }
     }
     
@@ -1062,7 +1067,7 @@ class ZipFileTest < Test::Unit::TestCase
       assert_equal(entryCount+2, zf.size)
       assert_equal("Putting stuff in newEntry.txt", zf.read("newEntry.txt")) 
       assert_equal("Putting stuff in data/generated/empty.txt", zf.read("data/generated/empty.txt")) 
-      assert_equal(File.open('data/generated/4entry.zip', 'rb').read, zf.read("entry.bin")) 
+      assert_equal(File.open('data/generated/5entry.zip', 'rb').read, zf.read("entry.bin")) 
     }
   end
 

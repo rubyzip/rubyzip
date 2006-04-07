@@ -270,7 +270,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     assert(! @zipFile.file.zero?("file1"))
     assert(@zipFile.file.zero?("dir1"))
     blockCalled = false
-    ZipFile.open("data/generated/4entry.zip") {
+    ZipFile.open("data/generated/5entry.zip") {
       |zf|
       blockCalled = true
       assert(zf.file.zero?("data/generated/empty.txt"))
@@ -280,7 +280,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     assert(! @zipFile.file.stat("file1").zero?)
     assert(@zipFile.file.stat("dir1").zero?)
     blockCalled = false
-    ZipFile.open("data/generated/4entry.zip") {
+    ZipFile.open("data/generated/5entry.zip") {
       |zf|
       blockCalled = true
       assert(zf.file.stat("data/generated/empty.txt").zero?)

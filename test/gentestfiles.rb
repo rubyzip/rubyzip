@@ -86,6 +86,7 @@ class TestZipFile
 	       files.index(File.basename(TEST_ZIP3.zip_name)) &&
 	       files.index(File.basename(TEST_ZIP4.zip_name)) &&
 	       files.index("empty.txt")      &&
+	       files.index("empty_chmod640.txt")      &&
 	       files.index("short.txt")      &&
 	       files.index("longAscii.txt")  &&
 	       files.index("longBinary.bin") ))
@@ -95,6 +96,7 @@ class TestZipFile
 	system("zip #{TEST_ZIP1.zip_name} -d data/file2.txt")
       
       File.open("data/generated/empty.txt", "w") {}
+      File.open("data/generated/empty_chmod640.txt", "w") { |f| f.chmod(0640) }
       
       File.open("data/generated/short.txt", "w") { |file| file << "ABCDEF" }
       ziptestTxt=""
@@ -138,7 +140,7 @@ class TestZipFile
   end
 
   TEST_ZIP1 = TestZipFile.new("data/generated/empty.zip", [])
-  TEST_ZIP2 = TestZipFile.new("data/generated/4entry.zip", %w{ data/generated/longAscii.txt data/generated/empty.txt data/generated/short.txt data/generated/longBinary.bin}, 
+  TEST_ZIP2 = TestZipFile.new("data/generated/5entry.zip", %w{ data/generated/longAscii.txt data/generated/empty.txt data/generated/empty_chmod640.txt data/generated/short.txt data/generated/longBinary.bin}, 
 			      "my zip comment")
   TEST_ZIP3 = TestZipFile.new("data/generated/test1.zip", %w{ data/file1.txt })
   TEST_ZIP4 = TestZipFile.new("data/generated/zipWithDir.zip", [ "data/file1.txt", 
