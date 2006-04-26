@@ -426,7 +426,7 @@ module Zip
       @ftype == :link
     end
 
-    def name_is_directory?
+    def name_is_directory?  #:nodoc:all
       (%r{\/$} =~ @name) != nil
     end
 
@@ -591,7 +591,7 @@ module Zip
         when 012
           @ftype = :link
         else
-          raise "unknown file type #{'0%o' % (@externalFileAttributes >> 28)}"
+          raise ZipInternalError, "unknown file type #{'0%o' % (@externalFileAttributes >> 28)}"
         end
       else
         if name_is_directory?
@@ -610,7 +610,7 @@ module Zip
       return nil
     end
 
-    def file_stat(path)
+    def file_stat(path)	#:nodoc:all
       if @follow_symlinks
         return File::stat(path)
       else
@@ -618,21 +618,21 @@ module Zip
       end
     end
 
-    def get_extra_attributes_from_path(path)
+    def get_extra_attributes_from_path(path)	#:nodoc:all
       unless Zip::RUNNING_ON_WINDOWS
         stat = file_stat(path)
         @unix_uid = stat.uid
         @unix_gid = stat.gid
-        @unix_perms = stat.mode
+        @unix_perms = stat.mode & 07777
       end
     end
 
-    def set_extra_attributes_on_path(destPath)
+    def set_extra_attributes_on_path(destPath)	#:nodoc:all
       return unless (file? or directory?)
 
       case @fstype
       when FSTYPE_UNIX
-        # BUG: does not update timestamps or take uid/gid into account
+        # BUG: does not update timestamps into account
         # ignore setuid/setgid bits by default.  honor if @restore_ownership
         unix_perms_mask = 01777
         unix_perms_mask = 07777 if (@restore_ownership)
@@ -657,7 +657,7 @@ module Zip
           ft = 012
           @unix_perms ||= 0755
         else
-          raise "unknown file type #{self.inspect}"
+          raise ZipInternalError, "unknown file type #{self.inspect}"
         end
 
         @externalFileAttributes = (ft << 12 | (@unix_perms & 07777)) << 16
@@ -1252,6 +1252,13 @@ module Zip
 
     attr_reader :name
 
+    # default -> false
+    attr_accessor :restore_ownership
+    # default -> false
+    attr_accessor :restore_permissions
+    # default -> true
+    attr_accessor :restore_times
+
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
     def initialize(fileName, create = nil)
@@ -1267,6 +1274,10 @@ module Zip
       end
       @create = create
       @storedEntries = @entrySet.dup
+
+      @restore_ownership = false
+      @restore_permissions = false
+      @restore_times = true
     end
 
     # Same as #new. If a block is passed the ZipFile object is passed
@@ -1421,6 +1432,10 @@ module Zip
       unless selectedEntry
 	raise Errno::ENOENT, entry
       end
+      selectedEntry.restore_ownership = @restore_ownership
+      selectedEntry.restore_permissions = @restore_permissions
+      selectedEntry.restore_times = @restore_times
+
       return selectedEntry
     end
 
