@@ -869,7 +869,7 @@ module Zip
     def put_next_entry(entry, level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@fileName, entry.to_s)
-      init_next_entry(newEntry)
+      init_next_entry(newEntry, level)
       @currentEntry=newEntry
     end
 
