@@ -1399,6 +1399,17 @@ class ZipFileExtractTest < Test::Unit::TestCase
       assert(File.exists?(EXTRACTED_FILENAME))
       AssertEntry::assert_contents(EXTRACTED_FILENAME, 
 				  zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
+
+
+      File::unlink(EXTRACTED_FILENAME)
+
+      entry = zf.get_entry(ENTRY_TO_EXTRACT)
+      entry.extract(EXTRACTED_FILENAME)
+
+      assert(File.exists?(EXTRACTED_FILENAME))
+      AssertEntry::assert_contents(EXTRACTED_FILENAME, 
+				  entry.get_input_stream() { |is| is.read })
+
     }
   end
 

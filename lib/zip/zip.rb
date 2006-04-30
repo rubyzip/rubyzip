@@ -454,6 +454,7 @@ module Zip
       local_entry_offset + self.compressed_size
     end
 
+    # Extracts entry to file destPath (defaults to @name).
     def extract(destPath = @name, &onExistsProc)
       onExistsProc ||= proc { false }
 
@@ -1463,8 +1464,6 @@ module Zip
       onExistsProc ||= proc { false }
       foundEntry = get_entry(entry)
       foundEntry.extract(destPath, &onExistsProc)
-
-      foundEntry
     end
 
     # Commits changes that has been made since the previous commit to 
