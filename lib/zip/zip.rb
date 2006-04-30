@@ -453,7 +453,23 @@ module Zip
     def next_header_offset  #:nodoc:all
       local_entry_offset + self.compressed_size
     end
-        
+
+    def extract(destPath = @name, &onExistsProc)
+      onExistsProc ||= proc { false }
+
+      if directory?
+	create_directory(destPath, &onExistsProc)
+      elsif file?
+	write_file(destPath, &onExistsProc) 
+      elsif symlink?
+        create_symlink(destPath, &onExistsProc)
+      else
+        raise RuntimeError, "unknown file type #{self.inspect}"
+      end
+
+      self
+    end
+
     def to_s
       @name
     end
@@ -799,10 +815,74 @@ module Zip
     end
 
     private
+
     def set_time(binaryDosDate, binaryDosTime)
       @time = Time.parse_binary_dos_format(binaryDosDate, binaryDosTime)
     rescue ArgumentError
       puts "Invalid date/time in zip entry"
+    end
+
+    def write_file(destPath, continueOnExistsProc = proc { false })
+      if File.exists?(destPath) && ! yield(self, destPath)
+	raise ZipDestinationFileExistsError,
+	  "Destination '#{destPath}' already exists"
+      end
+      File.open(destPath, "wb") do |os|
+        get_input_stream do |is|
+          set_extra_attributes_on_path(destPath)
+
+          buf = ''
+          while buf = is.sysread(Decompressor::CHUNK_SIZE, buf)
+            os << buf
+          end
+        end
+      end
+    end
+    
+    def create_directory(destPath)
+      if File.directory? destPath
+	return
+      elsif File.exists? destPath
+	if block_given? && yield(self, destPath)
+	  File.rm_f destPath
+	else
+	  raise ZipDestinationFileExistsError,
+	    "Cannot create directory '#{destPath}'. "+
+	    "A file already exists with that name"
+	end
+      end
+      Dir.mkdir destPath
+      set_extra_attributes_on_path(destPath)
+    end
+
+# BUG: create_symlink() does not use &onExistsProc
+    def create_symlink(destPath)
+      stat = nil
+      begin
+        stat = File::lstat(destPath)
+      rescue Errno::ENOENT
+      end
+
+      io = get_input_stream
+      linkto = io.read
+
+      if stat
+        if stat.symlink?
+          if File::readlink(destPath) == linkto
+            return
+          else
+            raise ZipDestinationFileExistsError,
+              "Cannot create symlink '#{destPath}'. "+
+              "A symlink already exists with that name"
+          end
+        else
+	  raise ZipDestinationFileExistsError,
+	    "Cannot create symlink '#{destPath}'. "+
+	    "A file already exists with that name"
+        end
+      end
+
+      File::symlink(linkto, destPath)
     end
   end
 
@@ -1382,15 +1462,7 @@ module Zip
     def extract(entry, destPath, &onExistsProc)
       onExistsProc ||= proc { false }
       foundEntry = get_entry(entry)
-      if foundEntry.is_directory
-	create_directory(foundEntry, destPath, &onExistsProc)
-      elsif foundEntry.file?
-	write_file(foundEntry, destPath, &onExistsProc) 
-      elsif foundEntry.symlink?
-        create_symlink(foundEntry, destPath, &onExistsProc)
-      else
-        raise RuntimeError, "unknown file type #{foundEntry.inspect}"
-      end
+      foundEntry.extract(destPath, &onExistsProc)
 
       foundEntry
     end
@@ -1456,51 +1528,6 @@ module Zip
 
     private
 
-    def create_directory(entry, destPath)
-      if File.directory? destPath
-	return
-      elsif File.exists? destPath
-	if block_given? && yield(entry, destPath)
-	  File.rm_f destPath
-	else
-	  raise ZipDestinationFileExistsError,
-	    "Cannot create directory '#{destPath}'. "+
-	    "A file already exists with that name"
-	end
-      end
-      Dir.mkdir destPath
-      entry.set_extra_attributes_on_path(destPath)
-    end
-
-    def create_symlink(entry, destPath)
-      stat = nil
-      begin
-        stat = File::lstat(destPath)
-      rescue Errno::ENOENT
-      end
-
-      io = entry.get_input_stream
-      linkto = io.read
-
-      if stat
-        if stat.symlink?
-          if File::readlink(destPath) == linkto
-            return
-          else
-            raise ZipDestinationFileExistsError,
-              "Cannot create symlink '#{destPath}'. "+
-              "A symlink already exists with that name"
-          end
-        else
-	  raise ZipDestinationFileExistsError,
-	    "Cannot create symlink '#{destPath}'. "+
-	    "A file already exists with that name"
-        end
-      end
-
-      File::symlink(linkto, destPath)
-    end
-
     def is_directory(newEntry, srcPath)
       srcPathIsDirectory = File.directory?(srcPath)
       if newEntry.is_directory && ! srcPathIsDirectory
@@ -1525,23 +1552,6 @@ module Zip
       end
     end
 
-    def write_file(entry, destPath, continueOnExistsProc = proc { false })
-      if File.exists?(destPath) && ! yield(entry, destPath)
-	raise ZipDestinationFileExistsError,
-	  "Destination '#{destPath}' already exists"
-      end
-      File.open(destPath, "wb") do |os|
-        entry.get_input_stream do |is|
-          entry.set_extra_attributes_on_path(destPath)
-
-          buf = ''
-          while buf = is.sysread(Decompressor::CHUNK_SIZE, buf)
-            os << buf
-          end
-        end
-      end
-    end
-    
     def check_file(path)
       unless File.readable? path
 	raise Errno::ENOENT, path
