@@ -210,7 +210,14 @@ module Zip
     private
 
     def internal_produce_input(buf = nil)
-      @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE, buf))
+      retried = 0
+      begin
+        @zlibInflater.inflate(@inputStream.read(Decompressor::CHUNK_SIZE, buf))
+      rescue Zlib::BufError
+        raise if (retried >= 5) # how many times should we retry?
+        retried += 1
+        retry
+      end
     end
 
     def internal_input_finished?
