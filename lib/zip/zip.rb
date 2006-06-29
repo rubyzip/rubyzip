@@ -108,7 +108,6 @@ module Zip
     # the first entry in the archive. Returns nil when there are 
     # no more entries.
 
-
     def get_next_entry
       @archiveIO.seek(@currentEntry.next_header_offset, 
                       IO::SEEK_SET) if @currentEntry
@@ -348,7 +347,7 @@ module Zip
     attr_accessor :restore_times, :restore_permissions, :restore_ownership
     attr_accessor :unix_uid, :unix_gid, :unix_perms
 
-    attr_reader :ftype, :filepath
+    attr_reader :ftype, :filepath # :nodoc:
     
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
                    compressed_size = 0, crc = 0, 
@@ -417,17 +416,20 @@ module Zip
       @time = aTime
     end
 
+    # Returns +true+ if the entry is a directory.
     def directory?
       raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
       @ftype == :directory
     end
     alias :is_directory :directory?
 
+    # Returns +true+ if the entry is a file.
     def file?
       raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
       @ftype == :file
     end
 
+    # Returns +true+ if the entry is a symlink.
     def symlink?
       raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
       @ftype == :link
@@ -477,11 +479,11 @@ module Zip
     
     protected
     
-    def ZipEntry.read_zip_short(io)
+    def ZipEntry.read_zip_short(io) # :nodoc:
       io.read(2).unpack('v')[0]
     end
     
-    def ZipEntry.read_zip_long(io)
+    def ZipEntry.read_zip_long(io) # :nodoc:
       io.read(4).unpack('V')[0]
     end
     public
@@ -634,7 +636,7 @@ module Zip
       return nil
     end
 
-    def file_stat(path)	#:nodoc:all
+    def file_stat(path)	# :nodoc:
       if @follow_symlinks
         return File::stat(path)
       else
@@ -642,7 +644,7 @@ module Zip
       end
     end
 
-    def get_extra_attributes_from_path(path)	#:nodoc:all
+    def get_extra_attributes_from_path(path)	# :nodoc:
       unless Zip::RUNNING_ON_WINDOWS
         stat = file_stat(path)
         @unix_uid = stat.uid
@@ -651,7 +653,7 @@ module Zip
       end
     end
 
-    def set_extra_attributes_on_path(destPath)	#:nodoc:all
+    def set_extra_attributes_on_path(destPath)	# :nodoc:
       return unless (file? or directory?)
 
       case @fstype
@@ -732,6 +734,8 @@ module Zip
       return to_s <=> other.to_s
     end
 
+    # Returns an IO like object for the given ZipEntry.
+    # Warning: may behave weird with symlinks.
     def get_input_stream(&aProc)
       if @ftype == :directory
           return yield(NullInputStream.instance) if block_given?
@@ -764,7 +768,7 @@ module Zip
       end
     end
 
-    def gather_fileinfo_from_srcpath(srcPath)
+    def gather_fileinfo_from_srcpath(srcPath) # :nodoc:
       stat = file_stat(srcPath)
       case stat.ftype
       when 'file'
