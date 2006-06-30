@@ -70,7 +70,7 @@ end
 desc "Publish documentation"
 task :pdoc => [:rdoc] do
   Rake::SshFreshDirPublisher.
-       new("thomas@rubyzip.sourceforge.net", "rubyzip/htdocs", "html").upload
+       new("thomas@rubyzip.sourceforge.net", "/home/groups/r/ru/rubyzip/htdocs", "html").upload
 end
 
 desc "Publish package"
