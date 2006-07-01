@@ -50,9 +50,8 @@ spec = Gem::Specification.new do |s|
   s.homepage = "http://rubyzip.sourceforge.net/"
   s.platform = Gem::Platform::RUBY
   s.summary = "rubyzip is a ruby module for reading and writing zip files"
-  s.files = PKG_FILES.to_a #Dir.glob("{samples,lib,test,docs}/**/*").delete_if {|item| item.include?("CVS") || item.include?("rdoc") || item =~ /~$/ }
+  s.files = PKG_FILES.to_a
   s.require_path = 'lib'
-  s.autorequire = 'zip/zip'
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
