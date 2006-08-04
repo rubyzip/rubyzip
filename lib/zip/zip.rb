@@ -432,7 +432,7 @@ module Zip
     # Returns +true+ if the entry is a symlink.
     def symlink?
       raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
-      @ftype == :link
+      @ftype == :symlink
     end
 
     def name_is_directory?  #:nodoc:all
@@ -615,7 +615,7 @@ module Zip
         when 010
           @ftype = :file
         when 012
-          @ftype = :link
+          @ftype = :symlink
         else
           raise ZipInternalError, "unknown file type #{'0%o' % (@externalFileAttributes >> 28)}"
         end
