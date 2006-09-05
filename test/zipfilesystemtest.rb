@@ -23,7 +23,7 @@ module ExtraAssertions
     assert_equal(retVal, yield) # Invoke test
     assert_equal(expectedArgs, callArgs)
   ensure
-    anObject.instance_eval "alias #{method} #{method}_org"
+    anObject.instance_eval "undef #{method}; alias #{method} #{method}_org"
   end
 
 end
