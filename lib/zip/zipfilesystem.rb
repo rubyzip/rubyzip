@@ -225,6 +225,7 @@ module Zip
       end
       
       def open(fileName, openMode = "r", &block)
+        openMode.gsub!("b", "") # ignore b option
         case openMode
         when "r" 
           @mappedZip.get_input_stream(fileName, &block)

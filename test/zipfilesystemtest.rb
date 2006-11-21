@@ -68,6 +68,15 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     assert(blockCalled)
 
     blockCalled = false
+    @zipFile.file.open("file1", "rb") { # test binary flag is ignored
+      |f|
+      blockCalled = true
+      assert_equal("this is the entry 'file1' in my test archive!", 
+		    f.readline.chomp)
+    }
+    assert(blockCalled)
+
+    blockCalled = false
     @zipFile.dir.chdir "dir2"
     @zipFile.file.open("file21", "r") {
       |f|
@@ -579,7 +588,7 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
                     zf.file.read("test_open_write_entry"))
 
       # Test with existing entry
-      zf.file.open("file1", "w") {
+      zf.file.open("file1", "wb") { #also check that 'b' option is ignored
         |f|
         blockCalled = true
         f.write "This is what I'm writing too"
