@@ -491,7 +491,8 @@ module Zip
     LOCAL_ENTRY_SIGNATURE = 0x04034b50
     LOCAL_ENTRY_STATIC_HEADER_LENGTH = 30
     LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4+4+4
-    
+    VERSION_NEEDED_TO_EXTRACT = 10
+
     def read_local_entry(io)  #:nodoc:all
       @localHeaderOffset = io.tell
       staticSizedFieldsBuf = io.read(LOCAL_ENTRY_STATIC_HEADER_LENGTH)
@@ -544,7 +545,7 @@ module Zip
       
       io << 
 	[LOCAL_ENTRY_SIGNATURE    ,
-	0                  ,
+	VERSION_NEEDED_TO_EXTRACT , # version needed to extract
 	0                         , # @gp_flags                  ,
 	@compression_method        ,
 	@time.to_binary_dos_time     , # @lastModTime              ,
@@ -693,7 +694,7 @@ module Zip
 	[CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
         @version                          , # version of encoding software
 	@fstype                           , # filesystem type
-	0                                 , # @versionNeededToExtract           ,
+	VERSION_NEEDED_TO_EXTRACT         , # @versionNeededToExtract           ,
 	0                                 , # @gp_flags                          ,
 	@compression_method                ,
         @time.to_binary_dos_time             , # @lastModTime                      ,
