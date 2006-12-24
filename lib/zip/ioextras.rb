@@ -1,12 +1,22 @@
 module IOExtras  #:nodoc:
 
-  CHUNK_SIZE = 32768
+  CHUNK_SIZE = 131072
 
   RANGE_ALL = 0..-1
 
   def self.copy_stream(ostream, istream)
     s = ''
     ostream.write(istream.read(CHUNK_SIZE, s)) until istream.eof? 
+  end
+
+  def self.copy_stream_n(ostream, istream, nbytes)
+    s = ''
+    toread = nbytes
+    while (toread > 0 && ! istream.eof?) 
+      tr = toread > CHUNK_SIZE ? CHUNK_SIZE : toread
+      ostream.write(istream.read(tr, s))
+      toread -= tr
+    end 
   end
 
 
