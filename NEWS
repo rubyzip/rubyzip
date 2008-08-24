@@ -1,3 +1,7 @@
+= Version 0.9.2
+
+Fixed: Renaming an entry failed if the entry's new name was a different length than its old name.
+
 = Version 0.9.1
 
 Added symlink support and support for unix file permissions. Reduced

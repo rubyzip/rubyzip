@@ -1454,7 +1454,8 @@ module Zip
     def rename(entry, newName, &continueOnExistsProc)
       foundEntry = get_entry(entry)
       check_entry_exists(newName, continueOnExistsProc, "rename")
-      foundEntry.name=newName
+      get_output_stream(newName) { |os| os.write(read(foundEntry)) }
+      remove(foundEntry)
     end
 
     # Replaces the specified entry with the contents of srcPath (from 
