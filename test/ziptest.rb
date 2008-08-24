@@ -1146,19 +1146,21 @@ class ZipFileTest < Test::Unit::TestCase
 
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert(zf.entries.map { |e| e.name }.include?(entryToRename))
-    
+
+    contents = zf.read(entryToRename)
     newName = "changed entry name"
     assert(! zf.entries.map { |e| e.name }.include?(newName))
 
     zf.rename(entryToRename, newName)
     assert(zf.entries.map { |e| e.name }.include?(newName))
 
+    assert_equal(contents, zf.read(newName))
+
     zf.close
 
     zfRead = ZipFile.new(TEST_ZIP.zip_name)
     assert(zfRead.entries.map { |e| e.name }.include?(newName))
-    File.delete(ZipFileExtractTest::EXTRACTED_FILENAME) if File.exists?(ZipFileExtractTest::EXTRACTED_FILENAME)
-    zf.extract(newName, ZipFileExtractTest::EXTRACTED_FILENAME)
+    assert_equal(contents, zf.read(newName))
     zfRead.close    
   end
 

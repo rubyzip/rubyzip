@@ -965,12 +965,13 @@ module Zip
       raise ZipError, "entry is not a ZipEntry" if !entry.kind_of?(ZipEntry)
       finalize_current_entry
       @entrySet << entry
-      src_pos = entry.local_entry_offset
+      src_pos = entry.localHeaderOffset
       entry.write_local_entry(@outputStream)
       @compressor = NullCompressor.instance
       entry.get_raw_input_stream { 
 	|is| 
 	is.seek(src_pos, IO::SEEK_SET)
+        ZipEntry.read_local_entry(is) # To skip past header
         IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
       }
       @compressor = NullCompressor.instance
@@ -1454,8 +1455,9 @@ module Zip
     def rename(entry, newName, &continueOnExistsProc)
       foundEntry = get_entry(entry)
       check_entry_exists(newName, continueOnExistsProc, "rename")
-      get_output_stream(newName) { |os| os.write(read(foundEntry)) }
-      remove(foundEntry)
+      @entrySet.delete(foundEntry)
+      foundEntry.name = newName
+      @entrySet << foundEntry
     end
 
     # Replaces the specified entry with the contents of srcPath (from 
