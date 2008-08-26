@@ -358,6 +358,7 @@ module Zip
 	raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /" 
       end
       @localHeaderOffset = 0
+      @local_header_size = 0
       @internalFileAttributes = 1
       @externalFileAttributes = 0
       @version = 52 # this library's version
@@ -440,10 +441,10 @@ module Zip
     end
 
     def local_entry_offset  #:nodoc:all
-      localHeaderOffset + local_header_size
+      localHeaderOffset + @local_header_size
     end
     
-    def local_header_size  #:nodoc:all
+    def calculate_local_header_size  #:nodoc:all
       LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.size : 0) + (@extra ? @extra.local_size : 0)
     end
 
@@ -517,6 +518,7 @@ module Zip
 	raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
       end
       set_time(lastModDate, lastModTime)
+
       
       @name              = io.read(nameLength)
       extra              = io.read(extraLength)
@@ -530,6 +532,7 @@ module Zip
           @extra = ZipExtraField.new(extra)
         end
       end
+      @local_header_size = calculate_local_header_size
     end
     
     def ZipEntry.read_local_entry(io)
@@ -627,6 +630,7 @@ module Zip
           @ftype = :file
         end
       end
+      @local_header_size = calculate_local_header_size
     end
     
     def ZipEntry.read_c_dir_entry(io)  #:nodoc:all
@@ -965,13 +969,12 @@ module Zip
       raise ZipError, "entry is not a ZipEntry" if !entry.kind_of?(ZipEntry)
       finalize_current_entry
       @entrySet << entry
-      src_pos = entry.localHeaderOffset
+      src_pos = entry.local_entry_offset
       entry.write_local_entry(@outputStream)
       @compressor = NullCompressor.instance
       entry.get_raw_input_stream { 
 	|is| 
 	is.seek(src_pos, IO::SEEK_SET)
-        ZipEntry.read_local_entry(is) # To skip past header
         IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
       }
       @compressor = NullCompressor.instance
@@ -983,7 +986,7 @@ module Zip
       return unless @currentEntry
       finish
       @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - 
-	@currentEntry.local_header_size
+	@currentEntry.calculate_local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
       @currentEntry = nil
