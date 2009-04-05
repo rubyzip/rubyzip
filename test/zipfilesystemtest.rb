@@ -6,6 +6,7 @@ $: << "../lib"
 
 require 'zip/zipfilesystem'
 require 'test/unit'
+require 'fileutils'
 
 module ExtraAssertions
 
@@ -561,7 +562,7 @@ end
 class ZipFsFileMutatingTest < Test::Unit::TestCase
   TEST_ZIP = "zipWithDirs_copy.zip"
   def setup
-    File.copy("data/zipWithDirs.zip", TEST_ZIP)
+    FileUtils.cp("data/zipWithDirs.zip", TEST_ZIP)
   end
 
   def teardown
@@ -649,7 +650,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   TEST_ZIP = "zipWithDirs_copy.zip"
 
   def setup
-    File.copy("data/zipWithDirs.zip", TEST_ZIP)
+    FileUtils.cp("data/zipWithDirs.zip", TEST_ZIP)
   end
 
   def test_delete

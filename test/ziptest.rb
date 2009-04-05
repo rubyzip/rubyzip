@@ -5,6 +5,7 @@ $VERBOSE = true
 $: << "../lib"
 
 require 'test/unit'
+require 'fileutils'
 require 'zip/zip'
 require 'gentestfiles'
 
@@ -1016,7 +1017,7 @@ module CommonZipFileFixture
 
   def setup
     File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)
-    File.copy(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
+    FileUtils.cp(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
   end
 end
 
@@ -1126,7 +1127,7 @@ class ZipFileTest < Test::Unit::TestCase
   def test_remove
     entryToRemove, *remainingEntries = TEST_ZIP.entry_names
 
-    File.copy(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
+    FileUtils.cp(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
 
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert(zf.entries.map { |e| e.name }.include?(entryToRemove))
@@ -1274,12 +1275,12 @@ class ZipFileTest < Test::Unit::TestCase
   # can delete the file you used to add the entry to the zip file
   # with
   def test_commitUseZipEntry
-    File.copy(TestFiles::RANDOM_ASCII_FILE1, "okToDelete.txt")
+    FileUtils.cp(TestFiles::RANDOM_ASCII_FILE1, "okToDelete.txt")
     zf = ZipFile.open(TEST_ZIP.zip_name)
     zf.add("okToDelete.txt", "okToDelete.txt")
     assert_contains(zf, "okToDelete.txt")
     zf.commit
-    File.move("okToDelete.txt", "okToDeleteMoved.txt")
+    File.rename("okToDelete.txt", "okToDeleteMoved.txt")
     assert_contains(zf, "okToDelete.txt", "okToDeleteMoved.txt")
   end
 
