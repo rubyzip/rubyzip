@@ -1,4 +1,5 @@
 require 'delegate'
+require 'iconv'
 require 'singleton'
 require 'tempfile'
 require 'fileutils'
@@ -349,6 +350,21 @@ module Zip
 
     attr_reader :ftype, :filepath # :nodoc:
     
+    # Returns the character encoding used for name and comment
+    def name_encoding
+      (@gp_flags & 0b100000000000) != 0 ? "utf8" : "CP437//"
+    end
+
+    # Returns the name in the encoding specified by enc
+    def name_in(enc)
+      Iconv.conv(enc, name_encoding, @name)
+    end
+
+    # Returns the name in the encoding specified by enc
+    def comment_in(enc)
+      Iconv.conv(enc, name_encoding, @name)
+    end
+
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
                    compressed_size = 0, crc = 0, 
 		   compression_method = ZipEntry::DEFLATED, size = 0,
