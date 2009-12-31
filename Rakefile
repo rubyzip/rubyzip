@@ -7,7 +7,7 @@ require 'rake/packagetask'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/contrib/sshpublisher'
-require 'net/ftp'
+require 'net/sftp'
 
 PKG_NAME = 'rubyzip'
 PKG_VERSION = File.read('lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
@@ -31,6 +31,10 @@ clobberFromCvsIgnore '.'
 clobberFromCvsIgnore 'samples'
 clobberFromCvsIgnore 'test'
 clobberFromCvsIgnore 'test/data'
+
+def rsystem(cmd)
+  system(cmd) or raise "system command failed: '#{cmd}"
+end
 
 task :default => [:test]
 
@@ -68,23 +72,20 @@ end
 
 desc "Publish documentation"
 task :pdoc => [:rdoc] do
-  Rake::SshFreshDirPublisher.
-       new("thomas@rubyzip.sourceforge.net", "/home/groups/r/ru/rubyzip/htdocs", "html").upload
+  rsystem("rsync -avz --delete html/* thomas,rubyzip@frs.sourceforge.net:/home/groups/r/ru/rubyzip/htdocs")
 end
 
 desc "Publish package"
 task :ppackage => [:package] do
-  Net::FTP.open("upload.sourceforge.net", 
-                "ftp", 
-                ENV['USER']+"@"+ENV['HOSTNAME']) {
+  Net::SFTP.start("frs.sourceforge.net", "thomas,rubyzip") do
     |ftpclient|
-    ftpclient.passive = true
-    ftpclient.chdir "incoming"
-    Dir['pkg/*.{tgz,zip,gem}'].each {
+    releasedir = File.join("/home/pfs/project/r/ru/rubyzip/rubyzip", PKG_VERSION)
+    ftpclient.mkdir releasedir
+    Dir['pkg/*.{tgz,zip,gem}'].each do
       |e|
-      ftpclient.putbinaryfile(e, File.basename(e))
-    }
-  }
+      ftpclient.upload!(e, File.join(releasedir, File.basename(e)))
+    end
+  end
 end
 
 desc "Generate the ChangeLog file"
