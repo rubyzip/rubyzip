@@ -632,6 +632,23 @@ class ZipOutputStreamTest < Test::Unit::TestCase
     end
   end
 
+  def test_put_next_entry
+    stored_text = "hello world in stored text"
+    entry_name = "file1"
+    comment = "my comment"
+    ZipOutputStream.open(TEST_ZIP.zip_name) do
+      |zos|
+      zos.put_next_entry(entry_name, comment, nil, ZipEntry::STORED)
+      zos << stored_text
+    end
+
+    assert(File.read(TEST_ZIP.zip_name).grep(stored_text))
+    ZipFile.open(TEST_ZIP.zip_name) do
+      |zf|
+      assert_equal(stored_text, zf.read(entry_name))
+    end
+  end
+
   def assert_i_o_error_in_closed_stream
     assert_raise(IOError) {
       zos = ZipOutputStream.new("test_putOnClosedStream.zip")

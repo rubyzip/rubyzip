@@ -21,7 +21,7 @@ end
 
 module Zip
 
-  VERSION = '0.9.3'
+  VERSION = '0.9.4'
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
@@ -385,9 +385,14 @@ module Zip
       else
         @fstype = FSTYPE_UNIX
       end
-      @zipfile, @comment, @compressed_size, @crc, @extra, @compression_method, 
-	@name, @size = zipfile, comment, compressed_size, crc, 
-	extra, compression_method, name, size
+      @zipfile = zipfile
+      @comment = comment
+      @compressed_size = compressed_size
+      @crc = crc
+      @extra = extra
+      @compression_method = compression_method
+      @name = name
+      @size = size
       @time = time
 
       @follow_symlinks = false
@@ -972,11 +977,16 @@ module Zip
 
     # Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
-    def put_next_entry(entry, level = Zlib::DEFAULT_COMPRESSION)
+    def put_next_entry(entryname, comment = nil, extra = nil, compression_method = ZipEntry::DEFLATED,  level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
-      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@fileName, entry.to_s)
-      init_next_entry(newEntry, level)
-      @currentEntry=newEntry
+      new_entry = ZipEntry.new(@fileName, entryname.to_s)
+      new_entry.comment = comment if !comment.nil?
+      if (!extra.nil?)
+        new_entry.extra = ZipExtraField === extra ? extra : ZipExtraField.new(extra.to_s)
+      end
+      new_entry.compression_method = compression_method
+      init_next_entry(new_entry, level)
+      @currentEntry = new_entry
     end
 
     def copy_raw_entry(entry)

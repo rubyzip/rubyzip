@@ -1,3 +1,8 @@
+= Version 0.9.4
+
+Changed ZipOutputStream.put_next_entry signature (API CHANGE!). Now
+allows comment, extra field and compression method to be specified.
+
 = Version 0.9.3
 
 Fixed: Added ZipEntry::name_encoding which retrieves the character
