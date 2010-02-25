@@ -642,7 +642,7 @@ class ZipOutputStreamTest < Test::Unit::TestCase
       zos << stored_text
     end
 
-    assert(File.read(TEST_ZIP.zip_name).grep(stored_text))
+    assert(File.read(TEST_ZIP.zip_name)[stored_text])
     ZipFile.open(TEST_ZIP.zip_name) do
       |zf|
       assert_equal(stored_text, zf.read(entry_name))
@@ -676,7 +676,7 @@ module Enumerable
       |element, index|
       return false unless yield(element, otherAsArray[index])
     }
-    return index+1 == otherAsArray.size
+    return self.size == otherAsArray.size
   end
 end
 
