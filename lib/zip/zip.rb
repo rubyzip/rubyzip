@@ -7,6 +7,7 @@ require 'stringio'
 require 'zlib'
 require 'zip/stdrubyext'
 require 'zip/ioextras'
+require 'rbconfig'
 
 if Tempfile.superclass == SimpleDelegator
   require 'zip/tempfile_bugfixed'
@@ -25,7 +26,7 @@ module Zip
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
-  RUNNING_ON_WINDOWS = /mswin32|cygwin|mingw|bccwin/ =~ RUBY_PLATFORM
+  RUNNING_ON_WINDOWS = Config::CONFIG['host_os'] =~ /^win|mswin/i 
 
   # Ruby 1.7.x compatibility
   # In ruby 1.6.x and 1.8.0 reading from an empty stream returns 
