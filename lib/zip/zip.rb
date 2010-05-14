@@ -730,7 +730,7 @@ module Zip
 	@size                             ,
 	@name  ?  @name.length  : 0       ,
 	@extra ? @extra.c_dir_length : 0  ,
-	@comment ? comment.length : 0     ,
+	@comment ? @comment.length : 0     ,
 	0                                 , # disk number start
 	@internalFileAttributes           , # file type (binary=0, text=1)
 	@externalFileAttributes           , # native filesystem attributes
