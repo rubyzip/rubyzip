@@ -643,7 +643,7 @@ module Zip
         when 012
           @ftype = :symlink
         else
-          raise ZipInternalError, "unknown file type #{'0%o' % (@externalFileAttributes >> 28)}"
+          @ftype = :unknown
         end
       else
         if name_is_directory?
@@ -709,11 +709,11 @@ module Zip
         when :symlink
           ft = 012
           @unix_perms ||= 0755
-        else
-          raise ZipInternalError, "unknown file type #{self.inspect}"
         end
 
-        @externalFileAttributes = (ft << 12 | (@unix_perms & 07777)) << 16
+        if (!ft.nil?)
+          @externalFileAttributes = (ft << 12 | (@unix_perms & 07777)) << 16
+        end
       end
 
       io << 
