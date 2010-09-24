@@ -1,0 +1,12 @@
+*.gem
+test/5entry_copy.zip
+test/cdirtest.bin
+test/centralEntryHeader.bin
+test/data/generated/
+test/deflatertest.bin
+test/dummy.txt
+test/localEntryHeader.bin
+test/okToDeleteMoved.txt
+test/output.zip
+test/test_putOnClosedStream.zip
+test/zipWithDirs_copy.zip
