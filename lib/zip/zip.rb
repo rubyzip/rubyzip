@@ -22,7 +22,7 @@ end
 
 module Zip
 
-  VERSION = '0.9.4'
+  VERSION = '0.9.5'
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
@@ -545,6 +545,8 @@ module Zip
       @name              = io.read(nameLength)
       extra              = io.read(extraLength)
 
+      until @name.sub!('\\', '/') == nil do end # some zip files use backslashes instead of slashes as path separators
+
       if (extra && extra.length != extraLength)
 	raise ZipError, "Truncated local zip entry header"
       else
@@ -621,6 +623,7 @@ module Zip
       set_time(lastModDate, lastModTime)
       
       @name                  = io.read(nameLength)
+      until @name.sub!('\\', '/') == nil do end # some zip files use backslashes instead of slashes as path separators
       if ZipExtraField === @extra
         @extra.merge(io.read(extraLength))
       else
@@ -1240,8 +1243,14 @@ module Zip
       @size                                 = ZipEntry::read_zip_short(buf)
       @sizeInBytes                          = ZipEntry::read_zip_long(buf)
       @cdirOffset                           = ZipEntry::read_zip_long(buf)
+
+      # some zip files set the comment length to zero even if there is a comment
       commentLength                         = ZipEntry::read_zip_short(buf)
-      @comment                              = buf.read(commentLength)
+      if commentLength <= 0
+        @comment                            = buf.slice!(0, buf.size)
+      else
+        @comment                            = buf.read(commentLength)
+      end
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
     
