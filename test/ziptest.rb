@@ -614,6 +614,16 @@ class ZipOutputStreamTest < Test::Unit::TestCase
     assert_test_zip_contents(TEST_ZIP)
   end
 
+  def test_write_buffer
+    buffer = ZipOutputStream.write_buffer {
+      |zos|
+      zos.comment = TEST_ZIP.comment
+      write_test_zip(zos)
+    }
+    File.open(TEST_ZIP.zip_name, 'w') { |f| f.write buffer.string }
+    assert_test_zip_contents(TEST_ZIP)
+  end
+
   def test_writingToClosedStream
     assert_i_o_error_in_closed_stream { |zos| zos << "hello world" }
     assert_i_o_error_in_closed_stream { |zos| zos.puts "hello world" }
@@ -1041,6 +1051,23 @@ end
 class ZipFileTest < Test::Unit::TestCase
   include CommonZipFileFixture
 
+  def test_createFromScratchToBuffer
+    comment  = "a short comment"
+
+    buffer = ZipFile.add_buffer do |zf|
+      zf.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
+      zf.mkdir("dir1")
+      zf.comment = comment
+    end
+
+    File.open(EMPTY_FILENAME, 'w') { |file| file.write buffer.string }
+    `cp #{EMPTY_FILENAME} ~/test.zip`
+
+    zfRead = ZipFile.new(EMPTY_FILENAME)
+    assert_equal(comment, zfRead.comment)
+    assert_equal(2, zfRead.entries.length)
+  end
+
   def test_createFromScratch
     comment  = "a short comment"
 
@@ -1280,6 +1307,21 @@ class ZipFileTest < Test::Unit::TestCase
     zf.rename(oldName, newName)
     zf.commit
 
+    zfRead = ZipFile.new(TEST_ZIP.zip_name)
+    assert(zfRead.entries.detect { |e| e.name == newName } != nil)
+    assert(zfRead.entries.detect { |e| e.name == oldName } == nil)
+    zfRead.close
+
+    zf.close
+  end
+
+  def test_write_buffer
+    newName = "renamedFirst"
+    zf = ZipFile.new(TEST_ZIP.zip_name)
+    oldName = zf.entries.first
+    zf.rename(oldName, newName)
+    buffer = zf.write_buffer
+    File.open(TEST_ZIP.zip_name, 'w') { |f| f.write buffer.string }
     zfRead = ZipFile.new(TEST_ZIP.zip_name)
     assert(zfRead.entries.detect { |e| e.name == newName } != nil)
     assert(zfRead.entries.detect { |e| e.name == oldName } == nil)

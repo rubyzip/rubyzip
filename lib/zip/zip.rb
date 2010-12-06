@@ -944,10 +944,14 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(fileName)
+    def initialize(fileName, stream=false)
       super()
       @fileName = fileName
-      @outputStream = File.new(@fileName, "wb")
+      if stream
+        @outputStream = StringIO.new
+      else
+        @outputStream = File.new(@fileName, "wb")
+      end
       @entrySet = ZipEntrySet.new
       @compressor = NullCompressor.instance
       @closed = false
@@ -966,6 +970,13 @@ module Zip
       zos.close if zos
     end
 
+    # Same as #open but writes to a filestream instead
+    def ZipOutputStream.write_buffer
+      zos = new('', true)
+      yield zos
+      return zos.close_buffer
+    end
+
     # Closes the stream and writes the central directory to the zip file
     def close
       return if @closed
@@ -974,6 +985,16 @@ module Zip
       write_central_directory
       @outputStream.close
       @closed = true
+    end
+
+    # Closes the stream and writes the central directory to the zip file
+    def close_buffer
+      return @outputStream if @closed
+      finalize_current_entry
+      update_local_headers
+      write_central_directory
+      @closed = true
+      return @outputStream
     end
 
     # Closes the current entry and opens a new for writing.
@@ -1385,11 +1406,11 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(fileName, create = nil)
+    def initialize(fileName, create = nil, buffer = false)
       super()
       @name = fileName
       @comment = ""
-      if (File.exists?(fileName))
+      if (File.exists?(fileName)) and !buffer
 	File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
 	@entrySet = ZipEntrySet.new
@@ -1417,6 +1438,17 @@ module Zip
 	end
       else
 	zf
+      end
+    end
+
+    # Same as #open. But outputs data to a buffer instead of a file
+    def ZipFile.add_buffer
+      zf = ZipFile.new('', true, true)
+      begin
+        yield zf
+      ensure
+        buffer = zf.write_buffer
+        return buffer
       end
     end
 
@@ -1520,6 +1552,16 @@ module Zip
       }
       initialize(name)
     end
+
+    # Write buffer write changes to buffer and return
+    def write_buffer
+      buffer = ZipOutputStream.write_buffer do |zos|
+        @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
+        zos.comment = comment
+      end
+      return buffer
+    end
+
 
     # Closes the zip file committing any changes that has been made.
     def close

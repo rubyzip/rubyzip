@@ -10,3 +10,4 @@ test/okToDeleteMoved.txt
 test/output.zip
 test/test_putOnClosedStream.zip
 test/zipWithDirs_copy.zip
+nbproject/*
