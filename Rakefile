@@ -11,11 +11,3 @@ Rake::TestTask.new(:test) do |test|
   Dir.chdir File.join(File.dirname(__FILE__), 'test')
 end
 
-require 'rspec/core'
-require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.verbose = true
-  spec.pattern = FileList['spec/**/*_spec.rb']
-end
-
-task :default => :spec

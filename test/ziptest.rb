@@ -176,6 +176,93 @@ module IOizeString
   end
 end
 
+class ZipLocalEntryTest < Test::Unit::TestCase
+  def test_read_local_entryHeaderOfFirstTestZipEntry
+    File.open(TestZipFile::TEST_ZIP3.zip_name, "rb") {
+      |file|
+      entry = ZipEntry.read_local_entry(file)
+      
+      assert_equal("", entry.comment)
+      # Differs from windows and unix because of CR LF
+      # assert_equal(480, entry.compressed_size)
+      # assert_equal(0x2a27930f, entry.crc)
+      # extra field is 21 bytes long
+      # probably contains some unix attrutes or something
+      # disabled: assert_equal(nil, entry.extra)
+      assert_equal(ZipEntry::DEFLATED, entry.compression_method)
+      assert_equal(TestZipFile::TEST_ZIP3.entry_names[0], entry.name)
+      assert_equal(File.size(TestZipFile::TEST_ZIP3.entry_names[0]), entry.size)
+      assert(! entry.is_directory)
+    }
+  end
+
+  def test_readDateTime
+    File.open("data/rubycode.zip", "rb") {
+      |file|
+      entry = ZipEntry.read_local_entry(file)
+      assert_equal("zippedruby1.rb", entry.name)
+      assert_equal(Time.at(1019261638), entry.time)
+    }
+  end
+
+  def test_read_local_entryFromNonZipFile
+    File.open("data/file2.txt") {
+      |file|
+      assert_equal(nil, ZipEntry.read_local_entry(file))
+    }
+  end
+
+  def test_read_local_entryFromTruncatedZipFile
+    zipFragment=""
+    File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
+    zipFragment.extend(IOizeString).reset
+    entry = ZipEntry.new
+    entry.read_local_entry(zipFragment)
+    fail "ZipError expected"
+  rescue ZipError
+  end
+
+  def test_writeEntry
+    entry = ZipEntry.new("file.zip", "entryName", "my little comment", 
+			 "thisIsSomeExtraInformation", 100, 987654, 
+			 ZipEntry::DEFLATED, 400)
+    write_to_file("localEntryHeader.bin", "centralEntryHeader.bin",  entry)
+    entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    compare_local_entry_headers(entry, entryReadLocal)
+    compare_c_dir_entry_headers(entry, entryReadCentral)
+  end
+  
+  private
+  def compare_local_entry_headers(entry1, entry2)
+    assert_equal(entry1.compressed_size   , entry2.compressed_size)
+    assert_equal(entry1.crc              , entry2.crc)
+    assert_equal(entry1.extra            , entry2.extra)
+    assert_equal(entry1.compression_method, entry2.compression_method)
+    assert_equal(entry1.name             , entry2.name)
+    assert_equal(entry1.size             , entry2.size)
+    assert_equal(entry1.localHeaderOffset, entry2.localHeaderOffset)
+  end
+
+  def compare_c_dir_entry_headers(entry1, entry2)
+    compare_local_entry_headers(entry1, entry2)
+    assert_equal(entry1.comment, entry2.comment)
+  end
+
+  def write_to_file(localFileName, centralFileName, entry)
+    File.open(localFileName,   "wb") { |f| entry.write_local_entry(f) }
+    File.open(centralFileName, "wb") { |f| entry.write_c_dir_entry(f)  }
+  end
+
+  def read_from_file(localFileName, centralFileName)
+    localEntry = nil
+    cdirEntry  = nil
+    File.open(localFileName,   "rb") { |f| localEntry = ZipEntry.read_local_entry(f) }
+    File.open(centralFileName, "rb") { |f| cdirEntry  = ZipEntry.read_c_dir_entry(f) }
+    return [localEntry, cdirEntry]
+  end
+end
+
+
 module DecompressorTests
   # expects @refText, @refLines and @decompressor
 
