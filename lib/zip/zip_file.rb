@@ -10,17 +10,17 @@ module Zip
   # the archive.
   #
   # Modifications to a zip archive are not committed until #commit or
-  # #close is called. The method #open accepts a block following 
-  # the pattern from File.open offering a simple way to 
-  # automatically close the archive when the block returns. 
+  # #close is called. The method #open accepts a block following
+  # the pattern from File.open offering a simple way to
+  # automatically close the archive when the block returns.
   #
-  # The following example opens zip archive <code>my.zip</code> 
-  # (creating it if it doesn't exist) and adds an entry 
-  # <code>first.txt</code> and a directory entry <code>a_dir</code> 
+  # The following example opens zip archive <code>my.zip</code>
+  # (creating it if it doesn't exist) and adds an entry
+  # <code>first.txt</code> and a directory entry <code>a_dir</code>
   # to it.
   #
   #   require 'zip/zip'
-  #   
+  #
   #   Zip::ZipFile.open("my.zip", Zip::ZipFile::CREATE) {
   #    |zipfile|
   #     zipfile.get_output_stream("first.txt") { |f| f.puts "Hello from ZipFile" }
@@ -28,20 +28,20 @@ module Zip
   #   }
   #
   # The next example reopens <code>my.zip</code> writes the contents of
-  # <code>first.txt</code> to standard out and deletes the entry from 
+  # <code>first.txt</code> to standard out and deletes the entry from
   # the archive.
   #
   #   require 'zip/zip'
-  #   
+  #
   #   Zip::ZipFile.open("my.zip", Zip::ZipFile::CREATE) {
   #     |zipfile|
   #     puts zipfile.read("first.txt")
   #     zipfile.remove("first.txt")
   #   }
   #
-  # ZipFileSystem offers an alternative API that emulates ruby's 
+  # ZipFileSystem offers an alternative API that emulates ruby's
   # interface for accessing the filesystem, ie. the File and Dir classes.
-  
+
   class ZipFile < ZipCentralDirectory
 
     CREATE = 1
@@ -57,11 +57,11 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(fileName, create = nil)
+    def initialize(fileName, create = nil, buffer = false)
       super()
       @name = fileName
       @comment = ""
-      if (File.exists?(fileName))
+      if (File.exists?(fileName)) and !buffer
 	File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
 	@entrySet = ZipEntrySet.new
@@ -92,14 +92,25 @@ module Zip
       end
     end
 
-    # Returns the zip files comment, if it has one
+    # Same as #open. But outputs data to a buffer instead of a file
+    def ZipFile.add_buffer
+      zf = ZipFile.new('', true, true)
+      begin
+        yield zf
+      ensure
+        buffer = zf.write_buffer
+        return buffer
+      end
+    end
+
+	# Returns the zip files comment, if it has one
     attr_accessor :comment
 
     # Iterates over the contents of the ZipFile. This is more efficient
     # than using a ZipInputStream since this methods simply iterates
     # through the entries in the central directory structure in the archive
     # whereas ZipInputStream jumps through the entire archive accessing the
-    # local entry headers (which contain the same information as the 
+    # local entry headers (which contain the same information as the
     # central directory).
     def ZipFile.foreach(aZipFileName, &block)
       ZipFile.open(aZipFileName) {
@@ -107,7 +118,7 @@ module Zip
 	zipFile.each(&block)
       }
     end
-    
+
     # Returns an input stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.
@@ -126,7 +137,7 @@ module Zip
       end
       zipStreamableEntry = ZipStreamableStream.new(newEntry)
       @entrySet << zipStreamableEntry
-      zipStreamableEntry.get_output_stream(&aProc)      
+      zipStreamableEntry.get_output_stream(&aProc)
     end
 
     # Returns the name of the zip archive
@@ -136,7 +147,7 @@ module Zip
 
     # Returns a string containing the contents of the specified entry
     def read(entry)
-      get_input_stream(entry) { |is| is.read } 
+      get_input_stream(entry) { |is| is.read }
     end
 
     # Convenience method for adding the contents of a file to the archive
@@ -147,12 +158,12 @@ module Zip
       newEntry.gather_fileinfo_from_srcpath(srcPath)
       @entrySet << newEntry
     end
-    
+
     # Removes the specified entry.
     def remove(entry)
       @entrySet.delete(get_entry(entry))
     end
-    
+
     # Renames the specified entry.
     def rename(entry, newName, &continueOnExistsProc)
       foundEntry = get_entry(entry)
@@ -162,7 +173,7 @@ module Zip
       @entrySet << foundEntry
     end
 
-    # Replaces the specified entry with the contents of srcPath (from 
+    # Replaces the specified entry with the contents of srcPath (from
     # the file system).
     def replace(entry, srcPath)
       check_file(srcPath)
@@ -176,7 +187,7 @@ module Zip
       foundEntry.extract(destPath, &onExistsProc)
     end
 
-    # Commits changes that has been made since the previous commit to 
+    # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
      return if ! commit_required?
@@ -193,6 +204,15 @@ module Zip
       initialize(name)
     end
 
+    # Write buffer write changes to buffer and return
+    def write_buffer
+      buffer = ZipOutputStream.write_buffer do |zos|
+        @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
+        zos.comment = comment
+      end
+      return buffer
+    end
+
     # Closes the zip file committing any changes that has been made.
     def close
       commit
@@ -204,11 +224,11 @@ module Zip
       return @entrySet != @storedEntries || @create == ZipFile::CREATE
     end
 
-    # Searches for entry with the specified name. Returns nil if 
+    # Searches for entry with the specified name. Returns nil if
     # no entry is found. See also get_entry
     def find_entry(entry)
-      @entrySet.detect { 
-	|e| 
+      @entrySet.detect {
+	|e|
 	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
       }
     end
@@ -255,7 +275,7 @@ module Zip
 	if continueOnExistsProc.call
 	  remove get_entry(entryName)
 	else
-	  raise ZipEntryExistsError, 
+	  raise ZipEntryExistsError,
 	    procedureName+" failed. Entry #{entryName} already exists"
 	end
       end
@@ -266,7 +286,7 @@ module Zip
 	raise Errno::ENOENT, path
       end
     end
-    
+
     def on_success_replace(aFilename)
       tmpfile = get_tempfile
       tmpFilename = tmpfile.path
@@ -275,13 +295,13 @@ module Zip
 	File.rename(tmpFilename, name)
       end
     end
-    
+
     def get_tempfile
       tempFile = Tempfile.new(File.basename(name), File.dirname(name))
       tempFile.binmode
       tempFile
     end
-    
+
   end
 end
 

@@ -1,20 +1,20 @@
 module Zip
-  # ZipOutputStream is the basic class for writing zip files. It is 
-  # possible to create a ZipOutputStream object directly, passing 
-  # the zip file name to the constructor, but more often than not 
-  # the ZipOutputStream will be obtained from a ZipFile (perhaps using the 
-  # ZipFileSystem interface) object for a particular entry in the zip 
+  # ZipOutputStream is the basic class for writing zip files. It is
+  # possible to create a ZipOutputStream object directly, passing
+  # the zip file name to the constructor, but more often than not
+  # the ZipOutputStream will be obtained from a ZipFile (perhaps using the
+  # ZipFileSystem interface) object for a particular entry in the zip
   # archive.
   #
-  # A ZipOutputStream inherits IOExtras::AbstractOutputStream in order 
-  # to provide an IO-like interface for writing to a single zip 
-  # entry. Beyond methods for mimicking an IO-object it contains 
-  # the method put_next_entry that closes the current entry 
+  # A ZipOutputStream inherits IOExtras::AbstractOutputStream in order
+  # to provide an IO-like interface for writing to a single zip
+  # entry. Beyond methods for mimicking an IO-object it contains
+  # the method put_next_entry that closes the current entry
   # and creates a new.
   #
   # Please refer to ZipInputStream for example code.
   #
-  # java.util.zip.ZipOutputStream is the original inspiration for this 
+  # java.util.zip.ZipOutputStream is the original inspiration for this
   # class.
 
   class ZipOutputStream
@@ -24,10 +24,14 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(fileName)
+    def initialize(fileName, stream=false)
       super()
       @fileName = fileName
-      @outputStream = File.new(@fileName, "wb")
+      if stream
+        @outputStream = StringIO.new
+      else
+        @outputStream = File.new(@fileName, "wb")
+      end
       @entrySet = ZipEntrySet.new
       @compressor = NullCompressor.instance
       @closed = false
@@ -37,13 +41,20 @@ module Zip
 
     # Same as #initialize but if a block is passed the opened
     # stream is passed to the block and closed when the block
-    # returns.    
+    # returns.
     def ZipOutputStream.open(fileName)
       return new(fileName) unless block_given?
       zos = new(fileName)
       yield zos
     ensure
       zos.close if zos
+    end
+
+	# Same as #open but writes to a filestream instead
+    def ZipOutputStream.write_buffer
+      zos = new('', true)
+      yield zos
+      return zos.close_buffer
     end
 
     # Closes the stream and writes the central directory to the zip file
@@ -56,7 +67,17 @@ module Zip
       @closed = true
     end
 
-    # Closes the current entry and opens a new for writing.
+    # Closes the stream and writes the central directory to the zip file
+    def close_buffer
+      return @outputStream if @closed
+      finalize_current_entry
+      update_local_headers
+      write_central_directory
+      @closed = true
+      return @outputStream
+    end
+
+	# Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
     def put_next_entry(entryname, comment = nil, extra = nil, compression_method = ZipEntry::DEFLATED,  level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
@@ -79,8 +100,8 @@ module Zip
       src_pos = entry.local_entry_offset
       entry.write_local_entry(@outputStream)
       @compressor = NullCompressor.instance
-      entry.get_raw_input_stream { 
-	|is| 
+      entry.get_raw_input_stream {
+	|is|
 	is.seek(src_pos, IO::SEEK_SET)
         IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
       }
@@ -92,14 +113,14 @@ module Zip
     def finalize_current_entry
       return unless @currentEntry
       finish
-      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - 
+      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset -
 	@currentEntry.calculate_local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
       @currentEntry = nil
       @compressor = NullCompressor.instance
     end
-    
+
     def init_next_entry(entry, level = Zlib::DEFAULT_COMPRESSION)
       finalize_current_entry
       @entrySet << entry
@@ -111,7 +132,7 @@ module Zip
       case entry.compression_method
 	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
 	when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
-      else raise ZipCompressionMethodError, 
+      else raise ZipCompressionMethodError,
 	  "Invalid compression method: '#{entry.compression_method}'"
       end
     end
