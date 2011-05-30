@@ -48,10 +48,10 @@ module Zip
       @entrySet[entry.parent_as_string]
     end
 
-    def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
+    def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
       entries.select { 
 	|entry| 
-	File.fnmatch(pattern, entry.name.chomp('/'), flags) 
+	::File.fnmatch(pattern, entry.name.chomp('/'), flags) 
       } 
     end	
 

@@ -39,7 +39,7 @@ class Tempfile < DelegateClass(File)
 	lock = tmpname + '.lock'
 	n += 1
       end while @@cleanlist.include?(tmpname) or
-	File.exist?(lock) or File.exist?(tmpname)
+	::File.exist?(lock) or ::File.exist?(tmpname)
 
       Dir.mkdir(lock)
     rescue
@@ -54,7 +54,7 @@ class Tempfile < DelegateClass(File)
     @clean_proc = Tempfile.callback(@data)
     ObjectSpace.define_finalizer(self, @clean_proc)
 
-    @tmpfile = File.open(tmpname, File::RDWR|File::CREAT|File::EXCL, 0600)
+    @tmpfile = ::File.open(tmpname, ::File::RDWR|::File::CREAT|::File::EXCL, 0600)
     @tmpname = tmpname
     @@cleanlist << @tmpname
     @data[1] = @tmpfile
@@ -71,7 +71,7 @@ class Tempfile < DelegateClass(File)
   # Opens or reopens the file with mode "r+".
   def open
     @tmpfile.close if @tmpfile
-    @tmpfile = File.open(@tmpname, 'r+')
+    @tmpfile = ::File.open(@tmpname, 'r+')
     @data[1] = @tmpfile
     __setobj__(@tmpfile)
   end
@@ -108,7 +108,7 @@ class Tempfile < DelegateClass(File)
   # file.
   def unlink
     # keep this order for thread safeness
-    File.unlink(@tmpname) if File.exist?(@tmpname)
+    ::File.unlink(@tmpname) if ::File.exist?(@tmpname)
     @@cleanlist.delete(@tmpname) if @@cleanlist
   end
   alias delete unlink
@@ -152,7 +152,7 @@ class Tempfile < DelegateClass(File)
 	  tmpfile.close if tmpfile
 
 	  # keep this order for thread safeness
-	  File.unlink(path) if File.exist?(path)
+	  ::File.unlink(path) if ::File.exist?(path)
 	  cleanlist.delete(path) if cleanlist
 
 	  print "done\n" if $DEBUG
