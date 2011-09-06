@@ -33,13 +33,12 @@ Zip::ZipFileSystem API. Using this API files can be read from and
 written to the archive in much the same manner as ruby's builtin
 classes allows files to be read from and written to the file system.
 
-rubyzip also features the
-zip/ziprequire.rb[link:files/lib/zip/ziprequire_rb.html] module which
-allows ruby to load ruby modules from zip archives.
 
 For details about the specific behaviour of classes and methods refer
 to the test suite. Finally you can generate the rdoc documentation or
 visit http://rubyzip.sourceforge.net.
+
+To use Unicode filenames execute ::Zip::ZipEntry.set_unicode_names before any zip files reading/creating.
 
 = License
 
