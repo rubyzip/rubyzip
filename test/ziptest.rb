@@ -1678,7 +1678,6 @@ class ZipUnicodeFileNamesAndComments < Test::Unit::TestCase
     end
     assert(!stream.nil?)
     ::Zip::ZipInputStream.open(FILENAME) do |io|
-      require 'pp'
       file_entrys.each do |filename|
         entry = io.get_next_entry
         entry_name = entry.name
@@ -1692,6 +1691,7 @@ class ZipUnicodeFileNamesAndComments < Test::Unit::TestCase
         assert(filepath == entry_name)
       end
     end
+    ::File.unlink(FILENAME)
   end
 
 end
