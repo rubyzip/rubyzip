@@ -40,7 +40,7 @@ class ZipList #:nodoc:all
       Zip::ZipFile.open(zfName) {
 	|zf|
 	begin
-	  return zf.get_input_stream(entry, &aProc) 
+	  return zf.get_input_stream(entry, &aProc)
 	rescue Errno::ENOENT
 	end
       }
@@ -61,8 +61,8 @@ module Kernel #:nodoc:all
 
   def zip_require(moduleName)
     return false if already_loaded?(moduleName)
-    get_resource(ensure_rb_extension(moduleName)) { 
-      |zis| 
+    get_resource(ensure_rb_extension(moduleName)) {
+      |zis|
       eval(zis.read); $" << moduleName 
     }
     return true

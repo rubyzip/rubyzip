@@ -61,16 +61,15 @@ module Zip
       super()
       @name = fileName
       @comment = ""
-      if (File.exists?(fileName)) and !buffer
-	File.open(name, "rb") { |f| read_from_stream(f) }
+      if (File.exists?(fileName)) && !buffer
+	      File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
-	@entrySet = ZipEntrySet.new
+	      @entrySet = ZipEntrySet.new
       else
-	raise ZipError, "File #{fileName} not found"
+	      raise ZipError, "File #{fileName} not found"
       end
       @create = create
       @storedEntries = @entrySet.dup
-
       @restore_ownership = false
       @restore_permissions = false
       @restore_times = true
@@ -82,13 +81,13 @@ module Zip
     def ZipFile.open(fileName, create = nil)
       zf = ZipFile.new(fileName, create)
       if block_given?
-	begin
-	  yield zf
-	ensure
-	  zf.close
-	end
+	      begin
+	        yield zf
+	      ensure
+	        zf.close
+	      end
       else
-	zf
+	      zf
       end
     end
 
@@ -113,10 +112,7 @@ module Zip
     # local entry headers (which contain the same information as the
     # central directory).
     def ZipFile.foreach(aZipFileName, &block)
-      ZipFile.open(aZipFileName) {
-	|zipFile|
-	zipFile.each(&block)
-      }
+      ZipFile.open(aZipFileName) { |zipFile| zipFile.each(&block) }
     end
 
     # Returns an input stream to the specified entry. If a block is passed
@@ -132,8 +128,7 @@ module Zip
     def get_output_stream(entry, &aProc)
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       if newEntry.directory?
-	raise ArgumentError,
-	  "cannot open stream to directory entry - '#{newEntry}'"
+	      raise ArgumentError, "cannot open stream to directory entry - '#{newEntry}'"
       end
       zipStreamableEntry = ZipStreamableStream.new(newEntry)
       @entrySet << zipStreamableEntry
@@ -191,16 +186,13 @@ module Zip
     # the zip archive.
     def commit
      return if ! commit_required?
-      on_success_replace(name) {
-	|tmpFile|
-	ZipOutputStream.open(tmpFile) {
-	  |zos|
-
-	  @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
-	  zos.comment = comment
-	}
-	true
-      }
+      on_success_replace(name) do |tmpFile|
+	      ZipOutputStream.open(tmpFile) do |zos|
+	        @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
+	        zos.comment = comment
+	      end
+	      true
+      end
       initialize(name)
     end
 
@@ -210,7 +202,7 @@ module Zip
         @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
-      return buffer
+      buffer
     end
 
     # Closes the zip file committing any changes that has been made.
@@ -221,16 +213,15 @@ module Zip
     # Returns true if any changes has been made to this archive since
     # the previous commit
     def commit_required?
-      return @entrySet != @storedEntries || @create == ZipFile::CREATE
+      @entrySet != @storedEntries || @create == ZipFile::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if
     # no entry is found. See also get_entry
     def find_entry(entry)
-      @entrySet.detect {
-	|e|
-	e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
-      }
+      @entrySet.detect do |e|
+        e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
+      end
     end
 
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
@@ -238,13 +229,12 @@ module Zip
     def get_entry(entry)
       selectedEntry = find_entry(entry)
       unless selectedEntry
-	raise Errno::ENOENT, entry
+        raise Errno::ENOENT, entry
       end
       selectedEntry.restore_ownership = @restore_ownership
       selectedEntry.restore_permissions = @restore_permissions
       selectedEntry.restore_times = @restore_times
-
-      return selectedEntry
+      selectedEntry
     end
 
     # Creates a directory
@@ -260,30 +250,28 @@ module Zip
     def is_directory(newEntry, srcPath)
       srcPathIsDirectory = File.directory?(srcPath)
       if newEntry.is_directory && ! srcPathIsDirectory
-	raise ArgumentError,
-	  "entry name '#{newEntry}' indicates directory entry, but "+
-	  "'#{srcPath}' is not a directory"
-      elsif ! newEntry.is_directory && srcPathIsDirectory
-	newEntry.name += "/"
+        raise ArgumentError, "entry name '#{newEntry}' indicates directory entry, but "+
+            "'#{srcPath}' is not a directory"
+      elsif !newEntry.is_directory && srcPathIsDirectory
+        newEntry.name += "/"
       end
-      return newEntry.is_directory && srcPathIsDirectory
+      newEntry.is_directory && srcPathIsDirectory
     end
 
     def check_entry_exists(entryName, continueOnExistsProc, procedureName)
       continueOnExistsProc ||= proc { false }
       if @entrySet.detect { |e| e.name == entryName }
-	if continueOnExistsProc.call
-	  remove get_entry(entryName)
-	else
-	  raise ZipEntryExistsError,
-	    procedureName+" failed. Entry #{entryName} already exists"
-	end
+	      if continueOnExistsProc.call
+	        remove get_entry(entryName)
+	      else
+	        raise ZipEntryExistsError, procedureName+" failed. Entry #{entryName} already exists"
+	      end
       end
     end
 
     def check_file(path)
       unless File.readable? path
-	raise Errno::ENOENT, path
+	      raise Errno::ENOENT, path
       end
     end
 
@@ -292,7 +280,7 @@ module Zip
       tmpFilename = tmpfile.path
       tmpfile.close
       if yield tmpFilename
-	File.rename(tmpFilename, name)
+	      File.rename(tmpFilename, name)
       end
     end
 

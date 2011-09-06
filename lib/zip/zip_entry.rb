@@ -1,7 +1,13 @@
 module Zip
   class ZipEntry
+    # general purpose bit flag
+    @@global_gp_flags = 0
+
     STORED = 0
     DEFLATED = 8
+
+    # Language encoding flag (EFS) bit
+    EFS = 0b100000000000
 
     FSTYPE_FAT = 0
     FSTYPE_AMIGA = 1
@@ -49,6 +55,21 @@ module Zip
       FSTYPE_ATHEOS => 'AtheOS'.freeze,
     }.freeze
 
+
+    class << self
+
+      # Does EFS is set?
+      def unicode_names?
+        (@@global_gp_flags & EFS) != 0
+      end
+      # Enable Unicode file names
+      def set_unicode_names
+        @@global_gp_flags += (1 << 11)
+        unicode_names?
+      end
+
+    end
+
     attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
       :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes, :gp_flags, :header_signature
 
@@ -85,7 +106,7 @@ module Zip
       @local_header_size = 0
       @internalFileAttributes = 1
       @externalFileAttributes = 0
-      @version = 52 # this library's version
+      @version = 63 # this library's version
       @ftype = nil # unspecified or unknown
       @filepath = nil
       if Zip::RUNNING_ON_WINDOWS
@@ -102,13 +123,10 @@ module Zip
       @name = name
       @size = size
       @time = time
-
       @follow_symlinks = false
-
       @restore_times = true
       @restore_permissions = false
       @restore_ownership = false
-
       # BUG: need an extra field to support uid/gid's
       @unix_uid = nil
       @unix_gid = nil
@@ -125,6 +143,8 @@ module Zip
       unless ZipExtraField === @extra
         @extra = ZipExtraField.new(@extra.to_s)
       end
+      # default value of general purpose bit flag
+      @gp_flags = @@global_gp_flags
     end
 
     def time
@@ -174,11 +194,11 @@ module Zip
     end
 
     def calculate_local_header_size  #:nodoc:all
-      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ? @name.size : 0) + (@extra ? @extra.local_size : 0)
+      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ? @name.size*2 : 0) + (@extra ? @extra.local_size : 0)
     end
 
     def cdir_header_size  #:nodoc:all
-      CDIR_ENTRY_STATIC_HEADER_LENGTH + (@name ? @name.size : 0) + (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.size : 0)
+      CDIR_ENTRY_STATIC_HEADER_LENGTH + (@name ? @name.size*2 : 0) + (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.size : 0)
     end
 
     def next_header_offset  #:nodoc:all
@@ -276,7 +296,7 @@ module Zip
       io << [
         LOCAL_ENTRY_SIGNATURE     ,
         VERSION_NEEDED_TO_EXTRACT , # version needed to extract
-        0                         , # @gp_flags                  ,
+        @gp_flags                 , # @gp_flags                  ,
         @compression_method       ,
         @time.to_binary_dos_time  , # @lastModTime              ,
         @time.to_binary_dos_date  , # @lastModDate              ,
@@ -426,16 +446,16 @@ module Zip
         @version                          , # version of encoding software
         @fstype                           , # filesystem type
         VERSION_NEEDED_TO_EXTRACT         , # @versionNeededToExtract           ,
-        0                                 , # @gp_flags                          ,
-        @compression_method                ,
-        @time.to_binary_dos_time             , # @lastModTime                      ,
-        @time.to_binary_dos_date             , # @lastModDate                      ,
+        @gp_flags                         , # @gp_flags                          ,
+        @compression_method               ,
+        @time.to_binary_dos_time          , # @lastModTime                      ,
+        @time.to_binary_dos_date          , # @lastModDate                      ,
         @crc                              ,
-        @compressed_size                   ,
+        @compressed_size                  ,
         @size                             ,
         @name  ?  @name.length  : 0       ,
         @extra ? @extra.c_dir_length : 0  ,
-        @comment ? @comment.length : 0     ,
+        @comment ? @comment.length : 0    ,
         0                                 , # disk number start
         @internalFileAttributes           , # file type (binary=0, text=1)
         @externalFileAttributes           , # native filesystem attributes
