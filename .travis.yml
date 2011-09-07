@@ -1,0 +1,1 @@
+script: "apt-get -y install zip unzip"
