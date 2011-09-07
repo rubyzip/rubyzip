@@ -1,4 +1,4 @@
-script: "sudo apt-get -y install zip unzip"
+before_script: "sudo apt-get -y install zip unzip"
 rvm:
   - 1.8.7
   - 1.9.2
