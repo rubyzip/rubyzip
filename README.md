@@ -54,7 +54,7 @@ http://github.com/simonoff/dotfiles
 http://rdoc.info/github/simonoff/rubyzip/master/frames
 
 
-= Authors
+# Authors
 
 Alexander Simonov ( alex at simonov.me)
 
