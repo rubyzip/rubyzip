@@ -1,18 +1,18 @@
-= rubyzip
+# rubyzip
 
 rubyzip is a ruby library for reading and writing zip files.
 
-= Install
+# Install
 
-  gem install rubyzip
+  `gem install rubyzip`
 
 
 To run the unit tests you need to have test::unit installed
 
-  rake test
+  `rake test`
 
 
-= Documentation
+# Documentation
 
 There is more than one way to access or create a zip archive with
 rubyzip. The basic API is modeled after the classes in
@@ -38,25 +38,24 @@ For details about the specific behaviour of classes and methods refer
 to the test suite. Finally you can generate the rdoc documentation or
 visit http://rubyzip.sourceforge.net.
 
-To use Unicode filenames execute ::Zip::ZipEntry.set_unicode_names before any zip files reading/creating.
+**To use Unicode filenames execute ::Zip::ZipEntry.set_unicode_names before any zip files reading/creating.**
 
-= License
+# License
 
 rubyzip is distributed under the same license as ruby. See
 http://www.ruby-lang.org/en/LICENSE.txt
 
 
-= Website and Project Home
+# Website and Project Home
 
-http://github.com/aussiegeek/dotfiles
+http://github.com/simonoff/dotfiles
 
-http://rdoc.info/github/aussiegeek/rubyzip/master/frames
-
-== Download (tarballs and gems)
-
+http://rdoc.info/github/simonoff/rubyzip/master/frames
 
 
 = Authors
+
+Alexander Simonov ( alex at simonov.me)
 
 Alan Harper ( alan at aussiegeek.net)
 
