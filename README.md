@@ -49,7 +49,7 @@ http://www.ruby-lang.org/en/LICENSE.txt
 
 # Website and Project Home
 
-http://github.com/simonoff/dotfiles
+http://github.com/simonoff/rubyzip
 
 http://rdoc.info/github/simonoff/rubyzip/master/frames
 
