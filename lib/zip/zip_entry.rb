@@ -372,9 +372,9 @@ module Zip
 
     def file_stat(path)	# :nodoc:
       if @follow_symlinks
-        return File::stat(path)
+        return ::File::stat(path)
       else
-        return File::lstat(path)
+        return ::File::lstat(path)
       end
     end
 
@@ -477,10 +477,10 @@ module Zip
       elsif @filepath
         case @ftype
         when :file
-          return File.open(@filepath, "rb", &aProc)
+          return ::File.open(@filepath, "rb", &aProc)
 
         when :symlink
-          linkpath = File::readlink(@filepath)
+          linkpath = ::File::readlink(@filepath)
           stringio = StringIO.new(linkpath)
           return yield(stringio) if block_given?
           return stringio
@@ -550,7 +550,7 @@ module Zip
     end
 
     def get_raw_input_stream(&aProc)
-      File.open(@zipfile, "rb", &aProc)
+      ::File.open(@zipfile, "rb", &aProc)
     end
 
     private
@@ -562,11 +562,11 @@ module Zip
     end
 
     def write_file(destPath, continueOnExistsProc = proc { false })
-      if File.exists?(destPath) && ! yield(self, destPath)
+      if ::File.exists?(destPath) && ! yield(self, destPath)
 	raise ZipDestinationFileExistsError,
 	  "Destination '#{destPath}' already exists"
       end
-      File.open(destPath, "wb") do |os|
+      ::File.open(destPath, "wb") do |os|
         get_input_stream do |is|
           set_extra_attributes_on_path(destPath)
 
@@ -579,9 +579,9 @@ module Zip
     end
     
     def create_directory(destPath)
-      if File.directory? destPath
+      if ::File.directory? destPath
 	return
-      elsif File.exists? destPath
+      elsif ::File.exists? destPath
 	if block_given? && yield(self, destPath)
 	  FileUtils::rm_f destPath
 	else
@@ -598,7 +598,7 @@ module Zip
     def create_symlink(destPath)
       stat = nil
       begin
-        stat = File::lstat(destPath)
+        stat = ::File::lstat(destPath)
       rescue Errno::ENOENT
       end
 
@@ -607,7 +607,7 @@ module Zip
 
       if stat
         if stat.symlink?
-          if File::readlink(destPath) == linkto
+          if ::File::readlink(destPath) == linkto
             return
           else
             raise ZipDestinationFileExistsError,
@@ -621,7 +621,7 @@ module Zip
         end
       end
 
-      File::symlink(linkto, destPath)
+     ::File::symlink(linkto, destPath)
     end
   end
 end

@@ -2,7 +2,7 @@ module Zip
   class ZipStreamableStream < DelegateClass(ZipEntry) #nodoc:all
     def initialize(entry)
       super(entry)
-      @tempFile = Tempfile.new(File.basename(name), File.dirname(zipfile))
+      @tempFile = Tempfile.new(::File.basename(name), ::File.dirname(zipfile))
       @tempFile.binmode
     end
 

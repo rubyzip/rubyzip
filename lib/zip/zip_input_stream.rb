@@ -48,7 +48,7 @@ module Zip
     # not a local zip entry header.
     def initialize(filename, offset = 0)
       super()
-      @archiveIO = File.open(filename, "rb")
+      @archiveIO = ::File.open(filename, "rb")
       @archiveIO.seek(offset, IO::SEEK_SET)
       @decompressor = NullDecompressor.instance
       @currentEntry = nil
