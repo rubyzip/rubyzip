@@ -65,12 +65,16 @@ module Zip
 
     # Returns the name in the encoding specified by enc
     def name_in(enc)
-      Iconv.conv(enc, name_encoding, @name)
+      if RUBY_VERSION >= '1.9'
+        @name.encode(enc)
+      else
+        Iconv.conv(enc, name_encoding, @name)
+      end
     end
 
     # Returns the name in the encoding specified by enc
     def comment_in(enc)
-      Iconv.conv(enc, name_encoding, @name)
+      name_in(enc)
     end
 
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
@@ -102,6 +106,7 @@ module Zip
       @name = name
       @size = size
       @time = time
+      @gp_flags = nil
 
       @follow_symlinks = false
 
