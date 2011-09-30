@@ -582,7 +582,6 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
 
       zf.file.open("test_open_write_entry", "w") {
         |f|
-        blockCalled = true
         f.write "This is what I'm writing"
       }
       assert_equal("This is what I'm writing",
@@ -591,7 +590,6 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
       # Test with existing entry
       zf.file.open("file1", "wb") { #also check that 'b' option is ignored
         |f|
-        blockCalled = true
         f.write "This is what I'm writing too"
       }
       assert_equal("This is what I'm writing too",
@@ -767,8 +765,8 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
       d.close
 
       zf.dir.open("dir1") {
-        |d|
-        assert_equal(["dir11", "file11", "file12"].sort, d.entries.sort)
+        |dir|
+        assert_equal(["dir11", "file11", "file12"].sort, dir.entries.sort)
       }
     }
   end

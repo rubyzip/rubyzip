@@ -368,7 +368,7 @@ module AssertEntry
       if (expected != actual)
 	if ((expected && actual) && (expected.length > 400 || actual.length > 400))
 	  zipEntryFilename=entryName+".zipEntry"
-	  File.open(zipEntryFilename, "wb") { |file| file << actual }
+	  File.open(zipEntryFilename, "wb") { |f| f << actual }
 	  fail("File '#{filename}' is different from '#{zipEntryFilename}'")
 	else
 	  assert_equal(expected, actual)
@@ -499,7 +499,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
   def test_mix_read_and_gets
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
-      e = zis.get_next_entry
+      zis.get_next_entry
       assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
       assert_equal(false, zis.eof?)
       assert_equal("", zis.gets.chomp)
@@ -654,7 +654,7 @@ class ZipOutputStreamTest < Test::Unit::TestCase
   def test_cannotOpenFile
     name = TestFiles::EMPTY_TEST_DIR
     begin
-      zos = ZipOutputStream.open(name)
+      ZipOutputStream.open(name)
     rescue Exception
       assert($!.kind_of?(Errno::EISDIR) || # Linux 
 	     $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
@@ -702,7 +702,6 @@ end
 module Enumerable
   def compare_enumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
-    index=0
     each_with_index {
       |element, index|
       return false unless yield(element, otherAsArray[index])
@@ -1208,7 +1207,7 @@ class ZipFileTest < Test::Unit::TestCase
   end
 
   def test_rename
-    entryToRename, *remainingEntries = TEST_ZIP.entry_names
+    entryToRename, *_ = TEST_ZIP.entry_names
 
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert(zf.entries.map { |e| e.name }.include?(entryToRename))
@@ -1283,7 +1282,7 @@ class ZipFileTest < Test::Unit::TestCase
   end
 
   def test_renameEntryToExistingEntry
-    entry1, entry2, *remaining = TEST_ZIP.entry_names
+    entry1, entry2, *_ = TEST_ZIP.entry_names
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert_raise(ZipEntryExistsError) {
       zf.rename(entry1, entry2)
