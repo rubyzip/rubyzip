@@ -938,7 +938,7 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
 
   def test_ReadFromTruncatedZipFile
     fragment=""
-    File.open("data/testDirectory.bin") { |f| fragment = f.read }
+    File.open("data/testDirectory.bin", "rb") { |f| fragment = f.read }
     fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
     fragment.extend(IOizeString)
     entry = ZipCentralDirectory.new
