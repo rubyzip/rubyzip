@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 $VERBOSE = true
 
@@ -22,6 +23,26 @@ class ZipEntryTest < Test::Unit::TestCase
   TEST_NAME = "entry name"
   TEST_SIZE = 8432
   TEST_ISDIRECTORY = false
+
+  def test_name_in
+    expected = if RUBY_VERSION >= '1.9'
+      "caf\351".force_encoding("iso-8859-1")
+    else
+      "caf\351"
+    end
+    assert_equal expected, ZipEntry.new(TEST_ZIPFILE, "café").name_in("iso-8859-1")
+  end
+
+  # This is a test for existing behavior, but no idea why this returns the
+  # name not the comment.
+  def test_comment_in
+    expected = if RUBY_VERSION >= '1.9'
+      "caf\351".force_encoding("iso-8859-1")
+    else
+      "caf\351"
+    end
+    assert_equal expected, ZipEntry.new(TEST_ZIPFILE, "café").comment_in("iso-8859-1")
+  end
 
   def test_constructorAndGetters
     entry = ZipEntry.new(TEST_ZIPFILE,

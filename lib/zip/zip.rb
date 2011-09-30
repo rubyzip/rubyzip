@@ -1,5 +1,5 @@
 require 'delegate'
-require 'iconv'
+require 'iconv' unless RUBY_VERSION >= '1.9'
 require 'singleton'
 require 'tempfile'
 require 'fileutils'
