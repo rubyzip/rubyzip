@@ -464,7 +464,7 @@ module Zip
           raise Errno::ENOTDIR, aDirectoryName
         end
         path = @file.expand_path(aDirectoryName).ensure_end("/")
-
+	path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
         @mappedZip.each { 
           |fileName|

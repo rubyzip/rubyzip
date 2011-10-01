@@ -11,7 +11,7 @@ To run the unit tests you need to have test::unit installed
 
   `rake test`
 
-[![Build Status](https://secure.travis-ci.org/simonoff/rubyzip.png)](http://travis-ci.org/simonoff/rubyzip)
+[![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)
 
 # Documentation
 
@@ -49,14 +49,11 @@ http://www.ruby-lang.org/en/LICENSE.txt
 
 # Website and Project Home
 
-http://github.com/simonoff/dotfiles
+http://github.com/aussiegeek/rubyzip
 
-http://rdoc.info/github/simonoff/rubyzip/master/frames
-
+http://rdoc.info/github/aussiegeek/rubyzip/master/frames
 
 # Authors
-
-Alexander Simonov ( alex at simonov.me)
 
 Alan Harper ( alan at aussiegeek.net)
 
