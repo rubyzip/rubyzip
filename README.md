@@ -50,7 +50,6 @@ http://www.ruby-lang.org/en/LICENSE.txt
 # Website and Project Home
 
 http://github.com/aussiegeek/rubyzip
-
 http://rdoc.info/github/aussiegeek/rubyzip/master/frames
 
 # Authors
