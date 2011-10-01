@@ -100,11 +100,10 @@ module Zip
       src_pos = entry.local_entry_offset
       entry.write_local_entry(@outputStream)
       @compressor = NullCompressor.instance
-      entry.get_raw_input_stream {
-	|is|
-	is.seek(src_pos, IO::SEEK_SET)
+      entry.get_raw_input_stream do |is|
+        is.seek(src_pos, IO::SEEK_SET)
         IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
-      }
+      end
       @compressor = NullCompressor.instance
       @currentEntry = nil
     end
@@ -113,8 +112,7 @@ module Zip
     def finalize_current_entry
       return unless @currentEntry
       finish
-      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset -
-	@currentEntry.calculate_local_header_size
+      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - @currentEntry.calculate_local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
       @currentEntry = nil
@@ -130,20 +128,19 @@ module Zip
 
     def get_compressor(entry, level)
       case entry.compression_method
-	when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
-	when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
-      else raise ZipCompressionMethodError,
-	  "Invalid compression method: '#{entry.compression_method}'"
+        when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
+        when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
+      else
+          raise ZipCompressionMethodError, "Invalid compression method: '#{entry.compression_method}'"
       end
     end
 
     def update_local_headers
       pos = @outputStream.tell
-      @entrySet.each {
-	|entry|
-	@outputStream.pos = entry.localHeaderOffset
-	entry.write_local_entry(@outputStream)
-      }
+      @entrySet.each do |entry|
+        @outputStream.pos = entry.localHeaderOffset
+        entry.write_local_entry(@outputStream)
+      end
       @outputStream.pos = pos
     end
 

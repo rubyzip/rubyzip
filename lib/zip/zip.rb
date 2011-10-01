@@ -33,14 +33,14 @@ if Tempfile.superclass == SimpleDelegator
 end
 
 module Zlib  #:nodoc:all
-  if ! const_defined? :MAX_WBITS
+  if !const_defined? :MAX_WBITS
     MAX_WBITS = Zlib::Deflate.MAX_WBITS
   end
 end
 
 module Zip
 
-  VERSION = '0.9.4'
+  VERSION = '0.9.5'
 
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rubyzip (0.9.4)
+    rubyzip (0.9.5)
 
 GEM
   remote: http://rubygems.org/

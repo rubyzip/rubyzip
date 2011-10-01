@@ -1,4 +1,4 @@
-
+* Add support for Info-zip Extend Filename/Comment Header
 * ZipInputStream: Support zip-files with trailing data descriptors
 * Adjust rdoc stylesheet to advertise inherited methods if possible
 * Suggestion: Add ZipFile/ZipInputStream example that demonstrates extracting all entries.

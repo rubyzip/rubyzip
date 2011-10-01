@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: UTF-8
 
 $VERBOSE = true
 
@@ -917,7 +918,10 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
 
   def test_ReadFromTruncatedZipFile
     fragment=""
-    File.open("data/testDirectory.bin") { |f| fragment = f.read }
+    File.open("data/testDirectory.bin") do |f| 
+      fragment = f.read
+      fragment = fragment.force_encoding('BINARY') if RUBY_VERSION >= '1.9' 
+    end
     fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
     fragment.extend(IOizeString)
     entry = ZipCentralDirectory.new
@@ -990,7 +994,7 @@ class BasicZipFileTest < Test::Unit::TestCase
     @zipFile.each {
       |entry|
       assert(TestZipFile::TEST_ZIP2.entry_names.include?(entry.name))
-      assert(! visited.include?(entry.name))
+      assert(!visited.include?(entry.name))
       visited[entry.name] = nil
       count = count.succ
     }
@@ -1653,6 +1657,44 @@ class ZipExtraFieldTest < Test::Unit::TestCase
 
     extra1.create("IUnix")
     assert_equal(extra1, extra3)
+  end
+
+end
+
+class ZipUnicodeFileNamesAndComments < Test::Unit::TestCase
+  
+  FILENAME = File.join(File.dirname(__FILE__), "test1.zip")
+  
+  def test_unicode
+    file_entrys = ["текстовыйфайл.txt", "Résumé.txt", "슬레이어스휘.txt"]
+    directory_entrys = ["папка/текстовыйфайл.txt", "Résumé/Résumé.txt", "슬레이어스휘/슬레이어스휘.txt"]
+    ::Zip::ZipEntry.set_unicode_names
+    stream = ::Zip::ZipOutputStream.open(FILENAME) do |io|
+      file_entrys.each do |filename|
+        io.put_next_entry(filename)
+        io.write(filename)
+      end
+      directory_entrys.each do |filepath|
+        io.put_next_entry(filepath)
+        io.write(filepath)
+      end
+    end
+    assert(!stream.nil?)
+    ::Zip::ZipInputStream.open(FILENAME) do |io|
+      file_entrys.each do |filename|
+        entry = io.get_next_entry
+        entry_name = entry.name
+        entry_name = entry_name.force_encoding("UTF-8") if RUBY_VERSION >= '1.9'
+        assert(filename == entry_name)
+      end
+      directory_entrys.each do |filepath|
+        entry = io.get_next_entry
+        entry_name = entry.name
+        entry_name = entry_name.force_encoding("UTF-8") if RUBY_VERSION >= '1.9'
+        assert(filepath == entry_name)
+      end
+    end
+    ::File.unlink(FILENAME)
   end
 
 end

@@ -16,7 +16,7 @@ module Zip
 
       # return field [size, content] or false
       def initial_parse(binstr)
-        if ! binstr
+        if !binstr
           # If nil, start with empty.
           return false
         elsif binstr[0,2] != self.class.const_get(:HEADER_ID)
@@ -43,6 +43,22 @@ module Zip
         s = pack_for_c_dir
         self.class.const_get(:HEADER_ID) + [s.length].pack("v") + s
       end
+    end
+
+    # Info-ZIP Unicode Path Extra Field
+    class UnicodePath < Generic
+      HEADER_ID = "UP"
+      register_map
+      def initialize(binstr = nil)
+        @unicode_name = nil
+        binstr and merge(binstr)
+      end
+      attr_accessor :unicode_name
+
+      def merge(binstr)
+
+      end
+
     end
 
     # Info-ZIP Additional timestamp field
@@ -173,25 +189,21 @@ module Zip
         end
       }
       if ! field_class
-	raise ZipError, "Unknown extra field '#{name}'"
+	      raise ZipError, "Unknown extra field '#{name}'"
       end
       self[name] = field_class.new()
     end
 
     def to_local_bin
       s = ""
-      each { |k, v|
-        s << v.to_local_bin
-      }
+      each { |k, v| s << v.to_local_bin }
       s
     end
     alias :to_s :to_local_bin
 
     def to_c_dir_bin
       s = ""
-      each { |k, v|
-        s << v.to_c_dir_bin
-      }
+      each { |k, v| s << v.to_c_dir_bin }
       s
     end
 

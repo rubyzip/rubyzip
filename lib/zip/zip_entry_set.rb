@@ -36,12 +36,12 @@ module Zip
 
     # deep clone
     def dup
-      newZipEntrySet = ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
+      ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
     end
 
     def == (other)
       return false unless other.kind_of?(ZipEntrySet)
-      return @entrySet == other.entrySet      
+      @entrySet == other.entrySet
     end
 
     def parent(entry)
@@ -49,13 +49,12 @@ module Zip
     end
 
     def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
-      entries.select { 
-	|entry| 
-	File.fnmatch(pattern, entry.name.chomp('/'), flags) 
-      } 
+      entries.select do |entry|
+	      File.fnmatch(pattern, entry.name.chomp('/'), flags)
+      end
     end	
 
-#TODO    attr_accessor :auto_create_directories
+    #TODO    attr_accessor :auto_create_directories
     protected
     attr_accessor :entrySet
   end
