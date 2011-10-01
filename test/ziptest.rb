@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 $VERBOSE = true
 
@@ -22,6 +23,26 @@ class ZipEntryTest < Test::Unit::TestCase
   TEST_NAME = "entry name"
   TEST_SIZE = 8432
   TEST_ISDIRECTORY = false
+
+  def test_name_in
+    expected = if RUBY_VERSION >= '1.9'
+      "caf\351".force_encoding("iso-8859-1")
+    else
+      "caf\351"
+    end
+    assert_equal expected, ZipEntry.new(TEST_ZIPFILE, "café").name_in("iso-8859-1")
+  end
+
+  # This is a test for existing behavior, but no idea why this returns the
+  # name not the comment.
+  def test_comment_in
+    expected = if RUBY_VERSION >= '1.9'
+      "caf\351".force_encoding("iso-8859-1")
+    else
+      "caf\351"
+    end
+    assert_equal expected, ZipEntry.new(TEST_ZIPFILE, "café").comment_in("iso-8859-1")
+  end
 
   def test_constructorAndGetters
     entry = ZipEntry.new(TEST_ZIPFILE,
@@ -347,7 +368,7 @@ module AssertEntry
       if (expected != actual)
 	if ((expected && actual) && (expected.length > 400 || actual.length > 400))
 	  zipEntryFilename=entryName+".zipEntry"
-	  File.open(zipEntryFilename, "wb") { |file| file << actual }
+	  File.open(zipEntryFilename, "wb") { |f| f << actual }
 	  fail("File '#{filename}' is different from '#{zipEntryFilename}'")
 	else
 	  assert_equal(expected, actual)
@@ -478,7 +499,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
   def test_mix_read_and_gets
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
-      e = zis.get_next_entry
+      zis.get_next_entry
       assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
       assert_equal(false, zis.eof?)
       assert_equal("", zis.gets.chomp)
@@ -633,7 +654,7 @@ class ZipOutputStreamTest < Test::Unit::TestCase
   def test_cannotOpenFile
     name = TestFiles::EMPTY_TEST_DIR
     begin
-      zos = ZipOutputStream.open(name)
+      ZipOutputStream.open(name)
     rescue Exception
       assert($!.kind_of?(Errno::EISDIR) || # Linux 
 	     $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
@@ -681,7 +702,6 @@ end
 module Enumerable
   def compare_enumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
-    index=0
     each_with_index {
       |element, index|
       return false unless yield(element, otherAsArray[index])
@@ -917,7 +937,7 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
 
   def test_ReadFromTruncatedZipFile
     fragment=""
-    File.open("data/testDirectory.bin") { |f| fragment = f.read }
+    File.open("data/testDirectory.bin", "rb") { |f| fragment = f.read }
     fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
     fragment.extend(IOizeString)
     entry = ZipCentralDirectory.new
@@ -1187,7 +1207,7 @@ class ZipFileTest < Test::Unit::TestCase
   end
 
   def test_rename
-    entryToRename, *remainingEntries = TEST_ZIP.entry_names
+    entryToRename, *_ = TEST_ZIP.entry_names
 
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert(zf.entries.map { |e| e.name }.include?(entryToRename))
@@ -1262,7 +1282,7 @@ class ZipFileTest < Test::Unit::TestCase
   end
 
   def test_renameEntryToExistingEntry
-    entry1, entry2, *remaining = TEST_ZIP.entry_names
+    entry1, entry2, *_ = TEST_ZIP.entry_names
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert_raise(ZipEntryExistsError) {
       zf.rename(entry1, entry2)
