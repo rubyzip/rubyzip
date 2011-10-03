@@ -1,4 +1,5 @@
-version = File.read('./lib/zip/zip.rb').match(/\s+VERSION\s*=\s*'(.*)'/)[1]
+version_file = File.expand_path('../lib/zip/constants.rb', __FILE__)
+version      = File.read(version_file).match(/\s+VERSION\s*=\s*'(.*)'/)[1]
 
 spec = Gem::Specification.new do |s|
   s.name = 'rubyzip'
