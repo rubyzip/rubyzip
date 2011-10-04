@@ -39,9 +39,6 @@ module Zlib  #:nodoc:all
 end
 
 module Zip
-
-  VERSION = '0.9.4'
-
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
 
   RUNNING_ON_WINDOWS = Config::CONFIG['host_os'] =~ /^win|mswin/i 
