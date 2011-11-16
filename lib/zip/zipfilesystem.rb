@@ -154,7 +154,7 @@ module Zip
       end
 
       def initialize(mappedZip)
-	@mappedZip = mappedZip
+        @mappedZip = mappedZip
       end
 
       def get_entry(fileName)
@@ -220,8 +220,8 @@ module Zip
       end
 
       def directory?(fileName)
-	entry = @mappedZip.find_entry(fileName)
-	expand_path(fileName) == "/" || (entry != nil && entry.directory?)
+	      entry = @mappedZip.find_entry(fileName)
+	      expand_path(fileName) == "/" || (entry != nil && entry.directory?)
       end
       
       def open(fileName, openMode = "r", &block)
@@ -237,17 +237,17 @@ module Zip
       end
 
       def new(fileName, openMode = "r")
-	open(fileName, openMode)
+	      open(fileName, openMode)
       end
       
       def size(fileName)
-	@mappedZip.get_entry(fileName).size
+	      @mappedZip.get_entry(fileName).size
       end
       
       # Returns nil for not found and nil for directories
       def size?(fileName)
-	entry = @mappedZip.find_entry(fileName)
-	return (entry == nil || entry.directory?) ? nil : entry.size
+	      entry = @mappedZip.find_entry(fileName)
+	      return (entry == nil || entry.directory?) ? nil : entry.size
       end
       
       def chown(ownerInt, groupInt, *filenames)
@@ -272,31 +272,31 @@ module Zip
       end
 
       def zero?(fileName)
-	sz = size(fileName)
-	sz == nil || sz == 0
+        sz = size(fileName)
+        sz == nil || sz == 0
       rescue Errno::ENOENT
-	false
+        false
       end
       
       def file?(fileName)
-	entry = @mappedZip.find_entry(fileName)
-	entry != nil && entry.file?
+        entry = @mappedZip.find_entry(fileName)
+        entry != nil && entry.file?
       end      
       
       def dirname(fileName)
-	::File.dirname(fileName)
+        ::File.dirname(fileName)
       end
       
       def basename(fileName)
-	::File.basename(fileName)
+        ::File.basename(fileName)
       end
       
       def split(fileName)
-	::File.split(fileName)
+        ::File.split(fileName)
       end
       
       def join(*fragments)
-	::File.join(*fragments)
+        ::File.join(*fragments)
       end
       
       def utime(modifiedTime, *fileNames)
@@ -306,7 +306,7 @@ module Zip
       end
 
       def mtime(fileName)
-	@mappedZip.get_entry(fileName).mtime
+        @mappedZip.get_entry(fileName).mtime
       end
       
       def atime(fileName)
@@ -328,43 +328,43 @@ module Zip
       end
 
       def pipe?(filename)
-	false
+        false
       end
       
       def blockdev?(filename)
-	false
+        false
       end
       
       def chardev?(filename)
-	false
+        false
       end
       
       def symlink?(fileName)
-	false
+        false
       end
       
       def socket?(fileName)
-	false
+        false
       end
       
       def ftype(fileName)
-	@mappedZip.get_entry(fileName).directory? ? "directory" : "file"
+        @mappedZip.get_entry(fileName).directory? ? "directory" : "file"
       end
       
       def readlink(fileName)
-	raise NotImplementedError, "The readlink() function is not implemented"
+        raise NotImplementedError, "The readlink() function is not implemented"
       end
       
       def symlink(fileName, symlinkName)
-	raise NotImplementedError, "The symlink() function is not implemented"
+        raise NotImplementedError, "The symlink() function is not implemented"
       end
 
       def link(fileName, symlinkName)
-	raise NotImplementedError, "The link() function is not implemented"
+        raise NotImplementedError, "The link() function is not implemented"
       end
 
       def pipe
-	raise NotImplementedError, "The pipe() function is not implemented"
+        raise NotImplementedError, "The pipe() function is not implemented"
       end
 
       def stat(fileName)
@@ -377,7 +377,7 @@ module Zip
       alias lstat stat
 
       def readlines(fileName)
-	open(fileName) { |is| is.readlines }
+        open(fileName) { |is| is.readlines }
       end
 
       def read(fileName)
@@ -385,21 +385,21 @@ module Zip
       end
 
       def popen(*args, &aProc)
-	File.popen(*args, &aProc)
+        File.popen(*args, &aProc)
       end
 
       def foreach(fileName, aSep = $/, &aProc)
-	open(fileName) { |is| is.each_line(aSep, &aProc) }
+        open(fileName) { |is| is.each_line(aSep, &aProc) }
       end
 
       def delete(*args)
-	args.each { 
-	  |fileName|
-	  if directory?(fileName)
-	    raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
-	  end
-	  @mappedZip.remove(fileName) 
-	}
+        args.each {
+          |fileName|
+          if directory?(fileName)
+            raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
+          end
+          @mappedZip.remove(fileName)
+        }
       end
 
       def rename(fileToRename, newName)
@@ -465,7 +465,7 @@ module Zip
           raise Errno::ENOTDIR, aDirectoryName
         end
         path = @file.expand_path(aDirectoryName).ensure_end("/")
-	path = Regexp.escape(path)
+        path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
         @mappedZip.each { 
           |fileName|
