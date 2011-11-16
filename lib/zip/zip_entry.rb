@@ -496,12 +496,12 @@ module Zip
         zis.get_next_entry
         if block_given?
           begin
-      return yield(zis)
-    ensure
-      zis.close
-    end
+            return yield(zis)
+          ensure
+            zis.close
+          end
         else
-    return zis
+          return zis
         end
       end
     end
@@ -567,8 +567,8 @@ module Zip
 
     def write_file(destPath, continueOnExistsProc = proc { false })
       if File.exists?(destPath) && ! yield(self, destPath)
-  raise ZipDestinationFileExistsError,
-    "Destination '#{destPath}' already exists"
+        raise ZipDestinationFileExistsError,
+          "Destination '#{destPath}' already exists"
       end
       File.open(destPath, "wb") do |os|
         get_input_stream do |is|
@@ -584,15 +584,15 @@ module Zip
 
     def create_directory(destPath)
       if File.directory? destPath
-  return
+        return
       elsif File.exists? destPath
-  if block_given? && yield(self, destPath)
-    FileUtils::rm_f destPath
-  else
-    raise ZipDestinationFileExistsError,
-      "Cannot create directory '#{destPath}'. "+
-      "A file already exists with that name"
-  end
+        if block_given? && yield(self, destPath)
+          FileUtils::rm_f destPath
+        else
+          raise ZipDestinationFileExistsError,
+            "Cannot create directory '#{destPath}'. "+
+            "A file already exists with that name"
+        end
       end
       Dir.mkdir destPath
       set_extra_attributes_on_path(destPath)
@@ -619,9 +619,9 @@ module Zip
               "A symlink already exists with that name"
           end
         else
-    raise ZipDestinationFileExistsError,
-      "Cannot create symlink '#{destPath}'. "+
-      "A file already exists with that name"
+          raise ZipDestinationFileExistsError,
+            "Cannot create symlink '#{destPath}'. "+
+            "A file already exists with that name"
         end
       end
 

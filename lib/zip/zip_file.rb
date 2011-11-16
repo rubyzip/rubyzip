@@ -238,7 +238,7 @@ module Zip
     def get_entry(entry)
       selectedEntry = find_entry(entry)
       unless selectedEntry
-  raise Errno::ENOENT, entry
+        raise Errno::ENOENT, entry
       end
       selectedEntry.restore_ownership = @restore_ownership
       selectedEntry.restore_permissions = @restore_permissions
