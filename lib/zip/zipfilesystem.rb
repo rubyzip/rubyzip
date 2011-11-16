@@ -50,7 +50,7 @@ module Zip
     def dir
       @zipFsDir
     end
-    
+
     # Returns a ZipFsFile which is much like ruby's builtin File (class)
     # object, except it works on the ZipFile on which this method is
     # invoked
@@ -74,7 +74,7 @@ module Zip
           @zipFsFile = zipFsFile
           @entryName = entryName
         end
-        
+
         def forward_invoke(msg)
           @zipFsFile.send(msg, @entryName)
         end
@@ -82,7 +82,7 @@ module Zip
         def kind_of?(t)
           super || t == ::File::Stat 
         end
-        
+
         forward_message :forward_invoke, :file?, :directory?, :pipe?, :chardev?
         forward_message :forward_invoke, :symlink?, :socket?, :blockdev?
         forward_message :forward_invoke, :readable?, :readable_real?
@@ -93,7 +93,7 @@ module Zip
         forward_message :forward_invoke, :zero?
         forward_message :forward_invoke, :size, :size?
         forward_message :forward_invoke, :mtime, :atime, :ctime
-        
+
         def blocks; nil; end
 
         def get_entry
@@ -140,7 +140,7 @@ module Zip
         end
 
         def nlink; 1; end
-        
+
         def blksize; nil; end
 
         def mode
@@ -174,12 +174,12 @@ module Zip
         end
       end
       private :unix_mode_cmp
-      
+
       def exists?(fileName)
         expand_path(fileName) == "/" || @mappedZip.find_entry(fileName) != nil
       end
       alias :exist? :exists?
-      
+
       # Permissions not implemented, so if the file exists it is accessible
       alias owned?           exists?
       alias grpowned?        exists?
@@ -206,7 +206,7 @@ module Zip
       def setgid?(fileName)
         unix_mode_cmp(fileName, 02000)
       end
-      
+
       def sticky?(fileName)
         unix_mode_cmp(fileName, 01000)
       end
@@ -220,10 +220,10 @@ module Zip
       end
 
       def directory?(fileName)
-	      entry = @mappedZip.find_entry(fileName)
-	      expand_path(fileName) == "/" || (entry != nil && entry.directory?)
+        entry = @mappedZip.find_entry(fileName)
+        expand_path(fileName) == "/" || (entry != nil && entry.directory?)
       end
-      
+
       def open(fileName, openMode = "r", &block)
         openMode.gsub!("b", "") # ignore b option
         case openMode
@@ -237,19 +237,19 @@ module Zip
       end
 
       def new(fileName, openMode = "r")
-	      open(fileName, openMode)
+        open(fileName, openMode)
       end
-      
+
       def size(fileName)
-	      @mappedZip.get_entry(fileName).size
+        @mappedZip.get_entry(fileName).size
       end
-      
+
       # Returns nil for not found and nil for directories
       def size?(fileName)
-	      entry = @mappedZip.find_entry(fileName)
-	      return (entry == nil || entry.directory?) ? nil : entry.size
+        entry = @mappedZip.find_entry(fileName)
+        return (entry == nil || entry.directory?) ? nil : entry.size
       end
-      
+
       def chown(ownerInt, groupInt, *filenames)
         filenames.each { |fileName|
           e = get_entry(fileName)
@@ -277,28 +277,28 @@ module Zip
       rescue Errno::ENOENT
         false
       end
-      
+
       def file?(fileName)
         entry = @mappedZip.find_entry(fileName)
         entry != nil && entry.file?
       end      
-      
+
       def dirname(fileName)
         ::File.dirname(fileName)
       end
-      
+
       def basename(fileName)
         ::File.basename(fileName)
       end
-      
+
       def split(fileName)
         ::File.split(fileName)
       end
-      
+
       def join(*fragments)
         ::File.join(*fragments)
       end
-      
+
       def utime(modifiedTime, *fileNames)
         fileNames.each { |fileName|
           get_entry(fileName).time = modifiedTime
@@ -308,7 +308,7 @@ module Zip
       def mtime(fileName)
         @mappedZip.get_entry(fileName).mtime
       end
-      
+
       def atime(fileName)
         e = get_entry(fileName)
         if e.extra.member? "UniversalTime"
@@ -317,7 +317,7 @@ module Zip
           nil
         end
       end
-      
+
       def ctime(fileName)
         e = get_entry(fileName)
         if e.extra.member? "UniversalTime"
@@ -330,31 +330,31 @@ module Zip
       def pipe?(filename)
         false
       end
-      
+
       def blockdev?(filename)
         false
       end
-      
+
       def chardev?(filename)
         false
       end
-      
+
       def symlink?(fileName)
         false
       end
-      
+
       def socket?(fileName)
         false
       end
-      
+
       def ftype(fileName)
         @mappedZip.get_entry(fileName).directory? ? "directory" : "file"
       end
-      
+
       def readlink(fileName)
         raise NotImplementedError, "The readlink() function is not implemented"
       end
-      
+
       def symlink(fileName, symlinkName)
         raise NotImplementedError, "The symlink() function is not implemented"
       end
@@ -420,11 +420,11 @@ module Zip
     # The individual methods are not documented due to their
     # similarity with the methods in Dir
     class ZipFsDir
-      
+
       def initialize(mappedZip)
         @mappedZip = mappedZip
       end
-      
+
       attr_writer :file
 
       def new(aDirectoryName)
@@ -446,14 +446,14 @@ module Zip
 
       def pwd; @mappedZip.pwd; end
       alias getwd pwd
-      
+
       def chdir(aDirectoryName)
         unless @file.stat(aDirectoryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
         end
         @mappedZip.pwd = @file.expand_path(aDirectoryName)
       end
-      
+
       def entries(aDirectoryName)
         entries = []
         foreach(aDirectoryName) { |e| entries << e }
@@ -482,13 +482,13 @@ module Zip
       end
       alias rmdir  delete
       alias unlink delete
-      
+
       def mkdir(entryName, permissionInt = 0755)
         @mappedZip.mkdir(entryName, permissionInt)
       end
-      
+
       def chroot(*args)
-      	raise NotImplementedError, "The chroot() function is not implemented"
+        raise NotImplementedError, "The chroot() function is not implemented"
       end
 
     end
@@ -540,13 +540,13 @@ module Zip
         @zipFile = zipFile
         @pwd = "/"
       end
-      
+
       attr_accessor :pwd
-      
+
       def find_entry(fileName)
         @zipFile.find_entry(expand_to_entry(fileName))
       end
-      
+
       def get_entry(fileName)
         @zipFile.get_entry(expand_to_entry(fileName))
       end
@@ -554,7 +554,7 @@ module Zip
       def get_input_stream(fileName, &aProc)
         @zipFile.get_input_stream(expand_to_entry(fileName), &aProc)
       end
-      
+
       def get_output_stream(fileName, &aProc)
         @zipFile.get_output_stream(expand_to_entry(fileName), &aProc)
       end
@@ -562,7 +562,7 @@ module Zip
       def read(fileName)
         @zipFile.read(expand_to_entry(fileName))
       end
-      
+
       def remove(fileName)
         @zipFile.remove(expand_to_entry(fileName))
       end
@@ -584,7 +584,7 @@ module Zip
           yield("/"+e.to_s.chomp("/"))
         }
       end
-      
+
       def expand_path(aPath)
         expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
         expanded.gsub!(/\/\.(\/|$)/, "")
