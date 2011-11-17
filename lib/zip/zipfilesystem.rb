@@ -259,7 +259,6 @@ module Zip
           end
           e.extra["IUnix"].uid = ownerInt
           e.extra["IUnix"].gid = groupInt
-          e.dirty = true
         }
         filenames.size
       end
