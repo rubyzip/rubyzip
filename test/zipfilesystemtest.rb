@@ -463,8 +463,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
 
   def test_popen
     cmd = /mswin/i =~ RUBY_PLATFORM ? 'dir' : 'ls'
-
-    assert_equal(File.popen(cmd)          { |f| f.read }, 
+    assert_equal(File.popen(cmd) { |f| f.read }, 
       @zipFile.file.popen(cmd) { |f| f.read })
   end
 

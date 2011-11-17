@@ -183,12 +183,12 @@ module Zip
     end
 
     def calculate_local_header_size  #:nodoc:all
-      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.size : 0) + (@extra ? @extra.local_size : 0)
+      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.bytesize : 0) + (@extra ? @extra.local_size : 0)
     end
 
     def cdir_header_size  #:nodoc:all
-      CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.size : 0) + 
-      (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.size : 0)
+      CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.bytesize : 0) + 
+      (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.bytesize : 0)
     end
 
     def next_header_offset  #:nodoc:all
@@ -260,7 +260,7 @@ module Zip
       @name              = io.read(nameLength)
       extra              = io.read(extraLength)
 
-      if (extra && extra.length != extraLength)
+      if (extra && extra.bytesize != extraLength)
         raise ZipError, "Truncated local zip entry header"
       else
         if ZipExtraField === @extra
@@ -293,7 +293,7 @@ module Zip
       @crc                      ,
       @compressed_size           ,
       @size                     ,
-      @name ? @name.length   : 0,
+      @name ? @name.bytesize   : 0,
       @extra? @extra.local_length : 0 ].pack('VvvvvvVVVvv')
       io << @name
       io << (@extra ? @extra.to_local_bin : "")
@@ -342,7 +342,7 @@ module Zip
         @extra = ZipExtraField.new(io.read(extraLength))
       end
       @comment               = io.read(commentLength)
-      unless (@comment && @comment.length == commentLength)
+      unless (@comment && @comment.bytesize == commentLength)
         raise ZipError, "Truncated cdir zip entry header"
       end
 
@@ -443,9 +443,9 @@ module Zip
       @crc                              ,
       @compressed_size                  ,
       @size                             ,
-      @name  ?  @name.length  : 0       ,
+      @name  ?  @name.bytesize  : 0       ,
       @extra ? @extra.c_dir_length : 0  ,
-      @comment ? @comment.length : 0    ,
+      @comment ? @comment.bytesize : 0    ,
       0                                 , # disk number start
       @internalFileAttributes           , # file type (binary=0, text=1)
       @externalFileAttributes           , # native filesystem attributes
