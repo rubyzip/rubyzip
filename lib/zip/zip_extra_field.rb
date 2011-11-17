@@ -173,7 +173,7 @@ module Zip
         end
       }
       if ! field_class
-	raise ZipError, "Unknown extra field '#{name}'"
+        raise ZipError, "Unknown extra field '#{name}'"
       end
       self[name] = field_class.new()
     end

@@ -56,6 +56,8 @@ module Zip
     attr_accessor :restore_times, :restore_permissions, :restore_ownership
     attr_accessor :unix_uid, :unix_gid, :unix_perms
 
+    attr_accessor :dirty
+
     attr_reader :ftype, :filepath # :nodoc:
 
     # Returns the character encoding used for name and comment
@@ -118,6 +120,7 @@ module Zip
       @unix_uid = nil
       @unix_gid = nil
       @unix_perms = nil
+      #puts "--> ZipEntry.new #{@zipfile}  #{@name}"
 #      @posix_acl = nil
 #      @ntfs_acl = nil
 
@@ -130,6 +133,8 @@ module Zip
       unless ZipExtraField === @extra
         @extra = ZipExtraField.new(@extra.to_s)
       end
+
+      @dirty = false
     end
 
     def time
@@ -407,6 +412,7 @@ module Zip
     end
 
     def write_c_dir_entry(io)  #:nodoc:all
+      #puts "--> write_c_dir_entry [%o]" % (@unix_perms.nil? ? 0 : @unix_perms)
       case @fstype
       when FSTYPE_UNIX
         ft = nil
@@ -433,15 +439,15 @@ module Zip
       @fstype                           , # filesystem type
       VERSION_NEEDED_TO_EXTRACT         , # @versionNeededToExtract           ,
       0                                 , # @gp_flags                          ,
-      @compression_method                ,
-      @time.to_binary_dos_time             , # @lastModTime                      ,
-      @time.to_binary_dos_date             , # @lastModDate                      ,
+      @compression_method               ,
+      @time.to_binary_dos_time          , # @lastModTime                      ,
+      @time.to_binary_dos_date          , # @lastModDate                      ,
       @crc                              ,
-      @compressed_size                   ,
+      @compressed_size                  ,
       @size                             ,
       @name  ?  @name.length  : 0       ,
       @extra ? @extra.c_dir_length : 0  ,
-      @comment ? @comment.length : 0     ,
+      @comment ? @comment.length : 0    ,
       0                                 , # disk number start
       @internalFileAttributes           , # file type (binary=0, text=1)
       @externalFileAttributes           , # native filesystem attributes

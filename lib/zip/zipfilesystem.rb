@@ -224,15 +224,16 @@ module Zip
         expand_path(fileName) == "/" || (entry != nil && entry.directory?)
       end
 
-      def open(fileName, openMode = "r", &block)
+      def open(fileName, openMode = "r", permissionInt = 0644, &block)
+        #puts "--> open #{fileName}"
         openMode.gsub!("b", "") # ignore b option
         case openMode
-        when "r" 
-          @mappedZip.get_input_stream(fileName, &block)
-        when "w"
-          @mappedZip.get_output_stream(fileName, &block)
-        else
-          raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
+          when "r"
+            @mappedZip.get_input_stream(fileName, &block)
+          when "w"
+            @mappedZip.get_output_stream(fileName, permissionInt, &block)
+          else
+            raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
         end
       end
 
@@ -258,6 +259,7 @@ module Zip
           end
           e.extra["IUnix"].uid = ownerInt
           e.extra["IUnix"].gid = groupInt
+          e.dirty = true
         }
         filenames.size
       end
@@ -266,7 +268,10 @@ module Zip
         filenames.each { |fileName|
           e = get_entry(fileName)
           e.fstype = 3 # force convertion filesystem type to unix
+          e.unix_perms = modeInt
           e.externalFileAttributes = modeInt << 16
+          e.dirty = true
+          #puts "--> chmod [%o] [%o]" % [e.unix_perms, e.externalFileAttributes]
         }
         filenames.size
       end
@@ -555,8 +560,8 @@ module Zip
         @zipFile.get_input_stream(expand_to_entry(fileName), &aProc)
       end
 
-      def get_output_stream(fileName, &aProc)
-        @zipFile.get_output_stream(expand_to_entry(fileName), &aProc)
+      def get_output_stream(fileName, permissionInt = nil, &aProc)
+        @zipFile.get_output_stream(expand_to_entry(fileName), permissionInt, &aProc)
       end
 
       def read(fileName)
