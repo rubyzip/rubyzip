@@ -225,7 +225,6 @@ module Zip
       end
 
       def open(fileName, openMode = "r", permissionInt = 0644, &block)
-        #puts "--> open #{fileName}"
         openMode.gsub!("b", "") # ignore b option
         case openMode
           when "r"
@@ -270,7 +269,6 @@ module Zip
           e.unix_perms = modeInt
           e.externalFileAttributes = modeInt << 16
           e.dirty = true
-          #puts "--> chmod [%o] [%o]" % [e.unix_perms, e.externalFileAttributes]
         }
         filenames.size
       end

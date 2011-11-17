@@ -135,7 +135,6 @@ module Zip
         raise ArgumentError,
           "cannot open stream to directory entry - '#{newEntry}'"
       end
-      #puts "--> [%o]" % permissionInt
       newEntry.unix_perms = permissionInt
       zipStreamableEntry = ZipStreamableStream.new(newEntry)
       @entrySet << zipStreamableEntry
@@ -192,16 +191,14 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-      #puts "--> commit"
       return if ! commit_required?
-      #puts "--> commit real"
       on_success_replace(name) {
         |tmpFile|
         ZipOutputStream.open(tmpFile) {
           |zos|
 
-          @entrySet.each { |e|
-            #puts "--> commit [#{e.name}] perm [%o]" % e.unix_perms
+          @entrySet.each {
+            |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
           }
@@ -229,9 +226,6 @@ module Zip
     # Returns true if any changes has been made to this archive since
     # the previous commit
     def commit_required?
-      #puts "--> cr? entryset: [#{@entrySet != @storedEntries}]"
-      #puts "--> cr? [#{@entrySet.inspect}]"
-      #puts "--> cr? [#{@storedEntries.inspect}]"
       @entrySet.each do |e|
         return true if e.dirty
       end

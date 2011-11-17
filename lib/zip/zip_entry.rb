@@ -120,7 +120,6 @@ module Zip
       @unix_uid = nil
       @unix_gid = nil
       @unix_perms = nil
-      #puts "--> ZipEntry.new #{@zipfile}  #{@name}"
 #      @posix_acl = nil
 #      @ntfs_acl = nil
 
@@ -412,7 +411,6 @@ module Zip
     end
 
     def write_c_dir_entry(io)  #:nodoc:all
-      #puts "--> write_c_dir_entry [%o]" % (@unix_perms.nil? ? 0 : @unix_perms)
       case @fstype
       when FSTYPE_UNIX
         ft = nil
