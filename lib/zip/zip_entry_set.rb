@@ -50,8 +50,8 @@ module Zip
 
     def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
       entries.select { 
-	|entry| 
-	File.fnmatch(pattern, entry.name.chomp('/'), flags) 
+        |entry|
+        File.fnmatch(pattern, entry.name.chomp('/'), flags)
       } 
     end	
 

@@ -8,6 +8,8 @@ require 'zip/zipfilesystem'
 require 'test/unit'
 require 'fileutils'
 
+require 'digest/sha1'
+
 module ExtraAssertions
 
   def assert_forwarded(anObject, method, retVal, *expectedArgs)
@@ -33,11 +35,13 @@ include Zip
 
 class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   def setup
+    @zipsha = Digest::SHA1.file("data/zipWithDirs.zip")
     @zipFile = ZipFile.new("data/zipWithDirs.zip")
   end
 
   def teardown
     @zipFile.close if @zipFile
+    assert_equal(@zipsha, Digest::SHA1.file("data/zipWithDirs.zip"))
   end
 
   def test_umask
@@ -421,14 +425,6 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     assert(@zipFile.file.lstat("file1").file?)
   end
 
-
-  def test_chmod
-    assert_raise(Errno::ENOENT, "No such file or directory - noSuchFile") {
-      @zipFile.file.chmod(0644, "file1", "NoSuchFile")
-    }
-    assert_equal(2, @zipFile.file.chmod(0644, "file1", "dir1"))
-  end
-
   def test_pipe
     assert_raise(NotImplementedError) {
       @zipFile.file.pipe
@@ -582,7 +578,6 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
 
       zf.file.open("test_open_write_entry", "w") {
         |f|
-        blockCalled = true
         f.write "This is what I'm writing"
       }
       assert_equal("This is what I'm writing",
@@ -591,7 +586,6 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
       # Test with existing entry
       zf.file.open("file1", "wb") { #also check that 'b' option is ignored
         |f|
-        blockCalled = true
         f.write "This is what I'm writing too"
       }
       assert_equal("This is what I'm writing too",
@@ -780,8 +774,8 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
       d.close
 
       zf.dir.open("dir1") {
-        |d|
-        assert_equal(["dir11", "file11", "file12"].sort, d.entries.sort)
+        |dir|
+        assert_equal(["dir11", "file11", "file12"].sort, dir.entries.sort)
       }
     }
   end

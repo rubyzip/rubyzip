@@ -87,7 +87,7 @@ module Zip
         ensure
           zf.close
         end
-            else
+      else
         zf
       end
     end
@@ -129,12 +129,14 @@ module Zip
     # Returns an output stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.
-    def get_output_stream(entry, &aProc)
+    def get_output_stream(entry, permissionInt = nil, &aProc)
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       if newEntry.directory?
-  raise ArgumentError,
-    "cannot open stream to directory entry - '#{newEntry}'"
+        raise ArgumentError,
+          "cannot open stream to directory entry - '#{newEntry}'"
       end
+      #puts "--> [%o]" % permissionInt
+      newEntry.unix_perms = permissionInt
       zipStreamableEntry = ZipStreamableStream.new(newEntry)
       @entrySet << zipStreamableEntry
       zipStreamableEntry.get_output_stream(&aProc)
@@ -190,13 +192,19 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-     return if ! commit_required?
+      #puts "--> commit"
+      return if ! commit_required?
+      #puts "--> commit real"
       on_success_replace(name) {
         |tmpFile|
         ZipOutputStream.open(tmpFile) {
           |zos|
 
-          @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
+          @entrySet.each { |e|
+            #puts "--> commit [#{e.name}] perm [%o]" % e.unix_perms
+            e.write_to_zip_output_stream(zos)
+            e.dirty = false
+          }
           zos.comment = comment
         }
         true
@@ -221,6 +229,12 @@ module Zip
     # Returns true if any changes has been made to this archive since
     # the previous commit
     def commit_required?
+      #puts "--> cr? entryset: [#{@entrySet != @storedEntries}]"
+      #puts "--> cr? [#{@entrySet.inspect}]"
+      #puts "--> cr? [#{@storedEntries.inspect}]"
+      @entrySet.each do |e|
+        return true if e.dirty
+      end
       return @entrySet != @storedEntries || @create == ZipFile::CREATE
     end
 
