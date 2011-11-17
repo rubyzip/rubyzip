@@ -6,23 +6,23 @@ module Zip
       @outputBuffer=""
       @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
     end
-    
+
     def sysread(numberOfBytes = nil, buf = nil)
-      readEverything = (numberOfBytes == nil)
-      while (readEverything || @outputBuffer.length < numberOfBytes)
-	break if internal_input_finished?
-	@outputBuffer << internal_produce_input(buf)
+      readEverything = numberOfBytes.nil?
+      while (readEverything || @outputBuffer.bytesize < numberOfBytes)
+        break if internal_input_finished?
+        @outputBuffer << internal_produce_input(buf)
       end
-      return value_when_finished if @outputBuffer.length==0 && input_finished?
-      endIndex= numberOfBytes==nil ? @outputBuffer.length : numberOfBytes
+      return value_when_finished if @outputBuffer.bytesize == 0 && input_finished?
+      endIndex = numberOfBytes.nil? ? @outputBuffer.bytesize : numberOfBytes
       return @outputBuffer.slice!(0...endIndex)
     end
-    
+
     def produce_input
       if (@outputBuffer.empty?)
-	return internal_produce_input
+        return internal_produce_input
       else
-	return @outputBuffer.slice!(0...(@outputBuffer.length))
+        return @outputBuffer.slice!(0...(@outputBuffer.length))
       end
     end
 
@@ -53,8 +53,8 @@ module Zip
 
     # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
     def value_when_finished   # mimic behaviour of ruby File object.
-      return nil if @hasReturnedEmptyString
-      @hasReturnedEmptyString=true
+      return if @hasReturnedEmptyString
+      @hasReturnedEmptyString = true
       return ""
     end
   end

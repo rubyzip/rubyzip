@@ -588,7 +588,7 @@ module Zip
       end
 
       def expand_path(aPath)
-        expanded = aPath.starts_with("/") ? aPath : @pwd.ensure_end("/") + aPath
+        expanded = aPath.start_with?("/") ? aPath : @pwd.ensure_end("/") + aPath
         expanded.gsub!(/\/\.(\/|$)/, "")
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
         expanded.empty? ? "/" : expanded

@@ -6,27 +6,27 @@ module Zip
       @readSoFar = 0
       @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
     end
-    
+
     # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
     def sysread(numberOfBytes = nil, buf = nil)
       if input_finished?
-	hasReturnedEmptyStringVal=@hasReturnedEmptyString
-	@hasReturnedEmptyString=true
-	return "" unless hasReturnedEmptyStringVal
-	return nil
+        hasReturnedEmptyStringVal = @hasReturnedEmptyString
+        @hasReturnedEmptyString = true
+        return "" unless hasReturnedEmptyStringVal
+        return
       end
-      
-      if (numberOfBytes == nil || @readSoFar+numberOfBytes > @charsToRead)
-	numberOfBytes = @charsToRead-@readSoFar
+
+      if (numberOfBytes == nil || @readSoFar + numberOfBytes > @charsToRead)
+        numberOfBytes = @charsToRead - @readSoFar
       end
       @readSoFar += numberOfBytes
       @inputStream.read(numberOfBytes, buf)
     end
-    
+
     def produce_input
       sysread(Decompressor::CHUNK_SIZE)
     end
-    
+
     def input_finished?
       (@readSoFar >= @charsToRead)
     end

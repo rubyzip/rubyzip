@@ -1,5 +1,3 @@
-require 'zip/constants'
-
 module Zip
   class Compressor #:nodoc:all
     def finish

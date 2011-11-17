@@ -1,12 +1,3 @@
-unless Enumerable.method_defined?(:inject)
-  module Enumerable  #:nodoc:all
-    def inject(n = 0)
-      each { |value| n = yield(n, value) }
-      n
-    end
-  end
-end
-
 module Enumerable #:nodoc:all
   # returns a new array of all the return values not equal to nil
   # This implementation could be faster
@@ -15,34 +6,10 @@ module Enumerable #:nodoc:all
   end
 end
 
-unless Object.method_defined?(:object_id)
-  class Object  #:nodoc:all
-    # Using object_id which is the new thing, so we need
-    # to make that work in versions prior to 1.8.0
-    alias object_id id
-  end
-end
-
-unless File.respond_to?(:read)
-  class File # :nodoc:all
-    # singleton method read does not exist in 1.6.x
-    def self.read(fileName)
-      open(fileName) { |f| f.read }
-    end
-  end
-end
-
 class String  #:nodoc:all
-  def starts_with(aString)
-    rindex(aString, 0) == 0
-  end
-
-  def ends_with(aString)
-    index(aString, -aString.size)
-  end
 
   def ensure_end(aString)
-    ends_with(aString) ? self : self + aString
+    end_with?(aString) ? self : self + aString
   end
 
   def lchop
@@ -51,7 +18,7 @@ class String  #:nodoc:all
 end
 
 class Time  #:nodoc:all
-  
+
   #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
   # 
   # Register CX, the Time:
@@ -63,18 +30,18 @@ class Time  #:nodoc:all
   # Bits 0-4 day (1-31)
   # bits 5-8 month (1-12)
   # bits 9-15 year (four digit year minus 1980)
-  
-  
+
+
   def to_binary_dos_time
     (sec/2) +
-      (min  << 5) +
-      (hour << 11)
+    (min  << 5) +
+    (hour << 11)
   end
 
   def to_binary_dos_date
     (day) +
-      (month << 5) +
-      ((year - 1980) << 9)
+    (month << 5) +
+    ((year - 1980) << 9)
   end
 
   # Dos time is only stored with two seconds accuracy
@@ -97,10 +64,9 @@ end
 
 class Module  #:nodoc:all
   def forward_message(forwarder, *messagesToForward)
-    methodDefs = messagesToForward.map { 
-      |msg| 
+    methodDefs = messagesToForward.map do |msg| 
       "def #{msg}; #{forwarder}(:#{msg}); end"
-    }
+    end
     module_eval(methodDefs.join("\n"))
   end
 end

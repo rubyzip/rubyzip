@@ -17,7 +17,7 @@ module Zip
 
     def finish
       until @zlibDeflater.finished?
-	@outputStream << @zlibDeflater.finish
+        @outputStream << @zlibDeflater.finish
       end
     end
 

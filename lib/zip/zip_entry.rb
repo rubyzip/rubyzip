@@ -84,7 +84,7 @@ module Zip
        compression_method = ZipEntry::DEFLATED, size = 0,
        time  = Time.now)
       super()
-      if name.starts_with("/")
+      if name.start_with?("/")
         raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
       end
       @localHeaderOffset = 0
