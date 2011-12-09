@@ -8,7 +8,7 @@ require 'zip/zip'
 # Usage:
 #   directoryToZip = "/tmp/input"
 #   outputFile = "/tmp/out.zip"   
-#   zf = ZipFileGenerator(directoryToZip, outputFile)
+#   zf = ZipFileGenerator.new(directoryToZip, outputFile)
 #   zf.write()
 class ZipFileGenerator
 
