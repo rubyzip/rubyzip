@@ -902,7 +902,7 @@ class ZipEntrySetTest < Test::Unit::TestCase
   def test_glob
     res = @zipEntrySet.glob('name[2-4]')
     assert_equal(3, res.size)
-    assert_equal(ZIP_ENTRIES[1,3], res)
+    assert_equal(ZIP_ENTRIES[1,3].sort, res.sort)
   end
 
   def test_glob2
