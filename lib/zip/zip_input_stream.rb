@@ -46,10 +46,14 @@ module Zip
     # Opens the indicated zip file. An exception is thrown
     # if the specified offset in the specified filename is
     # not a local zip entry header.
-    def initialize(filename, offset = 0)
+    def initialize(filename, offset = 0, io = nil)
       super()
-      @archiveIO = File.open(filename, "rb")
-      @archiveIO.seek(offset, IO::SEEK_SET)
+      if (io.nil?) 
+        @archiveIO = File.open(filename, "rb")
+        @archiveIO.seek(offset, IO::SEEK_SET)
+      else
+        @archiveIO = io
+      end
       @decompressor = NullDecompressor.instance
       @currentEntry = nil
     end
@@ -65,6 +69,14 @@ module Zip
       return new(filename) unless block_given?
       
       zio = new(filename)
+      yield zio
+    ensure
+      zio.close if zio
+    end
+
+    def ZipInputStream.open_buffer(io)
+      return new('',0,io) unless block_given?
+      zio = new('',0,io)
       yield zio
     ensure
       zio.close if zio

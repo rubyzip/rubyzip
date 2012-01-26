@@ -436,6 +436,19 @@ class ZipInputStreamTest < Test::Unit::TestCase
   end
 
   def test_openWithoutBlock
+    zis = ZipInputStream.open_buffer(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb"))
+    assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+  end
+
+  def test_openBufferWithBlock
+    ZipInputStream.open_buffer(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb")) {
+      |zis|
+      assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+      assert_equal(true, zis.eof?)
+    }
+  end
+
+  def test_openBufferWithoutBlock
     zis = ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
