@@ -34,7 +34,7 @@ if Tempfile.superclass == SimpleDelegator
 end
 
 module Zlib  #:nodoc:all
-  if ! const_defined? :MAX_WBITS
+  if !const_defined?(:MAX_WBITS)
     MAX_WBITS = Zlib::Deflate.MAX_WBITS
   end
 end

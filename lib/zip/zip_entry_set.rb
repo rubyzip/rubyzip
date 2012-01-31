@@ -20,6 +20,7 @@ module Zip
     def size
       @entrySet.size
     end
+    
     alias :length :size
 
     def delete(entry)
@@ -36,23 +37,22 @@ module Zip
 
     # deep clone
     def dup
-      newZipEntrySet = ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
+      ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
     end
 
-    def == (other)
+    def ==(other)
       return false unless other.kind_of?(ZipEntrySet)
-      return @entrySet == other.entrySet      
+      @entrySet == other.entrySet      
     end
 
     def parent(entry)
       @entrySet[entry.parent_as_string]
     end
 
-    def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
-      entries.select { 
-        |entry|
-        File.fnmatch(pattern, entry.name.chomp('/'), flags)
-      } 
+    def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
+      entries.select do |entry|
+        ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
+      end
     end	
 
 #TODO    attr_accessor :auto_create_directories

@@ -61,8 +61,8 @@ module Zip
       super()
       @name = fileName
       @comment = ""
-      if (File.exists?(fileName)) and !buffer
-        File.open(name, "rb") { |f| read_from_stream(f) }
+      if (::File.exists?(fileName)) and !buffer
+        ::File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
         @entrySet = ZipEntrySet.new
       else
@@ -113,10 +113,9 @@ module Zip
     # local entry headers (which contain the same information as the
     # central directory).
     def ZipFile.foreach(aZipFileName, &block)
-      ZipFile.open(aZipFileName) {
-        |zipFile|
+      ZipFile.open(aZipFileName) do |zipFile|
         zipFile.each(&block)
-      }
+      end
     end
 
     # Returns an input stream to the specified entry. If a block is passed
@@ -251,8 +250,7 @@ module Zip
       selectedEntry.restore_ownership = @restore_ownership
       selectedEntry.restore_permissions = @restore_permissions
       selectedEntry.restore_times = @restore_times
-
-      return selectedEntry
+      selectedEntry
     end
 
     # Creates a directory
@@ -266,15 +264,15 @@ module Zip
     private
 
     def is_directory(newEntry, srcPath)
-      srcPathIsDirectory = File.directory?(srcPath)
+      srcPathIsDirectory = ::File.directory?(srcPath)
       if newEntry.is_directory && ! srcPathIsDirectory
         raise ArgumentError,
           "entry name '#{newEntry}' indicates directory entry, but "+
           "'#{srcPath}' is not a directory"
-            elsif ! newEntry.is_directory && srcPathIsDirectory
+      elsif !newEntry.is_directory && srcPathIsDirectory
         newEntry.name += "/"
       end
-      return newEntry.is_directory && srcPathIsDirectory
+      newEntry.is_directory && srcPathIsDirectory
     end
 
     def check_entry_exists(entryName, continueOnExistsProc, procedureName)
@@ -284,13 +282,13 @@ module Zip
           remove get_entry(entryName)
         else
           raise ZipEntryExistsError,
-            procedureName+" failed. Entry #{entryName} already exists"
+            procedureName + " failed. Entry #{entryName} already exists"
         end
       end
     end
 
     def check_file(path)
-      unless File.readable? path
+      unless ::File.readable?(path)
         raise Errno::ENOENT, path
       end
     end
@@ -300,12 +298,12 @@ module Zip
       tmpFilename = tmpfile.path
       tmpfile.close
       if yield tmpFilename
-        File.rename(tmpFilename, name)
+        ::File.rename(tmpFilename, name)
       end
     end
 
     def get_tempfile
-      tempFile = Tempfile.new(File.basename(name), File.dirname(name))
+      tempFile = Tempfile.new(::File.basename(name), ::File.dirname(name))
       tempFile.binmode
       tempFile
     end

@@ -30,7 +30,7 @@ module Zip
       if stream
         @outputStream = StringIO.new
       else
-        @outputStream = File.new(@fileName, "wb")
+        @outputStream = ::File.new(@fileName, "wb")
       end
       @entrySet = ZipEntrySet.new
       @compressor = NullCompressor.instance

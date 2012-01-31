@@ -49,7 +49,7 @@ module Zip
     def initialize(filename, offset = 0, io = nil)
       super()
       if (io.nil?) 
-        @archiveIO = File.open(filename, "rb")
+        @archiveIO = ::File.open(filename, "rb")
         @archiveIO.seek(offset, IO::SEEK_SET)
       else
         @archiveIO = io
