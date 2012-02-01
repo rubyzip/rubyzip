@@ -5,7 +5,7 @@ require 'tempfile'
 require 'fileutils'
 require 'stringio'
 require 'zlib'
-require 'zip/stdrubyext'
+require 'zip/dos_time'
 require 'zip/ioextras'
 require 'rbconfig'
 

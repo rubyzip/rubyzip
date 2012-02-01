@@ -64,9 +64,9 @@ module Zip
         size, content = initial_parse(binstr)
         size or return
         @flag, mtime, atime, ctime = content.unpack("CVVV")
-        mtime and @mtime ||= Time.at(mtime)
-        atime and @atime ||= Time.at(atime)
-        ctime and @ctime ||= Time.at(ctime)
+        mtime and @mtime ||= DOSTime.at(mtime)
+        atime and @atime ||= DOSTime.at(atime)
+        ctime and @ctime ||= DOSTime.at(ctime)
       end
 
       def ==(other)
