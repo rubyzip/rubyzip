@@ -258,7 +258,9 @@ module Zip
       if find_entry(entryName)
         raise Errno::EEXIST, "File exists - #{entryName}"
       end
-      @entrySet << ZipStreamableDirectory.new(@name, entryName.to_s.ensure_end("/"), nil, permissionInt)
+      entryName = entryName.to_s
+      entryName << '/' unless entryName.end_with?('/')
+      @entrySet << ZipStreamableDirectory.new(@name, entryName, nil, permissionInt)
     end
 
     private

@@ -82,7 +82,7 @@ module Zip
     def initialize(zipfile = "", name = "", comment = "", extra = "", 
                    compressed_size = 0, crc = 0, 
        compression_method = ZipEntry::DEFLATED, size = 0,
-       time  = Time.now)
+       time  = DOSTime.now)
       super()
       if name.start_with?("/")
         raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
@@ -563,7 +563,7 @@ module Zip
     private
 
     def set_time(binaryDosDate, binaryDosTime)
-      @time = Time.parse_binary_dos_format(binaryDosDate, binaryDosTime)
+      @time = DOSTime.parse_binary_dos_format(binaryDosDate, binaryDosTime)
     rescue ArgumentError
       puts "Invalid date/time in zip entry"
     end

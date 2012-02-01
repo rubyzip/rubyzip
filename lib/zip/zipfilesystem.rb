@@ -70,29 +70,34 @@ module Zip
 #      protected :dir
 
       class ZipFsStat
+
+        class << self
+
+          def delegate_to_fs_file(*methods)
+            methods.each do |method|
+              self.class_eval <<-end_eval, __FILE__, __LINE__ + 1
+                def #{method}                      # def file?
+                  @zipFsFile.#{method}(@entryName) #   @zipFsFile.file?(@entryName)
+                end                                # end
+              end_eval
+            end
+          end
+
+        end
+
         def initialize(zipFsFile, entryName)
           @zipFsFile = zipFsFile
           @entryName = entryName
-        end
-
-        def forward_invoke(msg)
-          @zipFsFile.send(msg, @entryName)
         end
 
         def kind_of?(t)
           super || t == ::File::Stat 
         end
 
-        forward_message :forward_invoke, :file?, :directory?, :pipe?, :chardev?
-        forward_message :forward_invoke, :symlink?, :socket?, :blockdev?
-        forward_message :forward_invoke, :readable?, :readable_real?
-        forward_message :forward_invoke, :writable?, :writable_real?
-        forward_message :forward_invoke, :executable?, :executable_real?
-        forward_message :forward_invoke, :sticky?, :owned?, :grpowned?
-        forward_message :forward_invoke, :setuid?, :setgid?
-        forward_message :forward_invoke, :zero?
-        forward_message :forward_invoke, :size, :size?
-        forward_message :forward_invoke, :mtime, :atime, :ctime
+        delegate_to_fs_file :file?, :directory?, :pipe?, :chardev?, :symlink?,
+          :socket?, :blockdev?, :readable?, :readable_real?, :writable?, :ctime,
+          :writable_real?, :executable?, :executable_real?, :sticky?, :owned?,
+          :grpowned?, :setuid?, :setgid?, :zero?, :size, :size?, :mtime, :atime
 
         def blocks; nil; end
 
@@ -466,7 +471,8 @@ module Zip
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
         end
-        path = @file.expand_path(aDirectoryName).ensure_end("/")
+        path = @file.expand_path(aDirectoryName)
+        path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
         @mappedZip.each { 
@@ -588,7 +594,7 @@ module Zip
       end
 
       def expand_path(aPath)
-        expanded = aPath.start_with?("/") ? aPath : @pwd.ensure_end("/") + aPath
+        expanded = aPath.start_with?("/") ? aPath : ::File.join(@pwd, aPath)
         expanded.gsub!(/\/\.(\/|$)/, "")
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
         expanded.empty? ? "/" : expanded
@@ -597,7 +603,7 @@ module Zip
       private
 
       def expand_to_entry(aPath)
-        expand_path(aPath).lchop
+        expand_path(aPath)[1..-1]
       end
     end
   end

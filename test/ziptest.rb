@@ -222,7 +222,7 @@ class ZipLocalEntryTest < Test::Unit::TestCase
       |file|
       entry = ZipEntry.read_local_entry(file)
       assert_equal("zippedruby1.rb", entry.name)
-      assert_equal(Time.at(1019261638), entry.time)
+      assert_equal(DOSTime.at(1019261638), entry.time)
     }
   end
 
@@ -1679,7 +1679,7 @@ class ZipExtraFieldTest < Test::Unit::TestCase
     extra3 = ZipExtraField.new(str)
     assert_equal(extra1, extra2)
    
-    extra2["UniversalTime"].mtime = Time.now
+    extra2["UniversalTime"].mtime = DOSTime.now
     assert(extra1 != extra2)
 
     extra3.create("IUnix")
