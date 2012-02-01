@@ -62,16 +62,6 @@ class Time  #:nodoc:all
   end
 end
 
-class Module  #:nodoc:all
-  def forward_message(forwarder, *messagesToForward)
-    methodDefs = messagesToForward.map do |msg| 
-      "def #{msg}; #{forwarder}(:#{msg}); end"
-    end
-    module_eval(methodDefs.join("\n"))
-  end
-end
-
-
 # Copyright (C) 2002, 2003 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
 # modify it under the terms of the ruby license.
