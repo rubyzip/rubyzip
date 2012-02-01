@@ -187,7 +187,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_utime
-    t_now = Time.now
+    t_now = DOSTime.now
     t_bak = @zipFile.file.mtime("file1")
     @zipFile.file.utime(t_now, "file1")
     assert_equal(t_now, @zipFile.file.mtime("file1"))
@@ -315,17 +315,17 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_mtime
-    assert_equal(Time.at(1027694306),
+    assert_equal(DOSTime.at(1027694306),
       @zipFile.file.mtime("dir2/file21"))
-    assert_equal(Time.at(1027690863),
+    assert_equal(DOSTime.at(1027690863),
       @zipFile.file.mtime("dir2/dir21"))
     assert_raise(Errno::ENOENT) {
       @zipFile.file.mtime("noSuchEntry")
     }
 
-    assert_equal(Time.at(1027694306),
+    assert_equal(DOSTime.at(1027694306),
       @zipFile.file.stat("dir2/file21").mtime)
-    assert_equal(Time.at(1027690863),
+    assert_equal(DOSTime.at(1027690863),
       @zipFile.file.stat("dir2/dir21").mtime)
   end
 
