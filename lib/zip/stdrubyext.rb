@@ -1,10 +1,3 @@
-class String  #:nodoc:all
-
-  def lchop
-    slice(1, length)
-  end
-end
-
 class Time  #:nodoc:all
 
   #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:

@@ -603,7 +603,7 @@ module Zip
       private
 
       def expand_to_entry(aPath)
-        expand_path(aPath).lchop
+        expand_path(aPath)[1..-1]
       end
     end
   end
