@@ -471,7 +471,8 @@ module Zip
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
         end
-        path = @file.expand_path(aDirectoryName).ensure_end("/")
+        path = @file.expand_path(aDirectoryName)
+        path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
         @mappedZip.each { 
@@ -593,7 +594,7 @@ module Zip
       end
 
       def expand_path(aPath)
-        expanded = aPath.start_with?("/") ? aPath : @pwd.ensure_end("/") + aPath
+        expanded = aPath.start_with?("/") ? aPath : ::File.join(@pwd, aPath)
         expanded.gsub!(/\/\.(\/|$)/, "")
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
         expanded.empty? ? "/" : expanded

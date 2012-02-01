@@ -1,9 +1,5 @@
 class String  #:nodoc:all
 
-  def ensure_end(aString)
-    end_with?(aString) ? self : self + aString
-  end
-
   def lchop
     slice(1, length)
   end
