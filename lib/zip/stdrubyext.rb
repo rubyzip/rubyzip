@@ -1,11 +1,3 @@
-module Enumerable #:nodoc:all
-  # returns a new array of all the return values not equal to nil
-  # This implementation could be faster
-  def select_map(&aProc)
-    map(&aProc).reject { |e| e.nil? }
-  end
-end
-
 class String  #:nodoc:all
 
   def ensure_end(aString)

@@ -7,14 +7,6 @@ $: << "../lib"
 require 'test/unit'
 require 'zip/stdrubyext'
 
-class ModuleTest < Test::Unit::TestCase
-
-  def test_select_map
-    assert_equal([2, 4, 8, 10], [1, 2, 3, 4, 5].select_map { |e| e == 3 ? nil : 2*e })
-  end
-  
-end
-
 class StringExtensionsTest < Test::Unit::TestCase
 
   def test_ensure_end
