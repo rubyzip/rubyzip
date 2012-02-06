@@ -432,39 +432,46 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_foreach
-    ZipFile.open("data/generated/zipWithDir.zip") {
-      |zf|
+    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
       ref = []
       File.foreach("data/file1.txt") { |e| ref << e }
-
       index = 0
-      zf.file.foreach("data/file1.txt") { 
-        |l|
-        assert_equal(ref[index], l)
-        index = index.next
-      }
-      assert_equal(ref.size, index)
-    }
 
-    ZipFile.open("data/generated/zipWithDir.zip") {
-      |zf|
+      zf.file.foreach("data/file1.txt") do |l|
+        #Ruby replaces \n with \r\n automatically on windows
+        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
+        assert_equal(ref[index], newline)
+        index = index.next
+      end
+      assert_equal(ref.size, index)
+    end
+
+    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
       ref = []
       File.foreach("data/file1.txt", " ") { |e| ref << e }
-
       index = 0
-      zf.file.foreach("data/file1.txt", " ") { 
-        |l|
-        assert_equal(ref[index], l)
+
+      zf.file.foreach("data/file1.txt", " ") do |l|
+        #Ruby replaces \n with \r\n automatically on windows
+        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
+        assert_equal(ref[index], newline)
         index = index.next
-      }
+      end
       assert_equal(ref.size, index)
-    }
+    end
   end
 
   def test_popen
-    cmd = /mswin/i =~ RUBY_PLATFORM ? 'dir' : 'ls'
-    assert_equal(File.popen(cmd) { |f| f.read }, 
-      @zipFile.file.popen(cmd) { |f| f.read })
+    if Zip::RUNNING_ON_WINDOWS
+      #This is pretty much projectile vomit but it allows the test to be
+      #run on windows also
+      system_dir = File.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
+      zipfile_dir = @zipFile.file.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
+      assert_equal(system_dir, zipfile_dir)
+    else
+      assert_equal(File.popen('ls') { |f| f.read },
+                   @zipFile.file.popen('ls') { |f| f.read })
+    end
   end
 
 # Can be added later
@@ -473,19 +480,26 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
 #  end
 
   def test_readlines
-    ZipFile.open("data/generated/zipWithDir.zip") {
-      |zf|
-      assert_equal(File.readlines("data/file1.txt"), 
-        zf.file.readlines("data/file1.txt"))
-    }
+    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
+      orig_file = File.readlines("data/file1.txt")
+      zip_file = zf.file.readlines("data/file1.txt")
+
+      #Ruby replaces \n with \r\n automatically on windows
+      zip_file.each { |l| l.gsub!(/\r\n/, "\n") } if Zip::RUNNING_ON_WINDOWS
+
+      assert_equal(orig_file, zip_file)
+    end
   end
 
   def test_read
-    ZipFile.open("data/generated/zipWithDir.zip") {
-      |zf|
-      assert_equal(File.read("data/file1.txt"), 
-        zf.file.read("data/file1.txt"))
-    }
+    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
+      orig_file = File.read("data/file1.txt")
+
+      #Ruby replaces \n with \r\n automatically on windows
+      zip_file = Zip::RUNNING_ON_WINDOWS ? \
+          zf.file.read("data/file1.txt").gsub(/\r\n/, "\n") : zf.file.read("data/file1.txt")
+      assert_equal(orig_file, zip_file)
+    end
   end
 
 end
