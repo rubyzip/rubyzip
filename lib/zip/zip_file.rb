@@ -177,7 +177,8 @@ module Zip
     # the file system).
     def replace(entry, srcPath)
       check_file(srcPath)
-      add(remove(entry), srcPath)
+      remove(entry)
+      add(entry, srcPath)
     end
 
     # Extracts entry to file destPath.
