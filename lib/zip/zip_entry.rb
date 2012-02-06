@@ -62,7 +62,7 @@ module Zip
 
     # Returns the character encoding used for name and comment
     def name_encoding
-      (@gp_flags & 0b100000000000) != 0 ? "utf8" : "CP437//"
+      (@gp_flags & 0b100000000000) != 0 ? "UTF-8" : "CP437//"
     end
 
     # Returns the name in the encoding specified by enc
@@ -140,7 +140,7 @@ module Zip
       if @extra["UniversalTime"]
         @extra["UniversalTime"].mtime
       else
-        # Atandard time field in central directory has local time
+        # Standard time field in central directory has local time
         # under archive creator. Then, we can't get timezone.
         @time
       end
