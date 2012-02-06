@@ -88,8 +88,7 @@ module Zip
     # no more entries.
 
     def get_next_entry
-      @archiveIO.seek(@currentEntry.next_header_offset, 
-                      IO::SEEK_SET) if @currentEntry
+      @archiveIO.seek(@currentEntry.next_header_offset, IO::SEEK_SET) if @currentEntry
       open_entry
     end
 
@@ -116,16 +115,15 @@ module Zip
 
     def open_entry
       @currentEntry = ZipEntry.read_local_entry(@archiveIO)
-      if (@currentEntry == nil) 
-	@decompressor = NullDecompressor.instance
+      if @currentEntry.nil?
+	      @decompressor = NullDecompressor.instance
       elsif @currentEntry.compression_method == ZipEntry::STORED
-	@decompressor = PassThruDecompressor.new(@archiveIO, 
-						 @currentEntry.size)
+	      @decompressor = PassThruDecompressor.new(@archiveIO, @currentEntry.size)
       elsif @currentEntry.compression_method == ZipEntry::DEFLATED
-	@decompressor = Inflater.new(@archiveIO)
+	      @decompressor = Inflater.new(@archiveIO)
       else
-	raise ZipCompressionMethodError,
-	  "Unsupported compression method #{@currentEntry.compression_method}"
+	      raise ZipCompressionMethodError,
+              "Unsupported compression method #{@currentEntry.compression_method}"
       end
       flush
       return @currentEntry
