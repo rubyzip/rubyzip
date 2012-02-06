@@ -1235,10 +1235,8 @@ class ZipFileTest < Test::Unit::TestCase
     zf.close
 
     zfRead = ZipFile.new(TEST_ZIP.zip_name)
-
-    test = zfRead.read(newName)
     assert(zfRead.entries.map { |e| e.name }.include?(newName))
-    assert_equal(contents, zf.read(newName))
+    assert_equal(contents, zfRead.read(newName))
     zfRead.close
   end
 
