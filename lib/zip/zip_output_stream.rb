@@ -101,11 +101,10 @@ module Zip
       src_pos = entry.local_entry_offset
       entry.write_local_entry(@outputStream)
       @compressor = NullCompressor.instance
-      entry.get_raw_input_stream {
-        |is|
+      entry.get_raw_input_stream do |is|
         is.seek(src_pos, IO::SEEK_SET)
         IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
-      }
+      end
       @compressor = NullCompressor.instance
       @currentEntry = nil
     end
