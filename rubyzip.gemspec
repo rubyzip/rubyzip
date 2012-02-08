@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = 'rubyzip'
-  s.version = "0.9.5"
+  s.version = "0.9.6"
   s.author = "Alan Harper"
   s.email = "alan@aussiegeek.net"
   s.homepage = "http://github.com/aussiegeek/rubyzip"
