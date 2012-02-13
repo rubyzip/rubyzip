@@ -61,7 +61,7 @@ module Zip
       super()
       @name = fileName
       @comment = ""
-      if (::File.exists?(fileName)) and !buffer
+      if (::File.exists?(fileName)) && !buffer
         ::File.open(name, "rb") { |f| read_from_stream(f) }
       elsif (create)
         @entrySet = ZipEntrySet.new
@@ -76,47 +76,45 @@ module Zip
       @restore_times = true
     end
 
-    # Same as #new. If a block is passed the ZipFile object is passed
-    # to the block and is automatically closed afterwards just as with
-    # ruby's builtin File.open method.
-    def ZipFile.open(fileName, create = nil)
-      zf = ZipFile.new(fileName, create)
-      if block_given?
-        begin
-          yield zf
-        ensure
-          zf.close
+    class << self
+      # Same as #new. If a block is passed the ZipFile object is passed
+      # to the block and is automatically closed afterwards just as with
+      # ruby's builtin File.open method.
+      def open(fileName, create = nil)
+        zf = ZipFile.new(fileName, create)
+        if block_given?
+          begin
+            yield zf
+          ensure
+            zf.close
+          end
+        else
+          zf
         end
-      else
-        zf
       end
-    end
 
-    # Same as #open. But outputs data to a buffer instead of a file
-    def ZipFile.add_buffer
-      zf = ZipFile.new('', true, true)
-      begin
+      # Same as #open. But outputs data to a buffer instead of a file
+      def add_buffer
+        zf = ZipFile.new('', true, true)
         yield zf
-      ensure
-        buffer = zf.write_buffer
-        return buffer
+        zf.write_buffer
+      end
+
+      # Iterates over the contents of the ZipFile. This is more efficient
+      # than using a ZipInputStream since this methods simply iterates
+      # through the entries in the central directory structure in the archive
+      # whereas ZipInputStream jumps through the entire archive accessing the
+      # local entry headers (which contain the same information as the
+      # central directory).
+      def foreach(aZipFileName, &block)
+        open(aZipFileName) do |zipFile|
+          zipFile.each(&block)
+        end
       end
     end
 
   # Returns the zip files comment, if it has one
     attr_accessor :comment
-
-    # Iterates over the contents of the ZipFile. This is more efficient
-    # than using a ZipInputStream since this methods simply iterates
-    # through the entries in the central directory structure in the archive
-    # whereas ZipInputStream jumps through the entire archive accessing the
-    # local entry headers (which contain the same information as the
-    # central directory).
-    def ZipFile.foreach(aZipFileName, &block)
-      ZipFile.open(aZipFileName) do |zipFile|
-        zipFile.each(&block)
-      end
-    end
 
     # Returns an input stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically
@@ -191,7 +189,7 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-      return if ! commit_required?
+      return if !commit_required?
       on_success_replace(name) {
         |tmpFile|
         ZipOutputStream.open(tmpFile) {
@@ -229,7 +227,7 @@ module Zip
       @entrySet.each do |e|
         return true if e.dirty
       end
-      return @entrySet != @storedEntries || @create == ZipFile::CREATE
+      @entrySet != @storedEntries || @create == ZipFile::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if

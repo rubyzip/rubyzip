@@ -27,21 +27,21 @@ module Zip
       end
 
       def ==(other)
-        self.class != other.class and return false
-        each { |k, v|
+        return false if self.class != other.class
+        each do |k, v|
           v != other[k] and return false
-        }
+        end
         true
       end
 
       def to_local_bin
         s = pack_for_local
-        self.class.const_get(:HEADER_ID) + [s.length].pack("v") + s
+        self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") + s
       end
 
       def to_c_dir_bin
         s = pack_for_c_dir
-        self.class.const_get(:HEADER_ID) + [s.length].pack("v") + s
+        self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") + s
       end
     end
 
@@ -134,7 +134,7 @@ module Zip
     def merge(binstr)
       binstr == "" and return
       i = 0 
-      while i < binstr.length
+      while i < binstr.bytesize
         id = binstr[i,2]
         len = binstr[i+2,2].to_s.unpack("v")[0] 
         if id && ID_MAP.member?(id)
@@ -154,13 +154,13 @@ module Zip
             end
             self["Unknown"] = s
           end
-          if ! len || len+4 > binstr[i..-1].length
+          if !len || len + 4 > binstr[i..-1].bytesize
             self["Unknown"] << binstr[i..-1]
-            break;
+            break
           end
           self["Unknown"] << binstr[i, len+4]
         end
-        i += len+4
+        i += len + 4
       end
     end
 
@@ -189,17 +189,17 @@ module Zip
 
     def to_c_dir_bin
       s = ""
-      each { |k, v|
+      each do |k, v|
         s << v.to_c_dir_bin
-      }
+      end
       s
     end
 
     def c_dir_length
-      to_c_dir_bin.length
+      to_c_dir_bin.bytesize
     end
     def local_length
-      to_local_bin.length
+      to_local_bin.bytesize
     end
     alias :c_dir_size :c_dir_length
     alias :local_size :local_length

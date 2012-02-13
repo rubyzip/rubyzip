@@ -55,34 +55,13 @@ module Zip
     attr_accessor :follow_symlinks
     attr_accessor :restore_times, :restore_permissions, :restore_ownership
     attr_accessor :unix_uid, :unix_gid, :unix_perms
-
     attr_accessor :dirty
-
     attr_reader :ftype, :filepath # :nodoc:
 
-    # Returns the character encoding used for name and comment
-    def name_encoding
-      (@gp_flags & 0b100000000000) != 0 ? "UTF-8" : "CP437//"
-    end
-
-    # Returns the name in the encoding specified by enc
-    def name_in(enc)
-      if RUBY_VERSION >= '1.9'
-        @name.encode(enc)
-      else
-        Iconv.conv(enc, name_encoding, @name)
-      end
-    end
-
-    # Returns the name in the encoding specified by enc
-    def comment_in(enc)
-      name_in(enc)
-    end
-
     def initialize(zipfile = "", name = "", comment = "", extra = "",
-                   compressed_size = 0, crc = 0,
-       compression_method = ZipEntry::DEFLATED, size = 0,
-       time  = DOSTime.now)
+                   compressed_size = 0, crc = 0, 
+                   compression_method = ZipEntry::DEFLATED, size = 0,
+                   time  = DOSTime.now)
       super()
       if name.start_with?("/")
         raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
@@ -91,6 +70,8 @@ module Zip
       @local_header_size = 0
       @internalFileAttributes = 1
       @externalFileAttributes = 0
+      @header_signature = CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+      @versionNeededToExtract = VERSION_NEEDED_TO_EXTRACT
       @version = 52 # this library's version
       @ftype = nil # unspecified or unknown
       @filepath = nil
@@ -108,7 +89,7 @@ module Zip
       @name = name
       @size = size
       @time = time
-      @gp_flags = nil
+      @gp_flags = 0
 
       @follow_symlinks = false
 
@@ -218,24 +199,44 @@ module Zip
 
     protected
 
-    def ZipEntry.read_zip_short(io) # :nodoc:
-      io.read(2).unpack('v')[0]
+    class << self
+      def read_zip_short(io) # :nodoc:
+        io.read(2).unpack('v')[0]
+      end
+
+      def read_zip_long(io) # :nodoc:
+        io.read(4).unpack('V')[0]
+      end
+
+      def read_c_dir_entry(io)  #:nodoc:all
+        entry = new(io.path)
+        entry.read_c_dir_entry(io)
+        entry
+      rescue ZipError
+        nil
+      end
+
+      def read_local_entry(io)
+        entry = new(io.path)
+        entry.read_local_entry(io)
+        entry
+      rescue ZipError
+        nil
+      end
+
     end
 
-    def ZipEntry.read_zip_long(io) # :nodoc:
-      io.read(4).unpack('V')[0]
-    end
     public
 
     LOCAL_ENTRY_SIGNATURE = 0x04034b50
     LOCAL_ENTRY_STATIC_HEADER_LENGTH = 30
     LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4+4+4
-    VERSION_NEEDED_TO_EXTRACT = 10
+    VERSION_NEEDED_TO_EXTRACT = 20
 
     def read_local_entry(io)  #:nodoc:all
       @localHeaderOffset = io.tell
       staticSizedFieldsBuf = io.read(LOCAL_ENTRY_STATIC_HEADER_LENGTH)
-      unless (staticSizedFieldsBuf.size==LOCAL_ENTRY_STATIC_HEADER_LENGTH)
+      unless (staticSizedFieldsBuf.size == LOCAL_ENTRY_STATIC_HEADER_LENGTH)
         raise ZipError, "Premature end of file. Not enough data for zip entry local header"
       end
 
@@ -272,21 +273,15 @@ module Zip
       @local_header_size = calculate_local_header_size
     end
 
-    def ZipEntry.read_local_entry(io)
-      entry = new(io.path)
-      entry.read_local_entry(io)
-      return entry
-    rescue ZipError
-      return nil
-    end
+
 
     def write_local_entry(io)   #:nodoc:all
       @localHeaderOffset = io.tell
 
       io <<
       [LOCAL_ENTRY_SIGNATURE    ,
-      VERSION_NEEDED_TO_EXTRACT , # version needed to extract
-      0                         , # @gp_flags                  ,
+      @versionNeededToExtract , # version needed to extract
+      @gp_flags                         , # @gp_flags                  ,
       @compression_method        ,
       @time.to_binary_dos_time     , # @lastModTime              ,
       @time.to_binary_dos_date     , # @lastModDate              ,
@@ -304,30 +299,31 @@ module Zip
 
     def read_c_dir_entry(io)  #:nodoc:all
       staticSizedFieldsBuf = io.read(CDIR_ENTRY_STATIC_HEADER_LENGTH)
-      unless (staticSizedFieldsBuf.size == CDIR_ENTRY_STATIC_HEADER_LENGTH)
+      unless (staticSizedFieldsBuf.bytesize == CDIR_ENTRY_STATIC_HEADER_LENGTH)
         raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
       end
 
-      @header_signature          ,
-      @version               , # version of encoding software
-      @fstype                , # filesystem type
-      @versionNeededToExtract,
-      @gp_flags               ,
-      @compression_method     ,
-      lastModTime            ,
-      lastModDate            ,
-      @crc                   ,
-      @compressed_size        ,
-      @size                  ,
-      nameLength             ,
-      extraLength            ,
-      commentLength          ,
-      diskNumberStart        ,
-      @internalFileAttributes,
-      @externalFileAttributes,
-      @localHeaderOffset     ,
-      @name                  ,
-      @extra                 ,
+
+      @header_signature         ,
+      @version                  , # version of encoding software
+      @fstype                   , # filesystem type
+      @versionNeededToExtract   ,
+      @gp_flags                 ,
+      @compression_method       ,
+      lastModTime               ,
+      lastModDate               ,
+      @crc                      ,
+      @compressed_size          ,
+      @size                     ,
+      nameLength                ,
+      extraLength               ,
+      commentLength             ,
+      diskNumberStart           ,
+      @internalFileAttributes   ,
+      @externalFileAttributes   ,
+      @localHeaderOffset        ,
+      @name                     ,
+      @extra                    ,
       @comment               = staticSizedFieldsBuf.unpack('VCCvvvvvVVVvvvvvVV')
 
       unless (@header_signature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
@@ -335,13 +331,13 @@ module Zip
       end
       set_time(lastModDate, lastModTime)
 
-      @name                  = io.read(nameLength)
+      @name = io.read(nameLength)
       if ZipExtraField === @extra
         @extra.merge(io.read(extraLength))
       else
         @extra = ZipExtraField.new(io.read(extraLength))
       end
-      @comment               = io.read(commentLength)
+      @comment = io.read(commentLength)
       unless (@comment && @comment.bytesize == commentLength)
         raise ZipError, "Truncated cdir zip entry header"
       end
@@ -376,13 +372,7 @@ module Zip
       @local_header_size = calculate_local_header_size
     end
 
-    def ZipEntry.read_c_dir_entry(io)  #:nodoc:all
-      entry = new(io.path)
-      entry.read_c_dir_entry(io)
-      return entry
-    rescue ZipError
-      return nil
-    end
+
 
     def file_stat(path)	# :nodoc:
       if @follow_symlinks
@@ -437,28 +427,31 @@ module Zip
         end
       end
 
-      io <<
-      [CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
-      @version                          , # version of encoding software
-      @fstype                           , # filesystem type
-      VERSION_NEEDED_TO_EXTRACT         , # @versionNeededToExtract           ,
-      0                                 , # @gp_flags                          ,
-      @compression_method               ,
-      @time.to_binary_dos_time          , # @lastModTime                      ,
-      @time.to_binary_dos_date          , # @lastModDate                      ,
-      @crc                              ,
-      @compressed_size                  ,
-      @size                             ,
-      @name  ?  @name.bytesize  : 0       ,
-      @extra ? @extra.c_dir_length : 0  ,
-      @comment ? @comment.bytesize : 0    ,
-      0                                 , # disk number start
-      @internalFileAttributes           , # file type (binary=0, text=1)
-      @externalFileAttributes           , # native filesystem attributes
-      @localHeaderOffset                ,
-      @name                             ,
-      @extra                            ,
-      @comment                          ].pack('VCCvvvvvVVVvvvvvVV')
+      tmp = [
+        @header_signature,
+        @version                          , # version of encoding software
+        @fstype                           , # filesystem type
+        @versionNeededToExtract         , # @versionNeededToExtract           ,
+        @gp_flags                                 , # @gp_flags                          ,
+        @compression_method               ,
+        @time.to_binary_dos_time          , # @lastModTime                      ,
+        @time.to_binary_dos_date          , # @lastModDate                      ,
+        @crc                              ,
+        @compressed_size                  ,
+        @size                             ,
+        @name  ?  @name.bytesize  : 0       ,
+        @extra ? @extra.c_dir_length : 0  ,
+        @comment ? @comment.bytesize : 0    ,
+        0                                 , # disk number start
+        @internalFileAttributes           , # file type (binary=0, text=1)
+        @externalFileAttributes           , # native filesystem attributes
+        @localHeaderOffset                ,
+        @name                             ,
+        @extra                            ,
+        @comment                          
+      ]
+
+      io << tmp.pack('VCCvvvvvVVVvvvvvVV')
 
       io << @name
       io << (@extra ? @extra.to_c_dir_bin : "")

@@ -24,26 +24,6 @@ class ZipEntryTest < Test::Unit::TestCase
   TEST_SIZE = 8432
   TEST_ISDIRECTORY = false
 
-  def test_name_in
-    expected = if RUBY_VERSION >= '1.9'
-      "caf\351".force_encoding("iso-8859-1")
-    else
-      "caf\351"
-    end
-    assert_equal expected, ZipEntry.new(TEST_ZIPFILE, "café").name_in("iso-8859-1")
-  end
-
-  # This is a test for existing behavior, but no idea why this returns the
-  # name not the comment.
-  def test_comment_in
-    expected = if RUBY_VERSION >= '1.9'
-      "caf\351".force_encoding("iso-8859-1")
-    else
-      "caf\351"
-    end
-    assert_equal expected, ZipEntry.new(TEST_ZIPFILE, "café").comment_in("iso-8859-1")
-  end
-
   def test_constructorAndGetters
     entry = ZipEntry.new(TEST_ZIPFILE,
 			 TEST_NAME,
@@ -1083,18 +1063,18 @@ class ZipFileTest < Test::Unit::TestCase
   def test_createFromScratchToBuffer
     comment  = "a short comment"
 
-    buffer = ZipFile.add_buffer do |zf|
+    buffer = ::ZipFile.add_buffer do |zf|
       zf.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
       zf.mkdir("dir1")
       zf.comment = comment
     end
 
-    File.open(EMPTY_FILENAME, 'wb') { |file| file.write buffer.string }
+    ::File.open(EMPTY_FILENAME, 'wb') { |file| file.write buffer.string }
     # Not sure if the following line was just accidentally left in, but
     # it's not related to the tests and breaks on windows
     `cp #{EMPTY_FILENAME} ~/test.zip` unless Zip::RUNNING_ON_WINDOWS
 
-    zfRead = ZipFile.new(EMPTY_FILENAME)
+    zfRead = ::ZipFile.new(EMPTY_FILENAME)
     assert_equal(comment, zfRead.comment)
     assert_equal(2, zfRead.entries.length)
   end
