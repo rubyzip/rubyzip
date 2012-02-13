@@ -74,7 +74,7 @@ module Zip
       update_local_headers
       write_central_directory
       @closed = true
-      return @outputStream
+      @outputStream
     end
 
 	  # Closes the current entry and opens a new for writing.
@@ -110,11 +110,11 @@ module Zip
     end
 
     private
+
     def finalize_current_entry
       return unless @currentEntry
       finish
-      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset -
-	    @currentEntry.calculate_local_header_size
+      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - @currentEntry.calculate_local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
       @currentEntry = nil
@@ -138,12 +138,11 @@ module Zip
     end
 
     def update_local_headers
-      pos = @outputStream.tell
-      @entrySet.each {
-        |entry|
+      pos = @outputStream.pos
+      @entrySet.each do |entry|
         @outputStream.pos = entry.localHeaderOffset
         entry.write_local_entry(@outputStream)
-      }
+      end
       @outputStream.pos = pos
     end
 

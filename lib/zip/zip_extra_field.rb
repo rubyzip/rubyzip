@@ -60,7 +60,7 @@ module Zip
       attr_accessor :atime, :ctime, :mtime, :flag
 
       def merge(binstr)
-        binstr == "" and return
+        return if binstr.empty?
         size, content = initial_parse(binstr)
         size or return
         @flag, mtime, atime, ctime = content.unpack("CVVV")
@@ -103,10 +103,10 @@ module Zip
       attr_accessor :uid, :gid
 
       def merge(binstr)
-        binstr == "" and return
+        return if binstr.empty?
         size, content = initial_parse(binstr)
-        # size: 0 for central direcotry. 4 for local header
-        return if(! size || size == 0)
+        # size: 0 for central directory. 4 for local header
+        return if(!size || size == 0)
         uid, gid = content.unpack("vv")
         @uid ||= uid
         @gid ||= gid
@@ -132,17 +132,17 @@ module Zip
     end
 
     def merge(binstr)
-      binstr == "" and return
+      return if binstr.empty?
       i = 0 
       while i < binstr.bytesize
         id = binstr[i,2]
-        len = binstr[i+2,2].to_s.unpack("v")[0] 
+        len = binstr[i + 2,2].to_s.unpack("v")[0]
         if id && ID_MAP.member?(id)
           field_name = ID_MAP[id].name
           if self.member?(field_name)
-            self[field_name].mergea(binstr[i, len+4])
+            self[field_name].mergea(binstr[i, len + 4])
           else
-            field_obj = ID_MAP[id].new(binstr[i, len+4])
+            field_obj = ID_MAP[id].new(binstr[i, len + 4])
             self[field_name] = field_obj
           end
         elsif id
@@ -158,7 +158,7 @@ module Zip
             self["Unknown"] << binstr[i..-1]
             break
           end
-          self["Unknown"] << binstr[i, len+4]
+          self["Unknown"] << binstr[i, len + 4]
         end
         i += len + 4
       end
@@ -180,9 +180,9 @@ module Zip
 
     def to_local_bin
       s = ""
-      each { |k, v|
+      each do |k, v|
         s << v.to_local_bin
-      }
+      end
       s
     end
     alias :to_s :to_local_bin

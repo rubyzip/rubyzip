@@ -26,23 +26,27 @@ module Zip
     end
 
     def write_e_o_c_d(io, offset)  #:nodoc:
-      io <<
-      [END_OF_CENTRAL_DIRECTORY_SIGNATURE,
+      tmp = [
+        END_OF_CENTRAL_DIRECTORY_SIGNATURE,
         0                                  , # @numberOfThisDisk
         0                                  , # @numberOfDiskWithStartOfCDir
-        @entrySet? @entrySet.size : 0        ,
-        @entrySet? @entrySet.size : 0        ,
-        cdir_size                           ,
+        @entrySet? @entrySet.size : 0      ,
+        @entrySet? @entrySet.size : 0      ,
+        cdir_size                          ,
         offset                             ,
-        @comment ? @comment.length : 0     ].pack('VvvvvVVv')
-        io << @comment
+        @comment ? @comment.length : 0
+      ]
+      io << tmp.pack('VvvvvVVv')
+      io << @comment
     end
     
     private :write_e_o_c_d
 
     def cdir_size  #:nodoc:
       # does not include eocd
-      @entrySet.inject(0) { |value, entry| entry.cdir_header_size + value }
+      @entrySet.inject(0) do |value, entry|
+        entry.cdir_header_size + value
+      end
     end
     
     private :cdir_size
@@ -68,7 +72,8 @@ module Zip
       end
       @entrySet = ZipEntrySet.new
       @size.times do
-        @entrySet << ZipEntry.read_c_dir_entry(io)
+        tmp = ZipEntry.read_c_dir_entry(io)
+        @entrySet << tmp
       end
     end
 
@@ -100,7 +105,7 @@ module Zip
 
       sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
       raise ZipError, "Zip end of central directory signature not found" unless sigIndex
-      buf = buf.slice!((sigIndex+4)...(buf.size))
+      buf = buf.slice!((sigIndex + 4)...(buf.bytesize))
 
       def buf.read(count)
         slice!(0, count)

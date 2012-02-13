@@ -61,16 +61,18 @@ module Zip
       super()
       @name = fileName
       @comment = ""
-      if (::File.exists?(fileName)) && !buffer
-        ::File.open(name, "rb") { |f| read_from_stream(f) }
-      elsif (create)
-        @entrySet = ZipEntrySet.new
-      else
-        raise ZipError, "File #{fileName} not found"
+      case
+        when ::File.exists?(fileName) && !buffer
+          ::File.open(name, "rb") do |f|
+            read_from_stream(f)
+          end
+        when create
+          @entrySet = ZipEntrySet.new
+        else
+          raise ZipError, "File #{fileName} not found"
       end
       @create = create
       @storedEntries = @entrySet.dup
-
       @restore_ownership = false
       @restore_permissions = false
       @restore_times = true
