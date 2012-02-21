@@ -851,8 +851,23 @@ class ZipEntrySetTest < Test::Unit::TestCase
     assert_equal(ZIP_ENTRIES.size, count)
   end
 
+  def test_each_sorted
+    # @zipEntrySet.each should yield entries in order sorted by name.
+    result = []
+    @zipEntrySet.each_with_index {
+      |entry, index|
+      result << entry
+    }
+    assert_equal(ZIP_ENTRIES.sort, result)
+  end
+
   def test_entries
     assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries.sort)
+  end
+
+  def test_entries_sorted
+    # @zipEntrySet.entries should return a list sorted by name.
+    assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries)
   end
 
   def test_compound
