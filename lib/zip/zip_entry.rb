@@ -11,7 +11,7 @@ module Zip
     FSTYPE_ATARI = 5
     FSTYPE_HPFS = 6
     FSTYPE_MAC = 7
-    FSTYPE_Z_SYSTEM = 8 
+    FSTYPE_Z_SYSTEM = 8
     FSTYPE_CPM = 9
     FSTYPE_TOPS20 = 10
     FSTYPE_NTFS = 11
@@ -49,7 +49,7 @@ module Zip
       FSTYPE_ATHEOS => 'AtheOS'.freeze,
     }.freeze
 
-    attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method, 
+    attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method,
       :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes, :gp_flags, :header_signature
 
     attr_accessor :follow_symlinks
@@ -79,8 +79,8 @@ module Zip
       name_in(enc)
     end
 
-    def initialize(zipfile = "", name = "", comment = "", extra = "", 
-                   compressed_size = 0, crc = 0, 
+    def initialize(zipfile = "", name = "", comment = "", extra = "",
+                   compressed_size = 0, crc = 0,
        compression_method = ZipEntry::DEFLATED, size = 0,
        time  = DOSTime.now)
       super()
@@ -187,7 +187,7 @@ module Zip
     end
 
     def cdir_header_size  #:nodoc:all
-      CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.bytesize : 0) + 
+      CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.bytesize : 0) +
       (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.bytesize : 0)
     end
 
@@ -197,7 +197,7 @@ module Zip
 
     # Extracts entry to file destPath (defaults to @name).
     def extract(destPath = @name, &onExistsProc)
-      onExistsProc ||= proc { false }
+      onExistsProc ||= proc { Zip.options[:on_exists_proc] }
 
       if directory?
         create_directory(destPath, &onExistsProc)
@@ -283,7 +283,7 @@ module Zip
     def write_local_entry(io)   #:nodoc:all
       @localHeaderOffset = io.tell
 
-      io << 
+      io <<
       [LOCAL_ENTRY_SIGNATURE    ,
       VERSION_NEEDED_TO_EXTRACT , # version needed to extract
       0                         , # @gp_flags                  ,
@@ -431,7 +431,7 @@ module Zip
         end
       end
 
-      io << 
+      io <<
       [CENTRAL_DIRECTORY_ENTRY_SIGNATURE,
       @version                          , # version of encoding software
       @fstype                           , # filesystem type
@@ -544,7 +544,7 @@ module Zip
         aZipOutputStream.put_next_entry(self)
       elsif @filepath
         aZipOutputStream.put_next_entry(self)
-        get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) } 
+        get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) }
       else
         aZipOutputStream.copy_raw_entry(self)
       end
@@ -568,7 +568,7 @@ module Zip
       puts "Invalid date/time in zip entry"
     end
 
-    def write_file(destPath, continueOnExistsProc = proc { false })
+    def write_file(destPath, continueOnExistsProc = proc { Zip.options[:continue_on_exists_proc] })
       if ::File.exists?(destPath) && ! yield(self, destPath)
         raise ZipDestinationFileExistsError,
           "Destination '#{destPath}' already exists"
