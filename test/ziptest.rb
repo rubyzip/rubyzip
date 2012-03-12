@@ -1746,20 +1746,20 @@ class ZipSettingsTest < Test::Unit::TestCase
   end
 
   def test_true_on_exists_proc
-    Zip.options[:on_exists_proc_default] = true
+    Zip.options[:on_exists_proc] = true
     File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
     extract_test_dir
     assert(File.directory?(TEST_OUT_NAME))
   end
 
   def test_false_on_exists_proc
-    Zip.options[:on_exists_proc_default] = false
+    Zip.options[:on_exists_proc] = false
     File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
     assert_raise(Zip::ZipDestinationFileExistsError) { extract_test_dir }
   end
 
   def test_false_continue_on_exists_proc
-    Zip.options[:continue_on_exists_proc_default] = false
+    Zip.options[:continue_on_exists_proc] = false
 
     assert_raise(ZipEntryExistsError) do
       ZipFile.open(TEST_ZIP.zip_name) do |zf|
@@ -1769,7 +1769,7 @@ class ZipSettingsTest < Test::Unit::TestCase
   end
 
   def test_true_continue_on_exists_proc
-    Zip.options[:continue_on_exists_proc_default] = true
+    Zip.options[:continue_on_exists_proc] = true
 
     replacedEntry = nil
 

@@ -197,7 +197,7 @@ module Zip
 
     # Extracts entry to file destPath (defaults to @name).
     def extract(destPath = @name, &onExistsProc)
-      onExistsProc ||= proc { Zip.options[:on_exists_proc_default] }
+      onExistsProc ||= proc { Zip.options[:on_exists_proc] }
 
       if directory?
         create_directory(destPath, &onExistsProc)
@@ -568,7 +568,7 @@ module Zip
       puts "Invalid date/time in zip entry"
     end
 
-    def write_file(destPath, continueOnExistsProc = proc { Zip.options[:continue_on_exists_proc_default] })
+    def write_file(destPath, continueOnExistsProc = proc { Zip.options[:continue_on_exists_proc] })
       if ::File.exists?(destPath) && ! yield(self, destPath)
         raise ZipDestinationFileExistsError,
           "Destination '#{destPath}' already exists"

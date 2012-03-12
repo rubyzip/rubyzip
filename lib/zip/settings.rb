@@ -2,8 +2,8 @@ module Zip
   class << self
     def options
       @options ||= {
-        :on_exists_proc_default => false,
-        :continue_on_exists_proc_default => false
+        :on_exists_proc => false,
+        :continue_on_exists_proc => false
       }
     end
   end
