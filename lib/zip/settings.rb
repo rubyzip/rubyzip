@@ -1,7 +1,10 @@
 module Zip
   class << self
     def options
-      @options ||= {:overwrite_existing_element => false}
+      @options ||= {
+        :on_exists_proc_default => false,
+        :continue_on_exists_proc_default => false
+      }
     end
   end
 end

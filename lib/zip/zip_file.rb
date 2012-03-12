@@ -152,7 +152,7 @@ module Zip
 
     # Convenience method for adding the contents of a file to the archive
     def add(entry, srcPath, &continueOnExistsProc)
-      continueOnExistsProc ||= proc { false }
+      continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc_default] }
       check_entry_exists(entry, continueOnExistsProc, "add")
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       newEntry.gather_fileinfo_from_srcpath(srcPath)
@@ -183,7 +183,7 @@ module Zip
 
     # Extracts entry to file destPath.
     def extract(entry, destPath, &onExistsProc)
-      onExistsProc ||= proc { Zip.options[:overwrite_existing_element] }
+      onExistsProc ||= proc { Zip.options[:on_exists_proc_default] }
       foundEntry = get_entry(entry)
       foundEntry.extract(destPath, &onExistsProc)
     end
@@ -279,7 +279,7 @@ module Zip
     end
 
     def check_entry_exists(entryName, continueOnExistsProc, procedureName)
-      continueOnExistsProc ||= proc { false }
+      continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc_default] }
       if @entrySet.detect { |e| e.name == entryName }
         if continueOnExistsProc.call
           remove get_entry(entryName)
