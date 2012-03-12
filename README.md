@@ -25,7 +25,7 @@ Zip.options[:on_exists_proc] = true
 
 If you're using rubyzip with rails, consider placing this snippet of code in an initializer file such as `config/initializers/rubyzip.rb`
 
-Additionally, if you want to configure rubyzip to overwrite pre-existing files while creating a .zip file, you can do so with the following:
+Additionally, if you want to configure rubyzip to overwrite existing files while creating a .zip file, you can do so with the following:
 
 ```
 Zip.options[:continue_on_exists_proc] = true
