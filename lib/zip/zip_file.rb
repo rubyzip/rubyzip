@@ -183,7 +183,7 @@ module Zip
 
     # Extracts entry to file destPath.
     def extract(entry, destPath, &onExistsProc)
-      onExistsProc ||= proc { false }
+      onExistsProc ||= proc { Zip.options[:overwrite_existing_element] }
       foundEntry = get_entry(entry)
       foundEntry.extract(destPath, &onExistsProc)
     end
