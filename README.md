@@ -14,6 +14,24 @@ To run the unit tests you need to have test::unit installed
   rake test
 [![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)
 
+Configuration
+-------------
+
+By default, rubyzip will not overwrite files if they already exist inside of the extracted path.  To change this behavior, you may specify a configuration option like so:
+
+```
+Zip.options[:on_exists_proc] = true
+```
+
+If you're using rubyzip with rails, consider placing this snippet of code in an initializer file such as `config/initializers/rubyzip.rb`
+
+Additionally, if you want to configure rubyzip to overwrite existing files while creating a .zip file, you can do so with the following:
+
+```
+Zip.options[:continue_on_exists_proc] = true
+```
+
+
 Documentation
 -------------
 
