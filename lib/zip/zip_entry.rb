@@ -358,7 +358,13 @@ module Zip
         when 012
           @ftype = :symlink
         else
-          @ftype = :unknown
+          #best case guess for whether it is a file or not
+          #Otherwise this would be set to unknown and that entry would never be able to extracted
+          if name_is_directory?
+            @ftype = :directory
+          else
+            @ftype = :file
+          end
         end
       else
         if name_is_directory?
