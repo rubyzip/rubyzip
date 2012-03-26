@@ -234,11 +234,8 @@ module Zip
 
     # Searches for entry with the specified name. Returns nil if
     # no entry is found. See also get_entry
-    def find_entry(entry)
-      @entrySet.detect {
-        |e|
-        e.name.sub(/\/$/, "") == entry.to_s.sub(/\/$/, "")
-      }
+    def find_entry(entry_name)
+      @entrySet.find_entry(entry_name)
     end
 
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
@@ -280,7 +277,7 @@ module Zip
 
     def check_entry_exists(entryName, continueOnExistsProc, procedureName)
       continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc] }
-      if @entrySet.detect { |e| e.name == entryName }
+      if @entrySet.include?(entryName)
         if continueOnExistsProc.call
           remove get_entry(entryName)
         else

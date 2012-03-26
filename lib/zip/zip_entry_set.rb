@@ -9,11 +9,15 @@ module Zip
     end
 
     def include?(entry)
-      @entrySet.include?(entry.to_s)
+      @entrySet.include?(to_key(entry))
+    end
+
+    def find_entry(entry)
+      @entrySet[to_key(entry)]
     end
 
     def <<(entry)
-      @entrySet[entry.to_s] = entry
+      @entrySet[to_key(entry)] = entry
     end
     alias :push :<<
 
@@ -24,7 +28,7 @@ module Zip
     alias :length :size
 
     def delete(entry)
-      @entrySet.delete(entry.to_s) ? entry : nil
+      @entrySet.delete(to_key(entry)) ? entry : nil
     end
 
     def each(&aProc)
@@ -46,7 +50,7 @@ module Zip
     end
 
     def parent(entry)
-      @entrySet[entry.parent_as_string]
+      @entrySet[to_key(entry.parent_as_string)]
     end
 
     def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
@@ -58,6 +62,11 @@ module Zip
 #TODO    attr_accessor :auto_create_directories
     protected
     attr_accessor :entrySet
+
+    private
+    def to_key(entry)
+      entry.to_s.sub(/\/$/, "")
+    end
   end
 end
 
