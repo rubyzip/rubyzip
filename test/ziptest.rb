@@ -668,6 +668,21 @@ class ZipOutputStreamTest < Test::Unit::TestCase
       assert_equal(stored_text, zf.read(entry_name))
     end
   end
+  
+  def test_put_next_entry_using_zip_entry_creates_entries_with_correct_timestamps
+    file = File.open("data/file2.txt", "rb")
+    ZipOutputStream.open(TEST_ZIP.zip_name) do |zos|
+      zip_entry = Zip::ZipEntry.new(zos, file.path, "", "", 0, 0, Zip::ZipEntry::DEFLATED, 0, file.mtime)
+      zos.put_next_entry(zip_entry)
+      zos << file.read
+    end
+
+    Zip::ZipInputStream::open(TEST_ZIP.zip_name) do |io|
+      while (entry = io.get_next_entry)
+        assert_equal(file.mtime, entry.mtime)
+      end
+    end
+  end
 
   def assert_i_o_error_in_closed_stream
     assert_raise(IOError) {
