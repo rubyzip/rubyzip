@@ -23,6 +23,7 @@ class ZipEntryTest < Test::Unit::TestCase
   TEST_NAME = "entry name"
   TEST_SIZE = 8432
   TEST_ISDIRECTORY = false
+  TEST_TIME = Time.now
 
   def test_constructorAndGetters
     entry = ZipEntry.new(TEST_ZIPFILE,
@@ -32,7 +33,8 @@ class ZipEntryTest < Test::Unit::TestCase
 			 TEST_COMPRESSED_SIZE,
 			 TEST_CRC,
 			 TEST_COMPRESSIONMETHOD,
-			 TEST_SIZE)
+			 TEST_SIZE,
+       TEST_TIME)
 
     assert_equal(TEST_COMMENT, entry.comment)
     assert_equal(TEST_COMPRESSED_SIZE, entry.compressed_size)
@@ -41,6 +43,7 @@ class ZipEntryTest < Test::Unit::TestCase
     assert_equal(TEST_COMPRESSIONMETHOD, entry.compression_method)
     assert_equal(TEST_NAME, entry.name)
     assert_equal(TEST_SIZE, entry.size)
+    assert_equal(TEST_TIME, entry.time)
     assert_equal(TEST_ISDIRECTORY, entry.is_directory)
   end
 
@@ -672,14 +675,14 @@ class ZipOutputStreamTest < Test::Unit::TestCase
   def test_put_next_entry_using_zip_entry_creates_entries_with_correct_timestamps
     file = File.open("data/file2.txt", "rb")
     ZipOutputStream.open(TEST_ZIP.zip_name) do |zos|
-      zip_entry = Zip::ZipEntry.new(zos, file.path, "", "", 0, 0, Zip::ZipEntry::DEFLATED, 0, file.mtime)
+      zip_entry = Zip::ZipEntry.new(zos, file.path, "", "", 0, 0, Zip::ZipEntry::DEFLATED, 0, DOSTime.at(file.mtime))
       zos.put_next_entry(zip_entry)
       zos << file.read
     end
 
     Zip::ZipInputStream::open(TEST_ZIP.zip_name) do |io|
       while (entry = io.get_next_entry)
-        assert_equal(file.mtime, entry.mtime)
+        assert(DOSTime.at(file.mtime).dos_equals(DOSTime.at(entry.mtime))) # Compare DOS Times, since they are stored with two seconds accuracy
       end
     end
   end
