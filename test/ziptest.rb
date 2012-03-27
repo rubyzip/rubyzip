@@ -857,21 +857,15 @@ class ZipEntrySetTest < Test::Unit::TestCase
 
   def test_parent
     entries = [
-      ZipEntry.new("zf.zip", "a"),
       ZipEntry.new("zf.zip", "a/"),
-      ZipEntry.new("zf.zip", "a/b"),
       ZipEntry.new("zf.zip", "a/b/"),
-      ZipEntry.new("zf.zip", "a/b/c"),
       ZipEntry.new("zf.zip", "a/b/c/")
     ]
     entrySet = ZipEntrySet.new(entries)
 
     assert_equal(nil, entrySet.parent(entries[0]))
-    assert_equal(nil, entrySet.parent(entries[1]))
+    assert_equal(entries[0], entrySet.parent(entries[1]))
     assert_equal(entries[1], entrySet.parent(entries[2]))
-    assert_equal(entries[1], entrySet.parent(entries[3]))
-    assert_equal(entries[3], entrySet.parent(entries[4]))
-    assert_equal(entries[3], entrySet.parent(entries[5]))
   end
 
   def test_glob
