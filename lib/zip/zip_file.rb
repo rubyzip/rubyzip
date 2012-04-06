@@ -73,6 +73,7 @@ module Zip
       end
       @create = create
       @storedEntries = @entrySet.dup
+      @storedComment = @comment
       @restore_ownership = false
       @restore_permissions = false
       @restore_times = true
@@ -229,7 +230,7 @@ module Zip
       @entrySet.each do |e|
         return true if e.dirty
       end
-      @entrySet != @storedEntries || @create == ZipFile::CREATE
+      @comment != @storedComment || @entrySet != @storedEntries || @create == ZipFile::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if

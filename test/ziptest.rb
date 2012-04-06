@@ -1452,6 +1452,14 @@ class ZipFileTest < Test::Unit::TestCase
     end
   end
 
+  def test_changeComment
+    ZipFile.open(TEST_ZIP.zip_name) do |zf|
+      zf.comment = "my changed comment"
+    end
+    zfRead = ZipFile.open(TEST_ZIP.zip_name)
+    assert_equal("my changed comment", zfRead.comment)
+  end
+
   private
   def assert_contains(zf, entryName, filename = entryName)
     assert(zf.entries.detect { |e| e.name == entryName} != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
