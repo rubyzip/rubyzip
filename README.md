@@ -1,18 +1,31 @@
-rubyzip
+rubyzip [![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)
 =======
 
 rubyzip is a ruby library for reading and writing zip files.
 
-Install
--------
+Installation
+------------
+rubyzip is available on RubyGems, so:
 
-  gem install rubyzip
+```
+gem install rubyzip
+```
 
+Or in your Gemfile:
 
-To run the unit tests you need to have test::unit installed
+```ruby
+gem 'rubyzip'
+```
 
-  rake test
-[![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)
+Developing
+----------
+
+To run tests you need run next commands:
+
+```
+bundle install
+rake
+```
 
 Configuration
 -------------
@@ -79,6 +92,8 @@ http://rdoc.info/github/aussiegeek/rubyzip/master/frames
 
 Authors
 -------
+
+Alexander Simonov ( alex at simonov.me)
 
 Alan Harper ( alan at aussiegeek.net)
 

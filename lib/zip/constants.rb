@@ -1,5 +1,5 @@
 module Zip
-  VERSION = '0.9.5'
+  VERSION = '0.9.7'
   RUBY_MINOR_VERSION = RUBY_VERSION.split(".")[1].to_i
   RUNNING_ON_WINDOWS = RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/i
 
