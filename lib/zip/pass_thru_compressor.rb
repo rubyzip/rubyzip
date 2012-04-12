@@ -10,7 +10,7 @@ module Zip
     def << (data)
       val = data.to_s
       @crc = Zlib::crc32(val, @crc)
-      @size += val.size
+      @size += val.bytesize
       @outputStream << val
     end
 
