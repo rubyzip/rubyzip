@@ -1,3 +1,7 @@
+= Version 0.9.8
+
+Fixed: "Unitialized constant NullInputStream" error
+
 = Version 0.9.4
 
 Changed ZipOutputStream.put_next_entry signature (API CHANGE!). Now
