@@ -50,9 +50,11 @@ module Zip
     end
 
     def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
-      entries.select do |entry|
-        ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
-      end
+      entries.map do |entry|
+        next nil unless ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
+        yield(entry) if block_given?
+        entry
+      end.compact
     end	
 
 #TODO    attr_accessor :auto_create_directories

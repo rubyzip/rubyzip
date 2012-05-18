@@ -461,6 +461,38 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     end
   end
 
+  def test_glob
+    ZipFile.open('data/globTest.zip') do |zf|
+      {
+        'globTest/foo.txt' => ['globTest/foo.txt'],
+        '*/foo.txt' => ['globTest/foo.txt'],
+        '**/foo.txt' => ['globTest/foo.txt','globTest/foo/bar/baz/foo.txt'],
+        '*/foo/**/*.txt' => ['globTest/foo/bar/baz/foo.txt']
+      }.each do |spec,expected_results|
+        results = zf.glob(spec)
+        assert results.all?{|entry| entry.is_a? ZipEntry }
+
+        result_strings = results.map(&:to_s)
+        missing_matches = expected_results - result_strings
+        extra_matches = result_strings - expected_results
+
+        assert extra_matches.empty?, %Q{spec #{spec.inspect} has extra results #{extra_matches.inspect}}
+        assert missing_matches.empty?, %Q{spec #{spec.inspect} missing results #{missing_matches.inspect}}
+      end
+    end
+
+    ZipFile.open('data/globTest.zip') do |zf|
+      results = []
+      zf.glob('**/foo.txt') do |match|
+        results << "<#{match.class.name}: #{match.to_s}>"
+      end
+      assert (not results.empty?), 'block not run, or run out of context'
+      assert_equal 2, results.size
+      assert_operator results, :include?, '<Zip::ZipEntry: globTest/foo.txt>'
+      assert_operator results, :include?, '<Zip::ZipEntry: globTest/foo/bar/baz/foo.txt>'
+    end
+  end
+
   def test_popen
     if Zip::RUNNING_ON_WINDOWS
       #This is pretty much projectile vomit but it allows the test to be

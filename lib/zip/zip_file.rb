@@ -241,6 +241,11 @@ module Zip
       }
     end
 
+    # Searches for entries given a glob
+    def glob(*args,&block)
+      @entrySet.glob(*args,&block)
+    end
+
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
     # if no entry is found.
     def get_entry(entry)
