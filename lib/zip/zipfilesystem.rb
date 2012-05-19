@@ -467,6 +467,10 @@ module Zip
         entries
       end
 
+      def glob(*args,&block)
+        @mappedZip.glob(*args,&block)
+      end
+
       def foreach(aDirectoryName)
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
