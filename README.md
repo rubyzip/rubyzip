@@ -1,10 +1,8 @@
-rubyzip [![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)
-=======
+# rubyzip [![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)
 
 rubyzip is a ruby library for reading and writing zip files.
 
-Installation
-------------
+## Installation
 rubyzip is available on RubyGems, so:
 
 ```
@@ -17,37 +15,30 @@ Or in your Gemfile:
 gem 'rubyzip'
 ```
 
-Developing
-----------
+## Usage
 
-To run tests you need run next commands:
+### Basic zip archive creation
 
-```
-bundle install
-rake
-```
-
-Configuration
--------------
-
-By default, rubyzip will not overwrite files if they already exist inside of the extracted path.  To change this behavior, you may specify a configuration option like so:
-
-```
-Zip.options[:on_exists_proc] = true
-```
-
-If you're using rubyzip with rails, consider placing this snippet of code in an initializer file such as `config/initializers/rubyzip.rb`
-
-Additionally, if you want to configure rubyzip to overwrite existing files while creating a .zip file, you can do so with the following:
-
-```
-Zip.options[:continue_on_exists_proc] = true
+```ruby
+require 'rubygems'
+require 'zip/zip'
+ 
+folder = "Users/me/Desktop/stuff_to_zip"
+input_filenames = ['image.jpg', 'description.txt', 'stats.csv']
+ 
+zipfile_name = "/Users/me/Desktop/archive.zip"
+ 
+Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
+  input_filenames.each do |filename|
+    # Two arguments:
+    # - The name of the file as it will appear in the archive
+    # - The original file, including the path to find it
+    zipfile.add(filename, folder + '/' + filename)
+  end
+end
 ```
 
-
-Documentation
--------------
-
+## Further Documentation
 
 There is more than one way to access or create a zip archive with
 rubyzip. The basic API is modeled after the classes in
@@ -76,22 +67,39 @@ For details about the specific behaviour of classes and methods refer
 to the test suite. Finally you can generate the rdoc documentation or
 visit http://rubyzip.sourceforge.net.
 
-License
--------
 
-rubyzip is distributed under the same license as ruby. See
-http://www.ruby-lang.org/en/LICENSE.txt
+## Configuration
 
+By default, rubyzip will not overwrite files if they already exist inside of the extracted path.  To change this behavior, you may specify a configuration option like so:
 
-Website and Project Home
-------------------------
+```
+Zip.options[:on_exists_proc] = true
+```
+
+If you're using rubyzip with rails, consider placing this snippet of code in an initializer file such as `config/initializers/rubyzip.rb`
+
+Additionally, if you want to configure rubyzip to overwrite existing files while creating a .zip file, you can do so with the following:
+
+```
+Zip.options[:continue_on_exists_proc] = true
+```
+
+## Developing
+
+To run tests you need run next commands:
+
+```
+bundle install
+rake
+```
+
+## Website and Project Home
 
 http://github.com/aussiegeek/rubyzip
 
 http://rdoc.info/github/aussiegeek/rubyzip/master/frames
 
-Authors
--------
+## Authors
 
 Alexander Simonov ( alex at simonov.me)
 
@@ -102,3 +110,8 @@ Thomas Sondergaard (thomas at sondergaard.cc)
 Technorama Ltd. (oss-ruby-zip at technorama.net)
 
 extra-field support contributed by Tatsuki Sugiura (sugi at nemui.org)
+
+## License
+
+rubyzip is distributed under the same license as ruby. See
+http://www.ruby-lang.org/en/LICENSE.txt
