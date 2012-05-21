@@ -103,6 +103,24 @@ module Zip
         zf.write_buffer
       end
 
+      # Like #open, but reads zip archive contents from a String or open IO
+      # stream, and outputs data to a buffer.
+      # (This can be used to extract data from a 
+      # downloaded zip archive without first saving it to disk.)
+      def open_buffer(io)
+        zf = ZipFile.new('',true,true)
+        if io.is_a? IO
+          zf.read_from_stream(io)
+        elsif io.is_a? String
+          require 'stringio'
+          zf.read_from_stream(StringIO.new(io))
+        else
+          raise "Zip::ZipFile.open_buffer expects an argument of class String or IO. Found: #{io.class}"
+        end
+        yield zf
+        zf.write_buffer
+      end
+
       # Iterates over the contents of the ZipFile. This is more efficient
       # than using a ZipInputStream since this methods simply iterates
       # through the entries in the central directory structure in the archive
