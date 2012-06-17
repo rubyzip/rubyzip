@@ -61,6 +61,8 @@ module Zip
       @cdirOffset                           = ZipEntry.read_zip_long(buf)
       commentLength                         = ZipEntry.read_zip_short(buf)
       @comment                              = buf.read(commentLength)
+      # remove trailing \n symbol
+      buf.gsub!(/\n/,'')
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
 
@@ -102,10 +104,11 @@ module Zip
         io.seek(0, IO::SEEK_SET)
         retry
       end
-
+      
       sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
+
       raise ZipError, "Zip end of central directory signature not found" unless sigIndex
-      buf = buf.slice!((sigIndex + 4)...(buf.bytesize))
+      buf = buf.slice!((sigIndex + 4)..(buf.bytesize))
 
       def buf.read(count)
         slice!(0, count)
