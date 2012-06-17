@@ -96,6 +96,7 @@ module Zip
     def rewind
       return if @currentEntry.nil?
       @lineno = 0
+      @pos = 0
       @archiveIO.seek(@currentEntry.localHeaderOffset, 
 		      IO::SEEK_SET)
       open_entry

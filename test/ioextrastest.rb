@@ -62,6 +62,7 @@ class AbstractInputStreamTest < Test::Unit::TestCase
   def test_gets
     assert_equal(TEST_LINES[0], @io.gets)
     assert_equal(1, @io.lineno)
+    assert_equal(TEST_LINES[0].length, @io.pos)
     assert_equal(TEST_LINES[1], @io.gets)
     assert_equal(2, @io.lineno)
     assert_equal(TEST_LINES[2], @io.gets)
