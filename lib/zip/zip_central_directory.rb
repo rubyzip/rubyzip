@@ -60,9 +60,11 @@ module Zip
       @sizeInBytes                          = ZipEntry.read_zip_long(buf)
       @cdirOffset                           = ZipEntry.read_zip_long(buf)
       commentLength                         = ZipEntry.read_zip_short(buf)
-      @comment                              = buf.read(commentLength)
-      # remove trailing \n or \f or \r symbol
-      buf.gsub!(/\s/,'')
+      if commentLength <= 0
+        @comment                            = buf.slice!(0, buf.size)
+      else
+        @comment                            = buf.read(commentLength)
+      end
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
 

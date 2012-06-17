@@ -260,7 +260,7 @@ module Zip
 
       @name              = io.read(nameLength)
       extra              = io.read(extraLength)
-
+      until @name.sub!('\\', '/') == nil do end # some zip files use backslashes instead of slashes as path separators
       if (extra && extra.bytesize != extraLength)
         raise ZipError, "Truncated local zip entry header"
       else
@@ -332,6 +332,7 @@ module Zip
       set_time(lastModDate, lastModTime)
 
       @name = io.read(nameLength)
+      until @name.sub!('\\', '/') == nil do end # some zip files use backslashes instead of slashes as path separators
       if ZipExtraField === @extra
         @extra.merge(io.read(extraLength))
       else
