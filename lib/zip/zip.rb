@@ -1,11 +1,10 @@
 require 'delegate'
-require 'iconv' unless RUBY_VERSION >= '1.9'
 require 'singleton'
 require 'tempfile'
 require 'fileutils'
 require 'stringio'
 require 'zlib'
-require 'zip/stdrubyext'
+require 'zip/dos_time'
 require 'zip/ioextras'
 require 'rbconfig'
 
@@ -20,6 +19,7 @@ require 'zip/decompressor'
 require 'zip/compressor'
 require 'zip/null_decompressor'
 require 'zip/null_compressor'
+require 'zip/null_input_stream'
 require 'zip/pass_thru_compressor'
 require 'zip/pass_thru_decompressor'
 require 'zip/inflater'
@@ -28,13 +28,15 @@ require 'zip/zip_streamable_stream'
 require 'zip/zip_streamable_directory'
 require 'zip/constants'
 
+require 'zip/settings'
+
 if Tempfile.superclass == SimpleDelegator
   require 'zip/tempfile_bugfixed'
   Tempfile = BugFix::Tempfile
 end
 
 module Zlib  #:nodoc:all
-  if ! const_defined? :MAX_WBITS
+  if !const_defined?(:MAX_WBITS)
     MAX_WBITS = Zlib::Deflate.MAX_WBITS
   end
 end

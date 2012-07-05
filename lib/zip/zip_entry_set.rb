@@ -9,21 +9,26 @@ module Zip
     end
 
     def include?(entry)
-      @entrySet.include?(entry.to_s)
+      @entrySet.include?(to_key(entry))
+    end
+
+    def find_entry(entry)
+      @entrySet[to_key(entry)]
     end
 
     def <<(entry)
-      @entrySet[entry.to_s] = entry
+      @entrySet[to_key(entry)] = entry
     end
     alias :push :<<
 
     def size
       @entrySet.size
     end
+    
     alias :length :size
 
     def delete(entry)
-      @entrySet.delete(entry.to_s) ? entry : nil
+      @entrySet.delete(to_key(entry)) ? entry : nil
     end
 
     def each(&aProc)
@@ -36,28 +41,34 @@ module Zip
 
     # deep clone
     def dup
-      newZipEntrySet = ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
+      ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
     end
 
-    def == (other)
+    def ==(other)
       return false unless other.kind_of?(ZipEntrySet)
-      return @entrySet == other.entrySet      
+      @entrySet == other.entrySet      
     end
 
     def parent(entry)
-      @entrySet[entry.parent_as_string]
+      @entrySet[to_key(entry.parent_as_string)]
     end
 
-    def glob(pattern, flags = File::FNM_PATHNAME|File::FNM_DOTMATCH)
-      entries.select { 
-        |entry|
-        File.fnmatch(pattern, entry.name.chomp('/'), flags)
-      } 
+    def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
+      entries.map do |entry|
+        next nil unless ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
+        yield(entry) if block_given?
+        entry
+      end.compact
     end	
 
 #TODO    attr_accessor :auto_create_directories
     protected
     attr_accessor :entrySet
+
+    private
+    def to_key(entry)
+      entry.to_s.sub(/\/$/, "")
+    end
   end
 end
 

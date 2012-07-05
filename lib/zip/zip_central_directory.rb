@@ -21,42 +21,50 @@ module Zip
 
     def write_to_stream(io)  #:nodoc:
       offset = io.tell
-      @entrySet.sort.each { |entry| entry.write_c_dir_entry(io) }
+      @entrySet.each { |entry| entry.write_c_dir_entry(io) }
       write_e_o_c_d(io, offset)
     end
 
     def write_e_o_c_d(io, offset)  #:nodoc:
-      io <<
-      [END_OF_CENTRAL_DIRECTORY_SIGNATURE,
+      tmp = [
+        END_OF_CENTRAL_DIRECTORY_SIGNATURE,
         0                                  , # @numberOfThisDisk
         0                                  , # @numberOfDiskWithStartOfCDir
-        @entrySet? @entrySet.size : 0        ,
-        @entrySet? @entrySet.size : 0        ,
-        cdir_size                           ,
+        @entrySet? @entrySet.size : 0      ,
+        @entrySet? @entrySet.size : 0      ,
+        cdir_size                          ,
         offset                             ,
-        @comment ? @comment.length : 0     ].pack('VvvvvVVv')
-        io << @comment
+        @comment ? @comment.length : 0
+      ]
+      io << tmp.pack('VvvvvVVv')
+      io << @comment
     end
     
     private :write_e_o_c_d
 
     def cdir_size  #:nodoc:
       # does not include eocd
-      @entrySet.inject(0) { |value, entry| entry.cdir_header_size + value }
+      @entrySet.inject(0) do |value, entry|
+        entry.cdir_header_size + value
+      end
     end
     
     private :cdir_size
 
     def read_e_o_c_d(io) #:nodoc:
       buf = get_e_o_c_d(io)
-      @numberOfThisDisk                     = ZipEntry::read_zip_short(buf)
-      @numberOfDiskWithStartOfCDir          = ZipEntry::read_zip_short(buf)
-      @totalNumberOfEntriesInCDirOnThisDisk = ZipEntry::read_zip_short(buf)
-      @size                                 = ZipEntry::read_zip_short(buf)
-      @sizeInBytes                          = ZipEntry::read_zip_long(buf)
-      @cdirOffset                           = ZipEntry::read_zip_long(buf)
-      commentLength                         = ZipEntry::read_zip_short(buf)
-      @comment                              = buf.read(commentLength)
+      @numberOfThisDisk                     = ZipEntry.read_zip_short(buf)
+      @numberOfDiskWithStartOfCDir          = ZipEntry.read_zip_short(buf)
+      @totalNumberOfEntriesInCDirOnThisDisk = ZipEntry.read_zip_short(buf)
+      @size                                 = ZipEntry.read_zip_short(buf)
+      @sizeInBytes                          = ZipEntry.read_zip_long(buf)
+      @cdirOffset                           = ZipEntry.read_zip_long(buf)
+      commentLength                         = ZipEntry.read_zip_short(buf)
+      if commentLength <= 0
+        @comment                            = buf.slice!(0, buf.size)
+      else
+        @comment                            = buf.read(commentLength)
+      end
       raise ZipError, "Zip consistency problem while reading eocd structure" unless buf.size == 0
     end
 
@@ -67,9 +75,10 @@ module Zip
         raise ZipError, "Zip consistency problem while reading central directory entry"
       end
       @entrySet = ZipEntrySet.new
-      @size.times {
-        @entrySet << ZipEntry.read_c_dir_entry(io)
-      }
+      @size.times do
+        tmp = ZipEntry.read_c_dir_entry(io)
+        @entrySet << tmp
+      end
     end
 
     def read_from_stream(io)  #:nodoc:
@@ -82,30 +91,17 @@ module Zip
         io.seek(-MAX_END_OF_CENTRAL_DIRECTORY_STRUCTURE_SIZE, IO::SEEK_END)
       rescue Errno::EINVAL
         io.seek(0, IO::SEEK_SET)
-      rescue Errno::EFBIG # FreeBSD 4.9 raise Errno::EFBIG instead of Errno::EINVAL
-        io.seek(0, IO::SEEK_SET)
       end
-
-      # 'buf = io.read' substituted with lump of code to work around FreeBSD 4.5 issue
-      retried = false
-      buf = nil
-      begin
-        buf = io.read
-      rescue Errno::EFBIG # FreeBSD 4.5 may raise Errno::EFBIG
-        raise if (retried)
-        retried = true
-
-        io.seek(0, IO::SEEK_SET)
-        retry
-      end
-
+      buf = io.read
       sigIndex = buf.rindex([END_OF_CENTRAL_DIRECTORY_SIGNATURE].pack('V'))
       raise ZipError, "Zip end of central directory signature not found" unless sigIndex
-      buf=buf.slice!((sigIndex+4)...(buf.size))
+      buf = buf.slice!((sigIndex + 4)..(buf.bytesize))
+
       def buf.read(count)
         slice!(0, count)
       end
-      return buf
+
+      buf
     end
 
     # For iterating over the entries.
@@ -127,7 +123,7 @@ module Zip
       return nil
     end
 
-    def == (other) #:nodoc:
+    def ==(other) #:nodoc:
       return false unless other.kind_of?(ZipCentralDirectory)
       @entrySet.entries.sort == other.entries.sort && comment == other.comment
     end

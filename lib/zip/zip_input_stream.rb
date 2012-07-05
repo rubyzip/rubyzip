@@ -46,10 +46,14 @@ module Zip
     # Opens the indicated zip file. An exception is thrown
     # if the specified offset in the specified filename is
     # not a local zip entry header.
-    def initialize(filename, offset = 0)
+    def initialize(filename, offset = 0, io = nil)
       super()
-      @archiveIO = File.open(filename, "rb")
-      @archiveIO.seek(offset, IO::SEEK_SET)
+      if (io.nil?) 
+        @archiveIO = ::File.open(filename, "rb")
+        @archiveIO.seek(offset, IO::SEEK_SET)
+      else
+        @archiveIO = io
+      end
       @decompressor = NullDecompressor.instance
       @currentEntry = nil
     end
@@ -70,14 +74,21 @@ module Zip
       zio.close if zio
     end
 
+    def ZipInputStream.open_buffer(io)
+      return new('',0,io) unless block_given?
+      zio = new('',0,io)
+      yield zio
+    ensure
+      zio.close if zio
+    end
+
     # Returns a ZipEntry object. It is necessary to call this
     # method on a newly created ZipInputStream before reading from 
     # the first entry in the archive. Returns nil when there are 
     # no more entries.
 
     def get_next_entry
-      @archiveIO.seek(@currentEntry.next_header_offset, 
-                      IO::SEEK_SET) if @currentEntry
+      @archiveIO.seek(@currentEntry.next_header_offset, IO::SEEK_SET) if @currentEntry
       open_entry
     end
 
@@ -105,16 +116,15 @@ module Zip
 
     def open_entry
       @currentEntry = ZipEntry.read_local_entry(@archiveIO)
-      if (@currentEntry == nil) 
-	@decompressor = NullDecompressor.instance
+      if @currentEntry.nil?
+	      @decompressor = NullDecompressor.instance
       elsif @currentEntry.compression_method == ZipEntry::STORED
-	@decompressor = PassThruDecompressor.new(@archiveIO, 
-						 @currentEntry.size)
+	      @decompressor = PassThruDecompressor.new(@archiveIO, @currentEntry.size)
       elsif @currentEntry.compression_method == ZipEntry::DEFLATED
-	@decompressor = Inflater.new(@archiveIO)
+	      @decompressor = Inflater.new(@archiveIO)
       else
-	raise ZipCompressionMethodError,
-	  "Unsupported compression method #{@currentEntry.compression_method}"
+	      raise ZipCompressionMethodError,
+              "Unsupported compression method #{@currentEntry.compression_method}"
       end
       flush
       return @currentEntry
