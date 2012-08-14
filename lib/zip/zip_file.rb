@@ -220,6 +220,7 @@ module Zip
             |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
+            e.unlink if e.is_a? ZipStreamableStream
           }
           zos.comment = comment
         }

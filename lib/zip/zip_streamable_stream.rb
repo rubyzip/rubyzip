@@ -39,6 +39,10 @@ module Zip
       aZipOutputStream.put_next_entry(self)
       get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) } 
     end
+
+    def unlink
+      @tempFile.unlink
+    end
   end
 end
 
