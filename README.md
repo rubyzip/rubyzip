@@ -22,12 +22,12 @@ gem 'rubyzip'
 ```ruby
 require 'rubygems'
 require 'zip/zip'
- 
+
 folder = "Users/me/Desktop/stuff_to_zip"
 input_filenames = ['image.jpg', 'description.txt', 'stats.csv']
- 
+
 zipfile_name = "/Users/me/Desktop/archive.zip"
- 
+
 Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
   input_filenames.each do |filename|
     # Two arguments:
@@ -58,10 +58,6 @@ Another way to access a zip archive with rubyzip is to use rubyzip's
 Zip::ZipFileSystem API. Using this API files can be read from and
 written to the archive in much the same manner as ruby's builtin
 classes allows files to be read from and written to the file system.
-
-rubyzip also features the
-zip/ziprequire.rb[link:files/lib/zip/ziprequire_rb.html] module which
-allows ruby to load ruby modules from zip archives.
 
 For details about the specific behaviour of classes and methods refer
 to the test suite. Finally you can generate the rdoc documentation or
