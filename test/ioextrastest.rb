@@ -75,6 +75,18 @@ class AbstractInputStreamTest < Test::Unit::TestCase
     assert_equal("o world#{$/}this is the second l", @io.gets("d l"))
   end
 
+  LONG_LINES = [
+    'x'*48 + "\r\n",
+    'y'*49 + "\r\n",
+    'rest',
+  ]
+  def test_getsMulitCharSeperator_split
+    io = TestAbstractInputStream.new(LONG_LINES.join)
+    assert_equal(LONG_LINES[0], io.gets("\r\n"))
+    assert_equal(LONG_LINES[1], io.gets("\r\n"))
+    assert_equal(LONG_LINES[2], io.gets("\r\n"))
+  end
+
   def test_each_line
     lineNumber=0
     @io.each_line {

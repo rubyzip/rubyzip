@@ -83,7 +83,7 @@ module IOExtras  #:nodoc:
 
       bufferIndex = 0
       while ((matchIndex = @outputBuffer.index(aSepString, bufferIndex)) == nil)
-        bufferIndex = @outputBuffer.bytesize
+        bufferIndex = [bufferIndex, @outputBuffer.bytesize - aSepString.bytesize].max
         if input_finished?
           return @outputBuffer.empty? ? nil : flush
         end
