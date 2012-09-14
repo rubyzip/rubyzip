@@ -543,7 +543,7 @@ module Zip
       if @ftype == :directory
         aZipOutputStream.put_next_entry(self)
       elsif @filepath
-        aZipOutputStream.put_next_entry(self)
+        aZipOutputStream.put_next_entry(self, nil, nil, nil)
         get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) }
       else
         aZipOutputStream.copy_raw_entry(self)
