@@ -32,11 +32,11 @@ module Zip
     end
 
     def each(&aProc)
-      @entrySet.values.each(&aProc)
+      entries.each(&aProc)
     end
 
     def entries
-      @entrySet.values
+      @entrySet.values.sort
     end
 
     # deep clone
