@@ -1459,6 +1459,34 @@ class ZipFileTest < Test::Unit::TestCase
     zfRead = ZipFile.open(TEST_ZIP.zip_name)
     assert_equal("my changed comment", zfRead.comment)
   end
+  
+  def test_preserve_file_order
+    entryNames = nil
+    ZipFile.open(TEST_ZIP.zip_name) {
+      |zf|
+      entryNames = zf.entries.map{|e|e.to_s}
+      zf.get_output_stream("a.txt"){|os| os.write "this is a.txt"}
+      zf.get_output_stream("z.txt"){|os| os.write "this is z.txt"}
+      zf.get_output_stream("k.txt"){|os| os.write "this is k.txt"}
+      entryNames << "a.txt" << "z.txt" << "k.txt"
+    }
+
+    ZipFile.open(TEST_ZIP.zip_name) {
+      |zf|
+      assert_equal(entryNames, zf.entries.map{|e|e.to_s})
+      entries = zf.entries.sort_by{|e|e.name}.reverse
+      entries.each {
+        |e|
+        zf.remove e
+        zf.get_output_stream(e){|os| os.write "foo"}
+      }
+      entryNames = entries.map{|e|e.to_s}
+    }
+    ZipFile.open(TEST_ZIP.zip_name) {
+      |zf|
+      assert_equal(entryNames, zf.entries.map{|e|e.to_s})
+    }
+  end
 
   private
   def assert_contains(zf, entryName, filename = entryName)
