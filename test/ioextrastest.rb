@@ -40,14 +40,14 @@ class AbstractInputStreamTest < Test::Unit::TestCase
       @readPointer = 0
     end
 
-    def read(charsToRead)
+    def sysread(charsToRead, buf = nil)
       retVal=@contents[@readPointer, charsToRead]
       @readPointer+=charsToRead
       return retVal
     end
 
     def produce_input
-      read(100)
+      sysread(100)
     end
 
     def input_finished?
@@ -85,6 +85,19 @@ class AbstractInputStreamTest < Test::Unit::TestCase
     assert_equal(LONG_LINES[0], io.gets("\r\n"))
     assert_equal(LONG_LINES[1], io.gets("\r\n"))
     assert_equal(LONG_LINES[2], io.gets("\r\n"))
+  end
+
+  def test_getsWithSepAndIndex
+    io = TestAbstractInputStream.new(LONG_LINES.join)
+    assert_equal('x', io.gets("\r\n", 1))
+    assert_equal('x'*47 + "\r", io.gets("\r\n", 48))
+    assert_equal("\n", io.gets(nil, 1))
+    assert_equal('yy', io.gets(nil, 2))
+  end
+
+  def test_getsWithIndex
+    assert_equal(TEST_LINES[0], @io.gets(100))
+    assert_equal('this', @io.gets(4))
   end
 
   def test_each_line
