@@ -1373,6 +1373,7 @@ class ZipFileTest < Test::Unit::TestCase
   def test_compound1
     renamedName = "renamedName"
     originalEntries = []
+    filename_to_remove = ''
     begin
       zf = ZipFile.new(TEST_ZIP.zip_name)
       originalEntries = zf.entries.dup
@@ -1382,7 +1383,8 @@ class ZipFileTest < Test::Unit::TestCase
 	     TestFiles::RANDOM_ASCII_FILE1)
       assert_contains(zf, TestFiles::RANDOM_ASCII_FILE1)
 
-      zf.rename(zf.entries[0], renamedName)
+      entry_to_rename = zf.entries.find {|entry| entry.name.match('longAscii')}
+      zf.rename(entry_to_rename, renamedName)
       assert_contains(zf, renamedName)
 
       TestFiles::BINARY_TEST_FILES.each {
@@ -1392,8 +1394,9 @@ class ZipFileTest < Test::Unit::TestCase
       }
 
       assert_contains(zf, originalEntries.last.to_s)
-      zf.remove(originalEntries.last.to_s)
-      assert_not_contains(zf, originalEntries.last.to_s)
+      filename_to_remove = originalEntries.map(&:to_s).find {|name| name.match('longBinary')}
+      zf.remove(filename_to_remove)
+      assert_not_contains(zf, filename_to_remove)
 
     ensure
       zf.close
@@ -1406,7 +1409,7 @@ class ZipFileTest < Test::Unit::TestCase
 	|filename|
 	assert_contains(zfRead, filename)
       }
-      assert_not_contains(zfRead, originalEntries.last.to_s)
+      assert_not_contains(zfRead, filename_to_remove)
     ensure
       zfRead.close
     end
