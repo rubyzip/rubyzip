@@ -495,7 +495,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
   def test_mix_read_and_gets
     ZipInputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
-      e = zis.get_next_entry
+      zis.get_next_entry
       assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
       assert_equal(false, zis.eof?)
       assert_equal("", zis.gets.chomp)
@@ -648,7 +648,7 @@ class ZipOutputStreamTest < Test::Unit::TestCase
   def test_cannotOpenFile
     name = TestFiles::EMPTY_TEST_DIR
     begin
-      zos = ZipOutputStream.open(name)
+      ZipOutputStream.open(name)
     rescue Exception
       assert($!.kind_of?(Errno::EISDIR) || # Linux
 	     $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
