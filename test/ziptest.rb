@@ -351,7 +351,7 @@ module AssertEntry
       if (expected != actual)
 	if ((expected && actual) && (expected.length > 400 || actual.length > 400))
 	  zipEntryFilename=entryName+".zipEntry"
-	  File.open(zipEntryFilename, "wb") { |file| file << actual }
+	  File.open(zipEntryFilename, "wb") { |entryfile| entryfile << actual }
 	  fail("File '#{filename}' is different from '#{zipEntryFilename}'")
 	else
 	  assert_equal(expected, actual)
@@ -708,7 +708,6 @@ end
 module Enumerable
   def compare_enumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
-    index=0
     each_with_index {
       |element, index|
       return false unless yield(element, otherAsArray[index])
