@@ -597,7 +597,7 @@ module Zip
             "A file already exists with that name"
         end
       end
-      Dir.mkdir destPath
+      FileUtils.mkdir_p destPath
       set_extra_attributes_on_path(destPath)
     end
 
