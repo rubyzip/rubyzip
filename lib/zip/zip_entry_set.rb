@@ -5,6 +5,7 @@ module Zip
     def initialize(anEnumerable = [])
       super()
       @entrySet = {}
+      @entryOrder = []
       anEnumerable.each { |o| push(o) }
     end
 
@@ -17,6 +18,8 @@ module Zip
     end
 
     def <<(entry)
+      @entryOrder.delete( to_key(entry) )
+      @entryOrder << to_key(entry)
       @entrySet[to_key(entry)] = entry
     end
     alias :push :<<
@@ -28,25 +31,30 @@ module Zip
     alias :length :size
 
     def delete(entry)
-      @entrySet.delete(to_key(entry)) ? entry : nil
+      @entryOrder.delete(to_key(entry)) && @entrySet.delete(to_key(entry)) ?
+        entry :
+        nil
     end
 
     def each(&aProc)
-      @entrySet.values.each(&aProc)
+      @entryOrder.each do |key|
+        aProc.call @entrySet[key]
+      end
     end
 
     def entries
-      @entrySet.values
+      @entryOrder.map{|key| @entrySet[key] }
     end
 
     # deep clone
     def dup
-      ZipEntrySet.new(@entrySet.values.map { |e| e.dup })
+      ZipEntrySet.new(@entryOrder.map { |key| @entrySet[key].dup })
     end
 
     def ==(other)
       return false unless other.kind_of?(ZipEntrySet)
-      @entrySet == other.entrySet      
+      @entrySet == other.entrySet &&
+      @entryOrder == other.entryOrder
     end
 
     def parent(entry)
@@ -63,7 +71,7 @@ module Zip
 
 #TODO    attr_accessor :auto_create_directories
     protected
-    attr_accessor :entrySet
+    attr_accessor :entrySet, :entryOrder
 
     private
     def to_key(entry)
