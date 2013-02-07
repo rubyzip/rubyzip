@@ -101,7 +101,7 @@ class TestZipFile
       File.open("data/generated/longAscii.txt", "w") do |file|
         while (file.tell < 1E5)
           file << ziptestTxt
-          end
+        end
       end
       
       testBinaryPattern=""
