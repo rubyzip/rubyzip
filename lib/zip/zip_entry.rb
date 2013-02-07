@@ -377,9 +377,9 @@ module Zip
 
     def file_stat(path)	# :nodoc:
       if @follow_symlinks
-        return File::stat(path)
+        return ::File::stat(path)
       else
-        return File::lstat(path)
+        return ::File::lstat(path)
       end
     end
 
