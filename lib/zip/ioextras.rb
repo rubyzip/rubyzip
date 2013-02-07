@@ -76,20 +76,34 @@ module IOExtras  #:nodoc:
       retVal
     end
 
-    def gets(aSepString = $/)
+    def gets(aSepString = $/, numberOfBytes = nil)
       @lineno = @lineno.next
-      return read if aSepString.nil?
+
+      if numberOfBytes.respond_to?(:to_int)
+        numberOfBytes = numberOfBytes.to_int
+        aSepString = aSepString.to_str if aSepString
+      elsif aSepString.respond_to?(:to_int)
+        numberOfBytes = aSepString.to_int
+        aSepString = $/
+      else
+        numberOfBytes = nil
+        aSepString = aSepString.to_str if aSepString
+      end
+
+      return read(numberOfBytes) if aSepString.nil?
       aSepString = "#{$/}#{$/}" if aSepString.empty?
 
       bufferIndex = 0
-      while ((matchIndex = @outputBuffer.index(aSepString, bufferIndex)) == nil)
+      overLimit = (numberOfBytes && @outputBuffer.bytesize >= numberOfBytes)
+      while ((matchIndex = @outputBuffer.index(aSepString, bufferIndex)) == nil && !overLimit)
         bufferIndex = [bufferIndex, @outputBuffer.bytesize - aSepString.bytesize].max
         if input_finished?
           return @outputBuffer.empty? ? nil : flush
         end
         @outputBuffer << produce_input
+        overlimit = (numberOfBytes && @outputBuffer.bytesize >= numberOfBytes)
       end
-      sepIndex = matchIndex + aSepString.bytesize
+      sepIndex = [matchIndex + aSepString.bytesize, numberOfBytes || @outputBuffer.bytesize].min
       return @outputBuffer.slice!(0...sepIndex)
     end
 
