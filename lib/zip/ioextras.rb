@@ -101,7 +101,7 @@ module IOExtras  #:nodoc:
           return @outputBuffer.empty? ? nil : flush
         end
         @outputBuffer << produce_input
-        overlimit = (numberOfBytes && @outputBuffer.bytesize >= numberOfBytes)
+        overLimit = (numberOfBytes && @outputBuffer.bytesize >= numberOfBytes)
       end
       sepIndex = [matchIndex + aSepString.bytesize, numberOfBytes || @outputBuffer.bytesize].min
       return @outputBuffer.slice!(0...sepIndex)
