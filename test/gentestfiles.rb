@@ -109,7 +109,7 @@ class TestZipFile
       testBinaryPattern *= 4
       
       File.open("data/generated/longBinary.bin", "wb") do |file|
-        while (file.tell < 3E5)
+        while (file.tell < 6E5)
           file << testBinaryPattern << rand << "\0"
         end
       end
