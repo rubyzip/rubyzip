@@ -62,6 +62,28 @@ Zip::ZipFile.open("exampleout.zip") {
   puts "Without 'Again': #{zf.entries.join(', ')}"
 }
 
+####### Using ZipFile to split a zip file: #######
+
+# Creating large zip file for splitting
+Zip::ZipOutputStream.open("large_zip_file.zip") do |zos|
+  puts "Creating zip file..."
+  10.times do |i|
+    zos.put_next_entry("large_entry_#{i}.txt")
+    zos.puts "Hello" * 104857600
+  end
+end
+
+# Splitting created large zip file
+part_zips_count = Zip::ZipFile.split("large_zip_file.zip", 2097152, false)
+puts "Zip file splitted in #{part_zips_count} parts"
+
+# Track splitting an archive
+Zip::ZipFile.split("large_zip_file.zip", 1048576, true, 'part_zip_file') do
+  |part_count, part_index, chunk_bytes, segment_bytes|
+  puts "#{part_index} of #{part_count} part splitting: #{(chunk_bytes.to_f/segment_bytes.to_f * 100).to_i}%"
+end
+
+
 # For other examples, look at zip.rb and ziptest.rb
 
 # Copyright (C) 2002 Thomas Sondergaard
