@@ -13,3 +13,5 @@ test/test_putOnClosedStream.zip
 test/zipWithDirs_copy.zip
 .bundle
 Gemfile.lock
++samples/*.zip
++samples/*.zip.*
