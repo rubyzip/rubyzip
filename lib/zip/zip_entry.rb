@@ -318,7 +318,7 @@ module Zip
       nameLength                ,
       extraLength               ,
       commentLength             ,
-      diskNumberStart           ,
+      _                         , # diskNumberStart
       @internalFileAttributes   ,
       @externalFileAttributes   ,
       @localHeaderOffset        ,
