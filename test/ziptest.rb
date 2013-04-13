@@ -472,6 +472,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
       # Do a little reading
       buf = ""
       buf << zis.read(100)
+      assert_equal(100, zis.pos)
       buf << (zis.gets || "")
       buf << (zis.gets || "")
       assert_equal(false, zis.eof?)
@@ -487,6 +488,7 @@ class ZipInputStreamTest < Test::Unit::TestCase
 
       zis.rewind
       assert_equal(false, zis.eof?)
+      assert_equal(0, zis.pos)
 
       assert_entry(e.name, zis, e.name)
     }
