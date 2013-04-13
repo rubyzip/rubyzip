@@ -1209,7 +1209,7 @@ class ZipFileTest < Test::Unit::TestCase
   end
 
   def test_rename
-    entryToRename, *remainingEntries = TEST_ZIP.entry_names
+    entryToRename, * = TEST_ZIP.entry_names
 
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert(zf.entries.map { |e| e.name }.include?(entryToRename))
@@ -1280,7 +1280,7 @@ class ZipFileTest < Test::Unit::TestCase
   end
 
   def test_renameEntryToExistingEntry
-    entry1, entry2, *remaining = TEST_ZIP.entry_names
+    entry1, entry2, * = TEST_ZIP.entry_names
     zf = ZipFile.new(TEST_ZIP.zip_name)
     assert_raise(ZipEntryExistsError) {
       zf.rename(entry1, entry2)
