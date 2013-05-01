@@ -38,6 +38,22 @@ Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
 end
 ```
 
+### Zipping a directory recursively
+
+```ruby
+require 'rubygems'
+require 'zip/zip'
+
+directory = '/Users/me/Desktop/directory_to_zip/'
+zipfile_name = '/Users/me/Desktop/recursive_directory.zip'
+
+Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
+	Dir[File.join(directory, '**', '**')].each do |file|
+	  zipfile.add(file.sub(directory, ''), file)
+	end
+end
+```
+
 ## Further Documentation
 
 There is more than one way to access or create a zip archive with
