@@ -270,6 +270,7 @@ module Zip
           @extra = ZipExtraField.new(extra)
         end
       end
+      fix_zip64_sizes!
       @local_header_size = calculate_local_header_size
     end
 
@@ -370,6 +371,7 @@ module Zip
           @ftype = :file
         end
       end
+      fix_zip64_sizes!
       @local_header_size = calculate_local_header_size
     end
 
@@ -404,6 +406,13 @@ module Zip
         FileUtils::chmod(@unix_perms & unix_perms_mask, destPath) if (@restore_permissions && @unix_perms)
         FileUtils::chown(@unix_uid, @unix_gid, destPath) if (@restore_ownership && @unix_uid && @unix_gid && Process::egid == 0)
         # File::utimes()
+      end
+    end
+
+    def fix_zip64_sizes! #:nodoc:all
+      if zip64 = @extra["Zip64"]
+        @size = zip64.original_size
+        @compressed_size = zip64.compressed_size
       end
     end
 
