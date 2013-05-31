@@ -54,6 +54,31 @@ Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
 end
 ```
 
+## Known issues
+
+### Modify docx file with rubyzip
+
+Use `write_buffer` instead `open`. Thanks to @jondruse
+
+```ruby
+buffer = Zip::ZipOutputStream.write_buffer do |out|
+  @zip_file.entries.each do |e|
+    unless [DOCUMENT_FILE_PATH, RELS_FILE_PATH].include?(e.name)
+      out.put_next_entry(e.name)
+      out.write e.get_input_stream.read
+     end
+  end
+  
+  out.put_next_entry(DOCUMENT_FILE_PATH)
+  out.write xml_doc.to_xml(:indent => 0).gsub("\n","")
+  
+  out.put_next_entry(RELS_FILE_PATH)
+  out.write rels.to_xml(:indent => 0).gsub("\n","")
+end
+
+File.open(new_path, "w") {|f| f.write(buffer.string) }
+```
+
 ## Further Documentation
 
 There is more than one way to access or create a zip archive with
