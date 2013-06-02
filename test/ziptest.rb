@@ -44,7 +44,6 @@ class ZipEntryTest < Test::Unit::TestCase
     assert_equal(TEST_NAME, entry.name)
     assert_equal(TEST_SIZE, entry.size)
     assert_equal(TEST_TIME, entry.time)
-    assert_equal(TEST_ISDIRECTORY, entry.is_directory)
   end
 
   def test_is_directoryAndIsFile
@@ -186,7 +185,7 @@ class ZipLocalEntryTest < Test::Unit::TestCase
       |file|
       entry = ZipEntry.read_local_entry(file)
 
-      assert_equal("", entry.comment)
+      assert_equal('', entry.comment)
       # Differs from windows and unix because of CR LF
       # assert_equal(480, entry.compressed_size)
       # assert_equal(0x2a27930f, entry.crc)
@@ -196,7 +195,7 @@ class ZipLocalEntryTest < Test::Unit::TestCase
       assert_equal(ZipEntry::DEFLATED, entry.compression_method)
       assert_equal(TestZipFile::TEST_ZIP3.entry_names[0], entry.name)
       assert_equal(File.size(TestZipFile::TEST_ZIP3.entry_names[0]), entry.size)
-      assert(! entry.is_directory)
+      assert(! entry.directory?)
     }
   end
 
@@ -244,7 +243,7 @@ class ZipLocalEntryTest < Test::Unit::TestCase
     assert_equal(entry1.compression_method, entry2.compression_method)
     assert_equal(entry1.name             , entry2.name)
     assert_equal(entry1.size             , entry2.size)
-    assert_equal(entry1.localHeaderOffset, entry2.localHeaderOffset)
+    assert_equal(entry1.local_header_offset, entry2.local_header_offset)
   end
 
   def compare_c_dir_entry_headers(entry1, entry2)
@@ -513,7 +512,7 @@ end
 module CrcTest
 
   class TestOutputStream
-    include IOExtras::AbstractOutputStream
+    include ::Zip::IOExtras::AbstractOutputStream
 
     attr_accessor :buffer
 
@@ -1188,7 +1187,7 @@ class ZipFileTest < Test::Unit::TestCase
     ZipFile.open(TEST_ZIP.zip_name) {
       |zf|
       dirEntry = zf.entries.detect { |e| e.name == TestFiles::EMPTY_TEST_DIR+"/" }
-      assert(dirEntry.is_directory)
+      assert(dirEntry.directory?)
     }
   end
 
@@ -1699,7 +1698,7 @@ class ZipFileExtractDirectoryTest < Test::Unit::TestCase
       |entry, destPath|
       gotCalled = true
       assert_equal(TEST_OUT_NAME, destPath)
-      assert(entry.is_directory)
+      assert(entry.directory?)
       true
     }
     assert(gotCalled)

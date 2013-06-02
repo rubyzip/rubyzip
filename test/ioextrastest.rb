@@ -7,7 +7,7 @@ $: << "../lib"
 require 'test/unit'
 require 'zip/ioextras'
 
-include IOExtras
+include ::Zip::IOExtras
 
 class FakeIOTest < Test::Unit::TestCase
   class FakeIOUsingClass
@@ -141,7 +141,7 @@ class AbstractOutputStreamTest < Test::Unit::TestCase
   end
 
   def setup
-    @outputStream = TestOutputStream.new
+    @output_stream = TestOutputStream.new
 
     @origCommaSep = $,
     @origOutputSep = $\
@@ -153,78 +153,78 @@ class AbstractOutputStreamTest < Test::Unit::TestCase
   end
 
   def test_write
-    count = @outputStream.write("a little string")
-    assert_equal("a little string", @outputStream.buffer)
+    count = @output_stream.write("a little string")
+    assert_equal("a little string", @output_stream.buffer)
     assert_equal("a little string".length, count)
 
-    count = @outputStream.write(". a little more")
-    assert_equal("a little string. a little more", @outputStream.buffer)
+    count = @output_stream.write(". a little more")
+    assert_equal("a little string. a little more", @output_stream.buffer)
     assert_equal(". a little more".length, count)
   end
   
   def test_print
     $\ = nil # record separator set to nil
-    @outputStream.print("hello")
-    assert_equal("hello", @outputStream.buffer)
+    @output_stream.print("hello")
+    assert_equal("hello", @output_stream.buffer)
 
-    @outputStream.print(" world.")
-    assert_equal("hello world.", @outputStream.buffer)
+    @output_stream.print(" world.")
+    assert_equal("hello world.", @output_stream.buffer)
     
-    @outputStream.print(" You ok ",  "out ", "there?")
-    assert_equal("hello world. You ok out there?", @outputStream.buffer)
+    @output_stream.print(" You ok ",  "out ", "there?")
+    assert_equal("hello world. You ok out there?", @output_stream.buffer)
 
     $\ = "\n"
-    @outputStream.print
-    assert_equal("hello world. You ok out there?\n", @outputStream.buffer)
+    @output_stream.print
+    assert_equal("hello world. You ok out there?\n", @output_stream.buffer)
 
-    @outputStream.print("I sure hope so!")
-    assert_equal("hello world. You ok out there?\nI sure hope so!\n", @outputStream.buffer)
+    @output_stream.print("I sure hope so!")
+    assert_equal("hello world. You ok out there?\nI sure hope so!\n", @output_stream.buffer)
 
     $, = "X"
-    @outputStream.buffer = ""
-    @outputStream.print("monkey", "duck", "zebra")
-    assert_equal("monkeyXduckXzebra\n", @outputStream.buffer)
+    @output_stream.buffer = ""
+    @output_stream.print("monkey", "duck", "zebra")
+    assert_equal("monkeyXduckXzebra\n", @output_stream.buffer)
 
     $\ = nil
-    @outputStream.buffer = ""
-    @outputStream.print(20)
-    assert_equal("20", @outputStream.buffer)
+    @output_stream.buffer = ""
+    @output_stream.print(20)
+    assert_equal("20", @output_stream.buffer)
   end
   
   def test_printf
-    @outputStream.printf("%d %04x", 123, 123) 
-    assert_equal("123 007b", @outputStream.buffer)
+    @output_stream.printf("%d %04x", 123, 123)
+    assert_equal("123 007b", @output_stream.buffer)
   end
   
   def test_putc
-    @outputStream.putc("A")
-    assert_equal("A", @outputStream.buffer)
-    @outputStream.putc(65)
-    assert_equal("AA", @outputStream.buffer)
+    @output_stream.putc("A")
+    assert_equal("A", @output_stream.buffer)
+    @output_stream.putc(65)
+    assert_equal("AA", @output_stream.buffer)
   end
 
   def test_puts
-    @outputStream.puts
-    assert_equal("\n", @outputStream.buffer)
+    @output_stream.puts
+    assert_equal("\n", @output_stream.buffer)
 
-    @outputStream.puts("hello", "world")
-    assert_equal("\nhello\nworld\n", @outputStream.buffer)
+    @output_stream.puts("hello", "world")
+    assert_equal("\nhello\nworld\n", @output_stream.buffer)
 
-    @outputStream.buffer = ""
-    @outputStream.puts("hello\n", "world\n")
-    assert_equal("hello\nworld\n", @outputStream.buffer)
+    @output_stream.buffer = ""
+    @output_stream.puts("hello\n", "world\n")
+    assert_equal("hello\nworld\n", @output_stream.buffer)
     
-    @outputStream.buffer = ""
-    @outputStream.puts(["hello\n", "world\n"])
-    assert_equal("hello\nworld\n", @outputStream.buffer)
+    @output_stream.buffer = ""
+    @output_stream.puts(["hello\n", "world\n"])
+    assert_equal("hello\nworld\n", @output_stream.buffer)
 
-    @outputStream.buffer = ""
-    @outputStream.puts(["hello\n", "world\n"], "bingo")
-    assert_equal("hello\nworld\nbingo\n", @outputStream.buffer)
+    @output_stream.buffer = ""
+    @output_stream.puts(["hello\n", "world\n"], "bingo")
+    assert_equal("hello\nworld\nbingo\n", @output_stream.buffer)
 
-    @outputStream.buffer = ""
-    @outputStream.puts(16, 20, 50, "hello")
-    assert_equal("16\n20\n50\nhello\n", @outputStream.buffer)
+    @output_stream.buffer = ""
+    @output_stream.puts(16, 20, 50, "hello")
+    assert_equal("16\n20\n50\nhello\n", @output_stream.buffer)
   end
 end
 

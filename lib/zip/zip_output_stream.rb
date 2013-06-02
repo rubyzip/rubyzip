@@ -18,7 +18,7 @@ module Zip
   # class.
 
   class ZipOutputStream
-    include IOExtras::AbstractOutputStream
+    include ::Zip::IOExtras::AbstractOutputStream
 
     attr_accessor :comment
 
@@ -28,11 +28,11 @@ module Zip
       super()
       @fileName = fileName
       if stream
-        @outputStream = StringIO.new
+        @output_stream = StringIO.new
       else
-        @outputStream = ::File.new(@fileName, "wb")
+        @output_stream = ::File.new(@fileName, "wb")
       end
-      @entrySet = ZipEntrySet.new
+      @entry_set = ZipEntrySet.new
       @compressor = NullCompressor.instance
       @closed = false
       @currentEntry = nil
@@ -63,18 +63,18 @@ module Zip
       finalize_current_entry
       update_local_headers
       write_central_directory
-      @outputStream.close
+      @output_stream.close
       @closed = true
     end
 
     # Closes the stream and writes the central directory to the zip file
     def close_buffer
-      return @outputStream if @closed
+      return @output_stream if @closed
       finalize_current_entry
       update_local_headers
       write_central_directory
       @closed = true
-      @outputStream
+      @output_stream
     end
 
 	  # Closes the current entry and opens a new for writing.
@@ -100,13 +100,13 @@ module Zip
       raise ZipError, "zip stream is closed" if @closed
       raise ZipError, "entry is not a ZipEntry" if !entry.kind_of?(ZipEntry)
       finalize_current_entry
-      @entrySet << entry
+      @entry_set << entry
       src_pos = entry.local_entry_offset
-      entry.write_local_entry(@outputStream)
+      entry.write_local_entry(@output_stream)
       @compressor = NullCompressor.instance
       entry.get_raw_input_stream do |is|
         is.seek(src_pos, IO::SEEK_SET)
-        IOExtras.copy_stream_n(@outputStream, is, entry.compressed_size)
+        IOExtras.copy_stream_n(@output_stream, is, entry.compressed_size)
       end
       @compressor = NullCompressor.instance
       @currentEntry = nil
@@ -117,7 +117,7 @@ module Zip
     def finalize_current_entry
       return unless @currentEntry
       finish
-      @currentEntry.compressed_size = @outputStream.tell - @currentEntry.localHeaderOffset - @currentEntry.calculate_local_header_size
+      @currentEntry.compressed_size = @output_stream.tell - @currentEntry.local_header_offset - @currentEntry.calculate_local_header_size
       @currentEntry.size = @compressor.size
       @currentEntry.crc = @compressor.crc
       @currentEntry = nil
@@ -126,32 +126,32 @@ module Zip
 
     def init_next_entry(entry, level = Zlib::DEFAULT_COMPRESSION)
       finalize_current_entry
-      @entrySet << entry
-      entry.write_local_entry(@outputStream)
+      @entry_set << entry
+      entry.write_local_entry(@output_stream)
       @compressor = get_compressor(entry, level)
     end
 
     def get_compressor(entry, level)
       case entry.compression_method
-        when ZipEntry::DEFLATED then Deflater.new(@outputStream, level)
-        when ZipEntry::STORED   then PassThruCompressor.new(@outputStream)
+        when ZipEntry::DEFLATED then Deflater.new(@output_stream, level)
+        when ZipEntry::STORED   then PassThruCompressor.new(@output_stream)
       else raise ZipCompressionMethodError,
         "Invalid compression method: '#{entry.compression_method}'"
       end
     end
 
     def update_local_headers
-      pos = @outputStream.pos
-      @entrySet.each do |entry|
-        @outputStream.pos = entry.localHeaderOffset
-        entry.write_local_entry(@outputStream)
+      pos = @output_stream.pos
+      @entry_set.each do |entry|
+        @output_stream.pos = entry.local_header_offset
+        entry.write_local_entry(@output_stream)
       end
-      @outputStream.pos = pos
+      @output_stream.pos = pos
     end
 
     def write_central_directory
-      cdir = ZipCentralDirectory.new(@entrySet, @comment)
-      cdir.write_to_stream(@outputStream)
+      cdir = ZipCentralDirectory.new(@entry_set, @comment)
+      cdir.write_to_stream(@output_stream)
     end
 
     protected

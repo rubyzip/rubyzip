@@ -41,7 +41,7 @@ module Zip
   # class.
 
   class ZipInputStream 
-    include IOExtras::AbstractInputStream
+    include ::Zip::IOExtras::AbstractInputStream
 
     # Opens the indicated zip file. An exception is thrown
     # if the specified offset in the specified filename is
@@ -97,7 +97,7 @@ module Zip
       return if @currentEntry.nil?
       @lineno = 0
       @pos = 0
-      @archiveIO.seek(@currentEntry.localHeaderOffset, 
+      @archiveIO.seek(@currentEntry.local_header_offset,
 		      IO::SEEK_SET)
       open_entry
     end
@@ -108,7 +108,7 @@ module Zip
     end
 
     def eof
-      @outputBuffer.empty? && @decompressor.eof
+      @output_buffer.empty? && @decompressor.eof
     end
     alias :eof? :eof
 

@@ -35,20 +35,26 @@ if Tempfile.superclass == SimpleDelegator
   Tempfile = BugFix::Tempfile
 end
 
-module Zlib  #:nodoc:all
+module Zlib #:nodoc:all
   if !const_defined?(:MAX_WBITS)
     MAX_WBITS = Zlib::Deflate.MAX_WBITS
   end
 end
 
 module Zip
-  class ZipError < StandardError ; end
+  class ZipError < StandardError;
+  end
 
-  class ZipEntryExistsError            < ZipError; end
-  class ZipDestinationFileExistsError  < ZipError; end
-  class ZipCompressionMethodError      < ZipError; end
-  class ZipEntryNameError              < ZipError; end
-  class ZipInternalError               < ZipError; end
+  class ZipEntryExistsError < ZipError;
+  end
+  class ZipDestinationFileExistsError < ZipError;
+  end
+  class ZipCompressionMethodError < ZipError;
+  end
+  class ZipEntryNameError < ZipError;
+  end
+  class ZipInternalError < ZipError;
+  end
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard

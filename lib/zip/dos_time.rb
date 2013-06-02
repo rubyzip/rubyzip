@@ -15,14 +15,14 @@ module Zip
 
     def to_binary_dos_time
       (sec/2) +
-      (min  << 5) +
-      (hour << 11)
+        (min << 5) +
+        (hour << 11)
     end
 
     def to_binary_dos_date
       (day) +
-      (month << 5) +
-      ((year - 1980) << 9)
+        (month << 5) +
+        ((year - 1980) << 9)
     end
 
     # Dos time is only stored with two seconds accuracy
@@ -31,14 +31,14 @@ module Zip
     end
 
     def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)
-      second = 2 * (       0b11111 & binaryDosTime)
-      minute = (     0b11111100000 & binaryDosTime) >> 5 
+      second = 2 * (0b11111 & binaryDosTime)
+      minute = (0b11111100000 & binaryDosTime) >> 5
       hour   = (0b1111100000000000 & binaryDosTime) >> 11
-      day    = (           0b11111 & binaryDosDate) 
-      month  = (       0b111100000 & binaryDosDate) >> 5
+      day    = (0b11111 & binaryDosDate)
+      month  = (0b111100000 & binaryDosDate) >> 5
       year   = ((0b1111111000000000 & binaryDosDate) >> 9) + 1980
       begin
-        return self.local(year, month, day, hour, minute, second)
+        self.local(year, month, day, hour, minute, second)
       end
     end
   end

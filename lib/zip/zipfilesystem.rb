@@ -151,7 +151,7 @@ module Zip
         def mode
           e = get_entry
           if e.fstype == 3
-            e.externalFileAttributes >> 16
+            e.external_file_attributes >> 16
           else
             33206 # 33206 is equivalent to -rw-rw-rw-
           end
@@ -173,7 +173,7 @@ module Zip
       def unix_mode_cmp(fileName, mode)
         begin
           e = get_entry(fileName)
-          e.fstype == 3 && ((e.externalFileAttributes >> 16) & mode ) != 0
+          e.fstype == 3 && ((e.external_file_attributes >> 16) & mode ) != 0
         rescue Errno::ENOENT
           false
         end
@@ -272,7 +272,7 @@ module Zip
           e = get_entry(fileName)
           e.fstype = 3 # force convertion filesystem type to unix
           e.unix_perms = modeInt
-          e.externalFileAttributes = modeInt << 16
+          e.external_file_attributes = modeInt << 16
           e.dirty = true
         }
         filenames.size

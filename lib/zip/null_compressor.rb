@@ -2,7 +2,7 @@ module Zip
   class NullCompressor < Compressor #:nodoc:all
     include Singleton
 
-    def << (data)
+    def <<(data)
       raise IOError, "closed stream"
     end
 

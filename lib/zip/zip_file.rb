@@ -71,12 +71,12 @@ module Zip
             read_from_stream(f)
           end
         when create
-          @entrySet = ZipEntrySet.new
+          @entry_set = ZipEntrySet.new
         else
           raise ZipError, "File #{fileName} not found"
       end
       @create = create
-      @storedEntries = @entrySet.dup
+      @storedEntries = @entry_set.dup
       @storedComment = @comment
       @restore_ownership = false
       @restore_permissions = false
@@ -217,7 +217,7 @@ module Zip
       end
       newEntry.unix_perms = permissionInt
       zipStreamableEntry = ZipStreamableStream.new(newEntry)
-      @entrySet << zipStreamableEntry
+      @entry_set << zipStreamableEntry
       zipStreamableEntry.get_output_stream(&aProc)
     end
 
@@ -237,21 +237,21 @@ module Zip
       check_entry_exists(entry, continueOnExistsProc, "add")
       newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
       newEntry.gather_fileinfo_from_srcpath(srcPath)
-      @entrySet << newEntry
+      @entry_set << newEntry
     end
 
     # Removes the specified entry.
     def remove(entry)
-      @entrySet.delete(get_entry(entry))
+      @entry_set.delete(get_entry(entry))
     end
 
     # Renames the specified entry.
     def rename(entry, newName, &continueOnExistsProc)
       foundEntry = get_entry(entry)
       check_entry_exists(newName, continueOnExistsProc, "rename")
-      @entrySet.delete(foundEntry)
+      @entry_set.delete(foundEntry)
       foundEntry.name = newName
-      @entrySet << foundEntry
+      @entry_set << foundEntry
     end
 
     # Replaces the specified entry with the contents of srcPath (from
@@ -262,11 +262,11 @@ module Zip
       add(entry, srcPath)
     end
 
-    # Extracts entry to file destPath.
-    def extract(entry, destPath, &onExistsProc)
-      onExistsProc ||= proc { Zip.options[:on_exists_proc] }
-      foundEntry = get_entry(entry)
-      foundEntry.extract(destPath, &onExistsProc)
+    # Extracts entry to file dest_path.
+    def extract(entry, dest_path, &block)
+      block ||= proc { ::Zip.options[:on_exists_proc] }
+      found_entry = get_entry(entry)
+      found_entry.extract(dest_path, &block)
     end
 
     # Commits changes that has been made since the previous commit to
@@ -278,7 +278,7 @@ module Zip
         ZipOutputStream.open(tmpFile) {
           |zos|
 
-          @entrySet.each {
+          @entry_set.each {
             |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
@@ -293,7 +293,7 @@ module Zip
     # Write buffer write changes to buffer and return
     def write_buffer
       buffer = ZipOutputStream.write_buffer do |zos|
-        @entrySet.each { |e| e.write_to_zip_output_stream(zos) }
+        @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
       return buffer
@@ -307,21 +307,21 @@ module Zip
     # Returns true if any changes has been made to this archive since
     # the previous commit
     def commit_required?
-      @entrySet.each do |e|
+      @entry_set.each do |e|
         return true if e.dirty
       end
-      @comment != @storedComment || @entrySet != @storedEntries || @create == ZipFile::CREATE
+      @comment != @storedComment || @entry_set != @storedEntries || @create == ZipFile::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if
     # no entry is found. See also get_entry
     def find_entry(entry_name)
-      @entrySet.find_entry(entry_name)
+      @entry_set.find_entry(entry_name)
     end
 
     # Searches for entries given a glob
     def glob(*args,&block)
-      @entrySet.glob(*args,&block)
+      @entry_set.glob(*args,&block)
     end
 
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
@@ -344,7 +344,7 @@ module Zip
       end
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
-      @entrySet << ZipStreamableDirectory.new(@name, entryName, nil, permissionInt)
+      @entry_set << ZipStreamableDirectory.new(@name, entryName, nil, permissionInt)
     end
 
     private
@@ -363,7 +363,7 @@ module Zip
 
     def check_entry_exists(entryName, continueOnExistsProc, procedureName)
       continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc] }
-      if @entrySet.include?(entryName)
+      if @entry_set.include?(entryName)
         if continueOnExistsProc.call
           remove get_entry(entryName)
         else

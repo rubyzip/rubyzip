@@ -1,191 +1,142 @@
 module Zip
   class ZipEntry
-    STORED = 0
+    STORED   = 0
     DEFLATED = 8
 
-    FSTYPE_FAT = 0
-    FSTYPE_AMIGA = 1
-    FSTYPE_VMS = 2
-    FSTYPE_UNIX = 3
-    FSTYPE_VM_CMS = 4
-    FSTYPE_ATARI = 5
-    FSTYPE_HPFS = 6
-    FSTYPE_MAC = 7
-    FSTYPE_Z_SYSTEM = 8
-    FSTYPE_CPM = 9
-    FSTYPE_TOPS20 = 10
-    FSTYPE_NTFS = 11
-    FSTYPE_QDOS = 12
-    FSTYPE_ACORN = 13
-    FSTYPE_VFAT = 14
-    FSTYPE_MVS = 15
-    FSTYPE_BEOS = 16
-    FSTYPE_TANDEM = 17
-    FSTYPE_THEOS = 18
-    FSTYPE_MAC_OSX = 19
-    FSTYPE_ATHEOS = 30
-
-    FSTYPES = {
-      FSTYPE_FAT => 'FAT'.freeze,
-      FSTYPE_AMIGA => 'Amiga'.freeze,
-      FSTYPE_VMS => 'VMS (Vax or Alpha AXP)'.freeze,
-      FSTYPE_UNIX => 'Unix'.freeze,
-      FSTYPE_VM_CMS => 'VM/CMS'.freeze,
-      FSTYPE_ATARI => 'Atari ST'.freeze,
-      FSTYPE_HPFS => 'OS/2 or NT HPFS'.freeze,
-      FSTYPE_MAC => 'Macintosh'.freeze,
-      FSTYPE_Z_SYSTEM => 'Z-System'.freeze,
-      FSTYPE_CPM => 'CP/M'.freeze,
-      FSTYPE_TOPS20 => 'TOPS-20'.freeze,
-      FSTYPE_NTFS => 'NTFS'.freeze,
-      FSTYPE_QDOS => 'SMS/QDOS'.freeze,
-      FSTYPE_ACORN => 'Acorn RISC OS'.freeze,
-      FSTYPE_VFAT => 'Win32 VFAT'.freeze,
-      FSTYPE_MVS => 'MVS'.freeze,
-      FSTYPE_BEOS => 'BeOS'.freeze,
-      FSTYPE_TANDEM => 'Tandem NSK'.freeze,
-      FSTYPE_THEOS => 'Theos'.freeze,
-      FSTYPE_MAC_OSX => 'Mac OS/X (Darwin)'.freeze,
-      FSTYPE_ATHEOS => 'AtheOS'.freeze,
-    }.freeze
-
-    attr_accessor  :comment, :compressed_size, :crc, :extra, :compression_method,
-      :name, :size, :localHeaderOffset, :zipfile, :fstype, :externalFileAttributes, :gp_flags, :header_signature
-
-    attr_accessor :follow_symlinks
-    attr_accessor :restore_times, :restore_permissions, :restore_ownership
-    attr_accessor :unix_uid, :unix_gid, :unix_perms
-    attr_accessor :dirty
+    attr_accessor :comment, :compressed_size, :crc, :extra, :compression_method,
+                  :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
+                  :gp_flags, :header_signature, :follow_symlinks,
+                  :restore_times, :restore_permissions, :restore_ownership,
+                  :unix_uid, :unix_gid, :unix_perms,
+                  :dirty
     attr_reader :ftype, :filepath # :nodoc:
 
-    def initialize(zipfile = "", name = "", comment = "", extra = "",
-                   compressed_size = 0, crc = 0, 
-                   compression_method = ZipEntry::DEFLATED, size = 0,
-                   time  = DOSTime.now)
-      super()
-      if name.start_with?("/")
-        raise ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
-      end
-      @localHeaderOffset = 0
-      @local_header_size = 0
-      @internalFileAttributes = 1
-      @externalFileAttributes = 0
-      @header_signature = CENTRAL_DIRECTORY_ENTRY_SIGNATURE
-      @versionNeededToExtract = VERSION_NEEDED_TO_EXTRACT
-      @version = 52 # this library's version
-      @ftype = nil # unspecified or unknown
-      @filepath = nil
-      if Zip::RUNNING_ON_WINDOWS
-        @fstype = FSTYPE_FAT
-      else
-        @fstype = FSTYPE_UNIX
-      end
-      @zipfile = zipfile
-      @comment = comment
-      @compressed_size = compressed_size
-      @crc = crc
-      @extra = extra
-      @compression_method = compression_method
-      @name = name
-      @size = size
-      @time = time
-      @gp_flags = 0
+    def set_default_vars_values
+      @local_header_offset      = 0
+      @local_header_size        = 0
+      @internal_file_attributes = 1
+      @external_file_attributes = 0
+      @header_signature         = ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
 
+      @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT
+      @version                   = 52 # this library's version
+
+      @ftype           = nil          # unspecified or unknown
+      @filepath        = nil
+      @gp_flags        = 0
       @follow_symlinks = false
 
-      @restore_times = true
+      @restore_times       = true
       @restore_permissions = false
-      @restore_ownership = false
+      @restore_ownership   = false
+                                      # BUG: need an extra field to support uid/gid's
+      @unix_uid            = nil
+      @unix_gid            = nil
+      @unix_perms          = nil
+                                      #@posix_acl = nil
+                                      #@ntfs_acl = nil
 
-# BUG: need an extra field to support uid/gid's
-      @unix_uid = nil
-      @unix_gid = nil
-      @unix_perms = nil
-#      @posix_acl = nil
-#      @ntfs_acl = nil
+      @dirty               = false
+    end
 
-      if name_is_directory?
-        @ftype = :directory
-      else
-        @ftype = :file
+    def check_name(name)
+      if name.start_with?('/')
+        raise ::Zip::ZipEntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
       end
+    end
 
-      unless ZipExtraField === @extra
-        @extra = ZipExtraField.new(@extra.to_s)
-      end
+    def initialize(*args)
+      name = args[1] || ''
+      check_name(name)
 
-      @dirty = false
+      set_default_vars_values
+      @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
+
+      @zipfile            = args[0] || ''
+      @name               = name
+      @comment            = args[2] || ''
+      @extra              = args[3] || ''
+      @compressed_size    = args[4] || 0
+      @crc                = args[5] || 0
+      @compression_method = args[6] || ::ZipEntry::DEFLATED
+      @size               = args[7] || 0
+      @time               = args[8] || ::Zip::DOSTime.now
+
+      @ftype = name_is_directory? ? :directory : :file
+      @extra = ::Zip::ZipExtraField.new(@extra.to_s) unless ::Zip::ZipExtraField === @extra
     end
 
     def time
-      if @extra["UniversalTime"]
-        @extra["UniversalTime"].mtime
+      if @extra['UniversalTime']
+        @extra['UniversalTime'].mtime
       else
         # Standard time field in central directory has local time
         # under archive creator. Then, we can't get timezone.
         @time
       end
     end
+
     alias :mtime :time
 
-    def time=(aTime)
-      unless @extra.member?("UniversalTime")
-        @extra.create("UniversalTime")
+    def time=(value)
+      unless @extra.member?('UniversalTime')
+        @extra.create('UniversalTime')
       end
-      @extra["UniversalTime"].mtime = aTime
-      @time = aTime
+      @extra['UniversalTime'].mtime = value
+      @time                         = value
     end
 
-    # Returns +true+ if the entry is a directory.
-    def directory?
+    def file_type_is?(type)
       raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
-      @ftype == :directory
-    end
-    alias :is_directory :directory?
-
-    # Returns +true+ if the entry is a file.
-    def file?
-      raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
-      @ftype == :file
+      @ftype == type
     end
 
-    # Returns +true+ if the entry is a symlink.
-    def symlink?
-      raise ZipInternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
-      @ftype == :symlink
+    # Dynamic checkers
+    %w(directory file symlink).each do |k|
+      define_method "#{k}?" do
+        file_type_is?(k.to_sym)
+      end
     end
 
-    def name_is_directory?  #:nodoc:all
-      (%r{\/$} =~ @name) != nil
+    def name_is_directory? #:nodoc:all
+      %r{\/\z} =~ @name
     end
 
-    def local_entry_offset  #:nodoc:all
-      localHeaderOffset + @local_header_size
+    def local_entry_offset #:nodoc:all
+      local_header_offset + @local_header_size
     end
 
-    def calculate_local_header_size  #:nodoc:all
-      LOCAL_ENTRY_STATIC_HEADER_LENGTH + (@name ?  @name.bytesize : 0) + (@extra ? @extra.local_size : 0)
+    def name_size
+      @name ? @name.bytesize : 0
     end
 
-    def cdir_header_size  #:nodoc:all
-      CDIR_ENTRY_STATIC_HEADER_LENGTH  + (@name ?  @name.bytesize : 0) +
-      (@extra ? @extra.c_dir_size : 0) + (@comment ? @comment.bytesize : 0)
+    def extra_size
+      @extra ? @extra.local_size : 0
     end
 
-    def next_header_offset  #:nodoc:all
+    def comment_size
+      @comment ? @comment.bytesize : 0
+    end
+
+    def calculate_local_header_size #:nodoc:all
+      LOCAL_ENTRY_STATIC_HEADER_LENGTH + name_size + extra_size
+    end
+
+    def cdir_header_size #:nodoc:all
+      CDIR_ENTRY_STATIC_HEADER_LENGTH + name_size +
+        (@extra ? @extra.c_dir_size : 0) + comment_size
+    end
+
+    def next_header_offset #:nodoc:all
       local_entry_offset + self.compressed_size
     end
 
-    # Extracts entry to file destPath (defaults to @name).
-    def extract(destPath = @name, &onExistsProc)
-      onExistsProc ||= proc { Zip.options[:on_exists_proc] }
+    # Extracts entry to file dest_path (defaults to @name).
+    def extract(dest_path = @name, &block)
+      block ||= proc { ::Zip.options[:on_exists_proc] }
 
-      if directory?
-        create_directory(destPath, &onExistsProc)
-      elsif file?
-        write_file(destPath, &onExistsProc)
-      elsif symlink?
-        create_symlink(destPath, &onExistsProc)
+      if directory? || file? || symlink?
+        self.__send__("create_#{@ftype}", dest_path, &block)
       else
         raise RuntimeError, "unknown file type #{self.inspect}"
       end
@@ -208,7 +159,7 @@ module Zip
         io.read(4).unpack('V')[0]
       end
 
-      def read_c_dir_entry(io)  #:nodoc:all
+      def read_c_dir_entry(io) #:nodoc:all
         entry = new(io.path)
         entry.read_c_dir_entry(io)
         entry
@@ -228,154 +179,162 @@ module Zip
 
     public
 
-    LOCAL_ENTRY_SIGNATURE = 0x04034b50
-    LOCAL_ENTRY_STATIC_HEADER_LENGTH = 30
-    LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4+4+4
-    VERSION_NEEDED_TO_EXTRACT = 20
+    def unpack_local_entry(buf)
+      @header_signature,
+        @version,
+        @fstype,
+        @gp_flags,
+        @compression_method,
+        @last_mod_time,
+        @last_mod_date,
+        @crc,
+        @compressed_size,
+        @size,
+        @name_length,
+        @extra_length = buf.unpack('VCCvvvvVVVvv')
+    end
 
-    def read_local_entry(io)  #:nodoc:all
-      @localHeaderOffset = io.tell
-      staticSizedFieldsBuf = io.read(LOCAL_ENTRY_STATIC_HEADER_LENGTH)
-      unless (staticSizedFieldsBuf.size == LOCAL_ENTRY_STATIC_HEADER_LENGTH)
+    def read_local_entry(io) #:nodoc:all
+      @local_header_offset = io.tell
+
+      static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH)
+
+      unless static_sized_fields_buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
         raise ZipError, "Premature end of file. Not enough data for zip entry local header"
       end
 
-      @header_signature       ,
-      @version          ,
-      @fstype           ,
-      @gp_flags          ,
-      @compression_method,
-      lastModTime       ,
-      lastModDate       ,
-      @crc              ,
-      @compressed_size   ,
-      @size             ,
-      nameLength        ,
-      extraLength       = staticSizedFieldsBuf.unpack('VCCvvvvVVVvv')
+      unpack_local_entry(static_sized_fields_buf)
 
-      unless (@header_signature == LOCAL_ENTRY_SIGNATURE)
-        raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
+      unless @header_signature == ::Zip::LOCAL_ENTRY_SIGNATURE
+        raise ::Zip::ZipError, "Zip local header magic not found at location '#{local_header_offset}'"
       end
-      set_time(lastModDate, lastModTime)
+      set_time(@last_mod_date, @last_mod_time)
 
-      @name              = io.read(nameLength)
-      extra              = io.read(extraLength)
-      until @name.sub!('\\', '/') == nil do end # some zip files use backslashes instead of slashes as path separators
-      if (extra && extra.bytesize != extraLength)
-        raise ZipError, "Truncated local zip entry header"
+      @name = io.read(@name_length)
+      extra = io.read(@extra_length)
+
+      @name.gsub!('\\', '/')
+
+      if extra && extra.bytesize != @extra_length
+        raise ::Zip::ZipError, "Truncated local zip entry header"
       else
-        if ZipExtraField === @extra
+        if ::Zip::ZipExtraField === @extra
           @extra.merge(extra)
         else
-          @extra = ZipExtraField.new(extra)
+          @extra = ::Zip::ZipExtraField.new(extra)
         end
       end
       @local_header_size = calculate_local_header_size
     end
 
+    def pack_local_entry
+      [::Zip::LOCAL_ENTRY_SIGNATURE,
+       @version_needed_to_extract, # version needed to extract
+       @gp_flags, # @gp_flags                  ,
+       @compression_method,
+       @time.to_binary_dos_time, # @last_mod_time              ,
+       @time.to_binary_dos_date, # @last_mod_date              ,
+       @crc,
+       @compressed_size,
+       @size,
+       name_size,
+       @extra ? @extra.local_length : 0].pack('VvvvvvVVVvv')
+    end
 
+    def write_local_entry(io) #:nodoc:all
+      @local_header_offset = io.tell
 
-    def write_local_entry(io)   #:nodoc:all
-      @localHeaderOffset = io.tell
+      io << pack_local_entry
 
-      io <<
-      [LOCAL_ENTRY_SIGNATURE    ,
-      @versionNeededToExtract , # version needed to extract
-      @gp_flags                         , # @gp_flags                  ,
-      @compression_method        ,
-      @time.to_binary_dos_time     , # @lastModTime              ,
-      @time.to_binary_dos_date     , # @lastModDate              ,
-      @crc                      ,
-      @compressed_size           ,
-      @size                     ,
-      @name ? @name.bytesize   : 0,
-      @extra? @extra.local_length : 0 ].pack('VvvvvvVVVvv')
       io << @name
-      io << (@extra ? @extra.to_local_bin : "")
+      io << (@extra ? @extra.to_local_bin : '')
     end
 
-    CENTRAL_DIRECTORY_ENTRY_SIGNATURE = 0x02014b50
-    CDIR_ENTRY_STATIC_HEADER_LENGTH = 46
+    def unpack_c_dir_entry(buf)
+      @header_signature,
+        @version, # version of encoding software
+        @fstype, # filesystem type
+        @version_needed_to_extract,
+        @gp_flags,
+        @compression_method,
+        @last_mod_time,
+        @last_mod_date,
+        @crc,
+        @compressed_size,
+        @size,
+        @name_length,
+        @extra_length,
+        @comment_length,
+        _, # diskNumberStart
+        @internal_file_attributes,
+        @external_file_attributes,
+        @local_header_offset,
+        @name,
+        @extra,
+        @comment = buf.unpack('VCCvvvvvVVVvvvvvVV')
+    end
 
-    def read_c_dir_entry(io)  #:nodoc:all
-      staticSizedFieldsBuf = io.read(CDIR_ENTRY_STATIC_HEADER_LENGTH)
-      unless (staticSizedFieldsBuf.bytesize == CDIR_ENTRY_STATIC_HEADER_LENGTH)
-        raise ZipError, "Premature end of file. Not enough data for zip cdir entry header"
+    def set_ftype_from_c_dir_entry
+      @ftype = case @fstype
+               when ::Zip::FSTYPE_UNIX
+                 @unix_perms = (@external_file_attributes >> 16) & 07777
+
+                 case (@external_file_attributes >> 28)
+                 when 04
+                   :directory
+                 when 010
+                   :file
+                 when 012
+                   :symlink
+                 else
+                   #best case guess for whether it is a file or not
+                   #Otherwise this would be set to unknown and that entry would never be able to extracted
+                   if name_is_directory?
+                     :directory
+                   else
+                     :file
+                   end
+                 end
+               else
+                 if name_is_directory?
+                   :directory
+                 else
+                   :file
+                 end
+               end
+    end
+
+    def read_c_dir_entry(io) #:nodoc:all
+      static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
+      unless static_sized_fields_buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
+        raise ZipError, 'Premature end of file. Not enough data for zip cdir entry header'
       end
 
+      unpack_c_dir_entry(static_sized_fields_buf)
 
-      @header_signature         ,
-      @version                  , # version of encoding software
-      @fstype                   , # filesystem type
-      @versionNeededToExtract   ,
-      @gp_flags                 ,
-      @compression_method       ,
-      lastModTime               ,
-      lastModDate               ,
-      @crc                      ,
-      @compressed_size          ,
-      @size                     ,
-      nameLength                ,
-      extraLength               ,
-      commentLength             ,
-      _                         , # diskNumberStart
-      @internalFileAttributes   ,
-      @externalFileAttributes   ,
-      @localHeaderOffset        ,
-      @name                     ,
-      @extra                    ,
-      @comment               = staticSizedFieldsBuf.unpack('VCCvvvvvVVVvvvvvVV')
-
-      unless (@header_signature == CENTRAL_DIRECTORY_ENTRY_SIGNATURE)
-        raise ZipError, "Zip local header magic not found at location '#{localHeaderOffset}'"
+      unless @header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+        raise ZipError, "Zip local header magic not found at location '#{local_header_offset}'"
       end
-      set_time(lastModDate, lastModTime)
+      set_time(@last_mod_date, @last_mod_time)
 
-      @name = io.read(nameLength)
-      until @name.sub!('\\', '/') == nil do end # some zip files use backslashes instead of slashes as path separators
-      if ZipExtraField === @extra
-        @extra.merge(io.read(extraLength))
+      @name = io.read(@name_length)
+      until @name.sub!('\\', '/').nil? do
+      end # some zip files use backslashes instead of slashes as path separators
+      if ::Zip::ZipExtraField === @extra
+        @extra.merge(io.read(@extra_length))
       else
-        @extra = ZipExtraField.new(io.read(extraLength))
+        @extra = ::Zip::ZipExtraField.new(io.read(@extra_length))
       end
-      @comment = io.read(commentLength)
-      unless (@comment && @comment.bytesize == commentLength)
-        raise ZipError, "Truncated cdir zip entry header"
+      @comment = io.read(@comment_length)
+      unless @comment && @comment.bytesize == @comment_length
+        raise ::Zip::ZipError, "Truncated cdir zip entry header"
       end
-
-      case @fstype
-      when FSTYPE_UNIX
-        @unix_perms = (@externalFileAttributes >> 16) & 07777
-
-        case (@externalFileAttributes >> 28)
-        when 04
-          @ftype = :directory
-        when 010
-          @ftype = :file
-        when 012
-          @ftype = :symlink
-        else
-          #best case guess for whether it is a file or not
-          #Otherwise this would be set to unknown and that entry would never be able to extracted
-          if name_is_directory?
-            @ftype = :directory
-          else
-            @ftype = :file
-          end
-        end
-      else
-        if name_is_directory?
-          @ftype = :directory
-        else
-          @ftype = :file
-        end
-      end
+      set_ftype_from_c_dir_entry
       @local_header_size = calculate_local_header_size
     end
 
 
-
-    def file_stat(path)	# :nodoc:
+    def file_stat(path) # :nodoc:
       if @follow_symlinks
         return ::File::stat(path)
       else
@@ -383,73 +342,73 @@ module Zip
       end
     end
 
-    def get_extra_attributes_from_path(path)	# :nodoc:
+    def get_extra_attributes_from_path(path) # :nodoc:
       unless Zip::RUNNING_ON_WINDOWS
-        stat = file_stat(path)
-        @unix_uid = stat.uid
-        @unix_gid = stat.gid
+        stat        = file_stat(path)
+        @unix_uid   = stat.uid
+        @unix_gid   = stat.gid
         @unix_perms = stat.mode & 07777
       end
     end
 
-    def set_extra_attributes_on_path(destPath)	# :nodoc:
+    def set_extra_attributes_on_path(destPath) # :nodoc:
       return unless (file? or directory?)
 
       case @fstype
-      when FSTYPE_UNIX
+      when ::Zip::FSTYPE_UNIX
         # BUG: does not update timestamps into account
         # ignore setuid/setgid bits by default.  honor if @restore_ownership
         unix_perms_mask = 01777
         unix_perms_mask = 07777 if (@restore_ownership)
-        FileUtils::chmod(@unix_perms & unix_perms_mask, destPath) if (@restore_permissions && @unix_perms)
-        FileUtils::chown(@unix_uid, @unix_gid, destPath) if (@restore_ownership && @unix_uid && @unix_gid && Process::egid == 0)
+        ::FileUtils::chmod(@unix_perms & unix_perms_mask, destPath) if (@restore_permissions && @unix_perms)
+        ::FileUtils::chown(@unix_uid, @unix_gid, destPath) if (@restore_ownership && @unix_uid && @unix_gid && ::Process::egid == 0)
         # File::utimes()
       end
     end
 
-    def write_c_dir_entry(io)  #:nodoc:all
+    def write_c_dir_entry(io) #:nodoc:all
       case @fstype
-      when FSTYPE_UNIX
+      when ::Zip::FSTYPE_UNIX
         ft = nil
         case @ftype
         when :file
-          ft = 010
+          ft          = 010
           @unix_perms ||= 0644
         when :directory
-          ft = 004
+          ft          = 004
           @unix_perms ||= 0755
         when :symlink
-          ft = 012
+          ft          = 012
           @unix_perms ||= 0755
         end
 
         if (!ft.nil?)
-          @externalFileAttributes = (ft << 12 | (@unix_perms & 07777)) << 16
+          @external_file_attributes = (ft << 12 | (@unix_perms & 07777)) << 16
         end
       end
 
       tmp = [
         @header_signature,
-        @version                          , # version of encoding software
-        @fstype                           , # filesystem type
-        @versionNeededToExtract         , # @versionNeededToExtract           ,
-        @gp_flags                                 , # @gp_flags                          ,
-        @compression_method               ,
-        @time.to_binary_dos_time          , # @lastModTime                      ,
-        @time.to_binary_dos_date          , # @lastModDate                      ,
-        @crc                              ,
-        @compressed_size                  ,
-        @size                             ,
-        @name  ?  @name.bytesize  : 0       ,
-        @extra ? @extra.c_dir_length : 0  ,
-        @comment ? @comment.bytesize : 0    ,
-        0                                 , # disk number start
-        @internalFileAttributes           , # file type (binary=0, text=1)
-        @externalFileAttributes           , # native filesystem attributes
-        @localHeaderOffset                ,
-        @name                             ,
-        @extra                            ,
-        @comment                          
+        @version, # version of encoding software
+        @fstype, # filesystem type
+        @version_needed_to_extract, # @versionNeededToExtract           ,
+        @gp_flags, # @gp_flags                          ,
+        @compression_method,
+        @time.to_binary_dos_time, # @last_mod_time                      ,
+        @time.to_binary_dos_date, # @last_mod_date                      ,
+        @crc,
+        @compressed_size,
+        @size,
+        name_size,
+        @extra ? @extra.c_dir_length : 0,
+        comment_size,
+        0, # disk number start
+        @internal_file_attributes, # file type (binary=0, text=1)
+        @external_file_attributes, # native filesystem attributes
+        @local_header_offset,
+        @name,
+        @extra,
+        @comment
       ]
 
       io << tmp.pack('VCCvvvvvVVVvvvvvVV')
@@ -463,13 +422,13 @@ module Zip
       return false unless other.class == self.class
       # Compares contents of local entry and exposed fields
       (@compression_method == other.compression_method &&
-       @crc               == other.crc		     &&
-       @compressed_size   == other.compressed_size   &&
-       @size              == other.size	             &&
-       @name              == other.name	             &&
-       @extra             == other.extra             &&
-       @filepath          == other.filepath          &&
-       self.time.dos_equals(other.time))
+        @crc == other.crc &&
+        @compressed_size == other.compressed_size &&
+        @size == other.size &&
+        @name == other.name &&
+        @extra == other.extra &&
+        @filepath == other.filepath &&
+        self.time.dos_equals(other.time))
     end
 
     def <=> (other)
@@ -480,8 +439,8 @@ module Zip
     # Warning: may behave weird with symlinks.
     def get_input_stream(&aProc)
       if @ftype == :directory
-          return yield(NullInputStream.instance) if block_given?
-          return NullInputStream.instance
+        return yield(NullInputStream.instance) if block_given?
+        return NullInputStream.instance
       elsif @filepath
         case @ftype
         when :file
@@ -492,10 +451,10 @@ module Zip
           return yield(stringio) if block_given?
           return stringio
         else
-          raise "unknown @ftype #{@ftype}"
+          raise "unknown @file_type #{@ftype}"
         end
       else
-        zis = ZipInputStream.new(@zipfile, localHeaderOffset)
+        zis = ZipInputStream.new(@zipfile, local_header_offset)
         zis.get_next_entry
         if block_given?
           begin
@@ -509,126 +468,124 @@ module Zip
       end
     end
 
-    def gather_fileinfo_from_srcpath(srcPath) # :nodoc:
-      stat = file_stat(srcPath)
-      case stat.ftype
-      when 'file'
-        if name_is_directory?
-          raise ArgumentError,
-          "entry name '#{newEntry}' indicates directory entry, but "+
-          "'#{srcPath}' is not a directory"
-        end
-        @ftype = :file
-      when 'directory'
-        if ! name_is_directory?
-          @name += "/"
-        end
-        @ftype = :directory
-      when 'link'
-        if name_is_directory?
-          raise ArgumentError,
-          "entry name '#{newEntry}' indicates directory entry, but "+
-          "'#{srcPath}' is not a directory"
-        end
-        @ftype = :symlink
-      else
-        raise RuntimeError, "unknown file type: #{srcPath.inspect} #{stat.inspect}"
-      end
+    def gather_fileinfo_from_srcpath(src_path) # :nodoc:
+      stat   = file_stat(src_path)
+      @ftype = case stat.ftype
+               when 'file'
+                 if name_is_directory?
+                   raise ArgumentError,
+                         "entry name '#{newEntry}' indicates directory entry, but "+
+                           "'#{src_path}' is not a directory"
+                 end
+                 :file
+               when 'directory'
+                 @name += "/" unless name_is_directory?
+                 :directory
+               when 'link'
+                 if name_is_directory?
+                   raise ArgumentError,
+                         "entry name '#{newEntry}' indicates directory entry, but "+
+                           "'#{src_path}' is not a directory"
+                 end
+                 :symlink
+               else
+                 raise RuntimeError, "unknown file type: #{src_path.inspect} #{stat.inspect}"
+               end
 
-      @filepath = srcPath
+      @filepath = src_path
       get_extra_attributes_from_path(@filepath)
     end
 
-    def write_to_zip_output_stream(aZipOutputStream)  #:nodoc:all
+    def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
       if @ftype == :directory
-        aZipOutputStream.put_next_entry(self)
+        zip_output_stream.put_next_entry(self)
       elsif @filepath
-        aZipOutputStream.put_next_entry(self, nil, nil, nil)
-        get_input_stream { |is| IOExtras.copy_stream(aZipOutputStream, is) }
+        zip_output_stream.put_next_entry(self, nil, nil, nil)
+        get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
       else
-        aZipOutputStream.copy_raw_entry(self)
+        zip_output_stream.copy_raw_entry(self)
       end
     end
 
     def parent_as_string
-      entry_name = name.chomp("/")
-      slash_index = entry_name.rindex("/")
+      entry_name  = name.chomp('/')
+      slash_index = entry_name.rindex('/')
       slash_index ? entry_name.slice(0, slash_index+1) : nil
     end
 
-    def get_raw_input_stream(&aProc)
-      ::File.open(@zipfile, "rb", &aProc)
+    def get_raw_input_stream(&block)
+      ::File.open(@zipfile, "rb", &block)
     end
 
     private
 
-    def set_time(binaryDosDate, binaryDosTime)
-      @time = DOSTime.parse_binary_dos_format(binaryDosDate, binaryDosTime)
+    def set_time(binary_dos_date, binary_dos_time)
+      @time = ::Zip::DOSTime.parse_binary_dos_format(binary_dos_date, binary_dos_time)
     rescue ArgumentError
       puts "Invalid date/time in zip entry"
     end
 
-    def write_file(destPath, continueOnExistsProc = proc { Zip.options[:continue_on_exists_proc] })
-      if ::File.exists?(destPath) && ! yield(self, destPath)
-        raise ZipDestinationFileExistsError,
-          "Destination '#{destPath}' already exists"
+    def create_file(dest_path, continueOnExistsProc = proc { Zip.options[:continue_on_exists_proc] })
+      if ::File.exists?(dest_path) && !yield(self, dest_path)
+        raise ::Zip::ZipDestinationFileExistsError,
+              "Destination '#{dest_path}' already exists"
       end
-      ::File.open(destPath, "wb") do |os|
+      ::File.open(dest_path, "wb") do |os|
         get_input_stream do |is|
-          set_extra_attributes_on_path(destPath)
+          set_extra_attributes_on_path(dest_path)
 
           buf = ''
-          while buf = is.sysread(Decompressor::CHUNK_SIZE, buf)
+          while buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf)
             os << buf
           end
         end
       end
     end
 
-    def create_directory(destPath)
-      if ::File.directory?(destPath)
+    def create_directory(dest_path)
+      if ::File.directory?(dest_path)
         return
-      elsif ::File.exists?(destPath)
-        if block_given? && yield(self, destPath)
-          FileUtils::rm_f destPath
+      elsif ::File.exists?(dest_path)
+        if block_given? && yield(self, dest_path)
+          ::FileUtils::rm_f dest_path
         else
-          raise ZipDestinationFileExistsError,
-            "Cannot create directory '#{destPath}'. "+
-            "A file already exists with that name"
+          raise ::Zip::ZipDestinationFileExistsError,
+                "Cannot create directory '#{dest_path}'. "+
+                  "A file already exists with that name"
         end
       end
-      FileUtils.mkdir_p destPath
-      set_extra_attributes_on_path(destPath)
+      ::FileUtils.mkdir_p(dest_path)
+      set_extra_attributes_on_path(dest_path)
     end
 
-# BUG: create_symlink() does not use &onExistsProc
-    def create_symlink(destPath)
+# BUG: create_symlink() does not use &block
+    def create_symlink(dest_path)
       stat = nil
       begin
-        stat = ::File::lstat(destPath)
+        stat = ::File.lstat(dest_path)
       rescue Errno::ENOENT
       end
 
-      io = get_input_stream
+      io     = get_input_stream
       linkto = io.read
 
       if stat
         if stat.symlink?
-          if ::File::readlink(destPath) == linkto
+          if ::File::readlink(dest_path) == linkto
             return
           else
             raise ZipDestinationFileExistsError,
-              "Cannot create symlink '#{destPath}'. "+
-              "A symlink already exists with that name"
+                  "Cannot create symlink '#{dest_path}'. "+
+                    "A symlink already exists with that name"
           end
         else
           raise ZipDestinationFileExistsError,
-            "Cannot create symlink '#{destPath}'. "+
-            "A file already exists with that name"
+                "Cannot create symlink '#{dest_path}'. "+
+                  "A file already exists with that name"
         end
       end
 
-      ::File::symlink(linkto, destPath)
+      ::File.symlink(linkto, dest_path)
     end
   end
 end

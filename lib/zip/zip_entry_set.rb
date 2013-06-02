@@ -1,64 +1,67 @@
 module Zip
   class ZipEntrySet #:nodoc:all
     include Enumerable
-    
-    def initialize(anEnumerable = [])
+    attr_accessor :entry_set, :entry_order
+
+    def initialize(an_enumerable = [])
       super()
-      @entrySet = {}
-      @entryOrder = []
-      anEnumerable.each { |o| push(o) }
+      @entry_set   = {}
+      @entry_order = []
+      an_enumerable.each { |o| push(o) }
     end
 
     def include?(entry)
-      @entrySet.include?(to_key(entry))
+      @entry_set.include?(to_key(entry))
     end
 
     def find_entry(entry)
-      @entrySet[to_key(entry)]
+      @entry_set[to_key(entry)]
     end
 
     def <<(entry)
-      @entryOrder.delete( to_key(entry) )
-      @entryOrder << to_key(entry)
-      @entrySet[to_key(entry)] = entry
+      @entry_order.delete(to_key(entry))
+      @entry_order << to_key(entry)
+      @entry_set[to_key(entry)] = entry
     end
+
     alias :push :<<
 
     def size
-      @entrySet.size
+      @entry_set.size
     end
-    
+
     alias :length :size
 
     def delete(entry)
-      @entryOrder.delete(to_key(entry)) && @entrySet.delete(to_key(entry)) ?
-        entry :
+      if @entry_order.delete(to_key(entry)) && @entry_set.delete(to_key(entry))
+        entry
+      else
         nil
+      end
     end
 
-    def each(&aProc)
-      @entryOrder.each do |key|
-        aProc.call @entrySet[key]
+    def each(&block)
+      @entry_order.each do |key|
+        block.call @entry_set[key]
       end
     end
 
     def entries
-      @entryOrder.map{|key| @entrySet[key] }
+      @entry_order.map { |key| @entry_set[key] }
     end
 
     # deep clone
     def dup
-      ZipEntrySet.new(@entryOrder.map { |key| @entrySet[key].dup })
+      ZipEntrySet.new(@entry_order.map { |key| @entry_set[key].dup })
     end
 
     def ==(other)
       return false unless other.kind_of?(ZipEntrySet)
-      @entrySet == other.entrySet &&
-      @entryOrder == other.entryOrder
+      @entry_set == other.entry_set && @entry_order == other.entry_order
     end
 
     def parent(entry)
-      @entrySet[to_key(entry.parent_as_string)]
+      @entry_set[to_key(entry.parent_as_string)]
     end
 
     def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
@@ -67,15 +70,13 @@ module Zip
         yield(entry) if block_given?
         entry
       end.compact
-    end	
+    end
 
-#TODO    attr_accessor :auto_create_directories
     protected
-    attr_accessor :entrySet, :entryOrder
 
     private
     def to_key(entry)
-      entry.to_s.sub(/\/$/, "")
+      entry.to_s.sub(/\/$/, '')
     end
   end
 end

@@ -1,24 +1,23 @@
 module Zip
   class Deflater < Compressor #:nodoc:all
-    def initialize(outputStream, level = Zlib::DEFAULT_COMPRESSION)
+
+    def initialize(output_stream, level = ::Zlib::DEFAULT_COMPRESSION)
       super()
-      @outputStream = outputStream
-      @zlibDeflater = Zlib::Deflate.new(level, -Zlib::MAX_WBITS)
-      @size = 0
-      @crc = Zlib::crc32
+      @output_stream = output_stream
+      @zlib_deflater = ::Zlib::Deflate.new(level, -::Zlib::MAX_WBITS)
+      @size          = 0
+      @crc           = ::Zlib::crc32
     end
-    
+
     def << (data)
-      val = data.to_s
-      @crc = Zlib::crc32(val, @crc)
+      val   = data.to_s
+      @crc  = Zlib::crc32(val, @crc)
       @size += val.bytesize
-      @outputStream << @zlibDeflater.deflate(data)
+      @output_stream << @zlib_deflater.deflate(data)
     end
 
     def finish
-      until @zlibDeflater.finished?
-        @outputStream << @zlibDeflater.finish
-      end
+      @output_stream << @zlib_deflater.finish until @zlib_deflater.finished?
     end
 
     attr_reader :size, :crc

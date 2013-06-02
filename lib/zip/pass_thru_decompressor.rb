@@ -1,35 +1,36 @@
 module Zip
   class PassThruDecompressor < Decompressor  #:nodoc:all
-    def initialize(inputStream, charsToRead)
-      super inputStream
-      @charsToRead = charsToRead
-      @readSoFar = 0
-      @hasReturnedEmptyString = ! EMPTY_FILE_RETURNS_EMPTY_STRING_FIRST
+
+    def initialize(input_stream, chars_to_read)
+      super(input_stream)
+      @chars_to_read = chars_to_read
+      @read_so_far = 0
+      @has_returned_empty_string = false
     end
 
-    # TODO: Specialize to handle different behaviour in ruby > 1.7.0 ?
-    def sysread(numberOfBytes = nil, buf = nil)
+    def sysread(number_of_bytes = nil, buf = nil)
       if input_finished?
-        hasReturnedEmptyStringVal = @hasReturnedEmptyString
-        @hasReturnedEmptyString = true
-        return "" unless hasReturnedEmptyStringVal
+        has_returned_empty_string_val = @has_returned_empty_string
+        @has_returned_empty_string = true
+        return '' unless has_returned_empty_string_val
         return
       end
 
-      if (numberOfBytes == nil || @readSoFar + numberOfBytes > @charsToRead)
-        numberOfBytes = @charsToRead - @readSoFar
+      if (number_of_bytes == nil || @read_so_far + number_of_bytes > @chars_to_read)
+        number_of_bytes = @chars_to_read - @read_so_far
       end
-      @readSoFar += numberOfBytes
-      @inputStream.read(numberOfBytes, buf)
+      @read_so_far += number_of_bytes
+      @input_stream.read(number_of_bytes, buf)
     end
 
     def produce_input
-      sysread(Decompressor::CHUNK_SIZE)
+      sysread(::Zip::Decompressor::CHUNK_SIZE)
     end
 
     def input_finished?
-      (@readSoFar >= @charsToRead)
+      @read_so_far >= @chars_to_read
     end
+
     alias :eof :input_finished?
     alias :eof? :input_finished?
   end

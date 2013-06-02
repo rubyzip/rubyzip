@@ -1,14 +1,15 @@
 module Zip
-  class NullDecompressor  #:nodoc:all
+  class NullDecompressor #:nodoc:all
     include Singleton
+
     def sysread(numberOfBytes = nil, buf = nil)
       nil
     end
-    
+
     def produce_input
       nil
     end
-    
+
     def input_finished?
       true
     end
@@ -16,6 +17,7 @@ module Zip
     def eof
       true
     end
+
     alias :eof? :eof
   end
 end

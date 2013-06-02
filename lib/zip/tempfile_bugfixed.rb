@@ -1,18 +1,12 @@
-#
-# tempfile - manipulates temporary files
-#
-# $Id: tempfile_bugfixed.rb,v 1.2 2005/02/19 20:30:33 thomas Exp $
-#
-
 require 'delegate'
 require 'tmpdir'
 
-module BugFix  #:nodoc:all
+module BugFix #:nodoc:all
 
   # A class for managing temporary files.  This library is written to be
   # thread safe.
   class Tempfile < DelegateClass(File)
-    MAX_TRY = 10
+    MAX_TRY     = 10
     @@cleanlist = []
 
     # Creates a temporary file of mode 0600 in the temporary directory
@@ -23,23 +17,23 @@ module BugFix  #:nodoc:all
     # Dir::tmpdir provided by 'tmpdir.rb'.
     # When $SAFE > 0 and the given tmpdir is tainted, it uses
     # /tmp. (Note that ENV values are tainted by default)
-    def initialize(basename, tmpdir=Dir::tmpdir)
+    def initialize(basename, tmpdir = Dir::tmpdir)
       if $SAFE > 0 and tmpdir.tainted?
         tmpdir = '/tmp'
       end
 
       lock = nil
-      n = failure = 0
+      n    = failure = 0
 
       begin
         Thread.critical = true
 
         begin
           tmpname = sprintf('%s/%s%d.%d', tmpdir, basename, $$, n)
-          lock = tmpname + '.lock'
-          n += 1
+          lock    = tmpname + '.lock'
+          n       += 1
         end while @@cleanlist.include?(tmpname) ||
-        ::File.exist?(lock) || ::File.exist?(tmpname)
+          ::File.exist?(lock) || ::File.exist?(tmpname)
 
         Dir.mkdir(lock)
       rescue
@@ -50,7 +44,7 @@ module BugFix  #:nodoc:all
         Thread.critical = false
       end
 
-      @data = [tmpname]
+      @data       = [tmpname]
       @clean_proc = Tempfile.callback(@data)
       ObjectSpace.define_finalizer(self, @clean_proc)
 
@@ -76,10 +70,11 @@ module BugFix  #:nodoc:all
       __setobj__(@tmpfile)
     end
 
-    def _close	# :nodoc:
+    def _close # :nodoc:
       @tmpfile.close if @tmpfile
       @data[1] = @tmpfile = nil
-    end    
+    end
+
     protected :_close
 
     # Closes the file.  If the optional flag is true, unlinks the file
@@ -111,6 +106,7 @@ module BugFix  #:nodoc:all
       ::File.unlink(@tmpname) if ::File.exist?(@tmpname)
       @@cleanlist.delete(@tmpname) if @@cleanlist
     end
+
     alias :delete :unlink
 
     if RUBY_VERSION > '1.8.0'
@@ -138,13 +134,14 @@ module BugFix  #:nodoc:all
         0
       end
     end
+
     alias length size
 
     class << self
-      def callback(data)	# :nodoc:
+      def callback(data) # :nodoc:
         pid = $$
-        lambda{
-          if pid == $$ 
+        lambda {
+          if pid == $$
             path, tmpfile, cleanlist = *data
 
             print "removing ", path, "..." if $DEBUG
