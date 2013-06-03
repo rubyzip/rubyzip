@@ -26,14 +26,14 @@ gem 'rubyzip'
 
 ```ruby
 require 'rubygems'
-require 'zip/zip'
+require 'zip'
 
 folder = "Users/me/Desktop/stuff_to_zip"
 input_filenames = ['image.jpg', 'description.txt', 'stats.csv']
 
 zipfile_name = "/Users/me/Desktop/archive.zip"
 
-Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
+Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
   input_filenames.each do |filename|
     # Two arguments:
     # - The name of the file as it will appear in the archive
@@ -47,12 +47,12 @@ end
 
 ```ruby
 require 'rubygems'
-require 'zip/zip'
+require 'zip'
 
 directory = '/Users/me/Desktop/directory_to_zip/'
 zipfile_name = '/Users/me/Desktop/recursive_directory.zip'
 
-Zip::ZipFile.open(zipfile_name, Zip::ZipFile::CREATE) do |zipfile|
+Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
 	Dir[File.join(directory, '**', '**')].each do |file|
 	  zipfile.add(file.sub(directory, ''), file)
 	end
@@ -66,7 +66,7 @@ end
 Use `write_buffer` instead `open`. Thanks to @jondruse
 
 ```ruby
-buffer = Zip::ZipOutputStream.write_buffer do |out|
+buffer = Zip::OutputStream.write_buffer do |out|
   @zip_file.entries.each do |e|
     unless [DOCUMENT_FILE_PATH, RELS_FILE_PATH].include?(e.name)
       out.put_next_entry(e.name)
@@ -89,19 +89,19 @@ File.open(new_path, "w") {|f| f.write(buffer.string) }
 There is more than one way to access or create a zip archive with
 rubyzip. The basic API is modeled after the classes in
 java.util.zip from the Java SDK. This means there are classes such
-as Zip::ZipInputStream, Zip::ZipOutputStream and
-Zip::ZipFile. Zip::ZipInputStream provides a basic interface for
+as Zip::InputStream, Zip::OutputStream and
+Zip::File. Zip::InputStream provides a basic interface for
 iterating through the entries in a zip archive and reading from the
 entries in the same way as from a regular File or IO
-object. ZipOutputStream is the corresponding basic output
-facility. Zip::ZipFile provides a mean for accessing the archives
+object. OutputStream is the corresponding basic output
+facility. Zip::File provides a mean for accessing the archives
 central directory and provides means for accessing any entry without
 having to iterate through the archive. Unlike Java's
-java.util.zip.ZipFile rubyzip's Zip::ZipFile is mutable, which means
+java.util.zip.ZipFile rubyzip's Zip::File is mutable, which means
 it can be used to change zip files as well.
 
 Another way to access a zip archive with rubyzip is to use rubyzip's
-Zip::ZipFileSystem API. Using this API files can be read from and
+Zip::FileSystem API. Using this API files can be read from and
 written to the archive in much the same manner as ruby's builtin
 classes allows files to be read from and written to the file system.
 
