@@ -1529,7 +1529,7 @@ class ZipFileSplitTest < Test::Unit::TestCase
     unless result.nil?
       Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
         File.open(zip_file_name, 'rb') do |zip_file|
-          zip_file.read([ZipFile::SPLIT_SIGNATURE].pack('V').size) if index == 0
+          zip_file.read([::Zip::File::SPLIT_SIGNATURE].pack('V').size) if index == 0
           File.open(UNSPLITTED_FILENAME, 'ab') do |file|
             file << zip_file.read
           end
@@ -1544,7 +1544,7 @@ class ZipFileSplitTest < Test::Unit::TestCase
             zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
 
-        File::unlink(EXTRACTED_FILENAME)
+        File.unlink(EXTRACTED_FILENAME)
 
         entry = zf.get_entry(ENTRY_TO_EXTRACT)
         entry.extract(EXTRACTED_FILENAME)
