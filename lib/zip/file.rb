@@ -44,8 +44,8 @@ module Zip
 
   class File < CentralDirectory
 
-    CREATE = 1
-    SPLIT_SIGNATURE = 0x08074b50
+    CREATE           = 1
+    SPLIT_SIGNATURE  = 0x08074b50
     MAX_SEGMENT_SIZE = 3221225472
     MIN_SEGMENT_SIZE = 65536
     DATA_BUFFER_SIZE = 8192
@@ -63,24 +63,24 @@ module Zip
     # a new archive if it doesn't exist already.
     def initialize(fileName, create = nil, buffer = false)
       super()
-      @name = fileName
+      @name    = fileName
       @comment = ""
       case
-        when ::File.exists?(fileName) && !buffer
-          ::File.open(name, "rb") do |f|
-            read_from_stream(f)
-          end
-        when create
-          @entry_set = EntrySet.new
-        else
-          raise ZipError, "File #{fileName} not found"
+      when ::File.exists?(fileName) && !buffer
+        ::File.open(name, "rb") do |f|
+          read_from_stream(f)
+        end
+      when create
+        @entry_set = EntrySet.new
+      else
+        raise ZipError, "File #{fileName} not found"
       end
-      @create = create
-      @storedEntries = @entry_set.dup
-      @storedComment = @comment
-      @restore_ownership = false
+      @create              = create
+      @storedEntries       = @entry_set.dup
+      @storedComment       = @comment
+      @restore_ownership   = false
       @restore_permissions = false
-      @restore_times = true
+      @restore_times       = true
     end
 
     class << self
@@ -88,7 +88,7 @@ module Zip
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
       def open(fileName, create = nil)
-        zf = File.new(fileName, create)
+        zf = ::Zip::File.new(fileName, create)
         if block_given?
           begin
             yield zf
@@ -102,7 +102,7 @@ module Zip
 
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
-        zf = File.new('', true, true)
+        zf = ::Zip::File.new('', true, true)
         yield zf
         zf.write_buffer
       end
@@ -112,7 +112,7 @@ module Zip
       # (This can be used to extract data from a 
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io)
-        zf = File.new('',true,true)
+        zf = ::Zip::File.new('', true, true)
         if io.is_a? IO
           zf.read_from_stream(io)
         elsif io.is_a? String
@@ -137,55 +137,81 @@ module Zip
         end
       end
 
+      def get_segment_size_for_split(segment_size)
+        case
+        when MIN_SEGMENT_SIZE > segment_size
+          MIN_SEGMENT_SIZE
+        when MAX_SEGMENT_SIZE < segment_size
+          MAX_SEGMENT_SIZE
+        else
+          segment_size
+        end
+      end
+
+      def get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
+        partial_zip_file_name = zip_file_name.sub(/#{::File.basename(zip_file_name)}\z/,
+                                                  partial_zip_file_name + ::File.extname(zip_file_name)) unless partial_zip_file_name.nil?
+        partial_zip_file_name ||= zip_file_name
+        partial_zip_file_name
+      end
+
+      def get_segment_count_for_split(zip_file_size, segment_size)
+        (zip_file_size / segment_size).to_i + (zip_file_size % segment_size == 0 ? 0 : 1)
+      end
+
+      #
+      # TODO: Make the code more understandable
+      #
+      def save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
+        ssegment_size   = (zip_file_size - zip_file.pos) >= segment_size ? segment_size : zip_file_size - zip_file.pos
+        szip_file_name  = "#{partial_zip_file_name}.#{'%03d'%(szip_file_index)}"
+        ::File.open(szip_file_name, 'wb') do |szip_file|
+          if szip_file_index == 1
+            signature_packed = [SPLIT_SIGNATURE].pack('V')
+            szip_file << signature_packed
+            ssegment_size = segment_size - signature_packed.size
+          end
+
+          chunk_bytes = 0
+          until ssegment_size == chunk_bytes || zip_file.eof?
+            segment_bytes_left = ssegment_size - chunk_bytes
+            buffer_size        = segment_bytes_left < DATA_BUFFER_SIZE ? segment_bytes_left : DATA_BUFFER_SIZE
+
+            chunk       = zip_file.read(buffer_size)
+            chunk_bytes += buffer_size
+
+            szip_file << chunk
+            # Info for track splitting
+            yield segment_count, szip_file_index, chunk_bytes, ssegment_size if block_given?
+          end
+        end
+      end
+
       # Splits an archive into parts with segment size
-      def split(zip_file_name, segment_size=MAX_SEGMENT_SIZE, delete_zip_file=true, partial_zip_file_name=nil)
+      def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
+
         raise ZipError, "File #{zip_file_name} not found" unless ::File.exists?(zip_file_name)
         raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
 
-
         zip_file_size = ::File.size(zip_file_name)
-        segment_size = MIN_SEGMENT_SIZE if MIN_SEGMENT_SIZE > segment_size
-        segment_size = MAX_SEGMENT_SIZE if MAX_SEGMENT_SIZE < segment_size
+
+        segment_size = get_segment_size_for_split(segment_size)
+
         return if zip_file_size <= segment_size
 
-        segment_count = (zip_file_size / segment_size).to_i +
-          (zip_file_size % segment_size == 0 ? 0 : 1)
+        segment_count = get_segment_count_for_split(zip_file_size, segment_size)
 
         # Checking for correct zip structure
-        open(zip_file_name) {}
+        self.open(zip_file_name) {}
 
-
-        partial_zip_file_name = zip_file_name.sub(/#{File.basename(zip_file_name)}$/,
-          partial_zip_file_name + File.extname(zip_file_name)) unless partial_zip_file_name.nil?
-
-        partial_zip_file_name ||= zip_file_name
+        partial_zip_file_name = get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
 
         szip_file_index = 0
+
         ::File.open(zip_file_name, 'rb') do |zip_file|
           until zip_file.eof?
             szip_file_index += 1
-            ssegment_size = (zip_file_size - zip_file.pos) >= segment_size ? segment_size : zip_file_size - zip_file.pos
-            szip_file_name = "#{partial_zip_file_name}.#{'%03d'%(szip_file_index)}"
-            ::File.open(szip_file_name, 'wb') do |szip_file|
-              if szip_file_index == 1
-                signature_packed = [SPLIT_SIGNATURE].pack('V')
-                szip_file << signature_packed
-                ssegment_size = segment_size - signature_packed.size
-              end
-
-              chunk_bytes = 0
-              until ssegment_size == chunk_bytes || zip_file.eof?
-                segment_bytes_left = ssegment_size - chunk_bytes
-                buffer_size = segment_bytes_left < DATA_BUFFER_SIZE ? segment_bytes_left : DATA_BUFFER_SIZE
-
-                chunk = zip_file.read(buffer_size)
-                chunk_bytes += buffer_size
-
-                szip_file << chunk
-                # Info for track splitting
-                yield segment_count, szip_file_index, chunk_bytes, ssegment_size if block_given?
-              end
-            end
+            save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
           end
         end
 
@@ -196,7 +222,7 @@ module Zip
 
     end
 
-  # Returns the zip files comment, if it has one
+    # Returns the zip files comment, if it has one
     attr_accessor :comment
 
     # Returns an input stream to the specified entry. If a block is passed
@@ -213,10 +239,10 @@ module Zip
       newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
       if newEntry.directory?
         raise ArgumentError,
-          "cannot open stream to directory entry - '#{newEntry}'"
+              "cannot open stream to directory entry - '#{newEntry}'"
       end
       newEntry.unix_perms = permissionInt
-      zipStreamableEntry = StreamableStream.new(newEntry)
+      zipStreamableEntry  = StreamableStream.new(newEntry)
       @entry_set << zipStreamableEntry
       zipStreamableEntry.get_output_stream(&aProc)
     end
@@ -264,7 +290,7 @@ module Zip
 
     # Extracts entry to file dest_path.
     def extract(entry, dest_path, &block)
-      block ||= proc { ::Zip.options[:on_exists_proc] }
+      block       ||= proc { ::Zip.options[:on_exists_proc] }
       found_entry = get_entry(entry)
       found_entry.extract(dest_path, &block)
     end
@@ -320,8 +346,8 @@ module Zip
     end
 
     # Searches for entries given a glob
-    def glob(*args,&block)
-      @entry_set.glob(*args,&block)
+    def glob(*args, &block)
+      @entry_set.glob(*args, &block)
     end
 
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
@@ -331,9 +357,9 @@ module Zip
       unless selectedEntry
         raise Errno::ENOENT, entry
       end
-      selectedEntry.restore_ownership = @restore_ownership
+      selectedEntry.restore_ownership   = @restore_ownership
       selectedEntry.restore_permissions = @restore_permissions
-      selectedEntry.restore_times = @restore_times
+      selectedEntry.restore_times       = @restore_times
       selectedEntry
     end
 
@@ -351,10 +377,10 @@ module Zip
 
     def is_directory(newEntry, srcPath)
       srcPathIsDirectory = ::File.directory?(srcPath)
-      if newEntry.is_directory && ! srcPathIsDirectory
+      if newEntry.is_directory && !srcPathIsDirectory
         raise ArgumentError,
-          "entry name '#{newEntry}' indicates directory entry, but "+
-          "'#{srcPath}' is not a directory"
+              "entry name '#{newEntry}' indicates directory entry, but "+
+                "'#{srcPath}' is not a directory"
       elsif !newEntry.is_directory && srcPathIsDirectory
         newEntry.name += "/"
       end
@@ -368,7 +394,7 @@ module Zip
           remove get_entry(entryName)
         else
           raise ZipEntryExistsError,
-            procedureName + " failed. Entry #{entryName} already exists"
+                procedureName + " failed. Entry #{entryName} already exists"
         end
       end
     end
@@ -380,7 +406,7 @@ module Zip
     end
 
     def on_success_replace(aFilename)
-      tmpfile = get_tempfile
+      tmpfile     = get_tempfile
       tmpFilename = tmpfile.path
       tmpfile.close
       if yield tmpFilename
