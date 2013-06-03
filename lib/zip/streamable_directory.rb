@@ -1,5 +1,5 @@
 module Zip
-  class ZipStreamableDirectory < ZipEntry
+  class StreamableDirectory < Entry
     def initialize(zipfile, entry, srcPath = nil, permissionInt = nil)
       super(zipfile, entry)
 

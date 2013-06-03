@@ -15,7 +15,7 @@ module Zip
 	yield(fileName)
 	if zipFilePattern.match(fileName)  && File.file?(fileName)
 	  begin
-	    Zip::ZipFile.foreach(fileName)  {
+	    Zip::File.foreach(fileName)  {
 	      |zipEntry|
 	      yield(fileName + File::SEPARATOR + zipEntry.to_s)
 	    }

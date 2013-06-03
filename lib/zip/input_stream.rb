@@ -40,7 +40,7 @@ module Zip
   # java.util.zip.ZipInputStream is the original inspiration for this 
   # class.
 
-  class ZipInputStream 
+  class InputStream
     include ::Zip::IOExtras::AbstractInputStream
 
     # Opens the indicated zip file. An exception is thrown
@@ -65,7 +65,7 @@ module Zip
     # Same as #initialize but if a block is passed the opened
     # stream is passed to the block and closed when the block
     # returns.    
-    def ZipInputStream.open(filename)
+    def InputStream.open(filename)
       return new(filename) unless block_given?
       
       zio = new(filename)
@@ -74,7 +74,7 @@ module Zip
       zio.close if zio
     end
 
-    def ZipInputStream.open_buffer(io)
+    def InputStream.open_buffer(io)
       return new('',0,io) unless block_given?
       zio = new('',0,io)
       yield zio
@@ -115,12 +115,12 @@ module Zip
     protected
 
     def open_entry
-      @currentEntry = ZipEntry.read_local_entry(@archiveIO)
+      @currentEntry = Entry.read_local_entry(@archiveIO)
       if @currentEntry.nil?
 	      @decompressor = NullDecompressor.instance
-      elsif @currentEntry.compression_method == ZipEntry::STORED
+      elsif @currentEntry.compression_method == Entry::STORED
 	      @decompressor = PassThruDecompressor.new(@archiveIO, @currentEntry.size)
-      elsif @currentEntry.compression_method == ZipEntry::DEFLATED
+      elsif @currentEntry.compression_method == Entry::DEFLATED
 	      @decompressor = Inflater.new(@archiveIO)
       else
 	      raise ZipCompressionMethodError,

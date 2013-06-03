@@ -68,7 +68,7 @@ class MainApp < Gtk::Window
   end
 
   def open_zip(filename)
-    @zipfile = Zip::ZipFile.open(filename)
+    @zipfile = Zip::File.open(filename)
     @clist.clear
     @zipfile.each { 
       |entry|

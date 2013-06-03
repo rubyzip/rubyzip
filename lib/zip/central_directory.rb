@@ -1,5 +1,5 @@
 module Zip
-  class ZipCentralDirectory
+  class CentralDirectory
     include Enumerable
 
     END_OF_CENTRAL_DIRECTORY_SIGNATURE          = 0x06054b50
@@ -13,9 +13,9 @@ module Zip
       @entry_set.entries
     end
 
-    def initialize(entries = ZipEntrySet.new, comment = "") #:nodoc:
+    def initialize(entries = EntrySet.new, comment = "") #:nodoc:
       super()
-      @entry_set = entries.kind_of?(ZipEntrySet) ? entries : ZipEntrySet.new(entries)
+      @entry_set = entries.kind_of?(EntrySet) ? entries : EntrySet.new(entries)
       @comment  = comment
     end
 
@@ -53,13 +53,13 @@ module Zip
 
     def read_e_o_c_d(io) #:nodoc:
       buf                                   = get_e_o_c_d(io)
-      @numberOfThisDisk                     = ZipEntry.read_zip_short(buf)
-      @numberOfDiskWithStartOfCDir          = ZipEntry.read_zip_short(buf)
-      @totalNumberOfEntriesInCDirOnThisDisk = ZipEntry.read_zip_short(buf)
-      @size                                 = ZipEntry.read_zip_short(buf)
-      @sizeInBytes                          = ZipEntry.read_zip_long(buf)
-      @cdirOffset                           = ZipEntry.read_zip_long(buf)
-      commentLength                         = ZipEntry.read_zip_short(buf)
+      @numberOfThisDisk                     = Entry.read_zip_short(buf)
+      @numberOfDiskWithStartOfCDir          = Entry.read_zip_short(buf)
+      @totalNumberOfEntriesInCDirOnThisDisk = Entry.read_zip_short(buf)
+      @size                                 = Entry.read_zip_short(buf)
+      @sizeInBytes                          = Entry.read_zip_long(buf)
+      @cdirOffset                           = Entry.read_zip_long(buf)
+      commentLength                         = Entry.read_zip_short(buf)
       if commentLength <= 0
         @comment = buf.slice!(0, buf.size)
       else
@@ -74,9 +74,9 @@ module Zip
       rescue Errno::EINVAL
         raise ZipError, "Zip consistency problem while reading central directory entry"
       end
-      @entry_set = ZipEntrySet.new
+      @entry_set = EntrySet.new
       @size.times do
-        tmp = ZipEntry.read_c_dir_entry(io)
+        tmp = Entry.read_c_dir_entry(io)
         @entry_set << tmp
       end
     end
@@ -115,7 +115,7 @@ module Zip
       @entry_set.size
     end
 
-    def ZipCentralDirectory.read_from_stream(io) #:nodoc:
+    def CentralDirectory.read_from_stream(io) #:nodoc:
       cdir = new
       cdir.read_from_stream(io)
       return cdir
@@ -124,7 +124,7 @@ module Zip
     end
 
     def ==(other) #:nodoc:
-      return false unless other.kind_of?(ZipCentralDirectory)
+      return false unless other.kind_of?(CentralDirectory)
       @entry_set.entries.sort == other.entries.sort && comment == other.comment
     end
   end

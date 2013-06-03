@@ -1,5 +1,5 @@
 module Zip
-  class ZipEntrySet #:nodoc:all
+  class EntrySet #:nodoc:all
     include Enumerable
     attr_accessor :entry_set, :entry_order
 
@@ -52,11 +52,11 @@ module Zip
 
     # deep clone
     def dup
-      ZipEntrySet.new(@entry_order.map { |key| @entry_set[key].dup })
+      EntrySet.new(@entry_order.map { |key| @entry_set[key].dup })
     end
 
     def ==(other)
-      return false unless other.kind_of?(ZipEntrySet)
+      return false unless other.kind_of?(EntrySet)
       @entry_set == other.entry_set && @entry_order == other.entry_order
     end
 

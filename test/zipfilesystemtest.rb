@@ -4,7 +4,7 @@ $VERBOSE = true
 
 $: << "../lib"
 
-require 'zip/zipfilesystem'
+require 'zip/filesystem'
 require 'test/unit'
 require 'fileutils'
 
@@ -36,7 +36,7 @@ include Zip
 class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   def setup
     @zipsha = Digest::SHA1.file("data/zipWithDirs.zip")
-    @zipFile = ZipFile.new("data/zipWithDirs.zip")
+    @zipFile = ::Zip::File.new("data/zipWithDirs.zip")
   end
 
   def teardown
@@ -45,7 +45,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_umask
-    assert_equal(File.umask, @zipFile.file.umask)
+    assert_equal(::File.umask, @zipFile.file.umask)
     @zipFile.file.umask(0006)
   end
 
@@ -284,7 +284,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     assert(! @zipFile.file.zero?("file1"))
     assert(@zipFile.file.zero?("dir1"))
     blockCalled = false
-    ZipFile.open("data/generated/5entry.zip") {
+    ::Zip::File.open("data/generated/5entry.zip") {
       |zf|
       blockCalled = true
       assert(zf.file.zero?("data/generated/empty.txt"))
@@ -294,7 +294,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     assert(! @zipFile.file.stat("file1").zero?)
     assert(@zipFile.file.stat("dir1").zero?)
     blockCalled = false
-    ZipFile.open("data/generated/5entry.zip") {
+    ::Zip::File.open("data/generated/5entry.zip") {
       |zf|
       blockCalled = true
       assert(zf.file.stat("data/generated/empty.txt").zero?)
@@ -303,7 +303,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_expand_path
-    ZipFile.open("data/zipWithDirs.zip") {
+    ::Zip::File.open("data/zipWithDirs.zip") {
       |zf|
       assert_equal("/", zf.file.expand_path("."))
       zf.dir.chdir "dir1"
@@ -432,7 +432,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_foreach
-    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
+    ::Zip::File.open("data/generated/zipWithDir.zip") do |zf|
       ref = []
       File.foreach("data/file1.txt") { |e| ref << e }
       index = 0
@@ -446,7 +446,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       assert_equal(ref.size, index)
     end
 
-    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
+    ::Zip::File.open("data/generated/zipWithDir.zip") do |zf|
       ref = []
       File.foreach("data/file1.txt", " ") { |e| ref << e }
       index = 0
@@ -462,7 +462,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_glob
-    ZipFile.open('data/globTest.zip') do |zf|
+    ::Zip::File.open('data/globTest.zip') do |zf|
       {
         'globTest/foo.txt' => ['globTest/foo.txt'],
         '*/foo.txt' => ['globTest/foo.txt'],
@@ -470,7 +470,7 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
         '*/foo/**/*.txt' => ['globTest/foo/bar/baz/foo.txt']
       }.each do |spec,expected_results|
         results = zf.glob(spec)
-        assert results.all?{|entry| entry.is_a? ZipEntry }
+        assert results.all?{|entry| entry.is_a? ::Zip::Entry }
 
         result_strings = results.map(&:to_s)
         missing_matches = expected_results - result_strings
@@ -481,15 +481,15 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
       end
     end
 
-    ZipFile.open('data/globTest.zip') do |zf|
+    ::Zip::File.open('data/globTest.zip') do |zf|
       results = []
       zf.glob('**/foo.txt') do |match|
         results << "<#{match.class.name}: #{match.to_s}>"
       end
       assert((not results.empty?), 'block not run, or run out of context')
       assert_equal 2, results.size
-      assert_operator results, :include?, '<Zip::ZipEntry: globTest/foo.txt>'
-      assert_operator results, :include?, '<Zip::ZipEntry: globTest/foo/bar/baz/foo.txt>'
+      assert_operator results, :include?, '<Zip::Entry: globTest/foo.txt>'
+      assert_operator results, :include?, '<Zip::Entry: globTest/foo/bar/baz/foo.txt>'
     end
   end
 
@@ -497,11 +497,11 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
     if Zip::RUNNING_ON_WINDOWS
       #This is pretty much projectile vomit but it allows the test to be
       #run on windows also
-      system_dir = File.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
+      system_dir = ::File.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
       zipfile_dir = @zipFile.file.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
       assert_equal(system_dir, zipfile_dir)
     else
-      assert_equal(File.popen('ls') { |f| f.read },
+      assert_equal(::File.popen('ls') { |f| f.read },
                    @zipFile.file.popen('ls') { |f| f.read })
     end
   end
@@ -512,8 +512,8 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
 #  end
 
   def test_readlines
-    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
-      orig_file = File.readlines("data/file1.txt")
+    ::Zip::File.open("data/generated/zipWithDir.zip") do |zf|
+      orig_file = ::File.readlines("data/file1.txt")
       zip_file = zf.file.readlines("data/file1.txt")
 
       #Ruby replaces \n with \r\n automatically on windows
@@ -524,8 +524,8 @@ class ZipFsFileNonmutatingTest < Test::Unit::TestCase
   end
 
   def test_read
-    ZipFile.open("data/generated/zipWithDir.zip") do |zf|
-      orig_file = File.read("data/file1.txt")
+    ::Zip::File.open("data/generated/zipWithDir.zip") do |zf|
+      orig_file = ::File.read("data/file1.txt")
 
       #Ruby replaces \n with \r\n automatically on windows
       zip_file = Zip::RUNNING_ON_WINDOWS ? \
@@ -539,7 +539,7 @@ end
 class ZipFsFileStatTest < Test::Unit::TestCase
 
   def setup
-    @zipFile = ZipFile.new("data/zipWithDirs.zip")
+    @zipFile = ::Zip::File.new("data/zipWithDirs.zip")
   end
 
   def teardown
@@ -618,7 +618,7 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
   end
 
   def test_open_write
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
 
       zf.file.open("test_open_write_entry", "w") {
@@ -639,7 +639,7 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
   end
 
   def test_rename
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert_raise(Errno::ENOENT, "") { 
         zf.file.rename("NoSuchFile", "bimse")
@@ -647,7 +647,7 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
       zf.file.rename("file1", "newNameForFile1")
     }
 
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert(! zf.file.exists?("file1"))
       assert(zf.file.exists?("newNameForFile1"))
@@ -655,20 +655,20 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
   end
 
   def test_chmod
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
 
       zf.file.chmod(0765, "file1")
     }
 
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert_equal(0100765,  zf.file.stat("file1").mode)
     }
   end
 
   def do_test_delete_or_unlink(symbol)
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert(zf.file.exists?("dir2/dir21/dir221/file2221"))
       zf.file.send(symbol, "dir2/dir21/dir221/file2221")
@@ -685,7 +685,7 @@ class ZipFsFileMutatingTest < Test::Unit::TestCase
       assert_raise(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11/") }
     }
 
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert(! zf.file.exists?("dir2/dir21/dir221/file2221"))
       assert(! zf.file.exists?("dir1/file11"))
@@ -706,7 +706,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   end
 
   def test_delete
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert_raise(Errno::ENOENT, "No such file or directory - NoSuchFile.txt") {
         zf.dir.delete("NoSuchFile.txt")
@@ -721,7 +721,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   end
 
   def test_mkdir
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert_raise(Errno::EEXIST, "File exists - dir1") { 
         zf.dir.mkdir("file1") 
@@ -739,7 +739,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   end
 
   def test_pwd_chdir_entries
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert_equal("/", zf.dir.pwd)
 
@@ -763,7 +763,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   end
 
   def test_foreach
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
 
       blockCalled = false
@@ -788,7 +788,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   end
 
   def test_chroot
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
       assert_raise(NotImplementedError) {
         zf.dir.chroot
@@ -803,7 +803,7 @@ class ZipFsDirectoryTest < Test::Unit::TestCase
   #end
 
   def test_open_new
-    ZipFile.open(TEST_ZIP) {
+    ::Zip::File.open(TEST_ZIP) {
       |zf|
 
       assert_raise(Errno::ENOTDIR, "Not a directory - file1") {
@@ -832,7 +832,7 @@ class ZipFsDirIteratorTest < Test::Unit::TestCase
   FILENAME_ARRAY = [ "f1", "f2", "f3", "f4", "f5", "f6"  ]
 
   def setup
-    @dirIt = ZipFileSystem::ZipFsDirIterator.new(FILENAME_ARRAY)
+    @dirIt = ::Zip::FileSystem::ZipFsDirIterator.new(FILENAME_ARRAY)
   end
 
   def test_close

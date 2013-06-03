@@ -25,11 +25,11 @@ class ZipDialog < ZipDialogUI
   end
 
   def zipfile(&proc)
-    Zip::ZipFile.open(@zip_filename, &proc)
+    Zip::File.open(@zip_filename, &proc)
   end
 
   def each(&proc)
-    Zip::ZipFile.foreach(@zip_filename, &proc)
+    Zip::File.foreach(@zip_filename, &proc)
   end
   
   def refresh()

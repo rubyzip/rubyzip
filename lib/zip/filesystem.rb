@@ -1,4 +1,4 @@
-require 'zip/zip'
+require 'zip'
 
 module Zip
 
@@ -14,9 +14,9 @@ module Zip
   # <code>first.txt</code>, a directory entry named <code>mydir</code>
   # and finally another normal entry named <code>second.txt</code>
   #
-  #   require 'zip/zipfilesystem'
+  #   require 'zip/filesystem'
   #   
-  #   Zip::ZipFile.open("my.zip", Zip::ZipFile::CREATE) {
+  #   Zip::File.open("my.zip", Zip::ZipFile::CREATE) {
   #     |zipfile|
   #     zipfile.file.open("first.txt", "w") { |f| f.puts "Hello world" }
   #     zipfile.dir.mkdir("mydir")
@@ -27,14 +27,14 @@ module Zip
   # example writes the contents of <code>first.txt</code> from zip archive
   # <code>my.zip</code> to standard out.
   #
-  #   require 'zip/zipfilesystem'
+  #   require 'zip/filesystem'
   #   
-  #   Zip::ZipFile.open("my.zip") {
+  #   Zip::File.open("my.zip") {
   #     |zipfile|
   #     puts zipfile.file.read("first.txt")
   #   }
 
-  module ZipFileSystem
+  module FileSystem
 
     def initialize # :nodoc:
       mappedZip = ZipFileNameMapper.new(self)
@@ -392,7 +392,7 @@ module Zip
       end
 
       def popen(*args, &aProc)
-        File.popen(*args, &aProc)
+        ::File.popen(*args, &aProc)
       end
 
       def foreach(fileName, aSep = $/, &aProc)
@@ -612,8 +612,8 @@ module Zip
     end
   end
 
-  class ZipFile
-    include ZipFileSystem
+  class File
+    include FileSystem
   end
 end
 

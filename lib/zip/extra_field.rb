@@ -1,5 +1,5 @@
 module Zip
-  class ZipExtraField < Hash
+  class ExtraField < Hash
     ID_MAP = {}
 
     # Meta class for extra fields

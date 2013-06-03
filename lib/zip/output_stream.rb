@@ -17,7 +17,7 @@ module Zip
   # java.util.zip.ZipOutputStream is the original inspiration for this
   # class.
 
-  class ZipOutputStream
+  class OutputStream
     include ::Zip::IOExtras::AbstractOutputStream
 
     attr_accessor :comment
@@ -28,12 +28,12 @@ module Zip
       super()
       @fileName = fileName
       if stream
-        @output_stream = StringIO.new
+        @output_stream = ::StringIO.new
       else
         @output_stream = ::File.new(@fileName, "wb")
       end
-      @entry_set = ZipEntrySet.new
-      @compressor = NullCompressor.instance
+      @entry_set = ::Zip::EntrySet.new
+      @compressor = ::Zip::NullCompressor.instance
       @closed = false
       @currentEntry = nil
       @comment = nil
@@ -42,19 +42,21 @@ module Zip
     # Same as #initialize but if a block is passed the opened
     # stream is passed to the block and closed when the block
     # returns.
-    def ZipOutputStream.open(fileName)
-      return new(fileName) unless block_given?
-      zos = new(fileName)
-      yield zos
-    ensure
-      zos.close if zos
-    end
+    class << self
+      def open(fileName)
+        return new(fileName) unless block_given?
+        zos = new(fileName)
+        yield zos
+      ensure
+        zos.close if zos
+      end
 
-	# Same as #open but writes to a filestream instead
-    def ZipOutputStream.write_buffer
-      zos = new('', true)
-      yield zos
-      return zos.close_buffer
+	    # Same as #open but writes to a filestream instead
+      def write_buffer
+        zos = new('', true)
+        yield zos
+        return zos.close_buffer
+      end
     end
 
     # Closes the stream and writes the central directory to the zip file
@@ -79,16 +81,16 @@ module Zip
 
 	  # Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
-    def put_next_entry(entryname, comment = nil, extra = nil, compression_method = ZipEntry::DEFLATED,  level = Zlib::DEFAULT_COMPRESSION)
+    def put_next_entry(entryname, comment = nil, extra = nil, compression_method = Entry::DEFLATED,  level = Zlib::DEFAULT_COMPRESSION)
       raise ZipError, "zip stream is closed" if @closed
-      if entryname.kind_of?(ZipEntry)
+      if entryname.kind_of?(Entry)
         new_entry = entryname
       else
-        new_entry = ZipEntry.new(@fileName, entryname.to_s)
+        new_entry = Entry.new(@fileName, entryname.to_s)
       end
       new_entry.comment = comment if !comment.nil?
       if (!extra.nil?)
-        new_entry.extra = ZipExtraField === extra ? extra : ZipExtraField.new(extra.to_s)
+        new_entry.extra = ExtraField === extra ? extra : ExtraField.new(extra.to_s)
       end
       new_entry.compression_method = compression_method if !compression_method.nil?
       init_next_entry(new_entry, level)
@@ -98,7 +100,7 @@ module Zip
     def copy_raw_entry(entry)
       entry = entry.dup
       raise ZipError, "zip stream is closed" if @closed
-      raise ZipError, "entry is not a ZipEntry" if !entry.kind_of?(ZipEntry)
+      raise ZipError, "entry is not a ZipEntry" if !entry.kind_of?(Entry)
       finalize_current_entry
       @entry_set << entry
       src_pos = entry.local_entry_offset
@@ -133,8 +135,8 @@ module Zip
 
     def get_compressor(entry, level)
       case entry.compression_method
-        when ZipEntry::DEFLATED then Deflater.new(@output_stream, level)
-        when ZipEntry::STORED   then PassThruCompressor.new(@output_stream)
+        when Entry::DEFLATED then Deflater.new(@output_stream, level)
+        when Entry::STORED   then PassThruCompressor.new(@output_stream)
       else raise ZipCompressionMethodError,
         "Invalid compression method: '#{entry.compression_method}'"
       end
@@ -150,7 +152,7 @@ module Zip
     end
 
     def write_central_directory
-      cdir = ZipCentralDirectory.new(@entry_set, @comment)
+      cdir = CentralDirectory.new(@entry_set, @comment)
       cdir.write_to_stream(@output_stream)
     end
 

@@ -1,5 +1,5 @@
 module Zip
-  class ZipEntry
+  class Entry
     STORED   = 0
     DEFLATED = 8
 
@@ -58,12 +58,12 @@ module Zip
       @extra              = args[3] || ''
       @compressed_size    = args[4] || 0
       @crc                = args[5] || 0
-      @compression_method = args[6] || ::ZipEntry::DEFLATED
+      @compression_method = args[6] || ::Zip::Entry::DEFLATED
       @size               = args[7] || 0
       @time               = args[8] || ::Zip::DOSTime.now
 
       @ftype = name_is_directory? ? :directory : :file
-      @extra = ::Zip::ZipExtraField.new(@extra.to_s) unless ::Zip::ZipExtraField === @extra
+      @extra = ::Zip::ExtraField.new(@extra.to_s) unless ::Zip::ExtraField === @extra
     end
 
     def time
@@ -218,10 +218,10 @@ module Zip
       if extra && extra.bytesize != @extra_length
         raise ::Zip::ZipError, "Truncated local zip entry header"
       else
-        if ::Zip::ZipExtraField === @extra
+        if ::Zip::ExtraField === @extra
           @extra.merge(extra)
         else
-          @extra = ::Zip::ZipExtraField.new(extra)
+          @extra = ::Zip::ExtraField.new(extra)
         end
       end
       @local_header_size = calculate_local_header_size
@@ -278,13 +278,12 @@ module Zip
       @ftype = case @fstype
                when ::Zip::FSTYPE_UNIX
                  @unix_perms = (@external_file_attributes >> 16) & 07777
-
                  case (@external_file_attributes >> 28)
-                 when 04
+                 when ::Zip::FILE_TYPE_DIR
                    :directory
-                 when 010
+                 when ::Zip::FILE_TYPE_FILE
                    :file
-                 when 012
+                 when ::Zip::FILE_TYPE_SYMLINK
                    :symlink
                  else
                    #best case guess for whether it is a file or not
@@ -320,10 +319,10 @@ module Zip
       @name = io.read(@name_length)
       until @name.sub!('\\', '/').nil? do
       end # some zip files use backslashes instead of slashes as path separators
-      if ::Zip::ZipExtraField === @extra
+      if ::Zip::ExtraField === @extra
         @extra.merge(io.read(@extra_length))
       else
-        @extra = ::Zip::ZipExtraField.new(io.read(@extra_length))
+        @extra = ::Zip::ExtraField.new(io.read(@extra_length))
       end
       @comment = io.read(@comment_length)
       unless @comment && @comment.bytesize == @comment_length
@@ -336,9 +335,9 @@ module Zip
 
     def file_stat(path) # :nodoc:
       if @follow_symlinks
-        return ::File::stat(path)
+        ::File::stat(path)
       else
-        return ::File::lstat(path)
+        ::File::lstat(path)
       end
     end
 
@@ -351,43 +350,27 @@ module Zip
       end
     end
 
-    def set_extra_attributes_on_path(destPath) # :nodoc:
-      return unless (file? or directory?)
+    def set_unix_permissions_on_path(dest_path)
+      # BUG: does not update timestamps into account
+      # ignore setuid/setgid bits by default.  honor if @restore_ownership
+      unix_perms_mask = 01777
+      unix_perms_mask = 07777 if @restore_ownership
+      ::FileUtils.chmod(@unix_perms & unix_perms_mask, dest_path) if @restore_permissions && @unix_perms
+      ::FileUtils.chown(@unix_uid, @unix_gid, dest_path) if @restore_ownership && @unix_uid && @unix_gid && ::Process.egid == 0
+      # File::utimes()
+    end
+
+    def set_extra_attributes_on_path(dest_path) # :nodoc:
+      return unless (file? || directory?)
 
       case @fstype
       when ::Zip::FSTYPE_UNIX
-        # BUG: does not update timestamps into account
-        # ignore setuid/setgid bits by default.  honor if @restore_ownership
-        unix_perms_mask = 01777
-        unix_perms_mask = 07777 if (@restore_ownership)
-        ::FileUtils::chmod(@unix_perms & unix_perms_mask, destPath) if (@restore_permissions && @unix_perms)
-        ::FileUtils::chown(@unix_uid, @unix_gid, destPath) if (@restore_ownership && @unix_uid && @unix_gid && ::Process::egid == 0)
-        # File::utimes()
+        set_unix_permissions_on_path(dest_path)
       end
     end
 
-    def write_c_dir_entry(io) #:nodoc:all
-      case @fstype
-      when ::Zip::FSTYPE_UNIX
-        ft = nil
-        case @ftype
-        when :file
-          ft          = 010
-          @unix_perms ||= 0644
-        when :directory
-          ft          = 004
-          @unix_perms ||= 0755
-        when :symlink
-          ft          = 012
-          @unix_perms ||= 0755
-        end
-
-        if (!ft.nil?)
-          @external_file_attributes = (ft << 12 | (@unix_perms & 07777)) << 16
-        end
-      end
-
-      tmp = [
+    def pack_c_dir_entry
+      [
         @header_signature,
         @version, # version of encoding software
         @fstype, # filesystem type
@@ -409,12 +392,33 @@ module Zip
         @name,
         @extra,
         @comment
-      ]
+      ].pack('VCCvvvvvVVVvvvvvVV')
+    end
 
-      io << tmp.pack('VCCvvvvvVVVvvvvvVV')
+    def write_c_dir_entry(io) #:nodoc:all
+      case @fstype
+      when ::Zip::FSTYPE_UNIX
+        ft = case @ftype
+             when :file
+               @unix_perms ||= 0644
+               ::Zip::FILE_TYPE_FILE
+             when :directory
+               @unix_perms ||= 0755
+               ::Zip::FILE_TYPE_DIR
+             when :symlink
+               @unix_perms ||= 0755
+               ::Zip::FILE_TYPE_SYMLINK
+             end
+
+        unless ft.nil?
+          @external_file_attributes = (ft << 12 | (@unix_perms & 07777)) << 16
+        end
+      end
+
+      io << pack_c_dir_entry
 
       io << @name
-      io << (@extra ? @extra.to_c_dir_bin : "")
+      io << (@extra ? @extra.to_c_dir_bin : '')
       io << @comment
     end
 
@@ -432,29 +436,29 @@ module Zip
     end
 
     def <=> (other)
-      return to_s <=> other.to_s
+      self.to_s <=> other.to_s
     end
 
     # Returns an IO like object for the given ZipEntry.
     # Warning: may behave weird with symlinks.
-    def get_input_stream(&aProc)
+    def get_input_stream(&block)
       if @ftype == :directory
-        return yield(NullInputStream.instance) if block_given?
-        return NullInputStream.instance
+        return yield(::Zip::NullInputStream.instance) if block_given?
+        return ::Zip::NullInputStream.instance
       elsif @filepath
         case @ftype
         when :file
-          return ::File.open(@filepath, "rb", &aProc)
+          return ::File.open(@filepath, 'rb', &block)
         when :symlink
           linkpath = ::File::readlink(@filepath)
-          stringio = StringIO.new(linkpath)
+          stringio = ::StringIO.new(linkpath)
           return yield(stringio) if block_given?
           return stringio
         else
           raise "unknown @file_type #{@ftype}"
         end
       else
-        zis = ZipInputStream.new(@zipfile, local_header_offset)
+        zis = ::Zip::InputStream.new(@zipfile, local_header_offset)
         zis.get_next_entry
         if block_given?
           begin
@@ -571,7 +575,7 @@ module Zip
 
       if stat
         if stat.symlink?
-          if ::File::readlink(dest_path) == linkto
+          if ::File.readlink(dest_path) == linkto
             return
           else
             raise ZipDestinationFileExistsError,

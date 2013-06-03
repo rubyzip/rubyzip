@@ -42,7 +42,7 @@ module Zip
   # ZipFileSystem offers an alternative API that emulates ruby's
   # interface for accessing the filesystem, ie. the File and Dir classes.
 
-  class ZipFile < ZipCentralDirectory
+  class File < CentralDirectory
 
     CREATE = 1
     SPLIT_SIGNATURE = 0x08074b50
@@ -71,7 +71,7 @@ module Zip
             read_from_stream(f)
           end
         when create
-          @entry_set = ZipEntrySet.new
+          @entry_set = EntrySet.new
         else
           raise ZipError, "File #{fileName} not found"
       end
@@ -88,7 +88,7 @@ module Zip
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
       def open(fileName, create = nil)
-        zf = ZipFile.new(fileName, create)
+        zf = File.new(fileName, create)
         if block_given?
           begin
             yield zf
@@ -102,7 +102,7 @@ module Zip
 
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
-        zf = ZipFile.new('', true, true)
+        zf = File.new('', true, true)
         yield zf
         zf.write_buffer
       end
@@ -112,7 +112,7 @@ module Zip
       # (This can be used to extract data from a 
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io)
-        zf = ZipFile.new('',true,true)
+        zf = File.new('',true,true)
         if io.is_a? IO
           zf.read_from_stream(io)
         elsif io.is_a? String
@@ -210,13 +210,13 @@ module Zip
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.
     def get_output_stream(entry, permissionInt = nil, &aProc)
-      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
+      newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
       if newEntry.directory?
         raise ArgumentError,
           "cannot open stream to directory entry - '#{newEntry}'"
       end
       newEntry.unix_perms = permissionInt
-      zipStreamableEntry = ZipStreamableStream.new(newEntry)
+      zipStreamableEntry = StreamableStream.new(newEntry)
       @entry_set << zipStreamableEntry
       zipStreamableEntry.get_output_stream(&aProc)
     end
@@ -235,7 +235,7 @@ module Zip
     def add(entry, srcPath, &continueOnExistsProc)
       continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc] }
       check_entry_exists(entry, continueOnExistsProc, "add")
-      newEntry = entry.kind_of?(ZipEntry) ? entry : ZipEntry.new(@name, entry.to_s)
+      newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
       newEntry.gather_fileinfo_from_srcpath(srcPath)
       @entry_set << newEntry
     end
@@ -275,7 +275,7 @@ module Zip
       return if !commit_required?
       on_success_replace(name) {
         |tmpFile|
-        ZipOutputStream.open(tmpFile) {
+        OutputStream.open(tmpFile) {
           |zos|
 
           @entry_set.each {
@@ -292,7 +292,7 @@ module Zip
 
     # Write buffer write changes to buffer and return
     def write_buffer
-      buffer = ZipOutputStream.write_buffer do |zos|
+      buffer = OutputStream.write_buffer do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
@@ -310,7 +310,7 @@ module Zip
       @entry_set.each do |e|
         return true if e.dirty
       end
-      @comment != @storedComment || @entry_set != @storedEntries || @create == ZipFile::CREATE
+      @comment != @storedComment || @entry_set != @storedEntries || @create == File::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if
@@ -344,7 +344,7 @@ module Zip
       end
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
-      @entry_set << ZipStreamableDirectory.new(@name, entryName, nil, permissionInt)
+      @entry_set << StreamableDirectory.new(@name, entryName, nil, permissionInt)
     end
 
     private

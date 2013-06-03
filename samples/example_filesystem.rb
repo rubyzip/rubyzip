@@ -8,7 +8,7 @@ EXAMPLE_ZIP = "filesystem.zip"
 
 File.delete(EXAMPLE_ZIP) if File.exists?(EXAMPLE_ZIP)
 
-Zip::ZipFile.open(EXAMPLE_ZIP, Zip::ZipFile::CREATE) {
+Zip::File.open(EXAMPLE_ZIP, Zip::File::CREATE) {
   |zf|
   zf.file.open("file1.txt", "w") { |os| os.write "first file1.txt" }
   zf.dir.mkdir("dir1")
@@ -21,7 +21,7 @@ Zip::ZipFile.open(EXAMPLE_ZIP, Zip::ZipFile::CREATE) {
   puts "Entries:                   #{zf.entries.join(', ')}"
 }
 
-Zip::ZipFile.open(EXAMPLE_ZIP) {
+Zip::File.open(EXAMPLE_ZIP) {
   |zf|
   puts "Entries from reloaded zip: #{zf.entries.join(', ')}"
 }
