@@ -29,11 +29,6 @@ require 'zip/streamable_directory'
 require 'zip/constants'
 require 'zip/settings'
 
-if Tempfile.superclass == SimpleDelegator
-  require 'zip/tempfile_bugfixed'
-  Tempfile = BugFix::Tempfile
-end
-
 module Zlib #:nodoc:all
   if !const_defined?(:MAX_WBITS)
     MAX_WBITS = Zlib::Deflate.MAX_WBITS
