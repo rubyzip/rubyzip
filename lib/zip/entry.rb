@@ -99,7 +99,7 @@ module Zip
     end
 
     def name_is_directory? #:nodoc:all
-      %r{\/\z} =~ @name
+      @name.end_with?('/')
     end
 
     def local_entry_offset #:nodoc:all
@@ -303,35 +303,45 @@ module Zip
                end
     end
 
-    def read_c_dir_entry(io) #:nodoc:all
-      static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
-      unless static_sized_fields_buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
+    def check_c_dir_entry_static_header_length(buf)
+      unless buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
         raise ZipError, 'Premature end of file. Not enough data for zip cdir entry header'
       end
+    end
 
-      unpack_c_dir_entry(static_sized_fields_buf)
-
-      unless @header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+    def check_c_dir_entry_signature
+      unless header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
         raise ZipError, "Zip local header magic not found at location '#{local_header_offset}'"
       end
-      set_time(@last_mod_date, @last_mod_time)
+    end
 
-      @name = io.read(@name_length)
-      until @name.sub!('\\', '/').nil? do
-      end # some zip files use backslashes instead of slashes as path separators
-      if ::Zip::ExtraField === @extra
+    def check_c_dir_entry_comment_size
+      unless @comment && @comment.bytesize == @comment_length
+        raise ::Zip::ZipError, "Truncated cdir zip entry header"
+      end
+    end
+
+    def read_c_dir_extra_field(io)
+      if @extra.is_a?(::Zip::ExtraField)
         @extra.merge(io.read(@extra_length))
       else
         @extra = ::Zip::ExtraField.new(io.read(@extra_length))
       end
+    end
+
+    def read_c_dir_entry(io) #:nodoc:all
+      static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
+      check_c_dir_entry_static_header_length(static_sized_fields_buf)
+      unpack_c_dir_entry(static_sized_fields_buf)
+      check_c_dir_entry_signature
+      set_time(@last_mod_date, @last_mod_time)
+      @name = io.read(@name_length).gsub('\\', '/')
+      read_c_dir_extra_field(io)
       @comment = io.read(@comment_length)
-      unless @comment && @comment.bytesize == @comment_length
-        raise ::Zip::ZipError, "Truncated cdir zip entry header"
-      end
+      check_c_dir_entry_comment_size
       set_ftype_from_c_dir_entry
       @local_header_size = calculate_local_header_size
     end
-
 
     def file_stat(path) # :nodoc:
       if @follow_symlinks
@@ -422,17 +432,13 @@ module Zip
       io << @comment
     end
 
-    def == (other)
+    def ==(other)
       return false unless other.class == self.class
       # Compares contents of local entry and exposed fields
-      (@compression_method == other.compression_method &&
-        @crc == other.crc &&
-        @compressed_size == other.compressed_size &&
-        @size == other.size &&
-        @name == other.name &&
-        @extra == other.extra &&
-        @filepath == other.filepath &&
-        self.time.dos_equals(other.time))
+      keys_equal = %w(compression_method crc compressed_size size name extra filepath).all? do |k|
+        other.__send__(k.to_sym) == self.__send__(k.to_sym)
+      end
+      keys_equal && self.time.dos_equals(other.time)
     end
 
     def <=> (other)
@@ -443,17 +449,17 @@ module Zip
     # Warning: may behave weird with symlinks.
     def get_input_stream(&block)
       if @ftype == :directory
-        return yield(::Zip::NullInputStream.instance) if block_given?
-        return ::Zip::NullInputStream.instance
+        yield(::Zip::NullInputStream.instance) if block_given?
+        ::Zip::NullInputStream.instance
       elsif @filepath
         case @ftype
         when :file
-          return ::File.open(@filepath, 'rb', &block)
+          ::File.open(@filepath, 'rb', &block)
         when :symlink
-          linkpath = ::File::readlink(@filepath)
+          linkpath = ::File.readlink(@filepath)
           stringio = ::StringIO.new(linkpath)
-          return yield(stringio) if block_given?
-          return stringio
+          yield(stringio) if block_given?
+          stringio
         else
           raise "unknown @file_type #{@ftype}"
         end
@@ -462,12 +468,12 @@ module Zip
         zis.get_next_entry
         if block_given?
           begin
-            return yield(zis)
+            yield(zis)
           ensure
             zis.close
           end
         else
-          return zis
+          zis
         end
       end
     end
