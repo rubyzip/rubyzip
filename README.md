@@ -137,9 +137,9 @@ rake
 
 ## Website and Project Home
 
-http://github.com/aussiegeek/rubyzip
+http://github.com/rubyzip/rubyzip
 
-http://rdoc.info/github/aussiegeek/rubyzip/master/frames
+http://rdoc.info/github/rubyzip/rubyzip/master/frames
 
 ## Authors
 
