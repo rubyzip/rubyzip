@@ -65,8 +65,10 @@ module Zip
       super()
       @name    = fileName
       @comment = ""
+      @create = create
       case
       when ::File.exists?(fileName) && !buffer
+        @create = nil
         ::File.open(name, "rb") do |f|
           read_from_stream(f)
         end
@@ -75,7 +77,6 @@ module Zip
       else
         raise ZipError, "File #{fileName} not found"
       end
-      @create              = create
       @storedEntries       = @entry_set.dup
       @storedComment       = @comment
       @restore_ownership   = false
