@@ -7,7 +7,6 @@ require 'zlib'
 require 'zip/dos_time'
 require 'zip/ioextras'
 require 'rbconfig'
-
 require 'zip/entry'
 require 'zip/extra_field'
 require 'zip/entry_set'
@@ -27,28 +26,25 @@ require 'zip/deflater'
 require 'zip/streamable_stream'
 require 'zip/streamable_directory'
 require 'zip/constants'
-require 'zip/settings'
-
-module Zlib #:nodoc:all
-  if !const_defined?(:MAX_WBITS)
-    MAX_WBITS = Zlib::Deflate.MAX_WBITS
-  end
-end
+require 'zip/errors'
 
 module Zip
-  class ZipError < StandardError;
+  extend self
+  attr_accessor :unicode_names, :on_exists_proc, :continue_on_exists_proc
+
+  def reset!
+    @_ran_once = false
+    @unicode_names = false
+    @on_exists_proc = false
+    @continue_on_exists_proc = false
   end
 
-  class ZipEntryExistsError < ZipError;
+  def setup
+    yield self unless @_ran_once
+    @_ran_once = true
   end
-  class ZipDestinationFileExistsError < ZipError;
-  end
-  class ZipCompressionMethodError < ZipError;
-  end
-  class ZipEntryNameError < ZipError;
-  end
-  class ZipInternalError < ZipError;
-  end
+
+  reset!
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard

@@ -73,10 +73,10 @@ buffer = Zip::OutputStream.write_buffer do |out|
       out.write e.get_input_stream.read
      end
   end
-  
+
   out.put_next_entry(DOCUMENT_FILE_PATH)
   out.write xml_doc.to_xml(:indent => 0).gsub("\n","")
-  
+
   out.put_next_entry(RELS_FILE_PATH)
   out.write rels.to_xml(:indent => 0).gsub("\n","")
 end
@@ -114,16 +114,32 @@ visit http://rubyzip.sourceforge.net.
 
 By default, rubyzip will not overwrite files if they already exist inside of the extracted path.  To change this behavior, you may specify a configuration option like so:
 
-```
-Zip.options[:on_exists_proc] = true
+```ruby
+Zip.on_exists_proc = true
 ```
 
 If you're using rubyzip with rails, consider placing this snippet of code in an initializer file such as `config/initializers/rubyzip.rb`
 
 Additionally, if you want to configure rubyzip to overwrite existing files while creating a .zip file, you can do so with the following:
 
+```ruby
+Zip.continue_on_exists_proc = true
 ```
-Zip.options[:continue_on_exists_proc] = true
+
+If you want to store non english names and want to open properly file on Windows(pre 7) you need to set next option:
+
+```ruby
+Zip.unicode_names = true
+```
+
+All settings in same time
+
+```ruby
+  Zip.setup do |c|
+    c.on_exists_proc = true
+    c.continue_on_exists_proc = true
+    c.unicode_names = true
+  end
 ```
 
 ## Developing

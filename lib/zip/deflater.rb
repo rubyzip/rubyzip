@@ -6,7 +6,7 @@ module Zip
       @output_stream = output_stream
       @zlib_deflater = ::Zlib::Deflate.new(level, -::Zlib::MAX_WBITS)
       @size          = 0
-      @crc           = ::Zlib::crc32
+      @crc           = ::Zlib.crc32
     end
 
     def << (data)

@@ -249,9 +249,9 @@ module Zip
     end
 
     # Convenience method for adding the contents of a file to the archive
-    def add(entry, srcPath, &continueOnExistsProc)
-      continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc] }
-      check_entry_exists(entry, continueOnExistsProc, "add")
+    def add(entry, srcPath, &continue_on_exists_proc)
+      continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
+      check_entry_exists(entry, continue_on_exists_proc, "add")
       newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
       newEntry.gather_fileinfo_from_srcpath(srcPath)
       @entry_set << newEntry
@@ -263,11 +263,11 @@ module Zip
     end
 
     # Renames the specified entry.
-    def rename(entry, newName, &continueOnExistsProc)
+    def rename(entry, new_name, &continue_on_exists_proc)
       foundEntry = get_entry(entry)
-      check_entry_exists(newName, continueOnExistsProc, "rename")
+      check_entry_exists(new_name, continue_on_exists_proc, 'rename')
       @entry_set.delete(foundEntry)
-      foundEntry.name = newName
+      foundEntry.name = new_name
       @entry_set << foundEntry
     end
 
@@ -281,7 +281,7 @@ module Zip
 
     # Extracts entry to file dest_path.
     def extract(entry, dest_path, &block)
-      block       ||= proc { ::Zip.options[:on_exists_proc] }
+      block       ||= proc { ::Zip.on_exists_proc }
       found_entry = get_entry(entry)
       found_entry.extract(dest_path, &block)
     end
@@ -378,10 +378,10 @@ module Zip
       newEntry.is_directory && srcPathIsDirectory
     end
 
-    def check_entry_exists(entryName, continueOnExistsProc, procedureName)
-      continueOnExistsProc ||= proc { Zip.options[:continue_on_exists_proc] }
+    def check_entry_exists(entryName, continue_on_exists_proc, procedureName)
+      continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
       if @entry_set.include?(entryName)
-        if continueOnExistsProc.call
+        if continue_on_exists_proc.call
           remove get_entry(entryName)
         else
           raise ZipEntryExistsError,

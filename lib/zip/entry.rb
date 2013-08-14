@@ -2,6 +2,8 @@ module Zip
   class Entry
     STORED   = 0
     DEFLATED = 8
+    # Language encoding flag (EFS) bit
+    EFS = 0b100000000000
 
     attr_accessor :comment, :compressed_size, :crc, :extra, :compression_method,
                   :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
@@ -24,18 +26,21 @@ module Zip
       @ftype           = nil          # unspecified or unknown
       @filepath        = nil
       @gp_flags        = 0
+      if ::Zip.unicode_names
+        @gp_flags |= EFS
+        @version = 63
+      end
       @follow_symlinks = false
 
       @restore_times       = true
       @restore_permissions = false
       @restore_ownership   = false
-                                      # BUG: need an extra field to support uid/gid's
+      # BUG: need an extra field to support uid/gid's
       @unix_uid            = nil
       @unix_gid            = nil
       @unix_perms          = nil
-                                      #@posix_acl = nil
-                                      #@ntfs_acl = nil
-
+      #@posix_acl = nil
+      #@ntfs_acl = nil
       @dirty               = false
     end
 
@@ -133,7 +138,7 @@ module Zip
 
     # Extracts entry to file dest_path (defaults to @name).
     def extract(dest_path = @name, &block)
-      block ||= proc { ::Zip.options[:on_exists_proc] }
+      block ||= proc { ::Zip.on_exists_proc }
 
       if directory? || file? || symlink?
         self.__send__("create_#{@ftype}", dest_path, &block)
@@ -535,7 +540,7 @@ module Zip
       puts "Invalid date/time in zip entry"
     end
 
-    def create_file(dest_path, continueOnExistsProc = proc { Zip.options[:continue_on_exists_proc] })
+    def create_file(dest_path, continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
       if ::File.exists?(dest_path) && !yield(self, dest_path)
         raise ::Zip::ZipDestinationFileExistsError,
               "Destination '#{dest_path}' already exists"
@@ -553,9 +558,8 @@ module Zip
     end
 
     def create_directory(dest_path)
-      if ::File.directory?(dest_path)
-        return
-      elsif ::File.exists?(dest_path)
+      return if ::File.directory?(dest_path)
+      if ::File.exists?(dest_path)
         if block_given? && yield(self, dest_path)
           ::FileUtils::rm_f dest_path
         else
@@ -568,7 +572,7 @@ module Zip
       set_extra_attributes_on_path(dest_path)
     end
 
-# BUG: create_symlink() does not use &block
+    # BUG: create_symlink() does not use &block
     def create_symlink(dest_path)
       stat = nil
       begin
