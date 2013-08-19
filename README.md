@@ -1,4 +1,4 @@
-# rubyzip [![Build Status](https://secure.travis-ci.org/aussiegeek/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)[![Code Climate](https://codeclimate.com/github/aussiegeek/rubyzip.png)](https://codeclimate.com/github/aussiegeek/rubyzip)
+# rubyzip [![Build Status](https://secure.travis-ci.org/rubyzip/rubyzip.png)](http://travis-ci.org/aussiegeek/rubyzip)[![Code Climate](https://codeclimate.com/github/aussiegeek/rubyzip.png)](https://codeclimate.com/github/aussiegeek/rubyzip)
 
 rubyzip is a ruby library for reading and writing zip files.
 
