@@ -4,7 +4,7 @@ rubyzip is a ruby library for reading and writing zip files.
 
 ## Important note
 
-This brucnh for next version of rubyzip. Do not use it on production.
+This branch for next version of rubyzip. Do not use it on production.
 Rubyzip interface will be changed!!!
 
 ## Installation
