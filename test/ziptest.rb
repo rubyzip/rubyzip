@@ -1730,11 +1730,11 @@ class ZipExtraFieldTest < Test::Unit::TestCase
   def test_length
     str   = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit"
     extra = ::Zip::ExtraField.new(str)
-    assert_equal(extra.local_length, extra.to_local_bin.length)
-    assert_equal(extra.c_dir_length, extra.to_c_dir_bin.length)
+    assert_equal(extra.local_size, extra.to_local_bin.size)
+    assert_equal(extra.c_dir_size, extra.to_c_dir_bin.size)
     extra.merge("foo")
-    assert_equal(extra.local_length, extra.to_local_bin.length)
-    assert_equal(extra.c_dir_length, extra.to_c_dir_bin.length)
+    assert_equal(extra.local_size, extra.to_local_bin.size)
+    assert_equal(extra.c_dir_size, extra.to_c_dir_bin.size)
   end
 
 
@@ -1800,6 +1800,21 @@ class ZipUnicodeFileNamesAndComments < Test::Unit::TestCase
       end
     end
     ::File.unlink(FILENAME)
+  end
+
+end
+
+
+class Zip64SupportTest < Test::Unit::TestCase
+  TEST_FILE = File.join(File.dirname(__FILE__), 'data', 'zip64-sample.zip')
+
+  def test_open_zip64_file
+    zip_file = ::Zip::File.open(TEST_FILE)
+    assert(!zip_file.nil?)
+    assert(zip_file.entries.count == 2)
+    test_rb = zip_file.entries.find{|x| x.name == 'test.rb'}
+    assert(test_rb.size == 482)
+    assert(test_rb.compressed_size == 229)
   end
 
 end

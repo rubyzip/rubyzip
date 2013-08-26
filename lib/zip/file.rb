@@ -19,9 +19,9 @@ module Zip
   # <code>first.txt</code> and a directory entry <code>a_dir</code>
   # to it.
   #
-  #   require 'zip/zip'
+  #   require 'zip'
   #
-  #   Zip::ZipFile.open("my.zip", Zip::ZipFile::CREATE) {
+  #   Zip::File.open("my.zip", Zip::File::CREATE) {
   #    |zipfile|
   #     zipfile.get_output_stream("first.txt") { |f| f.puts "Hello from ZipFile" }
   #     zipfile.mkdir("a_dir")
@@ -31,9 +31,9 @@ module Zip
   # <code>first.txt</code> to standard out and deletes the entry from
   # the archive.
   #
-  #   require 'zip/zip'
+  #   require 'zip'
   #
-  #   Zip::ZipFile.open("my.zip", Zip::ZipFile::CREATE) {
+  #   Zip::File.open("my.zip", Zip::File::CREATE) {
   #     |zipfile|
   #     puts zipfile.read("first.txt")
   #     zipfile.remove("first.txt")
@@ -46,6 +46,7 @@ module Zip
 
     CREATE           = 1
     SPLIT_SIGNATURE  = 0x08074b50
+    ZIP64_EOCD_SIGNATURE = 0x06064b50
     MAX_SEGMENT_SIZE = 3221225472
     MIN_SEGMENT_SIZE = 65536
     DATA_BUFFER_SIZE = 8192
@@ -58,18 +59,20 @@ module Zip
     attr_accessor :restore_permissions
     # default -> true
     attr_accessor :restore_times
+    # Returns the zip files comment, if it has one
+    attr_accessor :comment
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
     def initialize(fileName, create = nil, buffer = false)
       super()
       @name    = fileName
-      @comment = ""
+      @comment = ''
       @create = create
       case
       when ::File.exists?(fileName) && !buffer
         @create = nil
-        ::File.open(name, "rb") do |f|
+        ::File.open(name, 'rb') do |f|
           read_from_stream(f)
         end
       when create
@@ -113,15 +116,15 @@ module Zip
       # (This can be used to extract data from a 
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io)
-        zf = ::Zip::File.new('', true, true)
-        if io.is_a? IO
-          zf.read_from_stream(io)
-        elsif io.is_a? String
-          require 'stringio'
-          zf.read_from_stream(StringIO.new(io))
-        else
+        unless io.is_a?(IO) && io.is_a?(String)
           raise "Zip::ZipFile.open_buffer expects an argument of class String or IO. Found: #{io.class}"
         end
+        zf = ::Zip::File.new('', true, true)
+        if io.is_a(::String)
+          require 'stringio'
+          io = ::StringIO.new(io)
+        end
+        zf.read_from_stream(io)
         yield zf
         zf.write_buffer
       end
@@ -213,8 +216,6 @@ module Zip
       end
     end
 
-    # Returns the zip files comment, if it has one
-    attr_accessor :comment
 
     # Returns an input stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically

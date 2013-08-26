@@ -124,6 +124,7 @@ module Zip
     end
 
     def calculate_local_header_size #:nodoc:all
+      fix_zip64_sizes!
       LOCAL_ENTRY_STATIC_HEADER_LENGTH + name_size + extra_size
     end
 
@@ -162,6 +163,10 @@ module Zip
 
       def read_zip_long(io) # :nodoc:
         io.read(4).unpack('V')[0]
+      end
+
+      def read_zip_64_long(io) # :nodoc:
+        io.read(8).unpack('V')[0]
       end
 
       def read_c_dir_entry(io) #:nodoc:all
@@ -243,7 +248,7 @@ module Zip
        @compressed_size,
        @size,
        name_size,
-       @extra ? @extra.local_length : 0].pack('VvvvvvVVVvv')
+       @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
     def write_local_entry(io) #:nodoc:all
@@ -398,7 +403,7 @@ module Zip
         @compressed_size,
         @size,
         name_size,
-        @extra ? @extra.c_dir_length : 0,
+        @extra ? @extra.c_dir_size : 0,
         comment_size,
         0, # disk number start
         @internal_file_attributes, # file type (binary=0, text=1)
@@ -601,6 +606,14 @@ module Zip
 
       ::File.symlink(linkto, dest_path)
     end
+
+    def fix_zip64_sizes! #:nodoc:all
+      if zip64 = @extra["Zip64"]
+        @size = zip64.original_size
+        @compressed_size = zip64.compressed_size
+      end
+    end
+
   end
 end
 

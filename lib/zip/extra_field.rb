@@ -67,24 +67,23 @@ module Zip
       self.map { |_, v| v.to_c_dir_bin }.join
     end
 
-    def c_dir_length
+    def c_dir_size
       to_c_dir_bin.bytesize
     end
 
-    def local_length
+    def local_size
       to_local_bin.bytesize
     end
 
-    alias :c_dir_size :c_dir_length
-    alias :local_size :local_length
-    alias :length :local_length
-    alias :size :local_length
+    alias :length :local_size
+    alias :size :local_size
   end
 end
 
 require 'zip/extra_field/generic'
 require 'zip/extra_field/universal_time'
 require 'zip/extra_field/unix'
+
 # Copyright (C) 2002, 2003 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
 # modify it under the terms of the ruby license.

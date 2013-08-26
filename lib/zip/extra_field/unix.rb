@@ -23,8 +23,7 @@ module Zip
     end
 
     def ==(other)
-      @uid == other.uid &&
-        @gid == other.gid
+      @uid == other.uid && @gid == other.gid
     end
 
     def pack_for_local
@@ -32,7 +31,7 @@ module Zip
     end
 
     def pack_for_c_dir
-      ""
+      ''
     end
   end
 
