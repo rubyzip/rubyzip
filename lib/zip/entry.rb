@@ -178,7 +178,7 @@ module Zip
       end
 
       def read_local_entry(io)
-        entry = new(io.path)
+        entry = self.new
         entry.read_local_entry(io)
         entry
       rescue ZipError
@@ -459,8 +459,8 @@ module Zip
     # Warning: may behave weird with symlinks.
     def get_input_stream(&block)
       if @ftype == :directory
-        yield(::Zip::NullInputStream.instance) if block_given?
-        ::Zip::NullInputStream.instance
+        yield ::Zip::NullInputStream if block_given?
+        ::Zip::NullInputStream
       elsif @filepath
         case @ftype
         when :file

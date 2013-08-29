@@ -35,7 +35,7 @@ module Zip
       @entry_set = ::Zip::EntrySet.new
       @compressor = ::Zip::NullCompressor.instance
       @closed = false
-      @currentEntry = nil
+      @current_entry = nil
       @comment = nil
     end
 
@@ -94,7 +94,7 @@ module Zip
       end
       new_entry.compression_method = compression_method if !compression_method.nil?
       init_next_entry(new_entry, level)
-      @currentEntry = new_entry
+      @current_entry = new_entry
     end
 
     def copy_raw_entry(entry)
@@ -111,18 +111,18 @@ module Zip
         IOExtras.copy_stream_n(@output_stream, is, entry.compressed_size)
       end
       @compressor = NullCompressor.instance
-      @currentEntry = nil
+      @current_entry = nil
     end
 
     private
 
     def finalize_current_entry
-      return unless @currentEntry
+      return unless @current_entry
       finish
-      @currentEntry.compressed_size = @output_stream.tell - @currentEntry.local_header_offset - @currentEntry.calculate_local_header_size
-      @currentEntry.size = @compressor.size
-      @currentEntry.crc = @compressor.crc
-      @currentEntry = nil
+      @current_entry.compressed_size = @output_stream.tell - @current_entry.local_header_offset - @current_entry.calculate_local_header_size
+      @current_entry.size = @compressor.size
+      @current_entry.crc = @compressor.crc
+      @current_entry = nil
       @compressor = NullCompressor.instance
     end
 

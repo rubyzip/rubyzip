@@ -1,41 +1,39 @@
 module Zip
-  # ZipInputStream is the basic class for reading zip entries in a 
-  # zip file. It is possible to create a ZipInputStream object directly, 
+  # InputStream is the basic class for reading zip entries in a
+  # zip file. It is possible to create a InputStream object directly,
   # passing the zip file name to the constructor, but more often than not 
-  # the ZipInputStream will be obtained from a ZipFile (perhaps using the 
+  # the InputStream will be obtained from a File (perhaps using the
   # ZipFileSystem interface) object for a particular entry in the zip 
   # archive.
   #
-  # A ZipInputStream inherits IOExtras::AbstractInputStream in order
+  # A InputStream inherits IOExtras::AbstractInputStream in order
   # to provide an IO-like interface for reading from a single zip 
   # entry. Beyond methods for mimicking an IO-object it contains 
   # the method get_next_entry for iterating through the entries of 
-  # an archive. get_next_entry returns a ZipEntry object that describes
-  # the zip entry the ZipInputStream is currently reading from.
+  # an archive. get_next_entry returns a Entry object that describes
+  # the zip entry the InputStream is currently reading from.
   #
   # Example that creates a zip archive with ZipOutputStream and reads it 
-  # back again with a ZipInputStream.
+  # back again with a InputStream.
   #
-  #   require 'zip/zip'
+  #   require 'zip'
   #   
-  #   Zip::ZipOutputStream::open("my.zip") { 
-  #     |io|
+  #   Zip::OutputStream.open("my.zip") do |io|
   #   
   #     io.put_next_entry("first_entry.txt")
   #     io.write "Hello world!"
   #   
   #     io.put_next_entry("adir/first_entry.txt")
   #     io.write "Hello again!"
-  #   }
+  #   end
   #
   #   
-  #   Zip::ZipInputStream::open("my.zip") {
-  #     |io|
+  #   Zip::InputStream.open("my.zip") do |io|
   #   
   #     while (entry = io.get_next_entry)
   #       puts "Contents of #{entry.name}: '#{io.read}'"
   #     end
-  #   }
+  #   end
   #
   # java.util.zip.ZipInputStream is the original inspiration for this 
   # class.
@@ -46,88 +44,101 @@ module Zip
     # Opens the indicated zip file. An exception is thrown
     # if the specified offset in the specified filename is
     # not a local zip entry header.
-    def initialize(filename, offset = 0, io = nil)
+    #
+    # @param context [String||IO||StringIO] file path or IO/StringIO object
+    # @param offset [Integer] offset in the IO/StringIO
+    def initialize(context, offset = 0)
       super()
-      if (io.nil?) 
-        @archiveIO = ::File.open(filename, "rb")
-        @archiveIO.seek(offset, IO::SEEK_SET)
-      else
-        @archiveIO = io
-      end
-      @decompressor = NullDecompressor.instance
-      @currentEntry = nil
+      @archive_io = get_io(context, offset)
+      @decompressor  = ::Zip::NullDecompressor
+      @current_entry = nil
     end
-    
+
     def close
-      @archiveIO.close
+      @archive_io.close
     end
 
-    # Same as #initialize but if a block is passed the opened
-    # stream is passed to the block and closed when the block
-    # returns.    
-    def InputStream.open(filename)
-      return new(filename) unless block_given?
-      
-      zio = new(filename)
-      yield zio
-    ensure
-      zio.close if zio
-    end
-
-    def InputStream.open_buffer(io)
-      return new('',0,io) unless block_given?
-      zio = new('',0,io)
-      yield zio
-    ensure
-      zio.close if zio
-    end
-
-    # Returns a ZipEntry object. It is necessary to call this
-    # method on a newly created ZipInputStream before reading from 
+    # Returns a Entry object. It is necessary to call this
+    # method on a newly created InputStream before reading from
     # the first entry in the archive. Returns nil when there are 
     # no more entries.
-
     def get_next_entry
-      @archiveIO.seek(@currentEntry.next_header_offset, IO::SEEK_SET) if @currentEntry
+      @archive_io.seek(@current_entry.next_header_offset, IO::SEEK_SET) if @current_entry
       open_entry
     end
 
     # Rewinds the stream to the beginning of the current entry
     def rewind
-      return if @currentEntry.nil?
+      return if @current_entry.nil?
       @lineno = 0
-      @pos = 0
-      @archiveIO.seek(@currentEntry.local_header_offset,
-		      IO::SEEK_SET)
+      @pos    = 0
+      @archive_io.seek(@current_entry.local_header_offset, IO::SEEK_SET)
       open_entry
     end
 
     # Modeled after IO.sysread
-    def sysread(numberOfBytes = nil, buf = nil)
-      @decompressor.sysread(numberOfBytes, buf)
+    def sysread(number_of_bytes = nil, buf = nil)
+      @decompressor.sysread(number_of_bytes, buf)
     end
 
     def eof
       @output_buffer.empty? && @decompressor.eof
     end
+
     alias :eof? :eof
+
+    class << self
+      # Same as #initialize but if a block is passed the opened
+      # stream is passed to the block and closed when the block
+      # returns.
+      def open(filename_or_io, offset = 0)
+        zio = self.new(filename_or_io, offset)
+        return zio unless block_given?
+        begin
+          yield zio
+        ensure
+          zio.close if zio
+        end
+      end
+
+      def open_buffer(filename_or_io, offset = 0)
+        puts "open_buffer is deprecated!!! Use open instead!"
+        self.open(filename_or_io, offset)
+      end
+    end
 
     protected
 
-    def open_entry
-      @currentEntry = Entry.read_local_entry(@archiveIO)
-      if @currentEntry.nil?
-	      @decompressor = NullDecompressor.instance
-      elsif @currentEntry.compression_method == Entry::STORED
-	      @decompressor = PassThruDecompressor.new(@archiveIO, @currentEntry.size)
-      elsif @currentEntry.compression_method == Entry::DEFLATED
-	      @decompressor = Inflater.new(@archiveIO)
+    def get_io(io_or_file, offset = 0)
+      case io_or_file
+      when IO, StringIO
+        io_or_file
       else
-	      raise ZipCompressionMethodError,
-              "Unsupported compression method #{@currentEntry.compression_method}"
+        file = ::File.open(io_or_file, 'rb')
+        file.seek(offset, ::IO::SEEK_SET)
+        file
       end
+    end
+
+    def open_entry
+      @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
+      @decompressor  = get_decompressor
       flush
-      return @currentEntry
+      @current_entry
+    end
+
+    def get_decompressor
+      case
+      when @current_entry.nil?
+        ::Zip::NullDecompressor
+      when @current_entry.compression_method == ::Zip::Entry::STORED
+        ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
+      when @current_entry.compression_method == ::Zip::Entry::DEFLATED
+        ::Zip::Inflater.new(@archive_io)
+      else
+        raise ZipCompressionMethodError,
+              "Unsupported compression method #{@current_entry.compression_method}"
+      end
     end
 
     def produce_input

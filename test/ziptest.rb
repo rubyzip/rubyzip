@@ -373,18 +373,16 @@ module AssertEntry
 
   def assert_stream_contents(zis, testZipFile)
     assert(zis != nil)
-    testZipFile.entry_names.each {
-      |entryName|
+    testZipFile.entry_names.each do |entryName|
       assert_next_entry(entryName, zis)
-    }
+    end
     assert_equal(nil, zis.get_next_entry)
   end
 
   def assert_test_zip_contents(testZipFile)
-    ::Zip::InputStream.open(testZipFile.zip_name) {
-      |zis|
+    ::Zip::InputStream.open(testZipFile.zip_name) do |zis|
       assert_stream_contents(zis, testZipFile)
-    }
+    end
   end
 
   def assert_entryContents(zipFile, entryName, filename = entryName.to_s)
@@ -415,16 +413,29 @@ class ZipInputStreamTest < Test::Unit::TestCase
   end
 
   def test_openWithoutBlock
-    zis = ::Zip::InputStream.open_buffer(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb"))
+    zis = ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb"))
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_openBufferWithBlock
-    ::Zip::InputStream.open_buffer(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb")) {
-      |zis|
+    ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb")) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
-    }
+    end
+  end
+
+  def test_open_string_io_without_block
+    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
+    zis = ::Zip::InputStream.open(string_io)
+    assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+  end
+
+  def test_open_string_io_with_block
+    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
+    ::Zip::InputStream.open(string_io) do |zis|
+      assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+      assert_equal(true, zis.eof?)
+    end
   end
 
   def test_openBufferWithoutBlock
@@ -457,6 +468,33 @@ class ZipInputStreamTest < Test::Unit::TestCase
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[4], entry.name)
       assert zis.gets.length > 0
     }
+  end
+
+  def test_incomplete_reads_from_string_io
+    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
+    ::Zip::InputStream.open(string_io) do |zis|
+      entry = zis.get_next_entry # longAscii.txt
+      assert_equal(false, zis.eof?)
+      assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], entry.name)
+      assert zis.gets.length > 0
+      assert_equal(false, zis.eof?)
+      entry = zis.get_next_entry # empty.txt
+      assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
+      assert_equal(0, entry.size)
+      assert_equal(nil, zis.gets)
+      assert_equal(true, zis.eof?)
+      entry = zis.get_next_entry # empty_chmod640.txt
+      assert_equal(TestZipFile::TEST_ZIP2.entry_names[2], entry.name)
+      assert_equal(0, entry.size)
+      assert_equal(nil, zis.gets)
+      assert_equal(true, zis.eof?)
+      entry = zis.get_next_entry # short.txt
+      assert_equal(TestZipFile::TEST_ZIP2.entry_names[3], entry.name)
+      assert zis.gets.length > 0
+      entry = zis.get_next_entry # longBinary.bin
+      assert_equal(TestZipFile::TEST_ZIP2.entry_names[4], entry.name)
+      assert zis.gets.length > 0
+    end
   end
 
   def test_rewind
@@ -1029,13 +1067,12 @@ class BasicZipFileTest < Test::Unit::TestCase
   def test_get_input_stream
     count   = 0
     visited = {}
-    @zipFile.each {
-      |entry|
+    @zipFile.each do |entry|
       assert_entry(entry.name, @zipFile.get_input_stream(entry), entry.name)
       assert(!visited.include?(entry.name))
       visited[entry.name] = nil
       count               = count.succ
-    }
+    end
     assert_equal(TestZipFile::TEST_ZIP2.entry_names.length, count)
   end
 

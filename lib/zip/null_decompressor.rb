@@ -1,6 +1,6 @@
 module Zip
-  class NullDecompressor #:nodoc:all
-    include Singleton
+  module NullDecompressor #:nodoc:all
+    extend self
 
     def sysread(numberOfBytes = nil, buf = nil)
       nil

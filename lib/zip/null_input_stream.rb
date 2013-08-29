@@ -1,5 +1,6 @@
 module Zip
-  class NullInputStream < NullDecompressor #:nodoc:all
+  module NullInputStream #:nodoc:all
+    include ::Zip::NullDecompressor
     include ::Zip::IOExtras::AbstractInputStream
   end
 end
