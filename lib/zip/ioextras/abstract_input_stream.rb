@@ -17,7 +17,7 @@ module Zip
       attr_accessor :lineno
       attr_reader :pos
 
-      def read(number_of_bytes = nil, buf = nil)
+      def read(number_of_bytes = nil, buf = '')
         tbuf = if @output_buffer.bytesize > 0
                  if number_of_bytes <= @output_buffer.bytesize
                    @output_buffer.slice!(0, number_of_bytes)

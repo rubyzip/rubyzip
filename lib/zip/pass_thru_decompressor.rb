@@ -8,7 +8,7 @@ module Zip
       @has_returned_empty_string = false
     end
 
-    def sysread(number_of_bytes = nil, buf = nil)
+    def sysread(number_of_bytes = nil, buf = '')
       if input_finished?
         has_returned_empty_string_val = @has_returned_empty_string
         @has_returned_empty_string = true
@@ -16,7 +16,7 @@ module Zip
         return
       end
 
-      if (number_of_bytes == nil || @read_so_far + number_of_bytes > @chars_to_read)
+      if number_of_bytes.nil? || @read_so_far + number_of_bytes > @chars_to_read
         number_of_bytes = @chars_to_read - @read_so_far
       end
       @read_so_far += number_of_bytes

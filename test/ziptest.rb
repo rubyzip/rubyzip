@@ -8,6 +8,7 @@ $: << "../lib"
 require 'test/unit'
 require 'fileutils'
 require 'zip'
+require 'stringio'
 require 'gentestfiles'
 
 class ZipEntryTest < Test::Unit::TestCase

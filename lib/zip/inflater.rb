@@ -7,9 +7,9 @@ module Zip
       @has_returned_empty_string = false
     end
 
-    def sysread(number_of_bytes = nil, buf = nil)
+    def sysread(number_of_bytes = nil, buf = '')
       readEverything = number_of_bytes.nil?
-      while (readEverything || @output_buffer.bytesize < number_of_bytes)
+      while readEverything || @output_buffer.bytesize < number_of_bytes
         break if internal_input_finished?
         @output_buffer << internal_produce_input(buf)
       end
@@ -37,7 +37,7 @@ module Zip
 
     private
 
-    def internal_produce_input(buf = nil)
+    def internal_produce_input(buf = '')
       retried = 0
       begin
         @zlib_inflater.inflate(@input_stream.read(Decompressor::CHUNK_SIZE, buf))
