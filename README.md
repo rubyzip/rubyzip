@@ -9,6 +9,13 @@ rubyzip is a ruby library for reading and writing zip files.
 
 Rubyzip interface changed!!! No need to do `require "zip/zip"` and `Zip` prefix in class names removed.
 
+If you have issues with any third-party gems what required rubyzip you can use next temporary fix:
+
+```ruby
+# Place this line before your library or on the head of your Gemfile
+gem 'rubyzip', '< 1.0.0'
+```
+
 ## Installation
 rubyzip is available on RubyGems, so:
 
