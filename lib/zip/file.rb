@@ -120,7 +120,7 @@ module Zip
           raise "Zip::ZipFile.open_buffer expects an argument of class String or IO. Found: #{io.class}"
         end
         zf = ::Zip::File.new('', true, true)
-        if io.is_a(::String)
+        if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
         end
