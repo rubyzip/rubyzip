@@ -116,11 +116,11 @@ module Zip
       # (This can be used to extract data from a 
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io)
-        unless io.is_a?(IO) && io.is_a?(String)
+        unless io.is_a?(IO) || io.is_a?(String)
           raise "Zip::ZipFile.open_buffer expects an argument of class String or IO. Found: #{io.class}"
         end
         zf = ::Zip::File.new('', true, true)
-        if io.is_a(::String)
+        if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
         end
