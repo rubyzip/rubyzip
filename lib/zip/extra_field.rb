@@ -58,7 +58,7 @@ module Zip
     end
 
     def to_local_bin
-      self.map { |_, v| v.to_local_bin }.join
+      self.map { |_, v| v.to_local_bin.force_encoding('BINARY') }.join
     end
 
     alias :to_s :to_local_bin

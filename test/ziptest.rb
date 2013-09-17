@@ -873,13 +873,12 @@ class ZipEntrySetTest < Test::Unit::TestCase
   end
 
   def test_each
-    # Tested indirectly via each_with_index
+    # Used each instead each_with_index due the bug in jRuby
     count = 0
-    @zipEntrySet.each_with_index {
-      |entry, index|
+    @zipEntrySet.each do |entry|
       assert(ZIP_ENTRIES.include?(entry))
-      count = count.succ
-    }
+      count += 1
+    end
     assert_equal(ZIP_ENTRIES.size, count)
   end
 
