@@ -33,9 +33,12 @@ module Zip
                  sysread(number_of_bytes, buf)
                end
 
-        @pos += tbuf.length
+        if tbuf.nil? || tbuf.length == 0
+          return nil if number_of_bytes
+          return ""
+        end
 
-        return nil unless tbuf
+        @pos += tbuf.length
 
         if buf
           buf.replace(tbuf)
