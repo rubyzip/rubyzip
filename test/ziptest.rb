@@ -498,6 +498,16 @@ class ZipInputStreamTest < Test::Unit::TestCase
     end
   end
 
+  def test_read_with_number_of_bytes_returns_nil_at_eof
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      entry = zis.get_next_entry # longAscii.txt
+      zis.read(entry.size)
+      assert_equal(true, zis.eof?)
+      assert_nil(zis.read(1))
+      assert_nil(zis.read(1))
+    end
+  end
+
   def test_rewind
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
       |zis|
