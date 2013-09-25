@@ -88,9 +88,9 @@ class TestZipFile
 	       files.index("longBinary.bin") ))
 
       raise "failed to create test zip '#{TEST_ZIP1.zip_name}'" unless
-          system("zip #{TEST_ZIP1.zip_name} data/file2.txt")
+          system("/usr/bin/zip #{TEST_ZIP1.zip_name} data/file2.txt")
       raise "failed to remove entry from '#{TEST_ZIP1.zip_name}'" unless
-          system("zip #{TEST_ZIP1.zip_name} -d data/file2.txt")
+          system("/usr/bin/zip #{TEST_ZIP1.zip_name} -d data/file2.txt")
       
       File.open("data/generated/empty.txt", "w") {}
       File.open("data/generated/empty_chmod640.txt", "w") { |f| f.chmod(0640) }
@@ -115,23 +115,23 @@ class TestZipFile
       end
 
       raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" unless
-          system("zip #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}")
+          system("/usr/bin/zip #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}")
 
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
         raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" unless
-            system("echo #{TEST_ZIP2.comment}| zip -z #{TEST_ZIP2.zip_name}\"")
+            system("echo #{TEST_ZIP2.comment}| /usr/bin/zip -z #{TEST_ZIP2.zip_name}\"")
       else
       # without bash system interprets everything after echo as parameters to
       # echo including | zip -z ...
         raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" unless
-            system("bash -c \"echo #{TEST_ZIP2.comment} | zip -z #{TEST_ZIP2.zip_name}\"")
+            system("bash -c \"echo #{TEST_ZIP2.comment} | /usr/bin/zip -z #{TEST_ZIP2.zip_name}\"")
       end
 
       raise "failed to create test zip '#{TEST_ZIP3.zip_name}'" unless
-          system("zip #{TEST_ZIP3.zip_name} #{TEST_ZIP3.entry_names.join(' ')}")
+          system("/usr/bin/zip #{TEST_ZIP3.zip_name} #{TEST_ZIP3.entry_names.join(' ')}")
 
       raise "failed to create test zip '#{TEST_ZIP4.zip_name}'" unless
-          system("zip #{TEST_ZIP4.zip_name} #{TEST_ZIP4.entry_names.join(' ')}")
+          system("/usr/bin/zip #{TEST_ZIP4.zip_name} #{TEST_ZIP4.entry_names.join(' ')}")
     end
   rescue
     # If there are any Windows developers wanting to use a command line zip.exe
