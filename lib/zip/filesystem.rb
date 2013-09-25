@@ -6,8 +6,8 @@ module Zip
   # a zip archive that is similar to ruby's builtin File and Dir 
   # classes.
   #
-  # Requiring 'zip/zipfilesystem' includes this module in ZipFile
-  # making the methods in this module available on ZipFile objects.
+  # Requiring 'zip/filesystem' includes this module in Zip::File
+  # making the methods in this module available on Zip::File objects.
   #
   # Using this API the following example creates a new zip file 
   # <code>my.zip</code> containing a normal entry with the name
@@ -16,7 +16,7 @@ module Zip
   #
   #   require 'zip/filesystem'
   #   
-  #   Zip::File.open("my.zip", Zip::ZipFile::CREATE) {
+  #   Zip::File.open("my.zip", Zip::File::CREATE) {
   #     |zipfile|
   #     zipfile.file.open("first.txt", "w") { |f| f.puts "Hello world" }
   #     zipfile.dir.mkdir("mydir")
@@ -45,22 +45,22 @@ module Zip
     end
 
     # Returns a ZipFsDir which is much like ruby's builtin Dir (class)
-    # object, except it works on the ZipFile on which this method is
+    # object, except it works on the Zip::File on which this method is
     # invoked
     def dir
       @zipFsDir
     end
 
     # Returns a ZipFsFile which is much like ruby's builtin File (class)
-    # object, except it works on the ZipFile on which this method is
+    # object, except it works on the Zip::File on which this method is
     # invoked
     def file
       @zipFsFile
     end
 
     # Instances of this class are normally accessed via the accessor
-    # ZipFile::file. An instance of ZipFsFile behaves like ruby's
-    # builtin File (class) object, except it works on ZipFile entries.
+    # Zip::File::file. An instance of ZipFsFile behaves like ruby's
+    # builtin File (class) object, except it works on Zip::File entries.
     #
     # The individual methods are not documented due to their
     # similarity with the methods in File
@@ -543,7 +543,7 @@ module Zip
       end
     end
 
-    # All access to ZipFile from ZipFsFile and ZipFsDir goes through a
+    # All access to Zip::File from ZipFsFile and ZipFsDir goes through a
     # ZipFileNameMapper, which has one responsibility: ensure
     class ZipFileNameMapper # :nodoc:all
       include Enumerable
