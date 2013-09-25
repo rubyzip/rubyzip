@@ -8,10 +8,10 @@ rvm:
   - jruby-19mode
 matrix:
   include:
-    - rvm: jruby-19mode
-      jdk:
-        - oraclejdk7
-        - openjdk7
+  - rvm: jruby-19mode
+    jdk: oraclejdk7
+  - rvm: jruby-19mode
+    jdk: openjdk7
 before_install:
   - gem update --system
   - gem --version
