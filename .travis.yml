@@ -1,4 +1,10 @@
 language: ruby
+env:
+  global:
+    - JAVA_OPTS="-X+O"
+jdk:
+  - oraclejdk7
+  - openjdk7
 rvm:
   - 1.9.2
   - 1.9.3
@@ -9,7 +15,10 @@ rvm:
 before_install:
   - gem update --system
   - gem --version
-before_script: "sudo apt-get -y install zip unzip"
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq zip unzip
+  - echo $PATH
 branches:
   only:
     - master
