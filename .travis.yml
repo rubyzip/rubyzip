@@ -1,7 +1,4 @@
 language: ruby
-env:
-  global:
-    - JAVA_OPTS="-X+O"
 rvm:
   - 1.9.2
   - 1.9.3
@@ -10,11 +7,11 @@ rvm:
   - rbx-19mode
   - jruby-19mode
 matrix:
-  exclude:
-- rvm: jruby-19mode
-  jdk:
-    - oraclejdk7
-    - openjdk7
+  include:
+    - rvm: jruby-19mode
+      jdk:
+        - oraclejdk7
+        - openjdk7
 before_install:
   - gem update --system
   - gem --version
