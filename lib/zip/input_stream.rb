@@ -76,6 +76,10 @@ module Zip
       open_entry
     end
 
+    def password=(password)
+      @password = password
+    end
+
     # Modeled after IO.sysread
     def sysread(number_of_bytes = nil, buf = nil)
       @decompressor.sysread(number_of_bytes, buf)
@@ -127,17 +131,40 @@ module Zip
       @current_entry
     end
 
-    def get_decompressor
-      case
-      when @current_entry.nil?
+    def get_decompressor(compression_method = nil)
+      compression_method ||= @current_entry.compression_method unless @current_entry.nil?
+      case compression_method
+      when nil
         ::Zip::NullDecompressor
-      when @current_entry.compression_method == ::Zip::Entry::STORED
+      when ::Zip::Entry::STORED
         ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
-      when @current_entry.compression_method == ::Zip::Entry::DEFLATED
+      when ::Zip::Entry::DEFLATED
         ::Zip::Inflater.new(@archive_io)
+      when ::Zip::Entry::ENCRYPTED
+        if @current_entry.extra["AES"].vendor_id != "AE"
+          raise ZipCompressionMethodError, "The #{@current_entry.extra["AES"].vendor_id} encryption method is not supported"
+        end
+
+        unless [1,2].include? @current_entry.extra["AES"].vendor_version
+          raise ZipCompressionMethodError, "Only AES-1 and AES-2 style encryption is supported"
+        end
+
+        if @current_entry.extra["AES"].compression_method == ::Zip::Entry::ENCRYPTED
+          # This would create infinite recursion.
+          raise ZipCompressionMethodError, "This zip file is malformed"
+        end
+
+        ::Zip::Decrypter.new(
+          @archive_io,
+          @current_entry.compressed_size,
+          @current_entry.extra["AES"].encryption_strength,
+          @password,
+          get_decompressor(@current_entry.extra["AES"].compression_method)
+        )
+
       else
         raise ZipCompressionMethodError,
-              "Unsupported compression method #{@current_entry.compression_method}"
+              "Unsupported compression method #{compression_method}"
       end
     end
 

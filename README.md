@@ -1,7 +1,7 @@
 # rubyzip
-[![Build Status](https://secure.travis-ci.org/rubyzip/rubyzip.png)](http://travis-ci.org/rubyzip/rubyzip)
-[![Code Climate](https://codeclimate.com/github/rubyzip/rubyzip.png)](https://codeclimate.com/github/rubyzip/rubyzip)
-[![Coverage Status](https://coveralls.io/repos/rubyzip/rubyzip/badge.png?branch=master)](https://coveralls.io/r/rubyzip/rubyzip?branch=master)
+[![Build Status](https://secure.travis-ci.org/jphastings/rubyzip.png)](http://travis-ci.org/jphastings/rubyzip)
+[![Code Climate](https://codeclimate.com/github/jphastings/rubyzip.png)](https://codeclimate.com/github/jphastings/rubyzip)
+[![Coverage Status](https://coveralls.io/repos/jphastings/rubyzip/badge.png?branch=master)](https://coveralls.io/r/jphastings/rubyzip?branch=master)
 
 rubyzip is a ruby library for reading and writing zip files.
 
