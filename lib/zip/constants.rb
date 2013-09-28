@@ -7,7 +7,9 @@ module Zip
   LOCAL_ENTRY_SIGNATURE                  = 0x04034b50
   LOCAL_ENTRY_STATIC_HEADER_LENGTH       = 30
   LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4+4+4
+  VERSION_MADE_BY                        = 52 # this library's version
   VERSION_NEEDED_TO_EXTRACT              = 20
+  VERSION_NEEDED_TO_EXTRACT_ZIP64        = 45
 
   FILE_TYPE_FILE    = 010
   FILE_TYPE_DIR     = 004
