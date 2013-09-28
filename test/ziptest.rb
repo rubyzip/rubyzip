@@ -229,8 +229,56 @@ class ZipLocalEntryTest < Test::Unit::TestCase
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
     entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    assert(entryReadLocal.extra['Zip64Placeholder'], 'zip64 placeholder should be used in local file header')
+    entryReadLocal.extra.delete('Zip64Placeholder') # it was removed when writing the c_dir_entry, so remove from compare
+    assert(entryReadCentral.extra['Zip64Placeholder'].nil?, 'zip64 placeholder should not be used in central directory')
     compare_local_entry_headers(entry, entryReadLocal)
     compare_c_dir_entry_headers(entry, entryReadCentral)
+  end
+
+  def test_write64Entry
+    entry = ::Zip::Entry.new("bigfile.zip", "entryName", "my little equine",
+                             "malformed extra field because why not",
+                             0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
+                             0x9988776655443322)
+    write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
+    entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    compare_local_entry_headers(entry, entryReadLocal)
+    compare_c_dir_entry_headers(entry, entryReadCentral)
+  end
+
+  def test_rewriteLocalHeader64
+    buf1 = StringIO.new
+    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry.write_local_entry(buf1)
+    assert(entry.extra['Zip64'].nil?, "zip64 extra is unnecessarily present")
+
+    buf2 = StringIO.new
+    entry.size = 0x123456789ABCDEF0
+    entry.compressed_size = 0x0123456789ABCDEF
+    entry.write_local_entry(buf2, true)
+    assert_not_nil(entry.extra['Zip64'])
+
+    assert_not_equal(buf1.size, 0)
+    assert_equal(buf1.size, buf2.size) # it can't grow, or we'd clobber file data
+  end
+
+  def test_readLocalOffset
+    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry.local_header_offset = 12345
+    ::File.open('centralEntryHeader.bin', 'wb') { |f| entry.write_c_dir_entry(f) }
+    read_entry = nil
+    ::File.open('centralEntryHeader.bin', 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }
+    compare_c_dir_entry_headers(entry, read_entry)
+  end
+
+  def test_read64LocalOffset
+    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry.local_header_offset = 0x0123456789ABCDEF
+    ::File.open('centralEntryHeader.bin', 'wb') { |f| entry.write_c_dir_entry(f) }
+    read_entry = nil
+    ::File.open('centralEntryHeader.bin', 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }
+    compare_c_dir_entry_headers(entry, read_entry)
   end
 
   private
@@ -1000,6 +1048,23 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
     File.open("cdirtest.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
 
     assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
+  end
+
+  def test_write64_to_stream
+    entries = [::Zip::Entry.new("file.zip", "file1-little", "comment1", "", 200, 101, ::Zip::Entry::STORED, 200),
+               ::Zip::Entry.new("file.zip", "file2-big", "comment2", "", 18000000000, 102, ::Zip::Entry::DEFLATED, 20000000000),
+               ::Zip::Entry.new("file.zip", "file3-alsobig", "comment3", "", 15000000000, 103, ::Zip::Entry::DEFLATED, 21000000000),
+               ::Zip::Entry.new("file.zip", "file4-little", "comment4", "", 100, 104, ::Zip::Entry::DEFLATED, 121)]
+    [0, 250, 18000000300, 33000000350].each_with_index do |offset, index|
+      entries[index].local_header_offset = offset
+    end
+    cdir = ::Zip::CentralDirectory.new(entries, "zip comment")
+    File.open("cdir64test.bin", "wb") { |f| cdir.write_to_stream(f) }
+    cdirReadback = ::Zip::CentralDirectory.new
+    File.open("cdir64test.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
+
+    assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
+    assert_equal(VERSION_NEEDED_TO_EXTRACT_ZIP64, cdirReadback.instance_variable_get(:@version_needed_for_extract))
   end
 
   def test_equality
