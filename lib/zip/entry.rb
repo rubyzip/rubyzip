@@ -2,6 +2,7 @@ module Zip
   class Entry
     STORED   = 0
     DEFLATED = 8
+    ENCRYPTED = 99
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 
@@ -134,7 +135,10 @@ module Zip
     end
 
     def next_header_offset #:nodoc:all
-      local_entry_offset + self.compressed_size
+      # FIXME. the data descriptor can be only 12 bytes long, if the signature isn't present
+      # I need to add code to deal with this!
+      # I also have no idea why I have to subtract 8 bytes for AES  zips. It works, sooooo...
+      local_entry_offset + self.compressed_size + (@data_descriptor_present ? 16 : 0) - (@extra.member?('AES') ? 8 : 0)
     end
 
     # Extracts entry to file dest_path (defaults to @name).
@@ -235,6 +239,32 @@ module Zip
         end
       end
       @local_header_size = calculate_local_header_size
+
+      # If the "data descriptor present" bit is set in the general flags
+      # we need to read the uncompressed size and CRC from the data descriptor
+      # otherwise they'll remain as 0
+      @data_descriptor_present = (@gp_flags & ::Zip::GP_FLAGS_DESCRIPTOR_PRESENT != 0)
+      if @data_descriptor_present
+        # We need to seek forwards until we find the data descriptor signature
+        # (504B0708) or the next record's local file header signature (504B0304)
+        # and scan back a few
+        last_four = []
+
+        loop do
+          last_four.push(io.read(1))
+          last_four = last_four[-4..-1] if last_four.length > 4
+
+          case last_four
+          when %W{\x50 \x4B \x07 \x08}
+            break
+          when %W{\x50 \x4B \x03 \x04}
+            io.seek(-12,IO::SEEK_CUR )
+            break
+          end
+        end
+
+        @crc, @compressed_size, @size = io.read(12).unpack("VVV")
+      end
     end
 
     def pack_local_entry
