@@ -245,6 +245,7 @@ module Zip
       # otherwise they'll remain as 0
       @data_descriptor_present = (@gp_flags & ::Zip::GP_FLAGS_DESCRIPTOR_PRESENT != 0)
       if @data_descriptor_present
+        pos = io.tell
         # We need to seek forwards until we find the data descriptor signature
         # (504B0708) or the next record's local file header signature (504B0304)
         # and scan back a few
@@ -264,6 +265,7 @@ module Zip
         end
 
         @crc, @compressed_size, @size = io.read(12).unpack("VVV")
+        io.seek(pos)
       end
     end
 
