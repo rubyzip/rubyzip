@@ -7,17 +7,21 @@ module Zip
     BLOCK_SIZE = 16
     AUTHENTICATION_CODE_LENGTH = 10
 
-    def initialize(input_stream, entry_size, encryption_strength, password, decompressor)
+    attr_writer :password
+
+    def initialize(input_stream, encryption_strength, entry_size, decompressor)
       super(input_stream)
 
       @data_length = entry_size - AUTHENTICATION_CODE_LENGTH
       @decompressor = decompressor
       @decompressor.input_stream = StringIO.new
-
-      prepare_aes(encryption_strength, password)
+      @encryption_strength = encryption_strength
+      @prepared = false
     end
 
     def sysread(number_of_bytes = nil, buf = '')
+      prepare_aes unless @prepared
+
       amount_to_read = @data_length
       raise RuntimeError, "Incorrect entry size given, can't proceed" if amount_to_read <= 0
       
@@ -49,8 +53,9 @@ module Zip
 
     private
 
-    def prepare_aes(encryption_strength, password)
-      n = encryption_strength + 1
+    def prepare_aes
+      raise RuntimeError, "No password given" if @password.nil?
+      n = @encryption_strength + 1
 
       headers = {
         bits: 64 * n,
@@ -59,7 +64,7 @@ module Zip
         salt_length: 4 * n
       }
 
-      raise RuntimeError, "AES-#{headers[:bits]} is not supported." unless [0x01, 0x02, 0x03].include? encryption_strength
+      raise RuntimeError, "AES-#{headers[:bits]} is not supported." unless [0x01, 0x02, 0x03].include? @encryption_strength
 
       @cipher = OpenSSL::Cipher::AES.new(headers[:bits], :CTR)
       @cipher.decrypt
@@ -70,7 +75,7 @@ module Zip
       @data_length -= (headers[:salt_length] + VERIFIER_LENGTH)
 
       key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(
-        password,
+        @password,
         salt,
         1000,
         headers[:key_length] + headers[:mac_length] + VERIFIER_LENGTH
@@ -78,6 +83,8 @@ module Zip
 
       raise RuntimeError, "Incorrect password" unless key[-2..-1] == verification
       @cipher.key = key
+
+      @prepared = true
     end
 
     def set_iv(counter)

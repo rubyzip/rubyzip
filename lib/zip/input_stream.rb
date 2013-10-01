@@ -76,10 +76,6 @@ module Zip
       open_entry
     end
 
-    def password=(password)
-      @password = password
-    end
-
     # Modeled after IO.sysread
     def sysread(number_of_bytes = nil, buf = nil)
       @decompressor.sysread(number_of_bytes, buf)
@@ -156,9 +152,8 @@ module Zip
 
         ::Zip::Decrypter.new(
           @archive_io,
-          @current_entry.compressed_size,
           @current_entry.extra["AES"].encryption_strength,
-          @password,
+          @current_entry.compressed_size,
           get_decompressor(@current_entry.extra["AES"].compression_method)
         )
 

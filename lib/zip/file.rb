@@ -87,6 +87,10 @@ module Zip
       @restore_times       = true
     end
 
+    def password=(password)
+      @password = password
+    end
+
     class << self
       # Same as #new. If a block is passed the ZipFile object is passed
       # to the block and is automatically closed afterwards just as with
@@ -221,7 +225,10 @@ module Zip
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.
     def get_input_stream(entry, &aProc)
-      get_entry(entry).get_input_stream(&aProc)
+      get_entry(entry).get_input_stream do |zis|
+        zis.password = @password
+        aProc.call(zis)
+      end
     end
 
     # Returns an output stream to the specified entry. If a block is passed
