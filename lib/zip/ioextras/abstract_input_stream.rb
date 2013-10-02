@@ -19,7 +19,7 @@ module Zip
       attr_writer :password
 
       def read(number_of_bytes = nil, buf = '')
-        @decompressor.password = @password if !@password.nil? and @decompressor.respond_to? :password
+        @decompressor.password = @password if !@password.nil? and @decompressor.respond_to? :password=
         tbuf = if @output_buffer.bytesize > 0
                  if number_of_bytes <= @output_buffer.bytesize
                    @output_buffer.slice!(0, number_of_bytes)
