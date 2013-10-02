@@ -16,7 +16,7 @@ module Zip
 
       attr_accessor :lineno
       attr_reader :pos
-      attr_accessor :password
+      attr_writer :password
 
       def read(number_of_bytes = nil, buf = '')
         @decompressor.password = @password if !@password.nil? and @decompressor.respond_to? :password=
