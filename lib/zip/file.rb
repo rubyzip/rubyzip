@@ -224,11 +224,18 @@ module Zip
       get_entry(entry).get_input_stream(&aProc)
     end
 
-    # Returns an output stream to the specified entry. If a block is passed
-    # the stream object is passed to the block and the stream is automatically
-    # closed afterwards just as with ruby's builtin File.open method.
-    def get_output_stream(entry, permissionInt = nil, &aProc)
-      newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
+    # Returns an output stream to the specified entry. If entry is not an instance
+    # of Zip::Entry, a new Zip::Entry will be initialized using the arguments
+    # specified. If a block is passed the stream object is passed to the block and 
+    # the stream is automatically closed afterwards just as with ruby's builtin 
+    # File.open method.
+    def get_output_stream(entry, permissionInt = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
+      newEntry =
+        if entry.kind_of?(Entry)
+          entry
+        else
+          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
+        end
       if newEntry.directory?
         raise ArgumentError,
               "cannot open stream to directory entry - '#{newEntry}'"
