@@ -44,12 +44,12 @@ module Zip
 
   class File < CentralDirectory
 
-    CREATE           = 1
-    SPLIT_SIGNATURE  = 0x08074b50
+    CREATE               = 1
+    SPLIT_SIGNATURE      = 0x08074b50
     ZIP64_EOCD_SIGNATURE = 0x06064b50
-    MAX_SEGMENT_SIZE = 3221225472
-    MIN_SEGMENT_SIZE = 65536
-    DATA_BUFFER_SIZE = 8192
+    MAX_SEGMENT_SIZE     = 3221225472
+    MIN_SEGMENT_SIZE     = 65536
+    DATA_BUFFER_SIZE     = 8192
 
     attr_reader :name
 
@@ -64,24 +64,25 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(fileName, create = nil, buffer = false)
+    def initialize(file_name, create = nil, buffer = false)
       super()
-      @name    = fileName
+      @name    = file_name
       @comment = ''
-      @create = create
+      @create  = create
       case
-      when ::File.exists?(fileName) && !buffer
+      when ::File.exists?(file_name) && !buffer
         @create = nil
+        @exist_file_perms = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
           read_from_stream(f)
         end
       when create
         @entry_set = EntrySet.new
       else
-        raise ZipError, "File #{fileName} not found"
+        raise ZipError, "File #{file_name} not found"
       end
-      @storedEntries       = @entry_set.dup
-      @storedComment       = @comment
+      @stored_entries      = @entry_set.dup
+      @stored_comment      = @comment
       @restore_ownership   = false
       @restore_permissions = false
       @restore_times       = true
@@ -91,8 +92,8 @@ module Zip
       # Same as #new. If a block is passed the ZipFile object is passed
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
-      def open(fileName, create = nil)
-        zf = ::Zip::File.new(fileName, create)
+      def open(file_name, create = nil)
+        zf = ::Zip::File.new(file_name, create)
         if block_given?
           begin
             yield zf
@@ -173,8 +174,8 @@ module Zip
       # TODO: Make the code more understandable
       #
       def save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
-        ssegment_size = zip_file_size - zip_file.pos
-        ssegment_size = segment_size if ssegment_size > segment_size
+        ssegment_size  = zip_file_size - zip_file.pos
+        ssegment_size  = segment_size if ssegment_size > segment_size
         szip_file_name = "#{partial_zip_file_name}.#{'%03d'%(szip_file_index)}"
         ::File.open(szip_file_name, 'wb') do |szip_file|
           if szip_file_index == 1
@@ -291,20 +292,16 @@ module Zip
     # the zip archive.
     def commit
       return if !commit_required?
-      on_success_replace(name) {
-        |tmpFile|
-        OutputStream.open(tmpFile) {
-          |zos|
-
-          @entry_set.each {
-            |e|
+      on_success_replace do |tmpFile|
+        ::Zip::OutputStream.open(tmpFile) do |zos|
+          @entry_set.each do |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
-          }
+          end
           zos.comment = comment
-        }
+        end
         true
-      }
+      end
       initialize(name)
     end
 
@@ -328,7 +325,7 @@ module Zip
       @entry_set.each do |e|
         return true if e.dirty
       end
-      @comment != @storedComment || @entry_set != @storedEntries || @create == File::CREATE
+      @comment != @stored_comment || @entry_set != @stored_entries || @create == File::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if
@@ -397,19 +394,22 @@ module Zip
       end
     end
 
-    def on_success_replace(aFilename)
+    def on_success_replace
       tmpfile     = get_tempfile
-      tmpFilename = tmpfile.path
+      tmp_filename = tmpfile.path
       tmpfile.close
-      if yield tmpFilename
-        ::File.rename(tmpFilename, name)
+      if yield tmp_filename
+        ::File.rename(tmp_filename, self.name)
+        if defined?(@exist_file_perms)
+          ::File.chmod(@exist_file_perms, self.name)
+        end
       end
     end
 
     def get_tempfile
-      tempFile = Tempfile.new(::File.basename(name), ::File.dirname(name))
-      tempFile.binmode
-      tempFile
+      temp_file = Tempfile.new(::File.basename(name), ::File.dirname(name))
+      temp_file.binmode
+      temp_file
     end
 
   end

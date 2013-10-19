@@ -1160,6 +1160,8 @@ class BasicZipFileTest < Test::Unit::TestCase
                                     fileAndEntryName)
     }
   end
+
+
 end
 
 module CommonZipFileFixture
@@ -1249,7 +1251,7 @@ class ZipFileTest < Test::Unit::TestCase
   def test_add
     srcFile   = "data/file2.txt"
     entryName = "newEntryName.rb"
-    assert(File.exists?(srcFile))
+    assert(::File.exists?(srcFile))
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
     zf.add(entryName, srcFile)
     zf.close
@@ -1260,6 +1262,19 @@ class ZipFileTest < Test::Unit::TestCase
     assert_equal(entryName, zfRead.entries.first.name)
     AssertEntry.assert_contents(srcFile,
                                 zfRead.get_input_stream(entryName) { |zis| zis.read })
+  end
+
+  def test_recover_permissions_after_add_files_to_archive
+    srcZip = TEST_ZIP.zip_name
+    ::File.chmod(0664, srcZip)
+    srcFile   = "data/file2.txt"
+    entryName = "newEntryName.rb"
+    assert_equal(::File.stat(srcZip).mode, 0100664)
+    assert(::File.exists?(srcZip))
+    zf = ::Zip::File.new(srcZip, ::Zip::File::CREATE)
+    zf.add(entryName, srcFile)
+    zf.close
+    assert_equal(::File.stat(srcZip).mode, 0100664)
   end
 
   def test_addExistingEntryName
