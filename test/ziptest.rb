@@ -886,8 +886,8 @@ end
 class ZipEntrySetTest < Test::Unit::TestCase
   ZIP_ENTRIES = [
     ::Zip::Entry.new("zipfile.zip", "name1", "comment1"),
-    ::Zip::Entry.new("zipfile.zip", "name2", "comment1"),
     ::Zip::Entry.new("zipfile.zip", "name3", "comment1"),
+    ::Zip::Entry.new("zipfile.zip", "name2", "comment1"),
     ::Zip::Entry.new("zipfile.zip", "name4", "comment1"),
     ::Zip::Entry.new("zipfile.zip", "name5", "comment1"),
     ::Zip::Entry.new("zipfile.zip", "name6", "comment1")
@@ -941,7 +941,14 @@ class ZipEntrySetTest < Test::Unit::TestCase
   end
 
   def test_entries
-    assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries.sort)
+    assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
+  end
+
+  def test_entries_with_sort
+    ::Zip.sort_entries = true
+    assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries)
+    ::Zip.sort_entries = false
+    assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
   end
 
   def test_compound
@@ -1366,6 +1373,39 @@ class ZipFileTest < Test::Unit::TestCase
     assert(zfRead.entries.map { |e| e.name }.include?(newName))
     assert_equal(contents, zfRead.read(newName))
     zfRead.close
+  end
+
+  def test_rename_with_each
+    zf_name = 'test_rename_zip.zip'
+    if ::File.exist?(zf_name)
+      ::File.unlink(zf_name)
+    end
+    arr = []
+    arr_renamed = []
+    ::Zip::File.open(zf_name, ::Zip::File::CREATE) do |zf|
+      zf.mkdir('test')
+      arr << 'test/'
+      arr_renamed << 'Ztest/'
+      %w(a b c d).each do |f|
+        zf.get_output_stream("test/#{f}") {|file| file.puts 'aaaa'}
+        arr << "test/#{f}"
+        arr_renamed << "Ztest/#{f}"
+      end
+    end
+    zf = ::Zip::File.open(zf_name)
+    assert_equal(zf.entries.map(&:name), arr)
+    zf.close
+    Zip::File.open(zf_name, "wb") do |z|
+      z.each do |f|
+        z.rename(f, "Z#{f.name}")
+      end
+    end
+    zf = ::Zip::File.open(zf_name)
+    assert_equal(zf.entries.map(&:name), arr_renamed)
+    zf.close
+    if ::File.exist?(zf_name)
+      ::File.unlink(zf_name)
+    end
   end
 
   def test_renameToExistingEntry

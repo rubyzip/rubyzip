@@ -34,13 +34,14 @@ end
 
 module Zip
   extend self
-  attr_accessor :unicode_names, :on_exists_proc, :continue_on_exists_proc
+  attr_accessor :unicode_names, :on_exists_proc, :continue_on_exists_proc, :sort_entries
 
   def reset!
     @_ran_once = false
     @unicode_names = false
     @on_exists_proc = false
     @continue_on_exists_proc = false
+    @sort_entries = false
   end
 
   def setup

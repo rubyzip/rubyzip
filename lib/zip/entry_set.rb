@@ -6,7 +6,6 @@ module Zip
     def initialize(an_enumerable = [])
       super()
       @entry_set   = {}
-      @entry_order = []
       an_enumerable.each { |o| push(o) }
     end
 
@@ -19,8 +18,6 @@ module Zip
     end
 
     def <<(entry)
-      @entry_order.delete(to_key(entry))
-      @entry_order << to_key(entry)
       @entry_set[to_key(entry)] = entry
     end
 
@@ -33,7 +30,7 @@ module Zip
     alias :length :size
 
     def delete(entry)
-      if @entry_order.delete(to_key(entry)) && @entry_set.delete(to_key(entry))
+      if @entry_set.delete(to_key(entry))
         entry
       else
         nil
@@ -41,23 +38,27 @@ module Zip
     end
 
     def each(&block)
-      @entry_order.each do |key|
-        block.call @entry_set[key]
+      @entry_set = @entry_set.dup.each do |_, value|
+        block.call(value)
       end
     end
 
     def entries
-      @entry_order.map { |key| @entry_set[key] }
+      if ::Zip.sort_entries == true
+        @entry_set.values.sort_by{|x| x.name}
+      else
+        @entry_set.values
+      end
     end
 
     # deep clone
     def dup
-      EntrySet.new(@entry_order.map { |key| @entry_set[key].dup })
+      EntrySet.new(@entry_set.map { |key, value| value.dup })
     end
 
     def ==(other)
       return false unless other.kind_of?(EntrySet)
-      @entry_set == other.entry_set && @entry_order == other.entry_order
+      @entry_set.values == other.entry_set.values
     end
 
     def parent(entry)

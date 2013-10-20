@@ -314,11 +314,10 @@ module Zip
 
     # Write buffer write changes to buffer and return
     def write_buffer
-      buffer = OutputStream.write_buffer do |zos|
+      OutputStream.write_buffer do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
-      return buffer
     end
 
     # Closes the zip file committing any changes that has been made.
@@ -349,14 +348,14 @@ module Zip
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
     # if no entry is found.
     def get_entry(entry)
-      selectedEntry = find_entry(entry)
-      unless selectedEntry
+      selected_entry = find_entry(entry)
+      unless selected_entry
         raise Errno::ENOENT, entry
       end
-      selectedEntry.restore_ownership   = @restore_ownership
-      selectedEntry.restore_permissions = @restore_permissions
-      selectedEntry.restore_times       = @restore_times
-      selectedEntry
+      selected_entry.restore_ownership   = @restore_ownership
+      selected_entry.restore_permissions = @restore_permissions
+      selected_entry.restore_times       = @restore_times
+      selected_entry
     end
 
     # Creates a directory
@@ -366,7 +365,7 @@ module Zip
       end
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
-      @entry_set << StreamableDirectory.new(@name, entryName, nil, permissionInt)
+      @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
     end
 
     private

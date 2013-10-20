@@ -68,6 +68,24 @@ Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
 end
 ```
 
+### Save zip archive entries in sorted by name state
+
+To saving zip archives in sorted order like below you need to set `::Zip.sort_entries` to `true`
+
+```
+Vegetable/
+Vegetable/bean
+Vegetable/carrot
+Vegetable/celery
+fruit/
+fruit/apple
+fruit/kiwi
+fruit/mango
+fruit/orange
+```
+
+After this entries in zip archive will be saved in ordered state.
+
 ## Known issues
 
 ### Modify docx file with rubyzip
