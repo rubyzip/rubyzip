@@ -64,7 +64,7 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(file_name, create = nil, buffer = false)
+    def initialize(file_name, create = nil, buffer = false, options = {})
       super()
       @name    = file_name
       @comment = ''
@@ -83,9 +83,9 @@ module Zip
       end
       @stored_entries      = @entry_set.dup
       @stored_comment      = @comment
-      @restore_ownership   = false
-      @restore_permissions = false
-      @restore_times       = true
+      @restore_ownership   = options[:restore_ownership]    || false
+      @restore_permissions = options[:restore_permissions]  || true
+      @restore_times       = options[:restore_times]        || true
     end
 
     class << self
@@ -116,11 +116,11 @@ module Zip
       # stream, and outputs data to a buffer.
       # (This can be used to extract data from a 
       # downloaded zip archive without first saving it to disk.)
-      def open_buffer(io)
+      def open_buffer(io, options = {})
         unless io.is_a?(IO) || io.is_a?(String)
-          raise "Zip::ZipFile.open_buffer expects an argument of class String or IO. Found: #{io.class}"
+          raise "Zip::File.open_buffer expects an argument of class String or IO. Found: #{io.class}"
         end
-        zf = ::Zip::File.new('', true, true)
+        zf = ::Zip::File.new('', true, true, options)
         if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
