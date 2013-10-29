@@ -16,6 +16,10 @@ If you have issues with any third-party gems what required rubyzip you can use n
 gem 'rubyzip', '< 1.0.0'
 ```
 
+## Requirements
+
+* Ruby 1.9.2 or greater
+
 ## Installation
 rubyzip is available on RubyGems, so:
 
