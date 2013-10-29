@@ -6,6 +6,7 @@
 1.0.0
 =====
 
+* Removed support for Ruby 1.8
 * Changed the API for gem. Now it can be used without require param in Gemfile.
 * Added read-only support for Zip64 files.
 * Added support for setting Unicode file names.
