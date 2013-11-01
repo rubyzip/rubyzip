@@ -2,6 +2,10 @@
 =====
 
 * StringIO Support
+* Zip64 Support
+* Better jRuby Support
+* Order of files in the archive can be sorted
+* Other small fixes
 
 1.0.0
 =====
