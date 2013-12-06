@@ -13,7 +13,7 @@ If you have issues with any third-party gems what required rubyzip you can use n
 
 ```ruby
 # Place this line before your library or on the head of your Gemfile
-gem 'rubyzip', '< 1.0.0'
+gem 'rubyzip', '~> 1.1.0'
 ```
 
 ## Requirements
