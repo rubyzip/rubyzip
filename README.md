@@ -53,6 +53,7 @@ Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
     # - The original file, including the path to find it
     zipfile.add(filename, folder + '/' + filename)
   end
+  zipfile.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
 end
 ```
 
