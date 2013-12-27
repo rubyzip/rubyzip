@@ -3,6 +3,7 @@ rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
+  - 2.1.0
   - ruby-head
   - rbx
 matrix:
@@ -19,8 +20,5 @@ before_script:
   - sudo apt-get install -qq zip unzip
   - echo `whereis zip`
   - echo `whereis unzip`
-branches:
-  only:
-    - master
 allow_failures:
   - rvm: ruby-head
