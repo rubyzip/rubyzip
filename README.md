@@ -9,12 +9,16 @@ rubyzip is a ruby library for reading and writing zip files.
 
 Rubyzip interface changed!!! No need to do `require "zip/zip"` and `Zip` prefix in class names removed.
 
-If you have issues with any third-party gems what required rubyzip you can use next temporary fix:
+If you have issues with any third-party gems what required old version of rubyzip you can use next workaround:
 
 ```ruby
-# Place this line before your library or on the head of your Gemfile
-gem 'rubyzip', '< 1.0.0'
+gem 'rubyzip', '>= 1.0.0' # will load new rubyzip version
+gem 'zip-zip' # will load compatibility for old rubyzip API.
 ```
+
+## Requirements
+
+* Ruby 1.9.2 or greater
 
 ## Installation
 rubyzip is available on RubyGems, so:
@@ -49,6 +53,7 @@ Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
     # - The original file, including the path to find it
     zipfile.add(filename, folder + '/' + filename)
   end
+  zipfile.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
 end
 ```
 
@@ -67,6 +72,24 @@ Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
 	end
 end
 ```
+
+### Save zip archive entries in sorted by name state
+
+To saving zip archives in sorted order like below you need to set `::Zip.sort_entries` to `true`
+
+```
+Vegetable/
+Vegetable/bean
+Vegetable/carrot
+Vegetable/celery
+fruit/
+fruit/apple
+fruit/kiwi
+fruit/mango
+fruit/orange
+```
+
+After this entries in zip archive will be saved in ordered state.
 
 ## Known issues
 

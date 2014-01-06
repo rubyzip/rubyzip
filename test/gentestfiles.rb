@@ -93,7 +93,8 @@ class TestZipFile
           system("/usr/bin/zip #{TEST_ZIP1.zip_name} -d data/file2.txt")
       
       File.open("data/generated/empty.txt", "w") {}
-      File.open("data/generated/empty_chmod640.txt", "w") { |f| f.chmod(0640) }
+      File.open("data/generated/empty_chmod640.txt", "w") { }
+      ::File.chmod(0640, "data/generated/empty_chmod640.txt")
       
       File.open("data/generated/short.txt", "w") { |file| file << "ABCDEF" }
       ziptestTxt=""
