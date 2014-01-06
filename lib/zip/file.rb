@@ -226,10 +226,16 @@ module Zip
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.
     def get_input_stream(entry, &aProc)
-      get_entry(entry).get_input_stream do |zis|
-        zis.password = @password
-        aProc.call(zis)
+
+      if aProc
+        get_entry(entry).get_input_stream do |zis|
+          zis.password = @password if zis.respond_to? :password= # Make sure that tempfile does not call :password=
+          aProc.call(zis)
+        end
+      else
+        get_entry(entry).get_input_stream
       end
+
     end
 
     # Returns an output stream to the specified entry. If entry is not an instance

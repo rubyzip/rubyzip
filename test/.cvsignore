@@ -1,0 +1,11 @@
+4entry_copy.zip
+cdirtest.bin
+centralEntryHeader.bin
+deflatertest.bin
+dummy.txt
+emptyOutDir
+localEntryHeader.bin
+okToDeleteMoved.txt
+output.zip
+test_putOnClosedStream.zip
+zipWithDirs_copy.zip
