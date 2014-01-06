@@ -177,7 +177,12 @@ module Zip
       end
 
       def read_c_dir_entry(io) #:nodoc:all
-        entry = new(io.path)
+        path = if io.is_a?(::IO)
+              io.path
+             else
+               ''
+             end
+        entry = new(path)
         entry.read_c_dir_entry(io)
         entry
       rescue ZipError
