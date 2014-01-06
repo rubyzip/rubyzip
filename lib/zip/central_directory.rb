@@ -22,20 +22,27 @@ module Zip
     end
 
     def write_to_stream(io) #:nodoc:
-      offset = io.tell
+      cdir_offset = io.tell
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
-      write_e_o_c_d(io, offset)
+      eocd_offset = io.tell
+      cdir_size = eocd_offset - cdir_offset
+      has_zip64_entry = @entry_set.any? { |entry| entry.extra['Zip64'] }
+      if has_zip64_entry || cdir_offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
+        write_64_e_o_c_d(io, cdir_offset, cdir_size)
+        write_64_eocd_locator(io, eocd_offset)
+      end
+      write_e_o_c_d(io, cdir_offset, cdir_size)
     end
 
-    def write_e_o_c_d(io, offset) #:nodoc:
+    def write_e_o_c_d(io, offset, cdir_size) #:nodoc:
       tmp = [
         END_OF_CDS,
         0, # @numberOfThisDisk
         0, # @numberOfDiskWithStartOfCDir
-        @entry_set ? @entry_set.size : 0,
-        @entry_set ? @entry_set.size : 0,
-        cdir_size,
-        offset,
+        @entry_set ? [@entry_set.size, 0xFFFF].min : 0,
+        @entry_set ? [@entry_set.size, 0xFFFF].min : 0,
+        [cdir_size, 0xFFFFFFFF].min,
+        [offset, 0xFFFFFFFF].min,
         @comment ? @comment.length : 0
       ]
       io << tmp.pack('VvvvvVVv')
@@ -44,14 +51,35 @@ module Zip
 
     private :write_e_o_c_d
 
-    def cdir_size #:nodoc:
-      # does not include eocd
-      @entry_set.inject(0) do |value, entry|
-        entry.cdir_header_size + value
-      end
+    def write_64_e_o_c_d(io, offset, cdir_size) #:nodoc:
+      tmp = [
+        ZIP64_END_OF_CDS,
+        44, # size of zip64 end of central directory record (excludes signature and field itself)
+        VERSION_MADE_BY,
+        VERSION_NEEDED_TO_EXTRACT_ZIP64,
+        0, # @numberOfThisDisk
+        0, # @numberOfDiskWithStartOfCDir
+        @entry_set ? @entry_set.size : 0, # number of entries on this disk
+        @entry_set ? @entry_set.size : 0, # number of entries total
+        cdir_size, # size of central directory
+        offset, # offset of start of central directory in its disk
+      ]
+      io << tmp.pack('VQ<vvVVQ<Q<Q<Q<')
     end
 
-    private :cdir_size
+    private :write_64_e_o_c_d
+
+    def write_64_eocd_locator(io, zip64_eocd_offset)
+      tmp = [
+        ZIP64_EOCD_LOCATOR,
+        0, # number of disk containing the start of zip64 eocd record
+        zip64_eocd_offset, # offset of the start of zip64 eocd record in its disk
+        1 # total number of disks
+      ]
+      io << tmp.pack('VVQ<V')
+    end
+
+    private :write_64_eocd_locator
 
     def read_64_e_o_c_d(buf) #:nodoc:
       buf                                           = get_64_e_o_c_d(buf)

@@ -22,7 +22,7 @@ module Zip
       @header_signature         = ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
 
       @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT
-      @version                   = 52 # this library's version
+      @version                   = VERSION_MADE_BY
 
       @ftype           = nil          # unspecified or unknown
       @filepath        = nil
@@ -125,8 +125,15 @@ module Zip
     end
 
     def calculate_local_header_size #:nodoc:all
-      fix_zip64_sizes!
       LOCAL_ENTRY_STATIC_HEADER_LENGTH + name_size + extra_size
+    end
+
+    # check before rewriting an entry (after file sizes are known)
+    # that we didn't change the header size (and thus clobber file data or something)
+    def verify_local_header_size!
+      return if @local_header_size == 0
+      new_size = calculate_local_header_size
+      raise ZipError, "local header size changed (#{@local_header_size} -> #{new_size})" if @local_header_size != new_size
     end
 
     def cdir_header_size #:nodoc:all
@@ -170,7 +177,7 @@ module Zip
       end
 
       def read_zip_64_long(io) # :nodoc:
-        io.read(8).unpack('V')[0]
+        io.read(8).unpack('Q<')[0]
       end
 
       def read_c_dir_entry(io) #:nodoc:all
@@ -238,6 +245,7 @@ module Zip
           @extra = ::Zip::ExtraField.new(extra)
         end
       end
+      parse_zip64_extra(true)
       @local_header_size = calculate_local_header_size
 
       # If the "data descriptor present" bit is set in the general flags
@@ -270,6 +278,7 @@ module Zip
     end
 
     def pack_local_entry
+      zip64 = @extra['Zip64']
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
        @gp_flags, # @gp_flags                  ,
@@ -277,19 +286,22 @@ module Zip
        @time.to_binary_dos_time, # @last_mod_time              ,
        @time.to_binary_dos_date, # @last_mod_date              ,
        @crc,
-       @compressed_size,
-       @size,
+       (zip64 && zip64.compressed_size) ? 0xFFFFFFFF : @compressed_size,
+       (zip64 && zip64.original_size) ? 0xFFFFFFFF : @size,
        name_size,
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
-    def write_local_entry(io) #:nodoc:all
+    def write_local_entry(io, rewrite = false) #:nodoc:all
+      prep_zip64_extra(true)
+      verify_local_header_size! if rewrite
       @local_header_offset = io.tell
 
       io << pack_local_entry
 
       io << @name
       io << (@extra ? @extra.to_local_bin : '')
+      @local_header_size = io.tell - @local_header_offset
     end
 
     def unpack_c_dir_entry(buf)
@@ -382,6 +394,7 @@ module Zip
       @comment = io.read(@comment_length)
       check_c_dir_entry_comment_size
       set_ftype_from_c_dir_entry
+      parse_zip64_extra(false)
       @local_header_size = calculate_local_header_size
     end
 
@@ -422,6 +435,7 @@ module Zip
     end
 
     def pack_c_dir_entry
+      zip64 = @extra['Zip64']
       [
         @header_signature,
         @version, # version of encoding software
@@ -432,22 +446,20 @@ module Zip
         @time.to_binary_dos_time, # @last_mod_time                      ,
         @time.to_binary_dos_date, # @last_mod_date                      ,
         @crc,
-        @compressed_size,
-        @size,
+        (zip64 && zip64.compressed_size) ? 0xFFFFFFFF : @compressed_size,
+        (zip64 && zip64.original_size) ? 0xFFFFFFFF : @size,
         name_size,
         @extra ? @extra.c_dir_size : 0,
         comment_size,
-        0, # disk number start
+        (zip64 && zip64.disk_start_number) ? 0xFFFF : 0, # disk number start
         @internal_file_attributes, # file type (binary=0, text=1)
         @external_file_attributes, # native filesystem attributes
-        @local_header_offset,
-        @name,
-        @extra,
-        @comment
+        (zip64 && zip64.relative_header_offset) ? 0xFFFFFFFF : @local_header_offset
       ].pack('VCCvvvvvVVVvvvvvVV')
     end
 
     def write_c_dir_entry(io) #:nodoc:all
+      prep_zip64_extra(false)
       case @fstype
       when ::Zip::FSTYPE_UNIX
         ft = case @ftype
@@ -639,10 +651,50 @@ module Zip
       ::File.symlink(linkto, dest_path)
     end
 
-    def fix_zip64_sizes! #:nodoc:all
-      if zip64 = @extra["Zip64"]
-        @size = zip64.original_size
-        @compressed_size = zip64.compressed_size
+    # apply missing data from the zip64 extra information field, if present
+    # (required when file sizes exceed 2**32, but can be used for all files)
+    def parse_zip64_extra(for_local_header) #:nodoc:all
+      if zip64 = @extra['Zip64']
+        if for_local_header
+          @size, @compressed_size = zip64.parse(@size, @compressed_size)
+        else
+          @size, @compressed_size, @local_header_offset = zip64.parse(@size, @compressed_size, @local_header_offset)
+        end
+      end
+    end
+
+    # create a zip64 extra information field if we need one
+    def prep_zip64_extra(for_local_header) #:nodoc:all
+      need_zip64 = @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
+      unless for_local_header
+        need_zip64 ||= @local_header_offset >= 0xFFFFFFFF
+      end
+
+      if need_zip64
+        @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
+        @extra.delete('Zip64Placeholder')
+        zip64 = @extra.create('Zip64')
+        if for_local_header
+          # local header always includes size and compressed size
+          zip64.original_size = @size
+          zip64.compressed_size = @compressed_size
+        else
+          # central directory entry entries include whichever fields are necessary
+          zip64.original_size = @size if @size >= 0xFFFFFFFF
+          zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
+          zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
+        end
+      else
+        @extra.delete('Zip64')
+
+        # if this is a local header entry, create a placeholder
+        # so we have room to write a zip64 extra field afterward
+        # (we won't know if it's needed until the file data is written)
+        if for_local_header
+          @extra.create('Zip64Placeholder')
+        else
+          @extra.delete('Zip64Placeholder')
+        end
       end
     end
 
