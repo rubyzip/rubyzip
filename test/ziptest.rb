@@ -2062,6 +2062,26 @@ class ZipSettingsTest < Test::Unit::TestCase
     end
   end
 
+  def test_streaming
+    fname = "../README.md"
+    zname = "README.zip"
+    Zip::File.open(zname, Zip::File::CREATE) do |zipfile|
+      zipfile.get_output_stream(File.basename(fname)) { |f| f.puts File.read(fname) }
+    end
+
+    data = nil
+    Zip::File.open_buffer(File.read(zname)) do |zipfile|
+      zipfile.each do |entry|
+        next unless entry.name =~ /README.md/
+        data = zipfile.read(entry)
+      end
+    end
+    assert data
+    assert data =~ /Simonov/
+  ensure
+    FileUtils.rm_f zname
+  end
+
   private
   def assert_contains(zf, entryName, filename = entryName)
     assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
