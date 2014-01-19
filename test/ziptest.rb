@@ -2072,7 +2072,7 @@ class ZipSettingsTest < Test::Unit::TestCase
     end
 
     data = nil
-    Zip::File.open_buffer(File.read(zname)) do |zipfile|
+    Zip::File.open_buffer(File.binread(zname)) do |zipfile|
       zipfile.each do |entry|
         next unless entry.name =~ /README.md/
         data = zipfile.read(entry)

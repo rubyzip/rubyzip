@@ -28,7 +28,10 @@ module Zip
       super()
       @file_name = file_name
       @output_stream = if stream
-                         @file_name.dup
+                         iostream = @file_name.dup
+                         iostream.reopen
+                         iostream.rewind
+                         iostream
                        else
                          ::File.new(@file_name, "wb")
                        end
