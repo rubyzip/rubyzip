@@ -180,7 +180,7 @@ module Zip
         path = if io.is_a?(::IO)
               io.path
              else
-               ''
+               io
              end
         entry = new(path)
         entry.read_c_dir_entry(io)
@@ -551,7 +551,11 @@ module Zip
     end
 
     def get_raw_input_stream(&block)
-      ::File.open(@zipfile, "rb", &block)
+      if @zipfile.is_a?(::IO) || @zipfile.is_a?(::StringIO)
+        yield @zipfile
+      else
+        ::File.open(@zipfile, "rb", &block)
+      end
     end
 
     private

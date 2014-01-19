@@ -1,41 +1,41 @@
 module Zip
   # InputStream is the basic class for reading zip entries in a
   # zip file. It is possible to create a InputStream object directly,
-  # passing the zip file name to the constructor, but more often than not 
+  # passing the zip file name to the constructor, but more often than not
   # the InputStream will be obtained from a File (perhaps using the
-  # ZipFileSystem interface) object for a particular entry in the zip 
+  # ZipFileSystem interface) object for a particular entry in the zip
   # archive.
   #
   # A InputStream inherits IOExtras::AbstractInputStream in order
-  # to provide an IO-like interface for reading from a single zip 
-  # entry. Beyond methods for mimicking an IO-object it contains 
-  # the method get_next_entry for iterating through the entries of 
+  # to provide an IO-like interface for reading from a single zip
+  # entry. Beyond methods for mimicking an IO-object it contains
+  # the method get_next_entry for iterating through the entries of
   # an archive. get_next_entry returns a Entry object that describes
   # the zip entry the InputStream is currently reading from.
   #
-  # Example that creates a zip archive with ZipOutputStream and reads it 
+  # Example that creates a zip archive with ZipOutputStream and reads it
   # back again with a InputStream.
   #
   #   require 'zip'
-  #   
+  #
   #   Zip::OutputStream.open("my.zip") do |io|
-  #   
+  #
   #     io.put_next_entry("first_entry.txt")
   #     io.write "Hello world!"
-  #   
+  #
   #     io.put_next_entry("adir/first_entry.txt")
   #     io.write "Hello again!"
   #   end
   #
-  #   
+  #
   #   Zip::InputStream.open("my.zip") do |io|
-  #   
+  #
   #     while (entry = io.get_next_entry)
   #       puts "Contents of #{entry.name}: '#{io.read}'"
   #     end
   #   end
   #
-  # java.util.zip.ZipInputStream is the original inspiration for this 
+  # java.util.zip.ZipInputStream is the original inspiration for this
   # class.
 
   class InputStream
@@ -60,7 +60,7 @@ module Zip
 
     # Returns a Entry object. It is necessary to call this
     # method on a newly created InputStream before reading from
-    # the first entry in the archive. Returns nil when there are 
+    # the first entry in the archive. Returns nil when there are
     # no more entries.
     def get_next_entry
       @archive_io.seek(@current_entry.next_header_offset, IO::SEEK_SET) if @current_entry
@@ -112,7 +112,9 @@ module Zip
     def get_io(io_or_file, offset = 0)
       case io_or_file
       when IO, StringIO
-        io_or_file
+        io = io_or_file.dup
+        io.seek(offset, ::IO::SEEK_SET)
+        io
       else
         file = ::File.open(io_or_file, 'rb')
         file.seek(offset, ::IO::SEEK_SET)

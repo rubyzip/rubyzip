@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 
-$VERBOSE = true
-
 $: << "../lib"
 
 require 'test/unit'
@@ -725,7 +723,8 @@ class ZipOutputStreamTest < Test::Unit::TestCase
   end
 
   def test_write_buffer
-    buffer = ::Zip::OutputStream.write_buffer do |zos|
+    io = ::StringIO.new('')
+    buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -1515,7 +1514,8 @@ class ZipFileTest < Test::Unit::TestCase
     zf      = ::Zip::File.new(TEST_ZIP.zip_name)
     oldName = zf.entries.first
     zf.rename(oldName, newName)
-    buffer = zf.write_buffer
+    io = ::StringIO.new('')
+    buffer = zf.write_buffer(io)
     File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
     zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
     assert(zfRead.entries.detect { |e| e.name == newName } != nil)
@@ -2066,7 +2066,9 @@ class ZipSettingsTest < Test::Unit::TestCase
     fname = "../README.md"
     zname = "README.zip"
     Zip::File.open(zname, Zip::File::CREATE) do |zipfile|
-      zipfile.get_output_stream(File.basename(fname)) { |f| f.puts File.read(fname) }
+      zipfile.get_output_stream(File.basename(fname)) do |f|
+        f.puts File.read(fname)
+      end
     end
 
     data = nil
@@ -2078,8 +2080,6 @@ class ZipSettingsTest < Test::Unit::TestCase
     end
     assert data
     assert data =~ /Simonov/
-  ensure
-    FileUtils.rm_f zname
   end
 
   private

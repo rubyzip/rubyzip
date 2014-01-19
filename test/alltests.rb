@@ -9,9 +9,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 SimpleCov.start do
   add_filter '/test'
 end
-Dir.chdir File.join(File.dirname(__FILE__))
-
-$VERBOSE = true
+::Dir.chdir File.join(File.dirname(__FILE__))
 
 require 'ioextrastest'
 require 'ziptest'

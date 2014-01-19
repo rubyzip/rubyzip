@@ -70,7 +70,7 @@ module Zip
       @comment = ''
       @create  = create
       case
-      when ::File.exists?(file_name) && !buffer
+      when !buffer && ::File.exists?(file_name)
         @create = nil
         @exist_file_perms = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
@@ -107,27 +107,28 @@ module Zip
 
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
-        zf = ::Zip::File.new('', true, true)
+        io = ::StringIO.new('')
+        zf = ::Zip::File.new(io, true, true)
         yield zf
-        zf.write_buffer
+        zf.write_buffer(io)
       end
 
       # Like #open, but reads zip archive contents from a String or open IO
       # stream, and outputs data to a buffer.
-      # (This can be used to extract data from a 
+      # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io, options = {})
         unless io.is_a?(IO) || io.is_a?(String) || io.is_a?(Tempfile)
           raise "Zip::File.open_buffer expects an argument of class String, IO, or Tempfile. Found: #{io.class}"
         end
-        zf = ::Zip::File.new('', true, true, options)
         if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
         end
+        zf = ::Zip::File.new(io, true, true, options)
         zf.read_from_stream(io)
         yield zf
-        zf.write_buffer
+        zf.write_buffer(io)
       end
 
       # Iterates over the contents of the ZipFile. This is more efficient
@@ -227,24 +228,24 @@ module Zip
 
     # Returns an output stream to the specified entry. If entry is not an instance
     # of Zip::Entry, a new Zip::Entry will be initialized using the arguments
-    # specified. If a block is passed the stream object is passed to the block and 
-    # the stream is automatically closed afterwards just as with ruby's builtin 
+    # specified. If a block is passed the stream object is passed to the block and
+    # the stream is automatically closed afterwards just as with ruby's builtin
     # File.open method.
-    def get_output_stream(entry, permissionInt = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
-      newEntry =
+    def get_output_stream(entry, permission_int = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
+      new_entry =
         if entry.kind_of?(Entry)
           entry
         else
           Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
         end
-      if newEntry.directory?
+      if new_entry.directory?
         raise ArgumentError,
-              "cannot open stream to directory entry - '#{newEntry}'"
+              "cannot open stream to directory entry - '#{new_entry}'"
       end
-      newEntry.unix_perms = permissionInt
-      zipStreamableEntry  = StreamableStream.new(newEntry)
-      @entry_set << zipStreamableEntry
-      zipStreamableEntry.get_output_stream(&aProc)
+      new_entry.unix_perms = permission_int
+      zip_streamable_entry = StreamableStream.new(new_entry)
+      @entry_set << zip_streamable_entry
+      zip_streamable_entry.get_output_stream(&aProc)
     end
 
     # Returns the name of the zip archive
@@ -313,8 +314,8 @@ module Zip
     end
 
     # Write buffer write changes to buffer and return
-    def write_buffer
-      OutputStream.write_buffer do |zos|
+    def write_buffer(io)
+      OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
