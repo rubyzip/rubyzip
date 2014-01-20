@@ -1,7 +1,7 @@
 module Zip
   class Deflater < Compressor #:nodoc:all
 
-    def initialize(output_stream, level = ::Zlib::DEFAULT_COMPRESSION)
+    def initialize(output_stream, level = Zip.default_compression)
       super()
       @output_stream = output_stream
       @zlib_deflater = ::Zlib::Deflate.new(level, -::Zlib::MAX_WBITS)
