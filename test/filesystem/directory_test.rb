@@ -2,7 +2,7 @@ require 'test_helper'
 require 'zip/filesystem'
 
 class ZipFsDirectoryTest < MiniTest::Unit::TestCase
-  TEST_ZIP = "zipWithDirs_copy.zip"
+  TEST_ZIP = "test/data/generated/zipWithDirs_copy.zip"
 
   def setup
     FileUtils.cp("test/data/zipWithDirs.zip", TEST_ZIP)

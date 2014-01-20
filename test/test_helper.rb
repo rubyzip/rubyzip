@@ -197,7 +197,7 @@ module CommonZipFileFixture
   EMPTY_FILENAME = "emptyZipFile.zip"
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-  TEST_ZIP.zip_name = "5entry_copy.zip"
+  TEST_ZIP.zip_name = "test/data/generated/5entry_copy.zip"
 
   def setup
     File.delete(EMPTY_FILENAME) if File.exists?(EMPTY_FILENAME)

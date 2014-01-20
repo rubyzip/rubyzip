@@ -42,9 +42,9 @@ class ZipCentralDirectoryTest < MiniTest::Unit::TestCase
                ::Zip::Entry.new("file.zip", "secondEntryName"),
                ::Zip::Entry.new("file.zip", "lastEntry.txt", "Has a comment too")]
     cdir = ::Zip::CentralDirectory.new(entries, "my zip comment")
-    File.open("cdirtest.bin", "wb") { |f| cdir.write_to_stream(f) }
+    File.open("test/data/generated/cdirtest.bin", "wb") { |f| cdir.write_to_stream(f) }
     cdirReadback = ::Zip::CentralDirectory.new
-    File.open("cdirtest.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
+    File.open("test/data/generated/cdirtest.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
 
     assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
   end
@@ -58,9 +58,9 @@ class ZipCentralDirectoryTest < MiniTest::Unit::TestCase
       entries[index].local_header_offset = offset
     end
     cdir = ::Zip::CentralDirectory.new(entries, "zip comment")
-    File.open("cdir64test.bin", "wb") { |f| cdir.write_to_stream(f) }
+    File.open("test/data/generated/cdir64test.bin", "wb") { |f| cdir.write_to_stream(f) }
     cdirReadback = ::Zip::CentralDirectory.new
-    File.open("cdir64test.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
+    File.open("test/data/generated/cdir64test.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
 
     assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
     assert_equal(::Zip::VERSION_NEEDED_TO_EXTRACT_ZIP64, cdirReadback.instance_variable_get(:@version_needed_for_extract))
