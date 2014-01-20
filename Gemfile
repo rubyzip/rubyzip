@@ -13,3 +13,4 @@ gemspec
 gem 'rake'
 gem 'coveralls', :require => false
 gem 'pry'
+gem 'minitest'
