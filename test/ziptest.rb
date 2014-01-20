@@ -669,6 +669,25 @@ class DeflaterTest < Test::Unit::TestCase
     assert_equal(txt, inflatedTxt)
   end
 
+  def test_default_compression
+    txt = load_file("data/file2.txt")
+
+    Zip.default_compression = ::Zlib::BEST_COMPRESSION
+    deflate(txt, "compressiontest_best_compression.bin")
+    Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
+    deflate(txt, "compressiontest_default_compression.bin")
+    Zip.default_compression = ::Zlib::NO_COMPRESSION
+    deflate(txt, "compressiontest_no_compression.bin")
+
+    best    = File.size("compressiontest_best_compression.bin")
+    default = File.size("compressiontest_default_compression.bin")
+    no      = File.size("compressiontest_no_compression.bin")
+
+    assert(best < default)
+    assert(best < no)
+    assert(default < no)
+  end
+
   private
   def load_file(fileName)
     txt = nil
