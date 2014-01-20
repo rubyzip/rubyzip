@@ -84,7 +84,7 @@ module Zip
 
     # Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
-    def put_next_entry(entryname, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zlib::DEFAULT_COMPRESSION)
+    def put_next_entry(entryname, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zip.default_compression)
       raise ZipError, "zip stream is closed" if @closed
       if entryname.kind_of?(Entry)
         new_entry = entryname
@@ -129,7 +129,7 @@ module Zip
       @compressor = NullCompressor.instance
     end
 
-    def init_next_entry(entry, level = Zlib::DEFAULT_COMPRESSION)
+    def init_next_entry(entry, level = Zip.default_compression)
       finalize_current_entry
       @entry_set << entry
       entry.write_local_entry(@output_stream)
