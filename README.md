@@ -164,6 +164,14 @@ If you want to store non english names and want to open properly file on Windows
 Zip.unicode_names = true
 ```
 
+You can set the default compression level like so:
+
+```ruby
+Zip.default_compression = Zlib::DEFAULT_COMPRESSION
+```
+
+It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
+
 All settings in same time
 
 ```ruby
@@ -171,6 +179,7 @@ All settings in same time
     c.on_exists_proc = true
     c.continue_on_exists_proc = true
     c.unicode_names = true
+    c.default_compression = Zlib::BEST_COMPRESSION
   end
 ```
 
