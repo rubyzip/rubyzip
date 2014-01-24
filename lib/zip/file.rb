@@ -79,7 +79,7 @@ module Zip
       when create
         @entry_set = EntrySet.new
       else
-        raise ZipError, "File #{file_name} not found"
+        raise Error, "File #{file_name} not found"
       end
       @stored_entries      = @entry_set.dup
       @stored_comment      = @comment
@@ -94,14 +94,11 @@ module Zip
       # ruby's builtin File.open method.
       def open(file_name, create = nil)
         zf = ::Zip::File.new(file_name, create)
-        if block_given?
-          begin
-            yield zf
-          ensure
-            zf.close
-          end
-        else
-          zf
+        return zf unless block_given?
+        begin
+          yield zf
+        ensure
+          zf.close
         end
       end
 
@@ -197,7 +194,7 @@ module Zip
 
       # Splits an archive into parts with segment size
       def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
-        raise ZipError, "File #{zip_file_name} not found" unless ::File.exists?(zip_file_name)
+        raise Error, "File #{zip_file_name} not found" unless ::File.exists?(zip_file_name)
         raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
         zip_file_size = ::File.size(zip_file_name)
         segment_size  = get_segment_size_for_split(segment_size)
@@ -259,12 +256,13 @@ module Zip
     end
 
     # Convenience method for adding the contents of a file to the archive
-    def add(entry, srcPath, &continue_on_exists_proc)
-      continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
+    def add(entry, src_path, &continue_on_exists_proc)
+      continue_on_exists_proc ||= proc { ::Zip.continue_on_exists_proc }
       check_entry_exists(entry, continue_on_exists_proc, "add")
-      newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
-      newEntry.gather_fileinfo_from_srcpath(srcPath)
-      @entry_set << newEntry
+      new_entry = entry.kind_of?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
+      new_entry.gather_fileinfo_from_srcpath(src_path)
+      new_entry.dirty = true
+      @entry_set << new_entry
     end
 
     # Removes the specified entry.
@@ -291,7 +289,7 @@ module Zip
 
     # Extracts entry to file dest_path.
     def extract(entry, dest_path, &block)
-      block       ||= proc { ::Zip.on_exists_proc }
+      block ||= proc { ::Zip.on_exists_proc }
       found_entry = get_entry(entry)
       found_entry.extract(dest_path, &block)
     end
@@ -299,9 +297,9 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-      return if !commit_required?
-      on_success_replace do |tmpFile|
-        ::Zip::OutputStream.open(tmpFile) do |zos|
+      return unless commit_required?
+      on_success_replace do |tmp_file|
+        ::Zip::OutputStream.open(tmp_file) do |zos|
           @entry_set.each do |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
@@ -315,7 +313,7 @@ module Zip
 
     # Write buffer write changes to buffer and return
     def write_buffer(io)
-      OutputStream.write_buffer(io) do |zos|
+      ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
@@ -332,7 +330,7 @@ module Zip
       @entry_set.each do |e|
         return true if e.dirty
       end
-      @comment != @stored_comment || @entry_set != @stored_entries || @create == File::CREATE
+      @comment != @stored_comment || @entry_set != @stored_entries || @create == ::Zip::File::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if
@@ -389,7 +387,7 @@ module Zip
         if continue_on_exists_proc.call
           remove get_entry(entryName)
         else
-          raise ZipEntryExistsError,
+          raise ::Zip::EntryExistsError,
                 procedureName + " failed. Entry #{entryName} already exists"
         end
       end
@@ -402,7 +400,7 @@ module Zip
     end
 
     def on_success_replace
-      tmpfile     = get_tempfile
+      tmpfile      = get_tempfile
       tmp_filename = tmpfile.path
       tmpfile.close
       if yield tmp_filename

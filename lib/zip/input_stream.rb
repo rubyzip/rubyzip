@@ -138,7 +138,7 @@ module Zip
       when @current_entry.compression_method == ::Zip::Entry::DEFLATED
         ::Zip::Inflater.new(@archive_io)
       else
-        raise ZipCompressionMethodError,
+        raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"
       end
     end

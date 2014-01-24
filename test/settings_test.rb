@@ -34,13 +34,13 @@ class ZipSettingsTest < MiniTest::Unit::TestCase
   def test_false_on_exists_proc
     Zip.on_exists_proc = false
     File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
-    assert_raises(Zip::ZipDestinationFileExistsError) { extract_test_dir }
+    assert_raises(Zip::DestinationFileExistsError) { extract_test_dir }
   end
 
   def test_false_continue_on_exists_proc
     Zip.continue_on_exists_proc = false
 
-    assert_raises(::Zip::ZipEntryExistsError) do
+    assert_raises(::Zip::EntryExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.add(zf.entries.first.name, "test/data/file2.txt")
       end

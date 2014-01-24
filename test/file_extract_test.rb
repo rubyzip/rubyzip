@@ -36,7 +36,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
     writtenText = "written text"
     ::File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
 
-    assert_raises(::Zip::ZipDestinationFileExistsError) {
+    assert_raises(::Zip::DestinationFileExistsError) {
       ::Zip::File.open(TEST_ZIP.zip_name) { |zf|
         zf.extract(zf.entries.first, EXTRACTED_FILENAME)
       }

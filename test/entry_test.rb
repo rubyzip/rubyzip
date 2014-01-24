@@ -127,6 +127,6 @@ class ZipEntryTest < MiniTest::Unit::TestCase
   end
 
   def test_entry_name_cannot_start_with_slash
-    assert_raises(::Zip::ZipEntryNameError) { ::Zip::Entry.new("zf.zip", "/hej/der") }
+    assert_raises(::Zip::EntryNameError) { ::Zip::Entry.new("zf.zip", "/hej/der") }
   end
 end

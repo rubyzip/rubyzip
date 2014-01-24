@@ -4,6 +4,10 @@ require 'test_helper'
 class ZipFileTest < MiniTest::Unit::TestCase
   include CommonZipFileFixture
 
+  def teardown
+    ::Zip.write_zip64_support = false
+  end
+
   def test_createFromScratchToBuffer
     comment = "a short comment"
 
@@ -115,7 +119,7 @@ class ZipFileTest < MiniTest::Unit::TestCase
   end
 
   def test_addExistingEntryName
-    assert_raises(::Zip::ZipEntryExistsError) {
+    assert_raises(::Zip::EntryExistsError) {
       ::Zip::File.open(TEST_ZIP.zip_name) {
           |zf|
         zf.add(zf.entries.first.name, "test/data/file2.txt")
@@ -228,7 +232,7 @@ class ZipFileTest < MiniTest::Unit::TestCase
     oldEntries = nil
     ::Zip::File.open(TEST_ZIP.zip_name) { |zf| oldEntries = zf.entries }
 
-    assert_raises(::Zip::ZipEntryExistsError) do
+    assert_raises(::Zip::EntryExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.rename(zf.entries[0], zf.entries[1].name)
       end
@@ -275,7 +279,7 @@ class ZipFileTest < MiniTest::Unit::TestCase
   def test_renameEntryToExistingEntry
     entry1, entry2, * = TEST_ZIP.entry_names
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
-    assert_raises(::Zip::ZipEntryExistsError) {
+    assert_raises(::Zip::EntryExistsError) {
       zf.rename(entry1, entry2)
     }
   ensure
@@ -324,6 +328,24 @@ class ZipFileTest < MiniTest::Unit::TestCase
     zfRead.close
 
     zf.close
+    res = system("unzip -t #{TEST_ZIP.zip_name}")
+    assert_equal(res, true)
+  end
+
+  def test_double_commit
+    ::FileUtils.touch('test/data/generated/test_double_commit1.txt')
+    ::FileUtils.touch('test/data/generated/test_double_commit2.txt')
+    zf = ::Zip::File.open('test/data/generated/double_commit_test.zip', ::Zip::File::CREATE)
+    zf.add('test1.txt', 'test/data/generated/test_double_commit1.txt')
+    zf.commit
+    zf.add('test2.txt', 'test/data/generated/test_double_commit2.txt')
+    zf.commit
+    zf.close
+    zf2 = ::Zip::File.open('test/data/generated/double_commit_test.zip')
+    assert(zf2.entries.detect {|e| e.name == 'test1.txt'} != nil )
+    assert(zf2.entries.detect {|e| e.name == 'test2.txt'} != nil )
+    res = system("unzip -t test/data/generated/double_commit_test.zip")
+    assert_equal(res, true)
   end
 
   def test_write_buffer

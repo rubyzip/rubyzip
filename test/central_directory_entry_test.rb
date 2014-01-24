@@ -67,7 +67,7 @@ class ZipCentralDirectoryEntryTest < MiniTest::Unit::TestCase
     entry = ::Zip::Entry.new
     entry.read_c_dir_entry(fragment)
     fail "ZipError expected"
-  rescue ::Zip::ZipError
+  rescue ::Zip::Error
   end
 
 end

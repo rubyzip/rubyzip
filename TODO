@@ -4,7 +4,6 @@
 * Suggestion: Add ZipFile/ZipInputStream example that demonstrates extracting all entries.
 * Suggestion: ZipFile#extract destination should default to "."
 * Suggestion: ZipEntry should have extract(), get_input_stream() methods etc
-* Suggestion: ZipInputStream/ZipOutputStream should accept an IO object in addition to a filename.
 * (is buffering used anywhere with write?)
 * Inflater.sysread should pass the buffer to produce_input.
 * Implement ZipFsDir.glob

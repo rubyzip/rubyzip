@@ -23,7 +23,7 @@ class ZipCentralDirectoryTest < MiniTest::Unit::TestCase
       cdir.read_from_stream(zipFile)
     }
     fail "ZipError expected!"
-  rescue ::Zip::ZipError
+  rescue ::Zip::Error
   end
 
   def test_ReadFromTruncatedZipFile
@@ -34,7 +34,7 @@ class ZipCentralDirectoryTest < MiniTest::Unit::TestCase
     entry = ::Zip::CentralDirectory.new
     entry.read_from_stream(fragment)
     fail "ZipError expected"
-  rescue ::Zip::ZipError
+  rescue ::Zip::Error
   end
 
   def test_write_to_stream
@@ -50,6 +50,7 @@ class ZipCentralDirectoryTest < MiniTest::Unit::TestCase
   end
 
   def test_write64_to_stream
+    ::Zip.write_zip64_support = true
     entries = [::Zip::Entry.new("file.zip", "file1-little", "comment1", "", 200, 101, ::Zip::Entry::STORED, 200),
                ::Zip::Entry.new("file.zip", "file2-big", "comment2", "", 18000000000, 102, ::Zip::Entry::DEFLATED, 20000000000),
                ::Zip::Entry.new("file.zip", "file3-alsobig", "comment3", "", 15000000000, 103, ::Zip::Entry::DEFLATED, 21000000000),
