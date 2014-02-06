@@ -13,10 +13,10 @@ class ZipFileSplitTest < MiniTest::Unit::TestCase
 
   def teardown
     File.delete(TEST_ZIP.zip_name)
-    File.delete(UNSPLITTED_FILENAME) if File.exists?(UNSPLITTED_FILENAME)
+    File.delete(UNSPLITTED_FILENAME) if File.exist?(UNSPLITTED_FILENAME)
 
     Dir["#{TEST_ZIP.zip_name}.*"].each do |zip_file_name|
-      File.delete(zip_file_name) if File.exists?(zip_file_name)
+      File.delete(zip_file_name) if File.exist?(zip_file_name)
     end
   end
 
@@ -40,7 +40,7 @@ class ZipFileSplitTest < MiniTest::Unit::TestCase
       ::Zip::File.open(UNSPLITTED_FILENAME) do |zf|
         zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
 
-        assert(File.exists?(EXTRACTED_FILENAME))
+        assert(File.exist?(EXTRACTED_FILENAME))
         AssertEntry::assert_contents(EXTRACTED_FILENAME,
                                      zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
@@ -50,7 +50,7 @@ class ZipFileSplitTest < MiniTest::Unit::TestCase
         entry = zf.get_entry(ENTRY_TO_EXTRACT)
         entry.extract(EXTRACTED_FILENAME)
 
-        assert(File.exists?(EXTRACTED_FILENAME))
+        assert(File.exist?(EXTRACTED_FILENAME))
         AssertEntry::assert_contents(EXTRACTED_FILENAME,
                                      entry.get_input_stream() { |is| is.read })
 

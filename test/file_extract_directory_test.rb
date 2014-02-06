@@ -20,7 +20,7 @@ class ZipFileExtractDirectoryTest < MiniTest::Unit::TestCase
     super
 
     Dir.rmdir(TEST_OUT_NAME) if File.directory? TEST_OUT_NAME
-    File.delete(TEST_OUT_NAME) if File.exists? TEST_OUT_NAME
+    File.delete(TEST_OUT_NAME) if File.exist? TEST_OUT_NAME
   end
 
   def test_extractDirectory
