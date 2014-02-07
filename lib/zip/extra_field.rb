@@ -60,17 +60,19 @@ module Zip
     # place Unknown last, so "extra" data that is missing the proper signature/size
     # does not prevent known fields from being read back in
     def ordered_values
-      self.keys.sort_by { |k| k == 'Unknown' ? 1 : 0 }.map { |k| self[k] }
+      result = []
+      self.each { |k,v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
+      result
     end
 
     def to_local_bin
-      ordered_values.map { |v| v.to_local_bin.force_encoding('BINARY') }.join
+      ordered_values.map! { |v| v.to_local_bin.force_encoding('BINARY') }.join
     end
 
     alias :to_s :to_local_bin
 
     def to_c_dir_bin
-      ordered_values.map { |v| v.to_c_dir_bin.force_encoding('BINARY') }.join
+      ordered_values.map! { |v| v.to_c_dir_bin.force_encoding('BINARY') }.join
     end
 
     def c_dir_size

@@ -77,7 +77,7 @@ module Zip
 
     private
     def to_key(entry)
-      entry.to_s.sub(/\/$/, '')
+      entry.to_s.chomp('/')
     end
   end
 end
