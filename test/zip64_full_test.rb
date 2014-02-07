@@ -9,7 +9,7 @@ if ENV['FULL_ZIP64_TEST']
 
   class Zip64FullTest < MiniTest::Unit::TestCase
     def prepareTestFile(test_filename)
-      File.delete(test_filename) if File.exists?(test_filename)
+      File.delete(test_filename) if File.exist?(test_filename)
       return test_filename
     end
 

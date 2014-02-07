@@ -7,7 +7,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
 
   def setup
     super
-    ::File.delete(EXTRACTED_FILENAME) if ::File.exists?(EXTRACTED_FILENAME)
+    ::File.delete(EXTRACTED_FILENAME) if ::File.exist?(EXTRACTED_FILENAME)
   end
 
   def test_extract
@@ -15,7 +15,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
         |zf|
       zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
 
-      assert(File.exists?(EXTRACTED_FILENAME))
+      assert(File.exist?(EXTRACTED_FILENAME))
       AssertEntry::assert_contents(EXTRACTED_FILENAME,
                                    zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
@@ -25,7 +25,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
       entry = zf.get_entry(ENTRY_TO_EXTRACT)
       entry.extract(EXTRACTED_FILENAME)
 
-      assert(File.exists?(EXTRACTED_FILENAME))
+      assert(File.exist?(EXTRACTED_FILENAME))
       AssertEntry::assert_contents(EXTRACTED_FILENAME,
                                    entry.get_input_stream() { |is| is.read })
 
@@ -84,7 +84,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
       zf.extract(nonEntry, outFile)
       zf.close
     }
-    assert(!File.exists?(outFile))
+    assert(!File.exist?(outFile))
   end
 
 end

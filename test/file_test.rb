@@ -92,7 +92,7 @@ class ZipFileTest < MiniTest::Unit::TestCase
   def test_add
     srcFile = "test/data/file2.txt"
     entryName = "newEntryName.rb"
-    assert(::File.exists?(srcFile))
+    assert(::File.exist?(srcFile))
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
     zf.add(entryName, srcFile)
     zf.close
@@ -111,7 +111,7 @@ class ZipFileTest < MiniTest::Unit::TestCase
     srcFile = "test/data/file2.txt"
     entryName = "newEntryName.rb"
     assert_equal(::File.stat(srcZip).mode, 0100664)
-    assert(::File.exists?(srcZip))
+    assert(::File.exist?(srcZip))
     zf = ::Zip::File.new(srcZip, ::Zip::File::CREATE)
     zf.add(entryName, srcFile)
     zf.close
@@ -529,7 +529,7 @@ class ZipFileTest < MiniTest::Unit::TestCase
   private
   def assert_contains(zf, entryName, filename = entryName)
     assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entryContents(zf, entryName, filename) if File.exists?(filename)
+    assert_entryContents(zf, entryName, filename) if File.exist?(filename)
   end
 
   def assert_not_contains(zf, entryName)

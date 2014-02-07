@@ -50,7 +50,7 @@ class TestFiles
     end
 
     def ensure_dir(name)
-      if File.exists?(name)
+      if File.exist?(name)
         return if File.stat(name).directory?
         File.delete(name)
       end
