@@ -9,7 +9,7 @@ class ZipSettingsTest < MiniTest::Unit::TestCase
     super
 
     Dir.rmdir(TEST_OUT_NAME) if File.directory? TEST_OUT_NAME
-    File.delete(TEST_OUT_NAME) if File.exists? TEST_OUT_NAME
+    File.delete(TEST_OUT_NAME) if File.exist? TEST_OUT_NAME
   end
 
   def open_zip(&aProc)
@@ -66,6 +66,6 @@ class ZipSettingsTest < MiniTest::Unit::TestCase
   private
   def assert_contains(zf, entryName, filename = entryName)
     assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entryContents(zf, entryName, filename) if File.exists?(filename)
+    assert_entryContents(zf, entryName, filename) if File.exist?(filename)
   end
 end

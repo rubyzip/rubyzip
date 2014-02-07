@@ -70,7 +70,7 @@ module Zip
       @comment = ''
       @create  = create
       case
-      when !buffer && ::File.exists?(file_name)
+      when !buffer && ::File.exist?(file_name)
         @create = nil
         @exist_file_perms = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
@@ -194,7 +194,7 @@ module Zip
 
       # Splits an archive into parts with segment size
       def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
-        raise Error, "File #{zip_file_name} not found" unless ::File.exists?(zip_file_name)
+        raise Error, "File #{zip_file_name} not found" unless ::File.exist?(zip_file_name)
         raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
         zip_file_size = ::File.size(zip_file_name)
         segment_size  = get_segment_size_for_split(segment_size)
