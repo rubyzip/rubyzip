@@ -400,8 +400,8 @@ module Zip
     end
 
     def on_success_replace
+      tmpfile = create_binary_tempfile
       begin
-        tmpfile      = create_binary_tempfile
         tmp_filename = tmpfile.path
         if yield tmp_filename
           ::File.rename(tmp_filename, self.name)
