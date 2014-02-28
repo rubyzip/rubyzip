@@ -169,10 +169,13 @@ module Zip
     end
 
     public
+
     # Modeled after IO.<<
     def << (data)
       @compressor << data
+      self
     end
+
   end
 end
 
