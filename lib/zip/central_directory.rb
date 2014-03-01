@@ -105,7 +105,7 @@ module Zip
       @size_in_bytes                                = Entry.read_zip_long(buf)
       @cdir_offset                                  = Entry.read_zip_long(buf)
       comment_length                                = Entry.read_zip_short(buf)
-      @comment                                      = if comment_length <= 0
+      @comment                                      = if comment_length.to_i <= 0
                                                         buf.slice!(0, buf.size)
                                                       else
                                                         buf.read(comment_length)
