@@ -90,6 +90,7 @@ end
 
 require 'zip/extra_field/generic'
 require 'zip/extra_field/universal_time'
+require 'zip/extra_field/old_unix'
 require 'zip/extra_field/unix'
 require 'zip/extra_field/zip64'
 require 'zip/extra_field/zip64_placeholder'

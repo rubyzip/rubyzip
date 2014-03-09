@@ -538,9 +538,9 @@ module Zip
 
     def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
       if @ftype == :directory
-        zip_output_stream.put_next_entry(self)
+        zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::STORED)
       elsif @filepath
-        zip_output_stream.put_next_entry(self, nil, nil, nil)
+        zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::DEFLATED)
         get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
       else
         zip_output_stream.copy_raw_entry(self)
