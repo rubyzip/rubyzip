@@ -15,7 +15,7 @@ module Zip
 
     def set_default_vars_values
       @local_header_offset      = 0
-      @local_header_size        = 0
+      @local_header_size        = nil # not known until local entry is created or read
       @internal_file_attributes = 1
       @external_file_attributes = 0
       @header_signature         = ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
@@ -130,7 +130,7 @@ module Zip
     # check before rewriting an entry (after file sizes are known)
     # that we didn't change the header size (and thus clobber file data or something)
     def verify_local_header_size!
-      return if @local_header_size == 0
+      return if @local_header_size.nil?
       new_size = calculate_local_header_size
       raise Error, "local header size changed (#{@local_header_size} -> #{new_size})" if @local_header_size != new_size
     end
@@ -368,7 +368,6 @@ module Zip
       check_c_dir_entry_comment_size
       set_ftype_from_c_dir_entry
       parse_zip64_extra(false)
-      @local_header_size = calculate_local_header_size
     end
 
     def file_stat(path) # :nodoc:
