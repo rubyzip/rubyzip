@@ -87,7 +87,7 @@ module Zip
       end
 
       def ungetc(byte)
-        @output_buffer.prepend(byte.chr)
+        @output_buffer = byte.chr + @output_buffer
       end
 
       def flush
