@@ -157,4 +157,14 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
     }
   end
 
+  def test_ungetc
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      zis.get_next_entry
+      first_line = zis.gets.chomp
+      first_line.bytes.reverse.each { |b| zis.ungetc(b) }
+      assert_equal('#!/usr/bin/env ruby', zis.gets.chomp)
+      assert_equal("$VERBOSE =", zis.read(10))
+    end
+  end
+
 end

@@ -86,6 +86,10 @@ module Zip
         return @output_buffer.slice!(0...sep_index)
       end
 
+      def ungetc(byte)
+        @output_buffer.prepend(byte.chr)
+      end
+
       def flush
         ret_val        = @output_buffer
         @output_buffer = ''
