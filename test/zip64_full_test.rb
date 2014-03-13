@@ -9,29 +9,29 @@ if ENV['FULL_ZIP64_TEST']
 
   class Zip64FullTest < MiniTest::Unit::TestCase
     def prepareTestFile(test_filename)
-      File.delete(test_filename) if File.exist?(test_filename)
+      ::File.delete(test_filename) if ::File.exist?(test_filename)
       return test_filename
     end
 
     def test_largeZipFile
-      Zip.write_zip64_support = true
+      ::Zip.write_zip64_support = true
       first_text = 'starting out small'
       last_text = 'this tests files starting after 4GB in the archive'
       test_filename = prepareTestFile('huge.zip')
-      Zip::OutputStream.open(test_filename) do |io|
+      ::Zip::OutputStream.open(test_filename) do |io|
         io.put_next_entry('first_file.txt')
         io.write(first_text)
 
         # write just over 4GB (stored, so the zip file exceeds 4GB)
         buf = 'blah' * 16384
-        io.put_next_entry('huge_file', nil, nil, Zip::Entry::STORED)
+        io.put_next_entry('huge_file', nil, nil, ::Zip::Entry::STORED)
         65537.times { io.write(buf) }
 
         io.put_next_entry('last_file.txt')
         io.write(last_text)
       end
 
-      Zip::File.open(test_filename) do |zf|
+      ::Zip::File.open(test_filename) do |zf|
         assert_equal %w(first_file.txt huge_file last_file.txt), zf.entries.map(&:name)
         assert_equal first_text, zf.read('first_file.txt')
         assert_equal last_text, zf.read('last_file.txt')
