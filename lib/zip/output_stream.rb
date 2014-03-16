@@ -106,11 +106,12 @@ module Zip
       raise Error, "entry is not a ZipEntry" unless entry.is_a?(Entry)
       finalize_current_entry
       @entry_set << entry
-      src_pos = entry.local_entry_offset
+      src_pos = entry.local_header_offset
       entry.write_local_entry(@output_stream)
       @compressor = NullCompressor.instance
       entry.get_raw_input_stream do |is|
         is.seek(src_pos, IO::SEEK_SET)
+        ::Zip::Entry.read_local_entry(is)
         IOExtras.copy_stream_n(@output_stream, is, entry.compressed_size)
       end
       @compressor = NullCompressor.instance

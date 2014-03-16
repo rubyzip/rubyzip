@@ -26,10 +26,13 @@ module Zip
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
       eocd_offset = io.tell
       cdir_size = eocd_offset - cdir_offset
-      has_zip64_entry = @entry_set.any? { |entry| entry.extra['Zip64'] }
-      if has_zip64_entry || cdir_offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
-        write_64_e_o_c_d(io, cdir_offset, cdir_size)
-        write_64_eocd_locator(io, eocd_offset)
+      if ::Zip.write_zip64_support
+        need_zip64_eocd = cdir_offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
+        need_zip64_eocd ||= @entry_set.any? { |entry| entry.extra['Zip64'] }
+        if need_zip64_eocd
+          write_64_e_o_c_d(io, cdir_offset, cdir_size)
+          write_64_eocd_locator(io, eocd_offset)
+        end
       end
       write_e_o_c_d(io, cdir_offset, cdir_size)
     end

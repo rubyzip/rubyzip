@@ -332,20 +332,25 @@ class ZipFileTest < MiniTest::Unit::TestCase
     assert_equal(res, true)
   end
 
-  def test_double_commit
+  def test_double_commit(filename = 'test/data/generated/double_commit_test.zip')
     ::FileUtils.touch('test/data/generated/test_double_commit1.txt')
     ::FileUtils.touch('test/data/generated/test_double_commit2.txt')
-    zf = ::Zip::File.open('test/data/generated/double_commit_test.zip', ::Zip::File::CREATE)
+    zf = ::Zip::File.open(filename, ::Zip::File::CREATE)
     zf.add('test1.txt', 'test/data/generated/test_double_commit1.txt')
     zf.commit
     zf.add('test2.txt', 'test/data/generated/test_double_commit2.txt')
     zf.commit
     zf.close
-    zf2 = ::Zip::File.open('test/data/generated/double_commit_test.zip')
+    zf2 = ::Zip::File.open(filename)
     assert(zf2.entries.detect {|e| e.name == 'test1.txt'} != nil )
     assert(zf2.entries.detect {|e| e.name == 'test2.txt'} != nil )
-    res = system("unzip -t test/data/generated/double_commit_test.zip")
+    res = system("unzip -t #{filename}")
     assert_equal(res, true)
+  end
+
+  def test_double_commit_zip64
+    ::Zip.write_zip64_support = true
+    test_double_commit('test/data/generated/double_commit_test64.zip')
   end
 
   def test_write_buffer
