@@ -1,3 +1,13 @@
+1.1.1
+=====
+
+* Speedup deflater (@loadhigh)
+* Less Arrays and Strings allocations (@srawlins)
+* Fix Zip64 writting support (@mrjamesriley)
+* Fix StringIO support (@simonoff)
+* Posibility to change default compression level
+* Make Zip64 write support optional via configuration 
+
 1.1.0
 =====
 
