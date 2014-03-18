@@ -312,7 +312,7 @@ module Zip
     end
 
     # Write buffer write changes to buffer and return
-    def write_buffer(io)
+    def write_buffer(io = ::StringIO.new(''))
       ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
