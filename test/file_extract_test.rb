@@ -11,7 +11,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
   end
 
   def test_extract
-    ::Zip::File.open(TEST_ZIP.zip_name) {
+    ::RubyZip::File.open(TEST_ZIP.zip_name) {
         |zf|
       zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
 
@@ -36,8 +36,8 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
     writtenText = "written text"
     ::File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
 
-    assert_raises(::Zip::DestinationFileExistsError) {
-      ::Zip::File.open(TEST_ZIP.zip_name) { |zf|
+    assert_raises(::RubyZip::DestinationFileExistsError) {
+      ::RubyZip::File.open(TEST_ZIP.zip_name) { |zf|
         zf.extract(zf.entries.first, EXTRACTED_FILENAME)
       }
     }
@@ -51,7 +51,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
     ::File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
 
     gotCalledCorrectly = false
-    ::Zip::File.open(TEST_ZIP.zip_name) {
+    ::RubyZip::File.open(TEST_ZIP.zip_name) {
         |zf|
       zf.extract(zf.entries.first, EXTRACTED_FILENAME) {
           |entry, extractLoc|
@@ -69,7 +69,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
   end
 
   def test_extractNonEntry
-    zf = ::Zip::File.new(TEST_ZIP.zip_name)
+    zf = ::RubyZip::File.new(TEST_ZIP.zip_name)
     assert_raises(Errno::ENOENT) { zf.extract("nonExistingEntry", "nonExistingEntry") }
   ensure
     zf.close if zf
@@ -78,7 +78,7 @@ class ZipFileExtractTest < MiniTest::Unit::TestCase
   def test_extractNonEntry2
     outFile = "outfile"
     assert_raises(Errno::ENOENT) {
-      zf = ::Zip::File.new(TEST_ZIP.zip_name)
+      zf = ::RubyZip::File.new(TEST_ZIP.zip_name)
       nonEntry = "hotdog-diddelidoo"
       assert(!zf.entries.include?(nonEntry))
       zf.extract(nonEntry, outFile)

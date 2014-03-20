@@ -13,11 +13,11 @@ class DeflaterTest < MiniTest::Unit::TestCase
   def test_default_compression
     txt = load_file("test/data/file2.txt")
 
-    Zip.default_compression = ::Zlib::BEST_COMPRESSION
+    RubyZip.default_compression = ::Zlib::BEST_COMPRESSION
     deflate(txt, "compressiontest_best_compression.bin")
-    Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
+    RubyZip.default_compression = ::Zlib::DEFAULT_COMPRESSION
     deflate(txt, "compressiontest_default_compression.bin")
-    Zip.default_compression = ::Zlib::NO_COMPRESSION
+    RubyZip.default_compression = ::Zlib::NO_COMPRESSION
     deflate(txt, "compressiontest_no_compression.bin")
 
     best    = File.size("compressiontest_best_compression.bin")
@@ -39,7 +39,7 @@ class DeflaterTest < MiniTest::Unit::TestCase
   def deflate(data, fileName)
     File.open(fileName, "wb") {
         |file|
-      deflater = ::Zip::Deflater.new(file)
+      deflater = ::RubyZip::Deflater.new(file)
       deflater << data
       deflater.finish
       assert_equal(deflater.size, data.size)
@@ -51,12 +51,12 @@ class DeflaterTest < MiniTest::Unit::TestCase
     txt = nil
     File.open(fileName, "rb") {
         |file|
-      inflater = ::Zip::Inflater.new(file)
+      inflater = ::RubyZip::Inflater.new(file)
       txt = inflater.sysread
     }
   end
 
   def test_crc
-    run_crc_test(::Zip::Deflater)
+    run_crc_test(::RubyZip::Deflater)
   end
 end

@@ -1,9 +1,9 @@
 require 'test_helper'
-require 'zip/ioextras'
+require 'rubyzip/ioextras'
 
 class FakeIOTest < MiniTest::Unit::TestCase
   class FakeIOUsingClass
-    include ::Zip::IOExtras::FakeIO
+    include ::RubyZip::IOExtras::FakeIO
   end
 
   def test_kind_of?

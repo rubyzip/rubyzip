@@ -1,12 +1,12 @@
 require 'test_helper'
-require 'zip/filesystem'
+require 'rubyzip/filesystem'
 
 class ZipFsDirIteratorTest < MiniTest::Unit::TestCase
 
   FILENAME_ARRAY = [ "f1", "f2", "f3", "f4", "f5", "f6"  ]
 
   def setup
-    @dirIt = ::Zip::FileSystem::ZipFsDirIterator.new(FILENAME_ARRAY)
+    @dirIt = ::RubyZip::FileSystem::ZipFsDirIterator.new(FILENAME_ARRAY)
   end
 
   def test_close

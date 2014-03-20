@@ -1,5 +1,5 @@
 require 'test_helper'
-require 'zip/filesystem'
+require 'rubyzip/filesystem'
 
 class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   TEST_ZIP = "test/data/generated/zipWithDirs_copy.zip"
@@ -9,7 +9,7 @@ class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   end
 
   def test_delete
-    ::Zip::File.open(TEST_ZIP) {
+    ::RubyZip::File.open(TEST_ZIP) {
       |zf|
       assert_raises(Errno::ENOENT, "No such file or directory - NoSuchFile.txt") {
         zf.dir.delete("NoSuchFile.txt")
@@ -24,7 +24,7 @@ class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   end
 
   def test_mkdir
-    ::Zip::File.open(TEST_ZIP) {
+    ::RubyZip::File.open(TEST_ZIP) {
       |zf|
       assert_raises(Errno::EEXIST, "File exists - dir1") {
         zf.dir.mkdir("file1")
@@ -42,7 +42,7 @@ class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   end
 
   def test_pwd_chdir_entries
-    ::Zip::File.open(TEST_ZIP) {
+    ::RubyZip::File.open(TEST_ZIP) {
       |zf|
       assert_equal("/", zf.dir.pwd)
 
@@ -66,7 +66,7 @@ class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   end
 
   def test_foreach
-    ::Zip::File.open(TEST_ZIP) {
+    ::RubyZip::File.open(TEST_ZIP) {
       |zf|
 
       blockCalled = false
@@ -91,7 +91,7 @@ class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   end
 
   def test_chroot
-    ::Zip::File.open(TEST_ZIP) {
+    ::RubyZip::File.open(TEST_ZIP) {
       |zf|
       assert_raises(NotImplementedError) {
         zf.dir.chroot
@@ -106,7 +106,7 @@ class ZipFsDirectoryTest < MiniTest::Unit::TestCase
   #end
 
   def test_open_new
-    ::Zip::File.open(TEST_ZIP) {
+    ::RubyZip::File.open(TEST_ZIP) {
       |zf|
 
       assert_raises(Errno::ENOTDIR, "Not a directory - file1") {

@@ -1,3 +1,8 @@
+1.1.2
+=====
+
+* Renamed Zip module to RubyZip.
+
 1.1.1
 =====
 
@@ -6,7 +11,7 @@
 * Fix Zip64 writting support (@mrjamesriley)
 * Fix StringIO support (@simonoff)
 * Posibility to change default compression level
-* Make Zip64 write support optional via configuration 
+* Make Zip64 write support optional via configuration
 
 1.1.0
 =====

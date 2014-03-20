@@ -14,7 +14,7 @@ class ZipSettingsTest < MiniTest::Unit::TestCase
 
   def open_zip(&aProc)
     assert(aProc != nil)
-    ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)
+    ::RubyZip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)
   end
 
   def extract_test_dir(&aProc)
@@ -25,39 +25,39 @@ class ZipSettingsTest < MiniTest::Unit::TestCase
   end
 
   def test_true_on_exists_proc
-    Zip.on_exists_proc = true
+    RubyZip.on_exists_proc = true
     File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
     extract_test_dir
     assert(File.directory?(TEST_OUT_NAME))
   end
 
   def test_false_on_exists_proc
-    Zip.on_exists_proc = false
+    RubyZip.on_exists_proc = false
     File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
-    assert_raises(Zip::DestinationFileExistsError) { extract_test_dir }
+    assert_raises(RubyZip::DestinationFileExistsError) { extract_test_dir }
   end
 
   def test_false_continue_on_exists_proc
-    Zip.continue_on_exists_proc = false
+    RubyZip.continue_on_exists_proc = false
 
-    assert_raises(::Zip::EntryExistsError) do
-      ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+    assert_raises(::RubyZip::EntryExistsError) do
+      ::RubyZip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.add(zf.entries.first.name, "test/data/file2.txt")
       end
     end
   end
 
   def test_true_continue_on_exists_proc
-    Zip.continue_on_exists_proc = true
+    RubyZip.continue_on_exists_proc = true
 
     replacedEntry = nil
 
-    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+    ::RubyZip::File.open(TEST_ZIP.zip_name) do |zf|
       replacedEntry = zf.entries.first.name
       zf.add(replacedEntry, "test/data/file2.txt")
     end
 
-    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+    ::RubyZip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_contains(zf, replacedEntry, "test/data/file2.txt")
     end
   end

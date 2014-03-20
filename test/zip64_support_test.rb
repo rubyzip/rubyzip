@@ -4,7 +4,7 @@ class Zip64SupportTest < MiniTest::Unit::TestCase
   TEST_FILE = File.join(File.dirname(__FILE__), 'data', 'zip64-sample.zip')
 
   def test_open_zip64_file
-    zip_file = ::Zip::File.open(TEST_FILE)
+    zip_file = ::RubyZip::File.open(TEST_FILE)
     assert(!zip_file.nil?)
     assert(zip_file.entries.count == 2)
     test_rb = zip_file.entries.find { |x| x.name == 'test.rb' }

@@ -3,7 +3,7 @@ require 'minitest/autorun'
 require 'minitest/unit'
 require 'fileutils'
 require 'digest/sha1'
-require 'zip'
+require 'rubyzip'
 require 'gentestfiles'
 
 TestFiles.create_test_files
@@ -137,7 +137,7 @@ module AssertEntry
   end
 
   def assert_test_zip_contents(testZipFile)
-    ::Zip::InputStream.open(testZipFile.zip_name) do |zis|
+    ::RubyZip::InputStream.open(testZipFile.zip_name) do |zis|
       assert_stream_contents(zis, testZipFile)
     end
   end
@@ -154,7 +154,7 @@ end
 module CrcTest
 
   class TestOutputStream
-    include ::Zip::IOExtras::AbstractOutputStream
+    include ::RubyZip::IOExtras::AbstractOutputStream
 
     attr_accessor :buffer
 

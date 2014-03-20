@@ -7,7 +7,7 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Unit::TestCase
   def test_unicode
     file_entrys = ["текстовыйфайл.txt", "Résumé.txt", "슬레이어스휘.txt"]
     directory_entrys = ["папка/текстовыйфайл.txt", "Résumé/Résumé.txt", "슬레이어스휘/슬레이어스휘.txt"]
-    stream = ::Zip::OutputStream.open(FILENAME) do |io|
+    stream = ::RubyZip::OutputStream.open(FILENAME) do |io|
       file_entrys.each do |filename|
         io.put_next_entry(filename)
         io.write(filename)
@@ -18,7 +18,7 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Unit::TestCase
       end
     end
     assert(!stream.nil?)
-    ::Zip::InputStream.open(FILENAME) do |io|
+    ::RubyZip::InputStream.open(FILENAME) do |io|
       file_entrys.each do |filename|
         entry = io.get_next_entry
         entry_name = entry.name

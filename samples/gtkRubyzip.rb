@@ -5,7 +5,7 @@ $: << "../lib"
 $VERBOSE = true
 
 require 'gtk'
-require 'zip/zip'
+require 'rubyzip/rubyzip'
 
 class MainApp < Gtk::Window
   def initialize
@@ -26,7 +26,7 @@ class MainApp < Gtk::Window
       puts "Not implemented!"
     }
     box.pack_start(@buttonPanel, false, false, 0)
-    
+
     sw = Gtk::ScrolledWindow.new
     sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
     box.pack_start(sw, true, true, 0)
@@ -68,12 +68,12 @@ class MainApp < Gtk::Window
   end
 
   def open_zip(filename)
-    @zipfile = Zip::File.open(filename)
+    @zipfile = RubyZip::File.open(filename)
     @clist.clear
-    @zipfile.each { 
+    @zipfile.each {
       |entry|
-      @clist.append([ entry.name, 
-		      entry.size.to_s, 
+      @clist.append([ entry.name,
+		      entry.size.to_s,
 		      (100.0*entry.compressedSize/entry.size).to_s+"%" ])
     }
   end

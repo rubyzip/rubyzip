@@ -1,10 +1,10 @@
 require 'test_helper'
-require 'zip/filesystem'
+require 'rubyzip/filesystem'
 
 class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
   def setup
     @zipsha = Digest::SHA1.file("test/data/zipWithDirs.zip")
-    @zip_file = ::Zip::File.new("test/data/zipWithDirs.zip")
+    @zip_file = ::RubyZip::File.new("test/data/zipWithDirs.zip")
   end
 
   def teardown
@@ -155,7 +155,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
   end
 
   def test_utime
-    t_now = ::Zip::DOSTime.now
+    t_now = ::RubyZip::DOSTime.now
     t_bak = @zip_file.file.mtime("file1")
     @zip_file.file.utime(t_now, "file1")
     assert_equal(t_now, @zip_file.file.mtime("file1"))
@@ -252,7 +252,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
     assert(! @zip_file.file.zero?("file1"))
     assert(@zip_file.file.zero?("dir1"))
     blockCalled = false
-    ::Zip::File.open("test/data/generated/5entry.zip") {
+    ::RubyZip::File.open("test/data/generated/5entry.zip") {
       |zf|
       blockCalled = true
       assert(zf.file.zero?("test/data/generated/empty.txt"))
@@ -262,7 +262,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
     assert(! @zip_file.file.stat("file1").zero?)
     assert(@zip_file.file.stat("dir1").zero?)
     blockCalled = false
-    ::Zip::File.open("test/data/generated/5entry.zip") {
+    ::RubyZip::File.open("test/data/generated/5entry.zip") {
       |zf|
       blockCalled = true
       assert(zf.file.stat("test/data/generated/empty.txt").zero?)
@@ -271,7 +271,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
   end
 
   def test_expand_path
-    ::Zip::File.open("test/data/zipWithDirs.zip") {
+    ::RubyZip::File.open("test/data/zipWithDirs.zip") {
       |zf|
       assert_equal("/", zf.file.expand_path("."))
       zf.dir.chdir "dir1"
@@ -283,17 +283,17 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
   end
 
   def test_mtime
-    assert_equal(::Zip::DOSTime.at(1027694306),
+    assert_equal(::RubyZip::DOSTime.at(1027694306),
       @zip_file.file.mtime("dir2/file21"))
-    assert_equal(::Zip::DOSTime.at(1027690863),
+    assert_equal(::RubyZip::DOSTime.at(1027690863),
       @zip_file.file.mtime("dir2/dir21"))
     assert_raises(Errno::ENOENT) {
       @zip_file.file.mtime("noSuchEntry")
     }
 
-    assert_equal(::Zip::DOSTime.at(1027694306),
+    assert_equal(::RubyZip::DOSTime.at(1027694306),
       @zip_file.file.stat("dir2/file21").mtime)
-    assert_equal(::Zip::DOSTime.at(1027690863),
+    assert_equal(::RubyZip::DOSTime.at(1027690863),
       @zip_file.file.stat("dir2/dir21").mtime)
   end
 
@@ -400,28 +400,28 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
   end
 
   def test_foreach
-    ::Zip::File.open("test/data/generated/zipWithDir.zip") do |zf|
+    ::RubyZip::File.open("test/data/generated/zipWithDir.zip") do |zf|
       ref = []
       File.foreach("test/data/file1.txt") { |e| ref << e }
       index = 0
 
       zf.file.foreach("test/data/file1.txt") do |l|
         #Ruby replaces \n with \r\n automatically on windows
-        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
+        newline = RubyZip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
         assert_equal(ref[index], newline)
         index = index.next
       end
       assert_equal(ref.size, index)
     end
 
-    ::Zip::File.open("test/data/generated/zipWithDir.zip") do |zf|
+    ::RubyZip::File.open("test/data/generated/zipWithDir.zip") do |zf|
       ref = []
       File.foreach("test/data/file1.txt", " ") { |e| ref << e }
       index = 0
 
       zf.file.foreach("test/data/file1.txt", " ") do |l|
         #Ruby replaces \n with \r\n automatically on windows
-        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
+        newline = RubyZip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
         assert_equal(ref[index], newline)
         index = index.next
       end
@@ -430,7 +430,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
   end
 
   def test_glob
-    ::Zip::File.open('test/data/globTest.zip') do |zf|
+    ::RubyZip::File.open('test/data/globTest.zip') do |zf|
       {
         'globTest/foo.txt' => ['globTest/foo.txt'],
         '*/foo.txt' => ['globTest/foo.txt'],
@@ -438,7 +438,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
         '*/foo/**/*.txt' => ['globTest/foo/bar/baz/foo.txt']
       }.each do |spec,expected_results|
         results = zf.glob(spec)
-        assert results.all?{|entry| entry.is_a? ::Zip::Entry }
+        assert results.all?{|entry| entry.is_a? ::RubyZip::Entry }
 
         result_strings = results.map(&:to_s)
         missing_matches = expected_results - result_strings
@@ -449,20 +449,20 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
       end
     end
 
-    ::Zip::File.open('test/data/globTest.zip') do |zf|
+    ::RubyZip::File.open('test/data/globTest.zip') do |zf|
       results = []
       zf.glob('**/foo.txt') do |match|
         results << "<#{match.class.name}: #{match.to_s}>"
       end
       assert((not results.empty?), 'block not run, or run out of context')
       assert_equal 2, results.size
-      assert_operator results, :include?, '<Zip::Entry: globTest/foo.txt>'
-      assert_operator results, :include?, '<Zip::Entry: globTest/foo/bar/baz/foo.txt>'
+      assert_operator results, :include?, '<RubyZip::Entry: globTest/foo.txt>'
+      assert_operator results, :include?, '<RubyZip::Entry: globTest/foo/bar/baz/foo.txt>'
     end
   end
 
   def test_popen
-    if Zip::RUNNING_ON_WINDOWS
+    if RubyZip::RUNNING_ON_WINDOWS
       #This is pretty much projectile vomit but it allows the test to be
       #run on windows also
       system_dir = ::File.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
@@ -480,23 +480,23 @@ class ZipFsFileNonmutatingTest < MiniTest::Unit::TestCase
 #  end
 
   def test_readlines
-    ::Zip::File.open("test/data/generated/zipWithDir.zip") do |zf|
+    ::RubyZip::File.open("test/data/generated/zipWithDir.zip") do |zf|
       orig_file = ::File.readlines("test/data/file1.txt")
       zip_file = zf.file.readlines("test/data/file1.txt")
 
       #Ruby replaces \n with \r\n automatically on windows
-      zip_file.each { |l| l.gsub!(/\r\n/, "\n") } if Zip::RUNNING_ON_WINDOWS
+      zip_file.each { |l| l.gsub!(/\r\n/, "\n") } if RubyZip::RUNNING_ON_WINDOWS
 
       assert_equal(orig_file, zip_file)
     end
   end
 
   def test_read
-    ::Zip::File.open("test/data/generated/zipWithDir.zip") do |zf|
+    ::RubyZip::File.open("test/data/generated/zipWithDir.zip") do |zf|
       orig_file = ::File.read("test/data/file1.txt")
 
       #Ruby replaces \n with \r\n automatically on windows
-      zip_file = Zip::RUNNING_ON_WINDOWS ? \
+      zip_file = RubyZip::RUNNING_ON_WINDOWS ? \
           zf.file.read("test/data/file1.txt").gsub(/\r\n/, "\n") : zf.file.read("test/data/file1.txt")
       assert_equal(orig_file, zip_file)
     end

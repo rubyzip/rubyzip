@@ -7,7 +7,7 @@ $: << "../lib"
 require 'Qt'
 system('rbuic -o zipdialogui.rb zipdialogui.ui')
 require 'zipdialogui.rb'
-require 'zip/zip'
+require 'rubyzip/rubyzip'
 
 
 
@@ -25,23 +25,23 @@ class ZipDialog < ZipDialogUI
   end
 
   def zipfile(&proc)
-    Zip::File.open(@zip_filename, &proc)
+    RubyZip::File.open(@zip_filename, &proc)
   end
 
   def each(&proc)
-    Zip::File.foreach(@zip_filename, &proc)
+    RubyZip::File.foreach(@zip_filename, &proc)
   end
-  
+
   def refresh()
     lv = child("entry_list_view")
     lv.clear
-    each { 
+    each {
       |e|
       lv.insert_item(Qt::ListViewItem.new(lv, e.name, e.size.to_s))
     }
   end
 
-    
+
   def load(zipfile)
     @zip_filename = zipfile
     refresh
@@ -49,9 +49,9 @@ class ZipDialog < ZipDialogUI
 
   def add_files
     l = Qt::FileDialog.getOpenFileNames(nil, nil, self)
-    zipfile { 
-      |zf| 
-      l.each { 
+    zipfile {
+      |zf|
+      l.each {
         |path|
         zf.add(File.basename(path), path)
       }
@@ -82,7 +82,7 @@ class ZipDialog < ZipDialogUI
     else
       zipfile { |zf| items.each { |e| zf.extract(e, File.join(d, e)) } }
     end
-    
+
   end
 
   slots 'add_files()', 'extract_files()'

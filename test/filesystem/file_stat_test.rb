@@ -1,10 +1,10 @@
 require 'test_helper'
-require 'zip/filesystem'
+require 'rubyzip/filesystem'
 
 class ZipFsFileStatTest < MiniTest::Unit::TestCase
 
   def setup
-    @zip_file = ::Zip::File.new("test/data/zipWithDirs.zip")
+    @zip_file = ::RubyZip::File.new("test/data/zipWithDirs.zip")
   end
 
   def teardown

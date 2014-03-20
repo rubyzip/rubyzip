@@ -21,23 +21,23 @@ class ZipFileSplitTest < MiniTest::Unit::TestCase
   end
 
   def test_split_method_respond
-    assert_respond_to ::Zip::File, :split, "Does not have split class method"
+    assert_respond_to ::RubyZip::File, :split, "Does not have split class method"
   end
 
   def test_split
-    result = ::Zip::File.split(TEST_ZIP.zip_name, 65536, false)
+    result = ::RubyZip::File.split(TEST_ZIP.zip_name, 65536, false)
 
     unless result.nil?
       Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
         File.open(zip_file_name, 'rb') do |zip_file|
-          zip_file.read([::Zip::File::SPLIT_SIGNATURE].pack('V').size) if index == 0
+          zip_file.read([::RubyZip::File::SPLIT_SIGNATURE].pack('V').size) if index == 0
           File.open(UNSPLITTED_FILENAME, 'ab') do |file|
             file << zip_file.read
           end
         end
       end
 
-      ::Zip::File.open(UNSPLITTED_FILENAME) do |zf|
+      ::RubyZip::File.open(UNSPLITTED_FILENAME) do |zf|
         zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
 
         assert(File.exist?(EXTRACTED_FILENAME))

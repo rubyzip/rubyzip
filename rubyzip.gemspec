@@ -1,11 +1,11 @@
 #-*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'zip/version'
+require 'rubyzip/version'
 
 spec = Gem::Specification.new do |s|
   s.name                  = 'rubyzip'
-  s.version               = ::Zip::VERSION
+  s.version               = ::RubyZip::VERSION
   s.authors               = ["Alexander Simonov"]
   s.email                 = ["alex@simonov.me"]
   s.homepage              = 'http://github.com/rubyzip/rubyzip'

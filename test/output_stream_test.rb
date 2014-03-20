@@ -7,7 +7,7 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
   TEST_ZIP.zip_name = "output.zip"
 
   def test_new
-    zos = ::Zip::OutputStream.new(TEST_ZIP.zip_name)
+    zos = ::RubyZip::OutputStream.new(TEST_ZIP.zip_name)
     zos.comment = TEST_ZIP.comment
     write_test_zip(zos)
     zos.close
@@ -15,7 +15,7 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
   end
 
   def test_open
-    ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+    ::RubyZip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -24,7 +24,7 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
 
   def test_write_buffer
     io = ::StringIO.new('')
-    buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
+    buffer = ::RubyZip::OutputStream.write_buffer(io) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -41,7 +41,7 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
   def test_cannotOpenFile
     name = TestFiles::EMPTY_TEST_DIR
     begin
-      ::Zip::OutputStream.open(name)
+      ::RubyZip::OutputStream.open(name)
     rescue Exception
       assert($!.kind_of?(Errno::EISDIR) || # Linux
                  $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
@@ -54,28 +54,28 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
     stored_text = "hello world in stored text"
     entry_name = "file1"
     comment = "my comment"
-    ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
-      zos.put_next_entry(entry_name, comment, nil, ::Zip::Entry::STORED)
+    ::RubyZip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+      zos.put_next_entry(entry_name, comment, nil, ::RubyZip::Entry::STORED)
       zos << stored_text
     end
 
     assert(File.read(TEST_ZIP.zip_name)[stored_text])
-    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+    ::RubyZip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(stored_text, zf.read(entry_name))
     end
   end
 
   def test_put_next_entry_using_zip_entry_creates_entries_with_correct_timestamps
     file = ::File.open("test/data/file2.txt", "rb")
-    ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
-      zip_entry = ::Zip::Entry.new(zos, file.path, "", "", 0, 0, ::Zip::Entry::DEFLATED, 0, ::Zip::DOSTime.at(file.mtime))
+    ::RubyZip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+      zip_entry = ::RubyZip::Entry.new(zos, file.path, "", "", 0, 0, ::RubyZip::Entry::DEFLATED, 0, ::RubyZip::DOSTime.at(file.mtime))
       zos.put_next_entry(zip_entry)
       zos << file.read
     end
 
-    ::Zip::InputStream::open(TEST_ZIP.zip_name) do |io|
+    ::RubyZip::InputStream::open(TEST_ZIP.zip_name) do |io|
       while (entry = io.get_next_entry)
-        assert(::Zip::DOSTime.at(file.mtime).dos_equals(::Zip::DOSTime.at(entry.mtime))) # Compare DOS Times, since they are stored with two seconds accuracy
+        assert(::RubyZip::DOSTime.at(file.mtime).dos_equals(::RubyZip::DOSTime.at(entry.mtime))) # Compare DOS Times, since they are stored with two seconds accuracy
       end
     end
   end
@@ -85,13 +85,13 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
     stored_text2 = "with chain"
     entry_name = "file1"
     comment = "my comment"
-    ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
-      zos.put_next_entry(entry_name, comment, nil, ::Zip::Entry::STORED)
+    ::RubyZip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+      zos.put_next_entry(entry_name, comment, nil, ::RubyZip::Entry::STORED)
       zos << stored_text << stored_text2
     end
 
     assert(File.read(TEST_ZIP.zip_name)[stored_text])
-    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+    ::RubyZip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(stored_text + stored_text2, zf.read(entry_name))
     end
 
@@ -99,7 +99,7 @@ class ZipOutputStreamTest < MiniTest::Unit::TestCase
 
   def assert_i_o_error_in_closed_stream
     assert_raises(IOError) {
-      zos = ::Zip::OutputStream.new("test_putOnClosedStream.zip")
+      zos = ::RubyZip::OutputStream.new("test_putOnClosedStream.zip")
       zos.close
       yield zos
     }

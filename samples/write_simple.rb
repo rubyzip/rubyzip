@@ -2,9 +2,9 @@
 
 $: << "../lib"
 
-require 'zip/zip'
+require 'rubyzip/rubyzip'
 
-include Zip
+include RubyZip
 
 OutputStream.open('simple.zip') {
   |zos|

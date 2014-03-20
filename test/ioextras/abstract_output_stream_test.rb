@@ -1,9 +1,9 @@
 require 'test_helper'
-require 'zip/ioextras'
+require 'rubyzip/ioextras'
 
 class AbstractOutputStreamTest < MiniTest::Unit::TestCase
   class TestOutputStream
-    include ::Zip::IOExtras::AbstractOutputStream
+    include ::RubyZip::IOExtras::AbstractOutputStream
 
     attr_accessor :buffer
 

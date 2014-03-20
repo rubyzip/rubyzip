@@ -4,14 +4,14 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
   include AssertEntry
 
   def test_new
-    zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name)
+    zis = ::RubyZip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
     assert_equal(true, zis.eof?)
     zis.close
   end
 
   def test_openWithBlock
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::RubyZip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
         |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
@@ -19,12 +19,12 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
   end
 
   def test_openWithoutBlock
-    zis = ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb"))
+    zis = ::RubyZip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb"))
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_openBufferWithBlock
-    ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb")) do |zis|
+    ::RubyZip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb")) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
     end
@@ -32,25 +32,25 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
 
   def test_open_string_io_without_block
     string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
-    zis = ::Zip::InputStream.open(string_io)
+    zis = ::RubyZip::InputStream.open(string_io)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_open_string_io_with_block
     string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
-    ::Zip::InputStream.open(string_io) do |zis|
+    ::RubyZip::InputStream.open(string_io) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
     end
   end
 
   def test_openBufferWithoutBlock
-    zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
+    zis = ::RubyZip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_incompleteReads
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::RubyZip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
         |zis|
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)
@@ -78,7 +78,7 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
 
   def test_incomplete_reads_from_string_io
     string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
-    ::Zip::InputStream.open(string_io) do |zis|
+    ::RubyZip::InputStream.open(string_io) do |zis|
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], entry.name)
@@ -104,7 +104,7 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
   end
 
   def test_read_with_number_of_bytes_returns_nil_at_eof
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+    ::RubyZip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       entry = zis.get_next_entry # longAscii.txt
       zis.read(entry.size)
       assert_equal(true, zis.eof?)
@@ -114,7 +114,7 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
   end
 
   def test_rewind
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::RubyZip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
         |zis|
       e = zis.get_next_entry
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], e.name)
@@ -145,7 +145,7 @@ class ZipInputStreamTest < MiniTest::Unit::TestCase
   end
 
   def test_mix_read_and_gets
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::RubyZip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
         |zis|
       zis.get_next_entry
       assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)

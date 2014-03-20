@@ -3,11 +3,11 @@
 $: << "../lib"
 system("zip example.zip example.rb gtkRubyzip.rb")
 
-require 'zip/zip'
+require 'rubyzip/rubyzip'
 
 ####### Using ZipInputStream alone: #######
 
-Zip::InputStream.open("example.zip") {
+RubyZip::InputStream.open("example.zip") {
   |zis|
   entry = zis.get_next_entry
   print "First line of '#{entry.name} (#{entry.size} bytes):  "
@@ -20,10 +20,10 @@ Zip::InputStream.open("example.zip") {
 
 ####### Using ZipFile to read the directory of a zip file: #######
 
-zf = Zip::File.new("example.zip")
+zf = RubyZip::File.new("example.zip")
 zf.each_with_index {
   |entry, index|
-  
+
   puts "entry #{index} is #{entry.name}, size = #{entry.size}, compressed size = #{entry.compressed_size}"
   # use zf.get_input_stream(entry) to get a ZipInputStream for the entry
   # entry can be the ZipEntry object or any object which has a to_s method that
@@ -33,7 +33,7 @@ zf.each_with_index {
 
 ####### Using ZipOutputStream to write a zip file: #######
 
-Zip::OutputStream.open("exampleout.zip") {
+RubyZip::OutputStream.open("exampleout.zip") {
   |zos|
   zos.put_next_entry("the first little entry")
   zos.puts "Hello hello hello hello hello hello hello hello hello"
@@ -47,7 +47,7 @@ Zip::OutputStream.open("exampleout.zip") {
 
 ####### Using ZipFile to change a zip file: #######
 
-Zip::File.open("exampleout.zip") {
+RubyZip::File.open("exampleout.zip") {
   |zf|
   zf.add("thisFile.rb", "example.rb")
   zf.rename("thisFile.rb", "ILikeThisName.rb")
@@ -55,7 +55,7 @@ Zip::File.open("exampleout.zip") {
 }
 
 # Lets check
-Zip::File.open("exampleout.zip") {
+RubyZip::File.open("exampleout.zip") {
   |zf|
   puts "Changed zip file contains: #{zf.entries.join(', ')}"
   zf.remove("Again")
@@ -65,7 +65,7 @@ Zip::File.open("exampleout.zip") {
 ####### Using ZipFile to split a zip file: #######
 
 # Creating large zip file for splitting
-Zip::OutputStream.open("large_zip_file.zip") do |zos|
+RubyZip::OutputStream.open("large_zip_file.zip") do |zos|
   puts "Creating zip file..."
   10.times do |i|
     zos.put_next_entry("large_entry_#{i}.txt")
@@ -74,11 +74,11 @@ Zip::OutputStream.open("large_zip_file.zip") do |zos|
 end
 
 # Splitting created large zip file
-part_zips_count = Zip::File.split("large_zip_file.zip", 2097152, false)
+part_zips_count = RubyZip::File.split("large_zip_file.zip", 2097152, false)
 puts "Zip file splitted in #{part_zips_count} parts"
 
 # Track splitting an archive
-Zip::File.split("large_zip_file.zip", 1048576, true, 'part_zip_file') do
+RubyZip::File.split("large_zip_file.zip", 1048576, true, 'part_zip_file') do
   |part_count, part_index, chunk_bytes, segment_bytes|
   puts "#{part_index} of #{part_count} part splitting: #{(chunk_bytes.to_f/segment_bytes.to_f * 100).to_i}%"
 end
