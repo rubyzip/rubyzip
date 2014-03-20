@@ -23,7 +23,7 @@ gem install rubyzip
 Or in your Gemfile:
 
 ```ruby
-gem 'rubyzip', '>= 1.1.2
+gem 'rubyzip', '>= 1.1.2'
 ```
 
 ## Usage
