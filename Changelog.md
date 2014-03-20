@@ -1,3 +1,8 @@
+1.1.2 
+=====
+
+* Fix compatibility of ::Zip::File.write_buffer
+
 1.1.1
 =====
 
