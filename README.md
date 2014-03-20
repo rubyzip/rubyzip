@@ -5,25 +5,22 @@
 
 rubyzip is a ruby library for reading and writing zip files.
 
-## Important note
-
-Internal module Zip has been renamed to RubyZip to avoid conflicts with other gem's Zip module.
+This is a fork of the RubyZip gem to avoid conflicts with other gems using a module named Zip. Basically this is rename of the Zip module to RubyZip to avoid such conflicts.
 
 ## Requirements
 
 * Ruby 1.9.2 or greater
 
 ## Installation
-rubyzip is available on RubyGems, so:
 
 ```
-gem install rubyzip
+gem install rubyzip --source https://github.com/davidhooey/rubyzip.git
 ```
 
 Or in your Gemfile:
 
 ```ruby
-gem 'rubyzip', '>= 1.1.2'
+gem 'rubyzip', :git => 'git@github.com:davidhooey/rubyzip.git'
 ```
 
 ## Usage
