@@ -2,7 +2,7 @@
 
 $: << "../lib"
 
-require 'zip/zip'
+require 'zip'
 
 include Zip
 
