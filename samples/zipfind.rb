@@ -4,7 +4,7 @@ $VERBOSE = true
 
 $: << "../lib"
 
-require 'zip/zip'
+require 'zip'
 require 'find'
 
 module Zip
@@ -38,21 +38,21 @@ end
 
 if __FILE__ == $0
   module ZipFindConsoleRunner
-    
+
     PATH_ARG_INDEX = 0;
     FILENAME_PATTERN_ARG_INDEX = 1;
     ZIPFILE_PATTERN_ARG_INDEX = 2;
-    
+
     def self.run(args)
       check_args(args)
-      Zip::ZipFind.find_file(args[PATH_ARG_INDEX], 
+      Zip::ZipFind.find_file(args[PATH_ARG_INDEX],
 			    args[FILENAME_PATTERN_ARG_INDEX],
 			    args[ZIPFILE_PATTERN_ARG_INDEX]) {
 	|fileName|
 	report_entry_found fileName
       }
     end
-    
+
     def self.check_args(args)
       if (args.size != 3)
 	usage
@@ -63,11 +63,11 @@ if __FILE__ == $0
     def self.usage
       puts "Usage: #{$0} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
     end
-    
+
     def self.report_entry_found(fileName)
       puts fileName
     end
-    
+
   end
 
   ZipFindConsoleRunner.run(ARGV)
