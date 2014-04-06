@@ -55,7 +55,7 @@ module Zip
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io)
+      def write_buffer(io = ::StringIO.new(''))
         zos = new(io, true)
         yield zos
         zos.close_buffer
