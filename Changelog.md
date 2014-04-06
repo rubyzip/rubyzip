@@ -1,3 +1,9 @@
+1.1.3
+=====
+
+* Fix compatibility of ::OutputStream::write_buffer (@orien)
+* Clean up tempfiles from output stream (@iangreenleaf)
+
 1.1.2 
 =====
 
