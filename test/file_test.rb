@@ -18,9 +18,6 @@ class ZipFileTest < MiniTest::Unit::TestCase
     end
 
     ::File.open(EMPTY_FILENAME, 'wb') { |file| file.write buffer.string }
-    # Not sure if the following line was just accidentally left in, but
-    # it's not related to the tests and breaks on windows
-    `cp #{EMPTY_FILENAME} ~/test.zip` unless Zip::RUNNING_ON_WINDOWS
 
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(comment, zfRead.comment)
