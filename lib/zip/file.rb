@@ -303,6 +303,7 @@ module Zip
           @entry_set.each do |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
+            e.clean_up
           end
           zos.comment = comment
         end

@@ -560,6 +560,10 @@ module Zip
       end
     end
 
+    def clean_up
+      # By default, do nothing
+    end
+
     private
 
     def set_time(binary_dos_date, binary_dos_time)
