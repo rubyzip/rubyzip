@@ -5,4 +5,12 @@ module Zip
   class CompressionMethodError < Error; end
   class EntryNameError < Error; end
   class InternalError < Error; end
+
+  # Backwards compatibility with v1 (delete in v2)
+  ZipError = Error
+  ZipEntryExistsError = EntryExistsError
+  ZipDestinationFileExistsError = DestinationFileExistsError
+  ZipCompressionMethodError = CompressionMethodError
+  ZipEntryNameError = EntryNameError
+  ZipInternalError = InternalError
 end
