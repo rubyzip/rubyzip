@@ -273,7 +273,7 @@ module Zip
       io << pack_local_entry
 
       io << @name
-      io << (@extra ? @extra.to_local_bin : '')
+      io << @extra.to_local_bin if @extra
       @local_header_size = io.tell - @local_header_offset
     end
 
