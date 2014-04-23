@@ -129,4 +129,37 @@ class ZipEntryTest < MiniTest::Unit::TestCase
   def test_entry_name_cannot_start_with_slash
     assert_raises(::Zip::EntryNameError) { ::Zip::Entry.new("zf.zip", "/hej/der") }
   end
+
+  def test_store_file_without_compression
+    File.delete('/tmp/no_compress.zip') if File.exists?('/tmp/no_compress.zip')
+    files = Dir[File.join('test/data/globTest', '**', '**')]
+
+    Zip.setup do |z|
+      z.write_zip64_support = false
+    end
+
+    zipfile = Zip::File.open('/tmp/no_compress.zip', Zip::File::CREATE)
+    mimetype_entry = Zip::Entry.new(zipfile,                #@zipfile
+                                    'mimetype',             #@name
+                                    '',                     #@comment
+                                    '',                     #@extra
+                                    0,                      #@compressed_size
+                                    0,                      #@crc
+                                    Zip::Entry::STORED)     #@comppressed_method
+
+    zipfile.add(mimetype_entry, 'test/data/mimetype')
+
+    files.each do |file|
+      zipfile.add(file.sub("test/data/globTest/", ''), file)
+    end
+    zipfile.close
+
+    f= File.open('/tmp/no_compress.zip', 'rb')
+    first_100_bytes = f.read(100)
+    f.close
+
+    assert_match(/mimetypeapplication\/epub\+zip/, first_100_bytes)
+  end
+
+
 end
