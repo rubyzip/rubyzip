@@ -1,3 +1,10 @@
+1.1.4
+=====
+
+* Don't send empty string to stream (@mrloop)
+* Zip::Entry::DEFLATED was forced on every file (@mehmetc)
+* Alias for legacy error names (@orien)
+
 1.1.3
 =====
 
