@@ -38,6 +38,18 @@ class ZipFileTest < MiniTest::Unit::TestCase
     assert_equal(2, zfRead.entries.length)
   end
 
+  def test_open_with_block_returns_zip_file
+    srcFile = "test/data/file2.txt"
+    entryName = "newEntryName.rb"
+    assert(::File.exist?(srcFile))
+    created_file = ::Zip::File.open(EMPTY_FILENAME, ::Zip::File::CREATE) do |zf|
+      zf.add(entryName, srcFile)
+    end
+
+    zfRead = ::Zip::File.new(EMPTY_FILENAME)
+    assert_equal(created_file, zfRead)
+  end
+
   def test_get_output_stream
     entryCount = nil
     ::Zip::File.open(TEST_ZIP.zip_name) {
