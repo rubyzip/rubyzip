@@ -2,9 +2,9 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.1
+  - 2.1
   - ruby-head
-  - rbx
+  - rbx-2
 matrix:
   include:
   - rvm: jruby-19mode
