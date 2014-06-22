@@ -20,3 +20,4 @@ Gemfile.lock
 +samples/*.zip
 +samples/*.zip.*
 coverage
+pkg/
