@@ -1,3 +1,13 @@
+1.1.5
+=====
+
+* Treat empty file as non-exists (@layerssss)
+* Revert regression commit
+* Return created zip file from Zip::File.open when supplied a block (@tpickett66)
+* Zip::Entry::DEFLATED is forced on every file (@mehmetc)
+* Add InputStream#ungetc (@zacstewart)
+* Alias for legacy error names (@orien)
+
 1.1.4
 =====
 
