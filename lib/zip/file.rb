@@ -97,7 +97,6 @@ module Zip
         return zf unless block_given?
         begin
           yield zf
-          zf
         ensure
           zf.close
         end
