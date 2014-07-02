@@ -1,3 +1,8 @@
+1.1.6
+=====
+
+* Revert "Return created zip file from Zip::File.open when supplied a block"
+
 1.1.5
 =====
 
