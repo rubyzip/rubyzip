@@ -4,42 +4,26 @@ module Zip
       super
       @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
       @output_buffer           = ''
-      @output_buffer_pos       = 0
       @has_returned_empty_string = false
     end
 
     def sysread(number_of_bytes = nil, buf = '')
-      buf ||= ''
-      buf.clear
       readEverything = number_of_bytes.nil?
-      if readEverything
-        buf << @output_buffer[@output_buffer_pos...@output_buffer.bytesize]
-
-        move_output_buffer_pos(buf.bytesize)
-      else
-        buf << @output_buffer[@output_buffer_pos, number_of_bytes]
-
-        move_output_buffer_pos(buf.bytesize)
-
-        if buf.bytesize == number_of_bytes
-          return buf
-        end
-      end
-      while readEverything || buf.bytesize + @output_buffer.bytesize < number_of_bytes
+      while readEverything || @output_buffer.bytesize < number_of_bytes
         break if internal_input_finished?
-        @output_buffer << internal_produce_input
+        @output_buffer << internal_produce_input(buf)
       end
-      return value_when_finished(number_of_bytes, buf) if @output_buffer.bytesize == 0 && input_finished?
-      end_index = (number_of_bytes.nil? ? @output_buffer.bytesize : number_of_bytes) - buf.bytesize
-      data = @output_buffer[0...end_index]
-
-      move_output_buffer_pos(data.bytesize)
-
-      buf << data
+      return value_when_finished if @output_buffer.bytesize == 0 && input_finished?
+      end_index = number_of_bytes.nil? ? @output_buffer.bytesize : number_of_bytes
+      @output_buffer.slice!(0...end_index)
     end
 
     def produce_input
-      sysread()
+      if (@output_buffer.empty?)
+        internal_produce_input
+      else
+        @output_buffer.slice!(0...(@output_buffer.length))
+      end
     end
 
     # to be used with produce_input, not read (as read may still have more data cached)
@@ -53,16 +37,7 @@ module Zip
 
     private
 
-    def move_output_buffer_pos(inc)
-      @output_buffer_pos += inc
-      if @output_buffer_pos == @output_buffer.bytesize
-        @output_buffer.clear
-        @output_buffer_pos = 0
-      end
-    end
-
-    def internal_produce_input
-      buf = ''
+    def internal_produce_input(buf = '')
       retried = 0
       begin
         @zlib_inflater.inflate(@input_stream.read(Decompressor::CHUNK_SIZE, buf))
@@ -77,14 +52,10 @@ module Zip
       @zlib_inflater.finished?
     end
 
-    def value_when_finished(number_of_bytes, buf) # mimic behaviour of ruby File object.
-      if number_of_bytes.nil?
-        buf
-      elsif buf.bytesize == 0
-        nil
-      else
-        buf
-      end
+    def value_when_finished # mimic behaviour of ruby File object.
+      return if @has_returned_empty_string
+      @has_returned_empty_string = true
+      ''
     end
   end
 end
