@@ -70,7 +70,7 @@ module Zip
       @comment = ''
       @create  = create
       case
-      when !buffer && ::File.exist?(file_name)
+      when !buffer && ::File.size?(file_name)
         @create = nil
         @exist_file_perms = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
