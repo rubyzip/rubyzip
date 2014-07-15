@@ -4,6 +4,9 @@ require 'test_helper'
 class ZipFileTest < MiniTest::Test
   include CommonZipFileFixture
 
+  OK_DELETE_FILE = 'test/data/generated/okToDelete.txt'
+  OK_DELETE_MOVED_FILE = 'test/data/generated/okToDeleteMoved.txt'
+
   def teardown
     ::Zip.write_zip64_support = false
   end
@@ -386,13 +389,13 @@ class ZipFileTest < MiniTest::Test
   # can delete the file you used to add the entry to the zip file
   # with
   def test_commitUseZipEntry
-    FileUtils.cp(TestFiles::RANDOM_ASCII_FILE1, "okToDelete.txt")
+    FileUtils.cp(TestFiles::RANDOM_ASCII_FILE1, OK_DELETE_FILE)
     zf = ::Zip::File.open(TEST_ZIP.zip_name)
-    zf.add("okToDelete.txt", "okToDelete.txt")
+    zf.add("okToDelete.txt", OK_DELETE_FILE)
     assert_contains(zf, "okToDelete.txt")
     zf.commit
-    File.rename("okToDelete.txt", "okToDeleteMoved.txt")
-    assert_contains(zf, "okToDelete.txt", "okToDeleteMoved.txt")
+    File.rename(OK_DELETE_FILE, OK_DELETE_MOVED_FILE)
+    assert_contains(zf, "okToDelete.txt", OK_DELETE_MOVED_FILE)
   end
 
 #  def test_close
