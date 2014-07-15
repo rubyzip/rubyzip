@@ -1,12 +1,5 @@
 .idea
 *.gem
-test/5entry_copy.zip
-test/cdirtest.bin
-test/cdir64test.bin
-test/huge.zip
-test/data/generated/
-test/zipWithDirs_copy.zip
-test/coverage
 .bundle
 Gemfile.lock
 +samples/*.zip
