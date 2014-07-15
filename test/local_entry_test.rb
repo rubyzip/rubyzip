@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipLocalEntryTest < MiniTest::Unit::TestCase
+class ZipLocalEntryTest < MiniTest::Test
 
   def teardown
     ::Zip.write_zip64_support = false

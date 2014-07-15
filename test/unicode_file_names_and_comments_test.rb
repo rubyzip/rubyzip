@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipUnicodeFileNamesAndComments < MiniTest::Unit::TestCase
+class ZipUnicodeFileNamesAndComments < MiniTest::Test
 
   FILENAME = File.join(File.dirname(__FILE__), "test1.zip")
 

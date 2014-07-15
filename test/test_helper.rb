@@ -9,7 +9,7 @@ require 'gentestfiles'
 TestFiles.create_test_files
 TestZipFile.create_test_zips
 
-::MiniTest::Unit.after_tests do
+::MiniTest.after_run do
   FileUtils.rm_rf('test/data/generated')
 end
 

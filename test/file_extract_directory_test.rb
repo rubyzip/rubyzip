@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipFileExtractDirectoryTest < MiniTest::Unit::TestCase
+class ZipFileExtractDirectoryTest < MiniTest::Test
   include CommonZipFileFixture
   TEST_OUT_NAME = "emptyOutDir"
 

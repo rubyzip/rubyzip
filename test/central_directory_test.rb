@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipCentralDirectoryTest < MiniTest::Unit::TestCase
+class ZipCentralDirectoryTest < MiniTest::Test
 
   def test_read_from_stream
     ::File.open(TestZipFile::TEST_ZIP2.zip_name, "rb") {

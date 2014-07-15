@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class ZipFsDirectoryTest < MiniTest::Unit::TestCase
+class ZipFsDirectoryTest < MiniTest::Test
   TEST_ZIP = "test/data/generated/zipWithDirs_copy.zip"
 
   def setup

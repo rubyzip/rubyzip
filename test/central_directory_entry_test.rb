@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipCentralDirectoryEntryTest < MiniTest::Unit::TestCase
+class ZipCentralDirectoryEntryTest < MiniTest::Test
 
   def test_read_from_stream
     File.open("test/data/testDirectory.bin", "rb") {

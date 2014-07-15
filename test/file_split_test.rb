@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipFileSplitTest < MiniTest::Unit::TestCase
+class ZipFileSplitTest < MiniTest::Test
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
   TEST_ZIP.zip_name = "large_zip_file.zip"
   EXTRACTED_FILENAME = "test/data/generated/extEntry"
