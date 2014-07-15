@@ -131,7 +131,7 @@ class ZipEntryTest < MiniTest::Test
   end
 
   def test_store_file_without_compression
-    File.delete('/tmp/no_compress.zip') if File.exists?('/tmp/no_compress.zip')
+    File.delete('/tmp/no_compress.zip') if File.exist?('/tmp/no_compress.zip')
     files = Dir[File.join('test/data/globTest', '**', '**')]
 
     Zip.setup do |z|
