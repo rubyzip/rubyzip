@@ -5,7 +5,6 @@ test/cdirtest.bin
 test/cdir64test.bin
 test/huge.zip
 test/data/generated/
-test/dummy.txt
 test/zipWithDirs_copy.zip
 test/coverage
 .bundle
