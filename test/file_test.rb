@@ -90,8 +90,6 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_cleans_up_tempfiles_after_close
-    comment = "a short comment"
-
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
     zf.get_output_stream("myFile") do |os|
       @tempfile_path = os.path
