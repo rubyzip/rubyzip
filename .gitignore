@@ -6,7 +6,6 @@ test/cdir64test.bin
 test/huge.zip
 test/data/generated/
 test/dummy.txt
-test/okToDeleteMoved.txt
 test/output.zip
 test/test_putOnClosedStream.zip
 test/zipWithDirs_copy.zip
