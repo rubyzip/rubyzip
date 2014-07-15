@@ -98,11 +98,11 @@ class ZipFileTest < MiniTest::Test
       os.write "myFile contains just this"
     end
 
-    assert_equal(true, File.exists?(@tempfile_path))
+    assert_equal(true, File.exist?(@tempfile_path))
 
     zf.close
 
-    assert_equal(false, File.exists?(@tempfile_path))
+    assert_equal(false, File.exist?(@tempfile_path))
   end
 
   def test_add
