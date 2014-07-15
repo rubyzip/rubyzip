@@ -6,8 +6,6 @@ test/cdir64test.bin
 test/huge.zip
 test/data/generated/
 test/dummy.txt
-test/output.zip
-test/test_putOnClosedStream.zip
 test/zipWithDirs_copy.zip
 test/coverage
 .bundle

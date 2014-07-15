@@ -4,7 +4,7 @@ class ZipOutputStreamTest < MiniTest::Test
   include AssertEntry
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-  TEST_ZIP.zip_name = "output.zip"
+  TEST_ZIP.zip_name = "test/data/generated/output.zip"
 
   def test_new
     zos = ::Zip::OutputStream.new(TEST_ZIP.zip_name)
@@ -99,7 +99,7 @@ class ZipOutputStreamTest < MiniTest::Test
 
   def assert_i_o_error_in_closed_stream
     assert_raises(IOError) {
-      zos = ::Zip::OutputStream.new("test_putOnClosedStream.zip")
+      zos = ::Zip::OutputStream.new("test/data/generated/test_putOnClosedStream.zip")
       zos.close
       yield zos
     }
