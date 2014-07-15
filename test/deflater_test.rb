@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DeflaterTest < MiniTest::Unit::TestCase
+class DeflaterTest < MiniTest::Test
   include CrcTest
 
   def test_outputOperator

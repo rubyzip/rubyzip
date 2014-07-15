@@ -1,7 +1,7 @@
 require 'test_helper'
 
 
-class ZipFileTest < MiniTest::Unit::TestCase
+class ZipFileTest < MiniTest::Test
   include CommonZipFileFixture
 
   def teardown

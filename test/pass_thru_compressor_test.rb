@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class PassThruCompressorTest < MiniTest::Unit::TestCase
+class PassThruCompressorTest < MiniTest::Test
   include CrcTest
 
   def test_size

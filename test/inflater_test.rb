@@ -1,5 +1,5 @@
 require 'test_helper'
-class InflaterTest < MiniTest::Unit::TestCase
+class InflaterTest < MiniTest::Test
   include DecompressorTests
 
   def setup

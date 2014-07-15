@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipEntryTest < MiniTest::Unit::TestCase
+class ZipEntryTest < MiniTest::Test
   TEST_ZIPFILE = "someZipFile.zip"
   TEST_COMMENT = "a comment"
   TEST_COMPRESSED_SIZE = 1234

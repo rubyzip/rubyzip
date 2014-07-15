@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipInputStreamTest < MiniTest::Unit::TestCase
+class ZipInputStreamTest < MiniTest::Test
   include AssertEntry
 
   def test_new

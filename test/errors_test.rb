@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'test_helper'
 
-class ErrorsTest < MiniTest::Unit::TestCase
+class ErrorsTest < MiniTest::Test
 
   def test_rescue_legacy_zip_error
     raise ::Zip::Error

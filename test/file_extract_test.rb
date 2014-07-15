@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipFileExtractTest < MiniTest::Unit::TestCase
+class ZipFileExtractTest < MiniTest::Test
   include CommonZipFileFixture
   EXTRACTED_FILENAME = "extEntry"
   ENTRY_TO_EXTRACT, *REMAINING_ENTRIES = TEST_ZIP.entry_names.reverse

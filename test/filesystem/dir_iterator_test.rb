@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class ZipFsDirIteratorTest < MiniTest::Unit::TestCase
+class ZipFsDirIteratorTest < MiniTest::Test
 
   FILENAME_ARRAY = [ "f1", "f2", "f3", "f4", "f5", "f6"  ]
 

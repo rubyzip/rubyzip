@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'zip/ioextras'
 
-class FakeIOTest < MiniTest::Unit::TestCase
+class FakeIOTest < MiniTest::Test
   class FakeIOUsingClass
     include ::Zip::IOExtras::FakeIO
   end
