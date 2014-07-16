@@ -11,6 +11,8 @@ matrix:
     jdk: oraclejdk7
   - rvm: jruby-19mode
     jdk: openjdk7
+  allow_failures:
+    - rvm: ruby-head
 before_install:
   - gem update --system
   - gem --version
@@ -19,5 +21,3 @@ before_script:
   - sudo apt-get install -qq zip unzip
   - echo `whereis zip`
   - echo `whereis unzip`
-allow_failures:
-  - rvm: ruby-head
