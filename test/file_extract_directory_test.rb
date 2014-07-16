@@ -1,8 +1,9 @@
 require 'test_helper'
 
-class ZipFileExtractDirectoryTest < MiniTest::Unit::TestCase
+class ZipFileExtractDirectoryTest < MiniTest::Test
   include CommonZipFileFixture
-  TEST_OUT_NAME = "emptyOutDir"
+
+  TEST_OUT_NAME = "test/data/generated/emptyOutDir"
 
   def open_zip(&aProc)
     assert(aProc != nil)

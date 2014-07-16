@@ -1,6 +1,9 @@
 require 'test_helper'
 
-class ZipLocalEntryTest < MiniTest::Unit::TestCase
+class ZipLocalEntryTest < MiniTest::Test
+
+  CEH_FILE = 'test/data/generated/centralEntryHeader.bin'
+  LEH_FILE = 'test/data/generated/localEntryHeader.bin'
 
   def teardown
     ::Zip.write_zip64_support = false
@@ -54,8 +57,8 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
     entry = ::Zip::Entry.new("file.zip", "entryName", "my little comment",
                              "thisIsSomeExtraInformation", 100, 987654,
                              ::Zip::Entry::DEFLATED, 400)
-    write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
-    entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    write_to_file(LEH_FILE, CEH_FILE, entry)
+    entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
     assert(entryReadCentral.extra['Zip64Placeholder'].nil?, 'zip64 placeholder should not be used in central directory')
     compare_local_entry_headers(entry, entryReadLocal)
     compare_c_dir_entry_headers(entry, entryReadCentral)
@@ -66,8 +69,8 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
     entry = ::Zip::Entry.new("file.zip", "entryName", "my little comment",
                              "thisIsSomeExtraInformation", 100, 987654,
                              ::Zip::Entry::DEFLATED, 400)
-    write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
-    entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    write_to_file(LEH_FILE, CEH_FILE, entry)
+    entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
     assert(entryReadLocal.extra['Zip64Placeholder'], 'zip64 placeholder should be used in local file header')
     entryReadLocal.extra.delete('Zip64Placeholder') # it was removed when writing the c_dir_entry, so remove from compare
     assert(entryReadCentral.extra['Zip64Placeholder'].nil?, 'zip64 placeholder should not be used in central directory')
@@ -81,8 +84,8 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
                              "malformed extra field because why not",
                              0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
                              0x9988776655443322)
-    write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
-    entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    write_to_file(LEH_FILE, CEH_FILE, entry)
+    entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
     compare_local_entry_headers(entry, entryReadLocal)
     compare_c_dir_entry_headers(entry, entryReadCentral)
   end
@@ -106,9 +109,9 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
   def test_readLocalOffset
     entry = ::Zip::Entry.new("file.zip", "entryName")
     entry.local_header_offset = 12345
-    ::File.open('centralEntryHeader.bin', 'wb') { |f| entry.write_c_dir_entry(f) }
+    ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
-    ::File.open('centralEntryHeader.bin', 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }
+    ::File.open(CEH_FILE, 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }
     compare_c_dir_entry_headers(entry, read_entry)
   end
 
@@ -116,9 +119,9 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
     ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new("file.zip", "entryName")
     entry.local_header_offset = 0x0123456789ABCDEF
-    ::File.open('centralEntryHeader.bin', 'wb') { |f| entry.write_c_dir_entry(f) }
+    ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
-    ::File.open('centralEntryHeader.bin', 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }
+    ::File.open(CEH_FILE, 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }
     compare_c_dir_entry_headers(entry, read_entry)
   end
 

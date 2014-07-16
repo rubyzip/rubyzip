@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Zip64SupportTest < MiniTest::Unit::TestCase
+class Zip64SupportTest < MiniTest::Test
   TEST_FILE = File.join(File.dirname(__FILE__), 'data', 'zip64-sample.zip')
 
   def test_open_zip64_file

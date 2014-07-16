@@ -1,12 +1,17 @@
 require 'test_helper'
 
-class DeflaterTest < MiniTest::Unit::TestCase
+class DeflaterTest < MiniTest::Test
   include CrcTest
+
+  DEFLATER_TEST_FILE = 'test/data/generated/deflatertest.bin'
+  BEST_COMP_FILE = 'test/data/generated/compressiontest_best_compression.bin'
+  DEFAULT_COMP_FILE = 'test/data/generated/compressiontest_default_compression.bin'
+  NO_COMP_FILE = 'test/data/generated/compressiontest_no_compression.bin'
 
   def test_outputOperator
     txt = load_file("test/data/file2.txt")
-    deflate(txt, "deflatertest.bin")
-    inflatedTxt = inflate("deflatertest.bin")
+    deflate(txt, DEFLATER_TEST_FILE)
+    inflatedTxt = inflate(DEFLATER_TEST_FILE)
     assert_equal(txt, inflatedTxt)
   end
 
@@ -14,15 +19,15 @@ class DeflaterTest < MiniTest::Unit::TestCase
     txt = load_file("test/data/file2.txt")
 
     Zip.default_compression = ::Zlib::BEST_COMPRESSION
-    deflate(txt, "compressiontest_best_compression.bin")
+    deflate(txt, BEST_COMP_FILE)
     Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
-    deflate(txt, "compressiontest_default_compression.bin")
+    deflate(txt, DEFAULT_COMP_FILE)
     Zip.default_compression = ::Zlib::NO_COMPRESSION
-    deflate(txt, "compressiontest_no_compression.bin")
+    deflate(txt, NO_COMP_FILE)
 
-    best    = File.size("compressiontest_best_compression.bin")
-    default = File.size("compressiontest_default_compression.bin")
-    no      = File.size("compressiontest_no_compression.bin")
+    best    = File.size(BEST_COMP_FILE)
+    default = File.size(DEFAULT_COMP_FILE)
+    no      = File.size(NO_COMP_FILE)
 
     assert(best < default)
     assert(best < no)

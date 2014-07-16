@@ -1,10 +1,10 @@
 require 'test_helper'
 
-class PassThruCompressorTest < MiniTest::Unit::TestCase
+class PassThruCompressorTest < MiniTest::Test
   include CrcTest
 
   def test_size
-    File.open("test/dummy.txt", "wb") {
+    File.open("test/data/generated/dummy.txt", "wb") {
         |file|
       compressor = ::Zip::PassThruCompressor.new(file)
 

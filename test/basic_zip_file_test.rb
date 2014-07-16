@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class BasicZipFileTest < MiniTest::Unit::TestCase
+class BasicZipFileTest < MiniTest::Test
   include AssertEntry
 
   def setup

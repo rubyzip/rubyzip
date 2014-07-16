@@ -1,9 +1,10 @@
 require 'test_helper'
 
-class ZipSettingsTest < MiniTest::Unit::TestCase
+class ZipSettingsTest < MiniTest::Test
   # TODO Refactor out into common test module
   include CommonZipFileFixture
-  TEST_OUT_NAME = "emptyOutDir"
+
+  TEST_OUT_NAME = "test/data/generated/emptyOutDir"
 
   def setup
     super

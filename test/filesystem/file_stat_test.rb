@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class ZipFsFileStatTest < MiniTest::Unit::TestCase
+class ZipFsFileStatTest < MiniTest::Test
 
   def setup
     @zip_file = ::Zip::File.new("test/data/zipWithDirs.zip")

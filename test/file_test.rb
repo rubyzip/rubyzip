@@ -1,8 +1,11 @@
 require 'test_helper'
 
 
-class ZipFileTest < MiniTest::Unit::TestCase
+class ZipFileTest < MiniTest::Test
   include CommonZipFileFixture
+
+  OK_DELETE_FILE = 'test/data/generated/okToDelete.txt'
+  OK_DELETE_MOVED_FILE = 'test/data/generated/okToDeleteMoved.txt'
 
   def teardown
     ::Zip.write_zip64_support = false
@@ -87,19 +90,17 @@ class ZipFileTest < MiniTest::Unit::TestCase
   end
 
   def test_cleans_up_tempfiles_after_close
-    comment = "a short comment"
-
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
     zf.get_output_stream("myFile") do |os|
       @tempfile_path = os.path
       os.write "myFile contains just this"
     end
 
-    assert_equal(true, File.exists?(@tempfile_path))
+    assert_equal(true, File.exist?(@tempfile_path))
 
     zf.close
 
-    assert_equal(false, File.exists?(@tempfile_path))
+    assert_equal(false, File.exist?(@tempfile_path))
   end
 
   def test_add
@@ -386,13 +387,13 @@ class ZipFileTest < MiniTest::Unit::TestCase
   # can delete the file you used to add the entry to the zip file
   # with
   def test_commitUseZipEntry
-    FileUtils.cp(TestFiles::RANDOM_ASCII_FILE1, "okToDelete.txt")
+    FileUtils.cp(TestFiles::RANDOM_ASCII_FILE1, OK_DELETE_FILE)
     zf = ::Zip::File.open(TEST_ZIP.zip_name)
-    zf.add("okToDelete.txt", "okToDelete.txt")
+    zf.add("okToDelete.txt", OK_DELETE_FILE)
     assert_contains(zf, "okToDelete.txt")
     zf.commit
-    File.rename("okToDelete.txt", "okToDeleteMoved.txt")
-    assert_contains(zf, "okToDelete.txt", "okToDeleteMoved.txt")
+    File.rename(OK_DELETE_FILE, OK_DELETE_MOVED_FILE)
+    assert_contains(zf, "okToDelete.txt", OK_DELETE_MOVED_FILE)
   end
 
 #  def test_close

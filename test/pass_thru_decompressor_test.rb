@@ -1,5 +1,5 @@
 require 'test_helper'
-class PassThruDecompressorTest < MiniTest::Unit::TestCase
+class PassThruDecompressorTest < MiniTest::Test
   include DecompressorTests
 
   def setup

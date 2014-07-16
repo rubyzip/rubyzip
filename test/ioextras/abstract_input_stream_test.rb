@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'zip/ioextras'
 
-class AbstractInputStreamTest < MiniTest::Unit::TestCase
+class AbstractInputStreamTest < MiniTest::Test
   # AbstractInputStream subclass that provides a read method
 
   TEST_LINES = ["Hello world#{$/}",

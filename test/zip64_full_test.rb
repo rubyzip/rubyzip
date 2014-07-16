@@ -7,7 +7,7 @@ if ENV['FULL_ZIP64_TEST']
 # test zip64 support for real, by actually exceeding the 32-bit size/offset limits
 # this test does not, of course, run with the normal unit tests! ;)
 
-  class Zip64FullTest < MiniTest::Unit::TestCase
+  class Zip64FullTest < MiniTest::Test
     def prepareTestFile(test_filename)
       ::File.delete(test_filename) if ::File.exist?(test_filename)
       return test_filename
