@@ -46,7 +46,7 @@ module Zip
         @entry_set ? [@entry_set.size, 0xFFFF].min : 0,
         [cdir_size, 0xFFFFFFFF].min,
         [offset, 0xFFFFFFFF].min,
-        @comment ? @comment.length : 0
+        @comment ? @comment.bytesize : 0
       ]
       io << tmp.pack('VvvvvVVv')
       io << @comment
