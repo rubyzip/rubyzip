@@ -1,4 +1,5 @@
 # rubyzip
+[![Gem Version](https://badge.fury.io/rb/rubyzip.svg)](http://badge.fury.io/rb/rubyzip)
 [![Build Status](https://secure.travis-ci.org/rubyzip/rubyzip.png)](http://travis-ci.org/rubyzip/rubyzip)
 [![Code Climate](https://codeclimate.com/github/rubyzip/rubyzip.png)](https://codeclimate.com/github/rubyzip/rubyzip)
 [![Coverage Status](https://coveralls.io/repos/rubyzip/rubyzip/badge.png?branch=master)](https://coveralls.io/r/rubyzip/rubyzip?branch=master)
