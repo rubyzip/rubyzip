@@ -13,6 +13,7 @@ matrix:
     jdk: openjdk7
   allow_failures:
     - rvm: ruby-head
+    - rvm: rbx-2
 before_install:
   - gem update --system
   - gem --version
