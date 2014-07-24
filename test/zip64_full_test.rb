@@ -8,6 +8,10 @@ if ENV['FULL_ZIP64_TEST']
 # this test does not, of course, run with the normal unit tests! ;)
 
   class Zip64FullTest < MiniTest::Test
+    def teardown
+      ::Zip.reset!
+    end
+
     def prepareTestFile(test_filename)
       ::File.delete(test_filename) if ::File.exist?(test_filename)
       return test_filename

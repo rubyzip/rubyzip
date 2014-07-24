@@ -14,6 +14,10 @@ class ZipEntrySetTest < MiniTest::Test
     @zipEntrySet = ::Zip::EntrySet.new(ZIP_ENTRIES)
   end
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def test_include
     assert(@zipEntrySet.include?(ZIP_ENTRIES.first))
     assert(!@zipEntrySet.include?(::Zip::Entry.new("different.zip", "different", "aComment")))
@@ -66,6 +70,15 @@ class ZipEntrySetTest < MiniTest::Test
     assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries)
     ::Zip.sort_entries = false
     assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
+  end
+
+  def test_entries_sorted_in_each
+    ::Zip.sort_entries = true
+    arr = []
+    @zipEntrySet.each do |entry|
+      arr << entry
+    end
+    assert_equal(ZIP_ENTRIES.sort, arr)
   end
 
   def test_compound
