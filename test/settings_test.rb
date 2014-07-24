@@ -13,6 +13,10 @@ class ZipSettingsTest < MiniTest::Test
     File.delete(TEST_OUT_NAME) if File.exist? TEST_OUT_NAME
   end
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def open_zip(&aProc)
     assert(aProc != nil)
     ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)

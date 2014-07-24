@@ -14,6 +14,10 @@ class ZipEntrySetTest < MiniTest::Test
     @zipEntrySet = ::Zip::EntrySet.new(ZIP_ENTRIES)
   end
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def test_include
     assert(@zipEntrySet.include?(ZIP_ENTRIES.first))
     assert(!@zipEntrySet.include?(::Zip::Entry.new("different.zip", "different", "aComment")))
