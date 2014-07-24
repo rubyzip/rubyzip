@@ -72,6 +72,15 @@ class ZipEntrySetTest < MiniTest::Test
     assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
   end
 
+  def test_entries_sorted_in_each
+    ::Zip.sort_entries = true
+    arr = []
+    @zipEntrySet.each do |entry|
+      arr << entry
+    end
+    assert_equal(ZIP_ENTRIES.sort, arr)
+  end
+
   def test_compound
     newEntry = ::Zip::Entry.new("zf.zip", "new entry", "new entry's comment")
     assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
