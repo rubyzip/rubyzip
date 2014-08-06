@@ -129,7 +129,7 @@ module Zip
       @current_entry
     end
 
-    def get_decompressor(compression_method = nil)
+    def get_decompressor()
       case
       when @current_entry.nil?
         ::Zip::NullDecompressor
