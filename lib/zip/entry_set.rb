@@ -38,17 +38,13 @@ module Zip
     end
 
     def each(&block)
-      @entry_set = @entry_set.dup.each do |_, value|
+      @entry_set = sorted_entries.dup.each do |_, value|
         block.call(value)
       end
     end
 
     def entries
-      if ::Zip.sort_entries == true
-        @entry_set.values.sort_by{|x| x.name}
-      else
-        @entry_set.values
-      end
+      sorted_entries.values
     end
 
     # deep clone
@@ -74,10 +70,13 @@ module Zip
     end
 
     protected
+    def sorted_entries
+      ::Zip.sort_entries ? Hash[@entry_set.sort] : @entry_set
+    end
 
     private
     def to_key(entry)
-      entry.to_s.sub(/\/$/, '')
+      entry.to_s.chomp('/')
     end
   end
 end

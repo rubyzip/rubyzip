@@ -1,3 +1,46 @@
+1.1.6
+=====
+
+* Revert "Return created zip file from Zip::File.open when supplied a block"
+
+1.1.5
+=====
+
+* Treat empty file as non-exists (@layerssss)
+* Revert regression commit
+* Return created zip file from Zip::File.open when supplied a block (@tpickett66)
+* Zip::Entry::DEFLATED is forced on every file (@mehmetc)
+* Add InputStream#ungetc (@zacstewart)
+* Alias for legacy error names (@orien)
+
+1.1.4
+=====
+
+* Don't send empty string to stream (@mrloop)
+* Zip::Entry::DEFLATED was forced on every file (@mehmetc)
+* Alias for legacy error names (@orien)
+
+1.1.3
+=====
+
+* Fix compatibility of ::OutputStream::write_buffer (@orien)
+* Clean up tempfiles from output stream (@iangreenleaf)
+
+1.1.2 
+=====
+
+* Fix compatibility of ::Zip::File.write_buffer
+
+1.1.1
+=====
+
+* Speedup deflater (@loadhigh)
+* Less Arrays and Strings allocations (@srawlins)
+* Fix Zip64 writting support (@mrjamesriley)
+* Fix StringIO support (@simonoff)
+* Posibility to change default compression level
+* Make Zip64 write support optional via configuration 
+
 1.1.0
 =====
 

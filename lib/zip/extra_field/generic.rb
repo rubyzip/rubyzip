@@ -7,7 +7,7 @@ module Zip
     end
 
     def self.name
-      self.to_s.split("::")[-1]
+      @name ||= self.to_s.split("::")[-1]
     end
 
     # return field [size, content] or false
@@ -32,12 +32,12 @@ module Zip
 
     def to_local_bin
       s = pack_for_local
-      self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") + s
+      self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") << s
     end
 
     def to_c_dir_bin
       s = pack_for_c_dir
-      self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") + s
+      self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") << s
     end
   end
 end

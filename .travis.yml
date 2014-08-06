@@ -1,17 +1,19 @@
 language: ruby
 rvm:
-  - 1.9.2
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1
   - ruby-head
-  - rbx
+  - rbx-2
 matrix:
   include:
   - rvm: jruby-19mode
     jdk: oraclejdk7
   - rvm: jruby-19mode
     jdk: openjdk7
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: rbx-2
 before_install:
   - gem update --system
   - gem --version
@@ -20,5 +22,3 @@ before_script:
   - sudo apt-get install -qq zip unzip
   - echo `whereis zip`
   - echo `whereis unzip`
-allow_failures:
-  - rvm: ruby-head

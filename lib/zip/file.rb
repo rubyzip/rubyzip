@@ -70,7 +70,7 @@ module Zip
       @comment = ''
       @create  = create
       case
-      when ::File.exists?(file_name) && !buffer
+      when !buffer && ::File.size?(file_name)
         @create = nil
         @exist_file_perms = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
@@ -79,7 +79,7 @@ module Zip
       when create
         @entry_set = EntrySet.new
       else
-        raise ZipError, "File #{file_name} not found"
+        raise Error, "File #{file_name} not found"
       end
       @stored_entries      = @entry_set.dup
       @stored_comment      = @comment
@@ -98,40 +98,38 @@ module Zip
       # ruby's builtin File.open method.
       def open(file_name, create = nil)
         zf = ::Zip::File.new(file_name, create)
-        if block_given?
-          begin
-            yield zf
-          ensure
-            zf.close
-          end
-        else
-          zf
+        return zf unless block_given?
+        begin
+          yield zf
+        ensure
+          zf.close
         end
       end
 
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
-        zf = ::Zip::File.new('', true, true)
+        io = ::StringIO.new('')
+        zf = ::Zip::File.new(io, true, true)
         yield zf
-        zf.write_buffer
+        zf.write_buffer(io)
       end
 
       # Like #open, but reads zip archive contents from a String or open IO
       # stream, and outputs data to a buffer.
-      # (This can be used to extract data from a 
+      # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io, options = {})
         unless io.is_a?(IO) || io.is_a?(String) || io.is_a?(Tempfile)
           raise "Zip::File.open_buffer expects an argument of class String, IO, or Tempfile. Found: #{io.class}"
         end
-        zf = ::Zip::File.new('', true, true, options)
         if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
         end
+        zf = ::Zip::File.new(io, true, true, options)
         zf.read_from_stream(io)
         yield zf
-        zf.write_buffer
+        zf.write_buffer(io)
       end
 
       # Iterates over the contents of the ZipFile. This is more efficient
@@ -200,7 +198,7 @@ module Zip
 
       # Splits an archive into parts with segment size
       def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
-        raise ZipError, "File #{zip_file_name} not found" unless ::File.exists?(zip_file_name)
+        raise Error, "File #{zip_file_name} not found" unless ::File.exist?(zip_file_name)
         raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
         zip_file_size = ::File.size(zip_file_name)
         segment_size  = get_segment_size_for_split(segment_size)
@@ -240,24 +238,24 @@ module Zip
 
     # Returns an output stream to the specified entry. If entry is not an instance
     # of Zip::Entry, a new Zip::Entry will be initialized using the arguments
-    # specified. If a block is passed the stream object is passed to the block and 
-    # the stream is automatically closed afterwards just as with ruby's builtin 
+    # specified. If a block is passed the stream object is passed to the block and
+    # the stream is automatically closed afterwards just as with ruby's builtin
     # File.open method.
-    def get_output_stream(entry, permissionInt = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
-      newEntry =
+    def get_output_stream(entry, permission_int = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
+      new_entry =
         if entry.kind_of?(Entry)
           entry
         else
           Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
         end
-      if newEntry.directory?
+      if new_entry.directory?
         raise ArgumentError,
-              "cannot open stream to directory entry - '#{newEntry}'"
+              "cannot open stream to directory entry - '#{new_entry}'"
       end
-      newEntry.unix_perms = permissionInt
-      zipStreamableEntry  = StreamableStream.new(newEntry)
-      @entry_set << zipStreamableEntry
-      zipStreamableEntry.get_output_stream(&aProc)
+      new_entry.unix_perms = permission_int
+      zip_streamable_entry = StreamableStream.new(new_entry)
+      @entry_set << zip_streamable_entry
+      zip_streamable_entry.get_output_stream(&aProc)
     end
 
     # Returns the name of the zip archive
@@ -271,12 +269,13 @@ module Zip
     end
 
     # Convenience method for adding the contents of a file to the archive
-    def add(entry, srcPath, &continue_on_exists_proc)
-      continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
+    def add(entry, src_path, &continue_on_exists_proc)
+      continue_on_exists_proc ||= proc { ::Zip.continue_on_exists_proc }
       check_entry_exists(entry, continue_on_exists_proc, "add")
-      newEntry = entry.kind_of?(Entry) ? entry : Entry.new(@name, entry.to_s)
-      newEntry.gather_fileinfo_from_srcpath(srcPath)
-      @entry_set << newEntry
+      new_entry = entry.kind_of?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
+      new_entry.gather_fileinfo_from_srcpath(src_path)
+      new_entry.dirty = true
+      @entry_set << new_entry
     end
 
     # Removes the specified entry.
@@ -303,7 +302,7 @@ module Zip
 
     # Extracts entry to file dest_path.
     def extract(entry, dest_path, &block)
-      block       ||= proc { ::Zip.on_exists_proc }
+      block ||= proc { ::Zip.on_exists_proc }
       found_entry = get_entry(entry)
       found_entry.extract(dest_path, &block)
     end
@@ -311,12 +310,13 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-      return if !commit_required?
-      on_success_replace do |tmpFile|
-        ::Zip::OutputStream.open(tmpFile) do |zos|
+      return unless commit_required?
+      on_success_replace do |tmp_file|
+        ::Zip::OutputStream.open(tmp_file) do |zos|
           @entry_set.each do |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
+            e.clean_up
           end
           zos.comment = comment
         end
@@ -326,8 +326,8 @@ module Zip
     end
 
     # Write buffer write changes to buffer and return
-    def write_buffer
-      OutputStream.write_buffer do |zos|
+    def write_buffer(io = ::StringIO.new(''))
+      ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
@@ -344,7 +344,7 @@ module Zip
       @entry_set.each do |e|
         return true if e.dirty
       end
-      @comment != @stored_comment || @entry_set != @stored_entries || @create == File::CREATE
+      @comment != @stored_comment || @entry_set != @stored_entries || @create == ::Zip::File::CREATE
     end
 
     # Searches for entry with the specified name. Returns nil if
@@ -401,7 +401,7 @@ module Zip
         if continue_on_exists_proc.call
           remove get_entry(entryName)
         else
-          raise ZipEntryExistsError,
+          raise ::Zip::EntryExistsError,
                 procedureName + " failed. Entry #{entryName} already exists"
         end
       end
@@ -414,7 +414,7 @@ module Zip
     end
 
     def on_success_replace
-      tmpfile     = get_tempfile
+      tmpfile      = get_tempfile
       tmp_filename = tmpfile.path
       tmpfile.close
       if yield tmp_filename

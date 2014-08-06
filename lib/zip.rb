@@ -35,7 +35,7 @@ end
 
 module Zip
   extend self
-  attr_accessor :unicode_names, :on_exists_proc, :continue_on_exists_proc, :sort_entries
+  attr_accessor :unicode_names, :on_exists_proc, :continue_on_exists_proc, :sort_entries, :default_compression, :write_zip64_support
 
   def reset!
     @_ran_once = false
@@ -43,6 +43,8 @@ module Zip
     @on_exists_proc = false
     @continue_on_exists_proc = false
     @sort_entries = false
+    @default_compression = ::Zlib::DEFAULT_COMPRESSION
+    @write_zip64_support = false
   end
 
   def setup

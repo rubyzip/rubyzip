@@ -91,6 +91,26 @@ fruit/orange
 
 After this entries in zip archive will be saved in ordered state.
 
+### Reading a Zip file
+
+```ruby
+Zip::File.open('foo.zip') do |zip_file|
+  # Handle entries one by one
+  zip_file.each do |entry|
+    # Extract to file/directory/symlink
+    puts "Extracting #{entry.name}"
+    entry.extract(dest_file)
+
+    # Read into memory
+    content = entry.get_input_stream.read
+  end
+
+  # Find specific entry
+  entry = zip_file.glob('*.csv').first
+  puts entry.get_input_stream.read
+end
+```
+
 ## Known issues
 
 ### Modify docx file with rubyzip
@@ -116,32 +136,6 @@ end
 File.open(new_path, "w") {|f| f.write(buffer.string) }
 ```
 
-## Further Documentation
-
-There is more than one way to access or create a zip archive with
-rubyzip. The basic API is modeled after the classes in
-java.util.zip from the Java SDK. This means there are classes such
-as Zip::InputStream, Zip::OutputStream and
-Zip::File. Zip::InputStream provides a basic interface for
-iterating through the entries in a zip archive and reading from the
-entries in the same way as from a regular File or IO
-object. OutputStream is the corresponding basic output
-facility. Zip::File provides a mean for accessing the archives
-central directory and provides means for accessing any entry without
-having to iterate through the archive. Unlike Java's
-java.util.zip.ZipFile rubyzip's Zip::File is mutable, which means
-it can be used to change zip files as well.
-
-Another way to access a zip archive with rubyzip is to use rubyzip's
-Zip::FileSystem API. Using this API files can be read from and
-written to the archive in much the same manner as ruby's builtin
-classes allows files to be read from and written to the file system.
-
-For details about the specific behaviour of classes and methods refer
-to the test suite. Finally you can generate the rdoc documentation or
-visit http://rubyzip.sourceforge.net.
-
-
 ## Configuration
 
 By default, rubyzip will not overwrite files if they already exist inside of the extracted path.  To change this behavior, you may specify a configuration option like so:
@@ -164,6 +158,14 @@ If you want to store non english names and want to open properly file on Windows
 Zip.unicode_names = true
 ```
 
+You can set the default compression level like so:
+
+```ruby
+Zip.default_compression = Zlib::DEFAULT_COMPRESSION
+```
+
+It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
+
 All settings in same time
 
 ```ruby
@@ -171,8 +173,17 @@ All settings in same time
     c.on_exists_proc = true
     c.continue_on_exists_proc = true
     c.unicode_names = true
+    c.default_compression = Zlib::BEST_COMPRESSION
   end
 ```
+
+By default Zip64 support is disabled for writing. To enable it do next:
+
+```ruby
+Zip.write_zip64_support = true
+```
+
+_NOTE_: If you will enable Zip64 writing then you will need zip extractor with Zip64 support to extract archive.
 
 ## Developing
 

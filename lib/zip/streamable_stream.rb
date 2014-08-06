@@ -2,42 +2,51 @@ module Zip
   class StreamableStream < DelegateClass(Entry) #nodoc:all
     def initialize(entry)
       super(entry)
-      @tempFile = Tempfile.new(::File.basename(name), ::File.dirname(zipfile))
-      @tempFile.binmode
+      dirname = if zipfile.is_a?(::String)
+                  ::File.dirname(zipfile)
+                else
+                  '.'
+                end
+      @temp_file = Tempfile.new(::File.basename(name), dirname)
+      @temp_file.binmode
     end
 
     def get_output_stream
       if block_given?
         begin
-          yield(@tempFile)
+          yield(@temp_file)
         ensure
-          @tempFile.close
+          @temp_file.close
         end
       else
-        @tempFile
+        @temp_file
       end
     end
 
     def get_input_stream
-      if ! @tempFile.closed?
+      if !@temp_file.closed?
         raise StandardError, "cannot open entry for reading while its open for writing - #{name}"
       end
-      @tempFile.open # reopens tempfile from top
-      @tempFile.binmode
+      @temp_file.open # reopens tempfile from top
+      @temp_file.binmode
       if block_given?
         begin
-          yield(@tempFile)
+          yield(@temp_file)
         ensure
-          @tempFile.close
+          @temp_file.close
         end
       else
-        @tempFile
+        @temp_file
       end
     end
-    
+
     def write_to_zip_output_stream(aZipOutputStream)
       aZipOutputStream.put_next_entry(self)
       get_input_stream { |is| ::Zip::IOExtras.copy_stream(aZipOutputStream, is) }
+    end
+
+    def clean_up
+      @temp_file.unlink
     end
   end
 end
