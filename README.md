@@ -62,15 +62,41 @@ end
 ```ruby
 require 'rubygems'
 require 'zip'
+require 'pathname'
 
-directory = '/Users/me/Desktop/directory_to_zip/'
+directory = '/Users/me/Desktop/directory_to_zip' # last slash could be omitted
 zipfile_name = '/Users/me/Desktop/recursive_directory.zip'
+options = {"directories-recursively"=>true}
+Zip::File.open(archive,open_settings) do |zipfile|
+        files.each{
+          |file_to_be_zipped|
 
-Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
-	Dir[File.join(directory, '**', '**')].each do |file|
-	  zipfile.add(file.sub(directory, ''), file)
-	end
-end
+          if File.directory?(file_to_be_zipped)
+            # should skip directories
+            next if options["directories-skip"]
+
+            # should recursively add directory            
+            if options["directories-recursively"]
+              directory = file_to_be_zipped
+              puts "zipper: archiving directory: #{directory}"
+              directory_chosen_pathname = options["directories-recursively-splat"] ? directory : File.dirname(directory)  
+              directory_pathname = Pathname.new(directory_chosen_pathname)
+              Dir[File.join(directory, '**', '**')].each do |file|                
+                file_pathname = Pathname.new(file)
+                file_relative_pathanme = file_pathname.relative_path_from(directory_pathname)
+                zipfile.add(file_relative_pathanme,file)
+              end
+              next
+            end
+          end
+          
+          filename = File.basename(file_to_be_zipped)
+
+          puts "zipper: archiving #{file_to_be_zipped} as #{filename} into #{zipfile}"
+
+          zipfile.add(filename,file_to_be_zipped)
+        }
+      end
 ```
 
 ### Save zip archive entries in sorted by name state
