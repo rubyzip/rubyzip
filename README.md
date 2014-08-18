@@ -83,8 +83,8 @@ Zip::File.open(archive,Zip::File::CREATE) do |zipfile|
               directory_pathname = Pathname.new(directory_chosen_pathname)
               Dir[File.join(directory, '**', '**')].each do |file|                
                 file_pathname = Pathname.new(file)
-                file_relative_pathanme = file_pathname.relative_path_from(directory_pathname)
-                zipfile.add(file_relative_pathanme,file)
+                file_relative_pathname = file_pathname.relative_path_from(directory_pathname)
+                zipfile.add(file_relative_pathname,file)
               end
               next
             end
