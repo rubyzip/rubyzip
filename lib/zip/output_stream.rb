@@ -29,7 +29,6 @@ module Zip
       @file_name = file_name
       @output_stream = if stream
                          iostream = @file_name.dup
-                         iostream.reopen
                          iostream.rewind
                          iostream
                        else
