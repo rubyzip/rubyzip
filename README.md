@@ -64,7 +64,7 @@ require 'rubygems'
 require 'zip'
 require 'pathname'
 
-directory = '/Users/me/Desktop/directory_to_zip' # last slash could be omitted
+files = ['/Users/me/Desktop/directory_to_zip'] # last slash could be omitted
 zipfile_name = '/Users/me/Desktop/recursive_directory.zip'
 
 
@@ -76,7 +76,7 @@ zipfile_name = '/Users/me/Desktop/recursive_directory.zip'
 
 options = {"directories-recursively"=>true}
 
-Zip::File.open(archive,Zip::File::CREATE) do |zipfile|
+Zip::File.open(zipfile_name,Zip::File::CREATE) do |zipfile|
         files.each{
           |file_to_be_zipped|
 
