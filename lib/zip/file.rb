@@ -403,6 +403,7 @@ module Zip
     def on_success_replace
       tmpfile      = get_tempfile
       tmp_filename = tmpfile.path
+      ObjectSpace.undefine_finalizer(tmpfile)
       tmpfile.close
       if yield tmp_filename
         ::File.rename(tmp_filename, self.name)
@@ -410,6 +411,8 @@ module Zip
           ::File.chmod(@exist_file_perms, self.name)
         end
       end
+    ensure
+      tmpfile.unlink if tmpfile
     end
 
     def get_tempfile
