@@ -129,15 +129,16 @@ module Zip
       @current_entry
     end
 
-    def get_decompressor
-      case
-      when @current_entry.nil?
+    def get_decompressor(compression_method = nil)
+      compression_method ||= @current_entry.compression_method unless @current_entry.nil?
+      case compression_method
+      when nil
         ::Zip::NullDecompressor
-      when @current_entry.compression_method == ::Zip::Entry::STORED
+      when ::Zip::Entry::STORED
         ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
-      when @current_entry.compression_method == ::Zip::Entry::DEFLATED
+      when ::Zip::Entry::DEFLATED
         ::Zip::Inflater.new(@archive_io)
-      when @current_entry.compression_method == ::Zip::Entry::ENCRYPTED
+      when ::Zip::Entry::ENCRYPTED
         if @current_entry.extra["AES"].vendor_id != "AE"
           raise ZipCompressionMethodError, "The #{@current_entry.extra["AES"].vendor_id} encryption method is not supported"
         end
@@ -160,7 +161,7 @@ module Zip
 
       else
         raise ::Zip::CompressionMethodError,
-              "Unsupported compression method #{@current_entry.compression_method}"
+              "Unsupported compression method #{compression_method}"
       end
     end
 
