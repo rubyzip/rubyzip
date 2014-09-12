@@ -17,6 +17,15 @@ class ZipExtraFieldTest < MiniTest::Test
     assert_equal(extra.to_s, "fooabarbaz")
   end
 
+  def test_ntfs
+    str = "\x0A\x00 \x00\x00\x00\x00\x00\x01\x00\x18\x00\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01"
+    extra = ::Zip::ExtraField.new(str)
+    assert(extra.member?("NTFS"))
+    t = ::Zip::DOSTime.at(1410496497.405178)
+    assert_equal(t, extra['NTFS'].mtime)
+    assert_equal(t, extra['NTFS'].atime)
+    assert_equal(t, extra['NTFS'].ctime)
+  end
 
   def test_merge
     str = "UT\x5\0\x3\250$\r@Ux\0\0"

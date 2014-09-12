@@ -307,6 +307,15 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     assert_nil(@zip_file.file.stat("file1").atime)
   end
 
+  def test_ntfs_time
+    ::Zip::File.open("test/data/ntfs.zip") do |zf|
+      t = ::Zip::DOSTime.at(1410496497.405178)
+      assert_equal(zf.file.mtime("data.txt"), t)
+      assert_equal(zf.file.atime("data.txt"), t)
+      assert_equal(zf.file.ctime("data.txt"), t)
+    end
+  end
+
   def test_readable?
     assert(! @zip_file.file.readable?("noSuchFile"))
     assert(@zip_file.file.readable?("file1"))
