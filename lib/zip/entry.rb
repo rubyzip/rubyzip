@@ -74,6 +74,8 @@ module Zip
     def time
       if @extra['UniversalTime']
         @extra['UniversalTime'].mtime
+      elsif @extra['NTFS']
+        @extra['NTFS'].mtime
       else
         # Standard time field in central directory has local time
         # under archive creator. Then, we can't get timezone.
@@ -84,10 +86,10 @@ module Zip
     alias :mtime :time
 
     def time=(value)
-      unless @extra.member?('UniversalTime')
+      unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
         @extra.create('UniversalTime')
       end
-      @extra['UniversalTime'].mtime = value
+      (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
       @time                         = value
     end
 
