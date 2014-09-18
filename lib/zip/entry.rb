@@ -45,13 +45,13 @@ module Zip
     end
 
     def check_name(name)
-      if name.start_with?('/')
+      if name.start_with?('/'.freeze)
         raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
       end
     end
 
     def initialize(*args)
-      name = args[1] || ''
+      name = args[1] || ''.freeze
       check_name(name)
 
       set_default_vars_values
@@ -59,8 +59,8 @@ module Zip
 
       @zipfile            = args[0] || ''
       @name               = name
-      @comment            = args[2] || ''
-      @extra              = args[3] || ''
+      @comment            = args[2] || ''.freeze
+      @extra              = args[3] || ''.freeze
       @compressed_size    = args[4] || 0
       @crc                = args[5] || 0
       @compression_method = args[6] || ::Zip::Entry::DEFLATED
@@ -106,7 +106,7 @@ module Zip
     end
 
     def name_is_directory? #:nodoc:all
-      @name.end_with?('/')
+      @name.end_with?('/'.freeze)
     end
 
     def local_entry_offset #:nodoc:all
@@ -253,7 +253,7 @@ module Zip
     end
 
     def pack_local_entry
-      zip64 = @extra['Zip64']
+      zip64 = @extra['Zip64'.freeze]
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
        @gp_flags, # @gp_flags                  ,
@@ -264,7 +264,7 @@ module Zip
        (zip64 && zip64.compressed_size) ? 0xFFFFFFFF : @compressed_size,
        (zip64 && zip64.original_size) ? 0xFFFFFFFF : @size,
        name_size,
-       @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
+       @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv'.freeze)
     end
 
     def write_local_entry(io, rewrite = false) #:nodoc:all
@@ -300,7 +300,7 @@ module Zip
         @local_header_offset,
         @name,
         @extra,
-        @comment = buf.unpack('VCCvvvvvVVVvvvvvVV')
+        @comment = buf.unpack('VCCvvvvvVVVvvvvvVV'.freeze)
     end
 
     def set_ftype_from_c_dir_entry
@@ -364,7 +364,7 @@ module Zip
       unpack_c_dir_entry(static_sized_fields_buf)
       check_c_dir_entry_signature
       set_time(@last_mod_date, @last_mod_time)
-      @name = io.read(@name_length).gsub('\\', '/')
+      @name = io.read(@name_length).gsub('\\'.freeze, '/'.freeze)
       read_c_dir_extra_field(io)
       @comment = io.read(@comment_length)
       check_c_dir_entry_comment_size
@@ -409,7 +409,7 @@ module Zip
     end
 
     def pack_c_dir_entry
-      zip64 = @extra['Zip64']
+      zip64 = @extra['Zip64'.freeze]
       [
         @header_signature,
         @version, # version of encoding software
@@ -432,7 +432,7 @@ module Zip
         @name,
         @extra,
         @comment
-      ].pack('VCCvvvvvVVVvvvvvVV')
+      ].pack('VCCvvvvvVVVvvvvvVV'.freeze)
     end
 
     def write_c_dir_entry(io) #:nodoc:all
@@ -639,7 +639,7 @@ module Zip
     # apply missing data from the zip64 extra information field, if present
     # (required when file sizes exceed 2**32, but can be used for all files)
     def parse_zip64_extra(for_local_header) #:nodoc:all
-      if zip64 = @extra['Zip64']
+      if zip64 = @extra['Zip64'.freeze]
         if for_local_header
           @size, @compressed_size = zip64.parse(@size, @compressed_size)
         else

@@ -76,7 +76,7 @@ module Zip
 
     private
     def to_key(entry)
-      entry.to_s.chomp('/')
+      entry.to_s.chomp('/'.freeze)
     end
   end
 end

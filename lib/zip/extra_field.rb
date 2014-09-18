@@ -66,13 +66,13 @@ module Zip
     end
 
     def to_local_bin
-      ordered_values.map! { |v| v.to_local_bin.force_encoding('BINARY') }.join
+      ordered_values.map! { |v| v.to_local_bin.force_encoding('BINARY'.freeze) }.join
     end
 
     alias :to_s :to_local_bin
 
     def to_c_dir_bin
-      ordered_values.map! { |v| v.to_c_dir_bin.force_encoding('BINARY') }.join
+      ordered_values.map! { |v| v.to_c_dir_bin.force_encoding('BINARY'.freeze) }.join
     end
 
     def c_dir_size
