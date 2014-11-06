@@ -58,7 +58,7 @@ end
 ```
 
 ### Zipping a directory recursively
-Copy from [here](https://github.com/rubyzip/rubyzip/blob/05916bf89181e1955118fd3ea059f18acac28cc8/samples/example_recursive.rb ) inline link.
+Copy from [here](https://github.com/rubyzip/rubyzip/blob/05916bf89181e1955118fd3ea059f18acac28cc8/samples/example_recursive.rb )
 
 ```ruby
 require 'rubygems'
