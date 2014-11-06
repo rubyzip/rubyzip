@@ -58,8 +58,10 @@ end
 ```
 
 ### Zipping a directory recursively
+Copy from [here](https://github.com/rubyzip/rubyzip/blob/05916bf89181e1955118fd3ea059f18acac28cc8/samples/example_recursive.rb ) inline link.
 
 ```ruby
+require 'rubygems'
 require 'zip'
 # This is a simple example which uses rubyzip to
 # recursively generate a zip file from the contents of
