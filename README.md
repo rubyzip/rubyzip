@@ -103,6 +103,7 @@ class ZipFileGenerator
         io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, "rb").read())}
       end
     }
+  end
 end
 ```
 
