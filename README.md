@@ -60,52 +60,48 @@ end
 ### Zipping a directory recursively
 
 ```ruby
-require 'rubygems'
 require 'zip'
-require 'pathname'
+# This is a simple example which uses rubyzip to
+# recursively generate a zip file from the contents of
+# a specified directory. The directory itself is not
+# included in the archive, rather just its contents.
+#
+# Usage:
+# require /path/to/the/ZipFileGenerator/Class
+# directoryToZip = "/tmp/input"
+# outputFile = "/tmp/out.zip"
+# zf = ZipFileGenerator.new(directoryToZip, outputFile)
+# zf.write()
 
-directory = '/Users/me/Desktop/directory_to_zip' # last slash could be omitted
-zipfile_name = '/Users/me/Desktop/recursive_directory.zip'
-
-
-# available options:
-# "directories-skip" - skip directories
-# "directories-recursively" - archive directories recursively
-# "directories-recursively-splat" - archiving should splat directory
-# if so, directory splatting it's content into top-level
-
-options = {"directories-recursively"=>true}
-
-Zip::File.open(archive,Zip::File::CREATE) do |zipfile|
-        files.each{
-          |file_to_be_zipped|
-
-          if File.directory?(file_to_be_zipped)
-            # should skip directories
-            next if options["directories-skip"]
-
-            # should recursively add directory            
-            if options["directories-recursively"]
-              directory = file_to_be_zipped
-              puts "zipper: archiving directory: #{directory}"
-              directory_chosen_pathname = options["directories-recursively-splat"] ? directory : File.dirname(directory)  
-              directory_pathname = Pathname.new(directory_chosen_pathname)
-              Dir[File.join(directory, '**', '**')].each do |file|                
-                file_pathname = Pathname.new(file)
-                file_relative_pathname = file_pathname.relative_path_from(directory_pathname)
-                zipfile.add(file_relative_pathname,file)
-              end
-              next
-            end
-          end
-          
-          filename = File.basename(file_to_be_zipped)
-
-          puts "zipper: archiving #{file_to_be_zipped} as #{filename} into #{zipfile}"
-
-          zipfile.add(filename,file_to_be_zipped)
-        }
+class ZipFileGenerator
+  # Initialize with the directory to zip and the location of the output archive.
+  def initialize(inputDir, outputFile)
+    @inputDir = inputDir
+    @outputFile = outputFile
+  end
+  # Zip the input directory.
+  def write()
+    entries = Dir.entries(@inputDir); entries.delete("."); entries.delete("..")
+    io = Zip::File.open(@outputFile, Zip::File::CREATE);
+    writeEntries(entries, "", io)
+    io.close();
+  end
+  # A helper method to make the recursion work.
+  private
+  def writeEntries(entries, path, io)
+    entries.each { |e|
+      zipFilePath = path == "" ? e : File.join(path, e)
+      diskFilePath = File.join(@inputDir, zipFilePath)
+      puts "Deflating " + diskFilePath
+      if File.directory?(diskFilePath)
+        io.mkdir(zipFilePath)
+        subdir =Dir.entries(diskFilePath); subdir.delete("."); subdir.delete("..")
+        riteEntries(subdir, zipFilePath, io)
+      else
+        io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, "rb").read())}
       end
+    }
+end
 ```
 
 ### Save zip archive entries in sorted by name state
