@@ -67,6 +67,22 @@ class ZipSettingsTest < MiniTest::Test
     end
   end
 
+  def test_false_warn_invalid_date
+    test_file = File.join(File.dirname(__FILE__), 'data', 'WarnInvalidDate.zip')
+    Zip.warn_invalid_date = false
+
+    ::Zip::File.open(test_file) do |zf|
+    end
+  end
+
+  def test_true_warn_invalid_date
+    test_file = File.join(File.dirname(__FILE__), 'data', 'WarnInvalidDate.zip')
+    Zip.warn_invalid_date = true
+
+    ::Zip::File.open(test_file) do |zf|
+    end
+  end
+
 
   private
   def assert_contains(zf, entryName, filename = entryName)
