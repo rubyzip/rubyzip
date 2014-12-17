@@ -121,11 +121,18 @@ module Zip
         if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
+        elsif io.is_a?(IO)
+          # https://github.com/rubyzip/rubyzip/issues/119
+          io.binmode
         end
         zf = ::Zip::File.new(io, true, true, options)
         zf.read_from_stream(io)
         yield zf
-        zf.write_buffer(io)
+        begin
+          zf.write_buffer(io)
+        rescue IOError => e
+          raise unless e.message == "not opened for writing"
+        end
       end
 
       # Iterates over the contents of the ZipFile. This is more efficient
