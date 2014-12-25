@@ -98,7 +98,7 @@ class ZipFileGenerator
       if File.directory?(diskFilePath)
         io.mkdir(zipFilePath)
         subdir =Dir.entries(diskFilePath); subdir.delete("."); subdir.delete("..")
-        riteEntries(subdir, zipFilePath, io)
+        writeEntries(subdir, zipFilePath, io)
       else
         io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, "rb").read())}
       end
