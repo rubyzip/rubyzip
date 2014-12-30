@@ -52,10 +52,15 @@ module Zip
       @archive_io = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
       @current_entry = nil
+      set_password(nil)
     end
 
     def close
       @archive_io.close
+    end
+
+    def set_password(password)
+      @decrypter = ::Zip::Decrypter.build(password)
     end
 
     # Returns a Entry object. It is necessary to call this
@@ -124,6 +129,9 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
+      if @current_entry and @current_entry.gp_flags & 1 == 1 and @decrypter.is_a? NullEncrypter
+        raise Error, 'password required to decode zip file'
+      end
       @decompressor  = get_decompressor
       flush
       @current_entry
@@ -136,7 +144,9 @@ module Zip
       when @current_entry.compression_method == ::Zip::Entry::STORED
         ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
       when @current_entry.compression_method == ::Zip::Entry::DEFLATED
-        ::Zip::Inflater.new(@archive_io)
+        header = @archive_io.read(@decrypter.header_bytesize)
+        @decrypter.reset!(header)
+        ::Zip::Inflater.new(@archive_io, @decrypter)
       else
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"

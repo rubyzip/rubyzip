@@ -1,0 +1,90 @@
+module Zip
+  module TraditionalEncryption
+    def initialize(password)
+      @password = password
+      reset_keys!
+    end
+
+    def header_bytesize
+      12
+    end
+
+    def gp_flags
+      1
+    end
+
+    protected
+
+    def reset_keys!
+      @key0 = 0x12345678
+      @key1 = 0x23456789
+      @key2 = 0x34567890
+      @password.each_byte do |byte|
+        update_keys(byte.chr)
+      end
+    end
+
+    def update_keys(n)
+      @key0 = ~Zlib.crc32(n, ~@key0)
+      @key1 = ((@key1 + (@key0 & 0xff)) * 134775813 + 1) & 0xffffffff
+      @key2 = ~Zlib.crc32((@key1 >> 24).chr, ~@key2)
+    end
+
+    def decrypt_byte
+      temp = (@key2 & 0xffff) | 2
+      ((temp * (temp ^ 1)) >> 8) & 0xff
+    end
+  end
+
+  class TraditionalEncrypter < Encrypter
+    include TraditionalEncryption
+
+    def header(crc32)
+      [].tap do |header|
+        (header_bytesize - 1).times do
+          header << rand(0..255)
+        end
+        header << (crc32 >> 24)
+      end.map{|x| encode x}.pack("C*")
+    end
+
+    def encrypt(data)
+      data.unpack("C*").map{|x| encode x}.pack("C*")
+    end
+
+    def reset!
+      reset_keys!
+    end
+
+    private
+
+    def encode(n)
+      t = decrypt_byte
+      update_keys(n.chr)
+      t ^ n
+    end
+  end
+
+  class TraditionalDecrypter < Decrypter
+    include TraditionalEncryption
+
+    def decrypt(data)
+      data.unpack("C*").map{|x| decode x}.pack("C*")
+    end
+
+    def reset!(header)
+      reset_keys!
+      header.each_byte do |x|
+        decode x
+      end
+    end
+
+    private
+
+    def decode(n)
+      n ^= decrypt_byte
+      update_keys(n.chr)
+      n
+    end
+  end
+end

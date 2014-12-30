@@ -40,6 +40,7 @@ module Zip
       @closed = false
       @current_entry = nil
       @comment = nil
+      set_password(nil)
     end
 
     # Same as #initialize but if a block is passed the opened
@@ -118,6 +119,10 @@ module Zip
       @current_entry = nil
     end
 
+    def set_password(password)
+      @encrypter = ::Zip::Encrypter.build(password)
+    end
+
     private
 
     def finalize_current_entry
@@ -126,6 +131,7 @@ module Zip
       @current_entry.compressed_size = @output_stream.tell - @current_entry.local_header_offset - @current_entry.calculate_local_header_size
       @current_entry.size = @compressor.size
       @current_entry.crc = @compressor.crc
+      @current_entry.gp_flags |= @encrypter.gp_flags
       @current_entry = nil
       @compressor = ::Zip::NullCompressor.instance
     end
@@ -134,13 +140,14 @@ module Zip
       finalize_current_entry
       @entry_set << entry
       entry.write_local_entry(@output_stream)
+      @encrypter.reset!
       @compressor = get_compressor(entry, level)
     end
 
     def get_compressor(entry, level)
       case entry.compression_method
       when Entry::DEFLATED then
-        ::Zip::Deflater.new(@output_stream, level)
+        ::Zip::Deflater.new(@output_stream, level, @encrypter)
       when Entry::STORED then
         ::Zip::PassThruCompressor.new(@output_stream)
       else
