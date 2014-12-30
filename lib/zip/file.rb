@@ -71,11 +71,12 @@ module Zip
       case
       when !buffer && ::File.size?(file_name)
         @create = nil
-        @exist_file_perms = ::File.stat(file_name).mode
+        @file_permissions = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
           read_from_stream(f)
         end
       when create
+        @file_permissions = create_file_permissions
         @entry_set = EntrySet.new
       else
         raise Error, "File #{file_name} not found"
@@ -405,7 +406,7 @@ module Zip
       tmpfile.close
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
-        ::File.chmod(@exist_file_perms, name) if defined?(@exist_file_perms)
+        ::File.chmod(@file_permissions, name) if defined?(@file_permissions)
       end
     ensure
       tmpfile.unlink if tmpfile
@@ -415,6 +416,10 @@ module Zip
       temp_file = Tempfile.new(::File.basename(name), ::File.dirname(name))
       temp_file.binmode
       temp_file
+    end
+
+    def create_file_permissions
+      ::Zip::RUNNING_ON_WINDOWS ? 0644 : 0666 - ::File.umask
     end
   end
 end
