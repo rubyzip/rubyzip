@@ -10,9 +10,9 @@ rvm:
   - rbx-2
 matrix:
   include:
-  - rvm: jruby-19mode
+  - rvm: jruby-1.7.17-19mode
     jdk: oraclejdk7
-  - rvm: jruby-19mode
+  - rvm: jruby-1.7.17-19mode
     jdk: openjdk7
   allow_failures:
     - rvm: ruby-head
