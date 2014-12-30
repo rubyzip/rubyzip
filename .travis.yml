@@ -4,7 +4,8 @@ cache: bundler
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1
+  - 2.1.5
+  - 2.2.0
   - ruby-head
   - rbx-2
 matrix:
