@@ -47,20 +47,16 @@ module Zip
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, offset = 0)
+    def initialize(context, offset = 0, decrypter = nil)
       super()
       @archive_io = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
+      @decrypter     = decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil
-      set_password(nil)
     end
 
     def close
       @archive_io.close
-    end
-
-    def set_password(password)
-      @decrypter = ::Zip::Decrypter.build(password)
     end
 
     # Returns a Entry object. It is necessary to call this
@@ -96,8 +92,8 @@ module Zip
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
-      def open(filename_or_io, offset = 0)
-        zio = self.new(filename_or_io, offset)
+      def open(filename_or_io, offset = 0, decrypter = nil)
+        zio = self.new(filename_or_io, offset, decrypter)
         return zio unless block_given?
         begin
           yield zio
