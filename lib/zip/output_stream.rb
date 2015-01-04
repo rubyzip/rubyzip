@@ -24,7 +24,7 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream=false)
+    def initialize(file_name, stream=false, encrypter=nil)
       super()
       @file_name = file_name
       @output_stream = if stream
@@ -37,27 +37,27 @@ module Zip
                        end
       @entry_set = ::Zip::EntrySet.new
       @compressor = ::Zip::NullCompressor.instance
+      @encrypter = encrypter || ::Zip::NullEncrypter.new
       @closed = false
       @current_entry = nil
       @comment = nil
-      set_password(nil)
     end
 
     # Same as #initialize but if a block is passed the opened
     # stream is passed to the block and closed when the block
     # returns.
     class << self
-      def open(file_name)
+      def open(file_name, encrypter = nil)
         return new(file_name) unless block_given?
-        zos = new(file_name)
+        zos = new(file_name, false, encrypter)
         yield zos
       ensure
         zos.close if zos
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io = ::StringIO.new(''))
-        zos = new(io, true)
+      def write_buffer(io = ::StringIO.new(''), encrypter = nil)
+        zos = new(io, true, encrypter)
         yield zos
         zos.close_buffer
       end
@@ -117,10 +117,6 @@ module Zip
       end
       @compressor = NullCompressor.instance
       @current_entry = nil
-    end
-
-    def set_password(password)
-      @encrypter = ::Zip::Encrypter.build(password)
     end
 
     private

@@ -9,7 +9,7 @@ module Zip
     end
   end
 
-  class NullEncrypter
+  class NullEncrypter < Encrypter
     include NullEncryption
 
     def header(crc32)
@@ -24,7 +24,7 @@ module Zip
     end
   end
 
-  class NullDecrypter
+  class NullDecrypter < Decrypter
     include NullEncryption
 
     def decrypt(data)
@@ -35,3 +35,7 @@ module Zip
     end
   end
 end
+
+# Copyright (C) 2002, 2003 Thomas Sondergaard
+# rubyzip is free software; you can redistribute it and/or
+# modify it under the terms of the ruby license.
