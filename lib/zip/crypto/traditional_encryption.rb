@@ -42,7 +42,7 @@ module Zip
     def header(crc32)
       [].tap do |header|
         (header_bytesize - 1).times do
-          header << rand(0..255)
+          header << Random.rand(0..255)
         end
         header << (crc32 >> 24)
       end.map{|x| encode x}.pack("C*")
