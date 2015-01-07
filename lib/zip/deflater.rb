@@ -5,7 +5,7 @@ module Zip
       super()
       @output_stream = output_stream
       @zlib_deflater = ::Zlib::Deflate.new(level, -::Zlib::MAX_WBITS)
-      @size          = encrypter.header_bytesize
+      @size          = 0
       @crc           = ::Zlib.crc32
       @encrypter     = encrypter
       @buffer_stream = ::StringIO.new('')
