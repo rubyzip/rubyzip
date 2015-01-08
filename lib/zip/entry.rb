@@ -571,7 +571,6 @@ module Zip
     def set_time(binary_dos_date, binary_dos_time)
       @time = ::Zip::DOSTime.parse_binary_dos_format(binary_dos_date, binary_dos_time)
     rescue ArgumentError
-      puts "Invalid date/time in zip entry" if ::Zip.warn_invalid_date
     end
 
     def create_file(dest_path, continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
