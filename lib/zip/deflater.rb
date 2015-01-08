@@ -19,7 +19,6 @@ module Zip
     end
 
     def finish
-      @output_stream << @encrypter.header(@crc)
       @output_stream << @encrypter.encrypt(@buffer_stream.string)
       @output_stream << @encrypter.encrypt(@zlib_deflater.finish) until @zlib_deflater.finished?
     end
