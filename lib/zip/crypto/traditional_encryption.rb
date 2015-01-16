@@ -10,7 +10,7 @@ module Zip
     end
 
     def gp_flags
-      1
+      0x0001 | 0x0008
     end
 
     protected
@@ -39,17 +39,22 @@ module Zip
   class TraditionalEncrypter < Encrypter
     include TraditionalEncryption
 
-    def header(crc32)
+    def header(mtime)
       [].tap do |header|
-        (header_bytesize - 1).times do
+        (header_bytesize - 2).times do
           header << Random.rand(0..255)
         end
-        header << (crc32 >> 24)
+        header << (mtime.to_binary_dos_time & 0xff)
+        header << (mtime.to_binary_dos_time >> 8)
       end.map{|x| encode x}.pack("C*")
     end
 
     def encrypt(data)
       data.unpack("C*").map{|x| encode x}.pack("C*")
+    end
+
+    def data_descriptor(crc32, compressed_size, uncomprssed_size)
+      [0x08074b50, crc32, compressed_size, uncomprssed_size].pack("VVVV")
     end
 
     def reset!

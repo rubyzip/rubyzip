@@ -14,9 +14,7 @@ class NullEncrypterTest < MiniTest::Test
   end
 
   def test_header
-    [nil, '', 'a' * 10, 0xffffffff].each do |arg|
-      assert_empty @encrypter.header(arg)
-    end
+    assert_empty @encrypter.header(nil)
   end
 
   def test_encrypt
