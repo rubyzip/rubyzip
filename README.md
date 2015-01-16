@@ -9,7 +9,7 @@ rubyzip is a ruby library for reading and writing zip files.
 
 Rubyzip interface changed!!! No need to do `require "zip/zip"` and `Zip` prefix in class names removed.
 
-If you have issues with any third-party gems what required old version of rubyzip you can use next workaround:
+If you have issues with any third-party gems that require an old version of rubyzip, you can use this workaround:
 
 ```ruby
 gem 'rubyzip', '>= 1.0.0' # will load new rubyzip version
