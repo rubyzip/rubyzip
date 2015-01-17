@@ -47,10 +47,11 @@ module Zip
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, offset = 0)
+    def initialize(context, offset = 0, decrypter = nil)
       super()
       @archive_io = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
+      @decrypter     = decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil
     end
 
@@ -91,8 +92,8 @@ module Zip
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
-      def open(filename_or_io, offset = 0)
-        zio = self.new(filename_or_io, offset)
+      def open(filename_or_io, offset = 0, decrypter = nil)
+        zio = self.new(filename_or_io, offset, decrypter)
         return zio unless block_given?
         begin
           yield zio
@@ -124,6 +125,9 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
+      if @current_entry and @current_entry.gp_flags & 1 == 1 and @decrypter.is_a? NullEncrypter
+        raise Error, 'password required to decode zip file'
+      end
       @decompressor  = get_decompressor
       flush
       @current_entry
@@ -136,7 +140,9 @@ module Zip
       when @current_entry.compression_method == ::Zip::Entry::STORED
         ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
       when @current_entry.compression_method == ::Zip::Entry::DEFLATED
-        ::Zip::Inflater.new(@archive_io)
+        header = @archive_io.read(@decrypter.header_bytesize)
+        @decrypter.reset!(header)
+        ::Zip::Inflater.new(@archive_io, @decrypter)
       else
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"

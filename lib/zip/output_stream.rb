@@ -24,7 +24,7 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream=false)
+    def initialize(file_name, stream=false, encrypter=nil)
       super()
       @file_name = file_name
       @output_stream = if stream
@@ -37,6 +37,7 @@ module Zip
                        end
       @entry_set = ::Zip::EntrySet.new
       @compressor = ::Zip::NullCompressor.instance
+      @encrypter = encrypter || ::Zip::NullEncrypter.new
       @closed = false
       @current_entry = nil
       @comment = nil
@@ -46,17 +47,17 @@ module Zip
     # stream is passed to the block and closed when the block
     # returns.
     class << self
-      def open(file_name)
+      def open(file_name, encrypter = nil)
         return new(file_name) unless block_given?
-        zos = new(file_name)
+        zos = new(file_name, false, encrypter)
         yield zos
       ensure
         zos.close if zos
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io = ::StringIO.new(''))
-        zos = new(io, true)
+      def write_buffer(io = ::StringIO.new(''), encrypter = nil)
+        zos = new(io, true, encrypter)
         yield zos
         zos.close_buffer
       end
@@ -122,10 +123,13 @@ module Zip
 
     def finalize_current_entry
       return unless @current_entry
+      @output_stream << @encrypter.header(@current_entry.mtime)
       finish
       @current_entry.compressed_size = @output_stream.tell - @current_entry.local_header_offset - @current_entry.calculate_local_header_size
       @current_entry.size = @compressor.size
       @current_entry.crc = @compressor.crc
+      @output_stream << @encrypter.data_descriptor(@current_entry.crc, @current_entry.compressed_size, @current_entry.size)
+      @current_entry.gp_flags |= @encrypter.gp_flags
       @current_entry = nil
       @compressor = ::Zip::NullCompressor.instance
     end
@@ -134,13 +138,14 @@ module Zip
       finalize_current_entry
       @entry_set << entry
       entry.write_local_entry(@output_stream)
+      @encrypter.reset!
       @compressor = get_compressor(entry, level)
     end
 
     def get_compressor(entry, level)
       case entry.compression_method
       when Entry::DEFLATED then
-        ::Zip::Deflater.new(@output_stream, level)
+        ::Zip::Deflater.new(@output_stream, level, @encrypter)
       when Entry::STORED then
         ::Zip::PassThruCompressor.new(@output_stream)
       else
