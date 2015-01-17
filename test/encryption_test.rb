@@ -4,6 +4,15 @@ class EncryptionTest < MiniTest::Test
   ENCRYPT_ZIP_TEST_FILE = 'test/data/zipWithEncryption.zip'
   INPUT_FILE1 = 'test/data/file1.txt'
 
+  def setup
+    @default_compression = Zip.default_compression
+    Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
+  end
+
+  def teardown
+    Zip.default_compression = @default_compression
+  end
+
   def test_encrypt
     test_file = open(ENCRYPT_ZIP_TEST_FILE, 'rb').read
 
