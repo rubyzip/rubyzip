@@ -145,6 +145,19 @@ Zip::File.open('foo.zip') do |zip_file|
 end
 ```
 
+### Password Protection (Experimental)
+
+RubyZip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:
+
+```ruby
+Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new('password')) do |out|
+  out.put_next_entry("my_file.txt")
+  out.write my_data
+end.string
+```
+
+This is an experimental feature and the interface for encryption may change in future versions.
+
 ## Known issues
 
 ### Modify docx file with rubyzip
