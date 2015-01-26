@@ -49,4 +49,12 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Test
     ::File.unlink(FILENAME)
   end
 
+  def test_unicode_modifier_symbol
+    filename = "Безымянный-1-1.xhtml"
+    file_path = File.join(File.dirname(__FILE__), "data", "#{filename}.zip")
+    ::Zip::File.open(file_path) do |z|
+      entry = z.entries.first
+      assert(filename == entry.name)
+    end
+  end
 end
