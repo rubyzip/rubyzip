@@ -51,7 +51,7 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Test
 
   def test_unicode_modifier_symbol
     filename = "Безымянный-1-1.xhtml"
-    file_path = File.join(File.dirname(__FILE__), "data", "#{filename}.zip")
+    file_path = File.join(File.dirname(__FILE__), "data", "unicode_modifier_symbol.zip")
     ::Zip::File.open(file_path) do |z|
       entry = z.entries.first
       assert(filename == entry.name)
