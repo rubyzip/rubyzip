@@ -535,10 +535,12 @@ class ZipFileTest < MiniTest::Test
     end
 
     data = nil
-    Zip::File.open_buffer(File.binread(zname)) do |zipfile|
-      zipfile.each do |entry|
-        next unless entry.name =~ /README.md/
-        data = zipfile.read(entry)
+    File.open(zname, 'rb') do |f|
+      Zip::File.open_buffer(f) do |zipfile|
+        zipfile.each do |entry|
+          next unless entry.name =~ /README.md/
+          data = zipfile.read(entry)
+        end
       end
     end
     assert data

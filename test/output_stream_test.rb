@@ -32,6 +32,21 @@ class ZipOutputStreamTest < MiniTest::Test
     assert_test_zip_contents(TEST_ZIP)
   end
 
+  def test_write_buffer_with_temp_file
+    tmp_file = Tempfile.new('')
+
+    ::Zip::OutputStream.write_buffer(tmp_file) do |zos|
+      zos.comment = TEST_ZIP.comment
+      write_test_zip(zos)
+    end
+
+    tmp_file.rewind
+    File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write(tmp_file.read) }
+    tmp_file.unlink
+
+    assert_test_zip_contents(TEST_ZIP)
+  end
+
   def test_writingToClosedStream
     assert_i_o_error_in_closed_stream { |zos| zos << "hello world" }
     assert_i_o_error_in_closed_stream { |zos| zos.puts "hello world" }
