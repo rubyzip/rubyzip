@@ -1,3 +1,15 @@
+1.1.7
+=====
+
+* Fix UTF-8 support for comments
+* `Zip.sort_entries` working for zip output
+* Prevent tempfile path from being unlinked by garbage collection
+* NTFS Extra Field (0x000a) support
+* Use String#tr instead of String#gsub
+* Ability to not show warning about incorrect date
+* Be smarter about handling buffer file modes.
+* Support for Traditional Encryption (ZipCrypto)
+
 1.1.6
 =====
 
