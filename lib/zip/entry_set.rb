@@ -17,6 +17,11 @@ module Zip
       @entry_set[to_key(entry)]
     end
 
+    def find_entry_case_insensitive(entry)
+      entry = @entry_set.find { |k, _| k.downcase == to_key(entry).downcase }
+      entry.last if entry
+    end
+
     def <<(entry)
       @entry_set[to_key(entry)] = entry
     end
