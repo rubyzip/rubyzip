@@ -146,6 +146,18 @@ Zip::File.open('foo.zip') do |zip_file|
 end
 ```
 
+#### Notice about ::Zip::InputStream
+
+`::Zip::InputStream` usable for fast reading zip file content because it not read Central directory.
+
+But there is one exception when it not working - General Purpose Flag Bit 3.
+
+```
+If bit 3 (0x08) of the general-purpose flags field is set, then the CRC-32 and file sizes are not known when the header is written. The fields in the local header are filled with zero, and the CRC-32 and size are appended in a 12-byte structure (optionally preceded by a 4-byte signature) immediately after the compressed data
+```
+
+If `::Zip::InputStream` will found such entry in zip archive it will raise exception.
+
 ### Password Protection (Experimental)
 
 RubyZip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:

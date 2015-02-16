@@ -5,6 +5,7 @@ module Zip
   class CompressionMethodError < Error; end
   class EntryNameError < Error; end
   class InternalError < Error; end
+  class GPFBit3Error < Error; end
 
   # Backwards compatibility with v1 (delete in v2)
   ZipError = Error

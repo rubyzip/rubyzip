@@ -125,8 +125,15 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
-      if @current_entry and @current_entry.gp_flags & 1 == 1 and @decrypter.is_a? NullEncrypter
+      if @current_entry && @current_entry.gp_flags & 1 == 1 && @decrypter.is_a?(NullEncrypter)
         raise Error, 'password required to decode zip file'
+      end
+      if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
+        && @current_entry.compressed_size == 0 \
+        && @current_entry.size == 0
+        raise GPFBit3Error,
+          'General purpose flag Bit 3 is set so not possible to get proper info from local header.' + \
+          'Please use ::Zip::File instead of ::Zip::InputStream'
       end
       @decompressor  = get_decompressor
       flush
