@@ -6,3 +6,5 @@ Gemfile.lock
 +samples/*.zip.*
 coverage
 pkg/
+.ruby-gemset
+.ruby-version

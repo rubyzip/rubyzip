@@ -65,6 +65,12 @@ class ZipEntrySetTest < MiniTest::Test
     assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
   end
 
+  def test_find_entry
+    # by default, #find_entry is case-sensitive
+    assert_equal(ZIP_ENTRIES[0], @zipEntrySet.find_entry('name1'))
+    assert_equal(ZIP_ENTRIES[0], @zipEntrySet.find_entry('NaMe1', false))
+  end
+
   def test_entries_with_sort
     ::Zip.sort_entries = true
     assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries)
