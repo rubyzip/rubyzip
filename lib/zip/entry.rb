@@ -221,7 +221,7 @@ module Zip
     def read_local_entry(io) #:nodoc:all
       @local_header_offset = io.tell
 
-      static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH)
+      static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
 
       unless static_sized_fields_buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
         raise Error, "Premature end of file. Not enough data for zip entry local header"
