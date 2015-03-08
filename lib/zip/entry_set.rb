@@ -14,9 +14,7 @@ module Zip
     end
 
     def find_entry(entry, case_sensitively = true)
-      return @entry_set[to_key(entry)] if case_sensitively
-      entry = @entry_set.find { |k, _| k.downcase == to_key(entry).downcase }
-      entry.last if entry
+      @entry_set[to_key(entry)]
     end
 
     def <<(entry)
