@@ -78,7 +78,9 @@ module Zip
 
     private
     def to_key(entry)
-      entry.to_s.chomp('/')
+      k = entry.to_s.chomp('/')
+      k.downcase! if ::Zip.case_insensitive_match
+      k
     end
   end
 end
