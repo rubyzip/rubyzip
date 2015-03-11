@@ -13,7 +13,7 @@ module Zip
       @entry_set.include?(to_key(entry))
     end
 
-    def find_entry(entry, case_sensitively = true)
+    def find_entry(entry)
       @entry_set[to_key(entry)]
     end
 
