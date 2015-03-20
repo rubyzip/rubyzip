@@ -180,10 +180,10 @@ module Zip
 
       def read_c_dir_entry(io) #:nodoc:all
         path = if io.is_a?(::IO)
-              io.path
-             else
-               io
-             end
+                 io.path
+               else
+                 io
+               end
         entry = new(path)
         entry.read_c_dir_entry(io)
         entry
