@@ -58,6 +58,6 @@ module Zip
     FSTYPE_TANDEM   => 'Tandem NSK'.freeze,
     FSTYPE_THEOS    => 'Theos'.freeze,
     FSTYPE_MAC_OSX  => 'Mac OS/X (Darwin)'.freeze,
-    FSTYPE_ATHEOS   => 'AtheOS'.freeze,
+    FSTYPE_ATHEOS   => 'AtheOS'.freeze
   }.freeze
 end
