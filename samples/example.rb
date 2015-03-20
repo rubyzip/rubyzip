@@ -48,18 +48,18 @@ Zip::OutputStream.open("exampleout.zip") {
 ####### Using ZipFile to change a zip file: #######
 
 Zip::File.open("exampleout.zip") {
-  |zf|
-  zf.add("thisFile.rb", "example.rb")
-  zf.rename("thisFile.rb", "ILikeThisName.rb")
-  zf.add("Again", "example.rb")
+  |zip_file|
+  zip_file.add("thisFile.rb", "example.rb")
+  zip_file.rename("thisFile.rb", "ILikeThisName.rb")
+  zip_file.add("Again", "example.rb")
 }
 
 # Lets check
 Zip::File.open("exampleout.zip") {
-  |zf|
-  puts "Changed zip file contains: #{zf.entries.join(', ')}"
-  zf.remove("Again")
-  puts "Without 'Again': #{zf.entries.join(', ')}"
+  |zip_file|
+  puts "Changed zip file contains: #{zip_file.entries.join(', ')}"
+  zip_file.remove("Again")
+  puts "Without 'Again': #{zip_file.entries.join(', ')}"
 }
 
 ####### Using ZipFile to split a zip file: #######
