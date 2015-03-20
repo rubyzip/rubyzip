@@ -639,12 +639,11 @@ module Zip
     # apply missing data from the zip64 extra information field, if present
     # (required when file sizes exceed 2**32, but can be used for all files)
     def parse_zip64_extra(for_local_header) #:nodoc:all
-      if zip64 = @extra['Zip64']
-        if for_local_header
-          @size, @compressed_size = zip64.parse(@size, @compressed_size)
-        else
-          @size, @compressed_size, @local_header_offset = zip64.parse(@size, @compressed_size, @local_header_offset)
-        end
+      return if @extra['Zip64'].nil?
+      if for_local_header
+        @size, @compressed_size = @extra['Zip64'].parse(@size, @compressed_size)
+      else
+        @size, @compressed_size, @local_header_offset = @extra['Zip64'].parse(@size, @compressed_size, @local_header_offset)
       end
     end
 
