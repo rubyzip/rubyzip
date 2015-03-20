@@ -122,5 +122,3 @@ class TestZipFile
   TEST_ZIP4 = TestZipFile.new("test/data/generated/zipWithDir.zip", ["test/data/file1.txt",
                                                                 TestFiles::EMPTY_TEST_DIR])
 end
-
-

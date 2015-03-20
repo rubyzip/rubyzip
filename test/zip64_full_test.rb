@@ -50,4 +50,3 @@ if ENV['FULL_ZIP64_TEST']
   end
 
 end
-

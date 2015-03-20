@@ -16,4 +16,3 @@ end
 #  test.pattern = File.join(File.dirname(__FILE__), 'test/zip64_full_test.rb')
 #  test.verbose = true
 #end
-
