@@ -502,11 +502,6 @@ Style/TrailingWhitespace:
 Style/TrivialAccessors:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/UnneededPercentQ:
-  Enabled: false
-
 # Offense count: 152
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/VariableName:

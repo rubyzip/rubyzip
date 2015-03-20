@@ -453,8 +453,8 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
         missing_matches = expected_results - result_strings
         extra_matches = result_strings - expected_results
 
-        assert extra_matches.empty?, %Q{spec #{spec.inspect} has extra results #{extra_matches.inspect}}
-        assert missing_matches.empty?, %Q{spec #{spec.inspect} missing results #{missing_matches.inspect}}
+        assert extra_matches.empty?, "spec #{spec.inspect} has extra results #{extra_matches.inspect}"
+        assert missing_matches.empty?, "spec #{spec.inspect} missing results #{missing_matches.inspect}"
       end
     end
 
