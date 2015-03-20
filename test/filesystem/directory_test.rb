@@ -54,10 +54,10 @@ class ZipFsDirectoryTest < MiniTest::Test
         zf.dir.chdir "file1"
       }
 
-      assert_equal(["dir1", "dir2", "file1"].sort, zf.dir.entries(".").sort)
+      assert_equal(%w(dir1 dir2 file1).sort, zf.dir.entries(".").sort)
       zf.dir.chdir "dir1"
       assert_equal("/dir1", zf.dir.pwd)
-      assert_equal(["dir11", "file11", "file12"], zf.dir.entries(".").sort)
+      assert_equal(%w(dir11 file11 file12), zf.dir.entries(".").sort)
 
       zf.dir.chdir "../dir2/dir21"
       assert_equal("/dir2/dir21", zf.dir.pwd)
@@ -82,11 +82,11 @@ class ZipFsDirectoryTest < MiniTest::Test
 
       entries = []
       zf.dir.foreach(".") { |e| entries << e }
-      assert_equal(["dir1", "dir2", "file1"].sort, entries.sort)
+      assert_equal(%w(dir1 dir2 file1).sort, entries.sort)
 
       entries = []
       zf.dir.foreach("dir1") { |e| entries << e }
-      assert_equal(["dir11", "file11", "file12"], entries.sort)
+      assert_equal(%w(dir11 file11 file12), entries.sort)
     }
   end
 
@@ -118,12 +118,12 @@ class ZipFsDirectoryTest < MiniTest::Test
       }
 
       d = zf.dir.new(".")
-      assert_equal(["file1", "dir1", "dir2"].sort, d.entries.sort)
+      assert_equal(%w(file1 dir1 dir2).sort, d.entries.sort)
       d.close
 
       zf.dir.open("dir1") {
         |dir|
-        assert_equal(["dir11", "file11", "file12"].sort, dir.entries.sort)
+        assert_equal(%w(dir11 file11 file12).sort, dir.entries.sort)
       }
     }
   end
