@@ -574,7 +574,7 @@ module Zip
       puts "Invalid date/time in zip entry" if ::Zip.warn_invalid_date
     end
 
-    def create_file(dest_path, continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
+    def create_file(dest_path, _continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
       if ::File.exist?(dest_path) && !yield(self, dest_path)
         raise ::Zip::DestinationFileExistsError,
               "Destination '#{dest_path}' already exists"

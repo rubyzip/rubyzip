@@ -12,7 +12,7 @@ module Zip
   class NullEncrypter < Encrypter
     include NullEncryption
 
-    def header(mtime)
+    def header(_mtime)
       ''
     end
 
@@ -20,7 +20,7 @@ module Zip
       data
     end
 
-    def data_descriptor(crc32, compressed_size, uncomprssed_size)
+    def data_descriptor(_crc32, _compressed_size, _uncomprssed_size)
       ''
     end
 
@@ -35,7 +35,7 @@ module Zip
       data
     end
 
-    def reset!(header)
+    def reset!(_header)
     end
   end
 end

@@ -17,7 +17,7 @@ class AbstractInputStreamTest < MiniTest::Test
       @readPointer = 0
     end
 
-    def sysread(charsToRead, buf = nil)
+    def sysread(charsToRead, _buf = nil)
       retVal=@contents[@readPointer, charsToRead]
       @readPointer+=charsToRead
       return retVal

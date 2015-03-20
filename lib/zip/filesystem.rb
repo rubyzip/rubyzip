@@ -220,7 +220,7 @@ module Zip
         ::File.umask(*args)
       end
 
-      def truncate(fileName, len)
+      def truncate(_fileName, _len)
         raise StandardError, "truncate not supported"
       end
 
@@ -338,23 +338,23 @@ module Zip
         end
       end
 
-      def pipe?(filename)
+      def pipe?(_filename)
         false
       end
 
-      def blockdev?(filename)
+      def blockdev?(_filename)
         false
       end
 
-      def chardev?(filename)
+      def chardev?(_filename)
         false
       end
 
-      def symlink?(fileName)
+      def symlink?(_fileName)
         false
       end
 
-      def socket?(fileName)
+      def socket?(_fileName)
         false
       end
 
@@ -362,15 +362,15 @@ module Zip
         @mappedZip.get_entry(fileName).directory? ? "directory" : "file"
       end
 
-      def readlink(fileName)
+      def readlink(_fileName)
         raise NotImplementedError, "The readlink() function is not implemented"
       end
 
-      def symlink(fileName, symlinkName)
+      def symlink(_fileName, _symlinkName)
         raise NotImplementedError, "The symlink() function is not implemented"
       end
 
-      def link(fileName, symlinkName)
+      def link(_fileName, _symlinkName)
         raise NotImplementedError, "The link() function is not implemented"
       end
 
@@ -503,7 +503,7 @@ module Zip
         @mappedZip.mkdir(entryName, permissionInt)
       end
 
-      def chroot(*args)
+      def chroot(*_args)
         raise NotImplementedError, "The chroot() function is not implemented"
       end
 
