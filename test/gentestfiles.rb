@@ -35,17 +35,13 @@ class TestFiles
 
     def create_random_ascii(filename, size)
       File.open(filename, "wb") do |file|
-        while (file.tell < size)
-          file << rand
-        end
+        file << rand while (file.tell < size)
       end
     end
 
     def create_random_binary(filename, size)
       File.open(filename, "wb") do |file|
-        while (file.tell < size)
-          file << [rand].pack("V")
-        end
+        file << [rand].pack("V") while (file.tell < size)
       end
     end
 
@@ -84,9 +80,7 @@ class TestZipFile
     ziptestTxt=""
     File.open("test/data/file2.txt") { |file| ziptestTxt=file.read }
     File.open("test/data/generated/longAscii.txt", "w") do |file|
-      while (file.tell < 1E5)
-        file << ziptestTxt
-      end
+      file << ziptestTxt while (file.tell < 1E5)
     end
 
     testBinaryPattern=""
@@ -94,9 +88,7 @@ class TestZipFile
     testBinaryPattern *= 4
 
     File.open("test/data/generated/longBinary.bin", "wb") do |file|
-      while (file.tell < 6E5)
-        file << testBinaryPattern << rand << "\0"
-      end
+      file << testBinaryPattern << rand << "\0" while (file.tell < 6E5)
     end
 
     raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" unless system("/usr/bin/zip #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}")

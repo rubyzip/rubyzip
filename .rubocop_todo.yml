@@ -516,8 +516,3 @@ Style/VariableName:
 # Cop supports --auto-correct.
 Style/WhileUntilDo:
   Enabled: false
-
-# Offense count: 5
-# Configuration parameters: MaxLineLength.
-Style/WhileUntilModifier:
-  Enabled: false

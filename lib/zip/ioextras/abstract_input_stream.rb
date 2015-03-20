@@ -103,9 +103,7 @@ module Zip
       end
 
       def each_line(a_sep_string = $/)
-        while true
-          yield readline(a_sep_string)
-        end
+        yield readline(a_sep_string) while true
       rescue EOFError
       end
 
