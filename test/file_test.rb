@@ -406,7 +406,6 @@ class ZipFileTest < MiniTest::Test
 
   def test_compound1
     renamedName = "renamedName"
-    originalEntries = []
     filename_to_remove = ''
     begin
       zf = ::Zip::File.new(TEST_ZIP.zip_name)

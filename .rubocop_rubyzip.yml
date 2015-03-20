@@ -21,10 +21,6 @@ Lint/RescueException:
 Lint/UselessAccessModifier:
   Enabled: false
 
-# Offense count: 3
-Lint/UselessAssignment:
-  Enabled: false
-
 # Offense count: 1
 Lint/UselessComparison:
   Enabled: false

@@ -3,7 +3,7 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'zip/version'
 
-spec = Gem::Specification.new do |s|
+Gem::Specification.new do |s|
   s.name                  = 'rubyzip'
   s.version               = ::Zip::VERSION
   s.authors               = ["Alexander Simonov"]
