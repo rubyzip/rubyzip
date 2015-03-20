@@ -36,7 +36,7 @@ class MainApp < Gtk::Window
     @clist.set_column_width(0, 120)
     @clist.set_column_width(1, 120)
     @clist.signal_connect(Gtk::CList::SIGNAL_SELECT_ROW) {
-      |w, row, column, event|
+      |_w, row, _column, _event|
       @selected_row = row
     }
     sw.add(@clist)

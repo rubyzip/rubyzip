@@ -18,7 +18,7 @@ class EncryptionTest < MiniTest::Test
 
     @rand = [250, 143, 107, 13, 143, 22, 155, 75, 228, 150, 12]
     @output = ::Zip::DOSTime.stub(:now, ::Zip::DOSTime.new(2014, 12, 17, 15, 56, 24)) do
-      Random.stub(:rand, lambda { |range| @rand.shift }) do
+      Random.stub(:rand, lambda { |_range| @rand.shift }) do
         Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new('password')) do |zos|
           zos.put_next_entry('file1.txt')
           zos.write open(INPUT_FILE1).read

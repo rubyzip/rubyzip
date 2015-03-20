@@ -71,12 +71,12 @@ class ZipFsDirectoryTest < MiniTest::Test
 
       blockCalled = false
       assert_raises(Errno::ENOENT, "No such file or directory - noSuchDir") {
-        zf.dir.foreach("noSuchDir") { |e| blockCalled = true }
+        zf.dir.foreach("noSuchDir") { |_e| blockCalled = true }
       }
       assert(! blockCalled)
 
       assert_raises(Errno::ENOTDIR, "Not a directory - file1") {
-        zf.dir.foreach("file1") { |e| blockCalled = true }
+        zf.dir.foreach("file1") { |_e| blockCalled = true }
       }
       assert(! blockCalled)
 
