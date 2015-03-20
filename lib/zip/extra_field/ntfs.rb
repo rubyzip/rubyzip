@@ -69,7 +69,7 @@ module Zip
       return {} if content.nil?
       tags = {}
       i = 0
-      while i < content.bytesize do
+      while i < content.bytesize
         tag, size = content[i, 4].unpack('vv')
         i += 4
         break unless tag && size
