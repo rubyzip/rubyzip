@@ -461,7 +461,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     ::Zip::File.open('test/data/globTest.zip') do |zf|
       results = []
       zf.glob('**/foo.txt') do |match|
-        results << "<#{match.class.name}: #{match.to_s}>"
+        results << "<#{match.class.name}: #{match}>"
       end
       assert((not results.empty?), 'block not run, or run out of context')
       assert_equal 2, results.size
