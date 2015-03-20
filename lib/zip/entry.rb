@@ -584,7 +584,7 @@ module Zip
           set_extra_attributes_on_path(dest_path)
 
           buf = ''
-          while buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf)
+          while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
             os << buf
           end
         end

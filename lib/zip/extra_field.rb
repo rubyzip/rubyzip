@@ -51,7 +51,7 @@ module Zip
     end
 
     def create(name)
-      unless field_class = ID_MAP.values.find { |k| k.name == name }
+      unless (field_class = ID_MAP.values.find { |k| k.name == name })
         raise Error, "Unknown extra field '#{name}'"
       end
       self[name] = field_class.new
