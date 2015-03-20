@@ -31,8 +31,8 @@ module Zip
       @read_so_far >= @chars_to_read
     end
 
-    alias :eof :input_finished?
-    alias :eof? :input_finished?
+    alias_method :eof, :input_finished?
+    alias_method :eof?, :input_finished?
   end
 end
 

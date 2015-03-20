@@ -23,13 +23,13 @@ module Zip
       @entry_set[to_key(entry)] = entry
     end
 
-    alias :push :<<
+    alias_method :push, :<<
 
     def size
       @entry_set.size
     end
 
-    alias :length :size
+    alias_method :length, :size
 
     def delete(entry)
       if @entry_set.delete(to_key(entry))

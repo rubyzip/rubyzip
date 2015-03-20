@@ -33,8 +33,8 @@ module Zip
       @output_buffer.empty? && internal_input_finished?
     end
 
-    alias :eof :input_finished?
-    alias :eof? :input_finished?
+    alias_method :eof, :input_finished?
+    alias_method :eof?, :input_finished?
 
     private
 
