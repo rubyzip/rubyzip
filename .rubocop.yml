@@ -1,2 +1,2 @@
 inherit_from:
-    - .rubocop_todo.yml
+    - .rubocop_rubyzip.yml
