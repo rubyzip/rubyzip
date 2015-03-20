@@ -2,20 +2,20 @@ require 'zip'
 
 module Zip
 
-  # The ZipFileSystem API provides an API for accessing entries in 
-  # a zip archive that is similar to ruby's builtin File and Dir 
+  # The ZipFileSystem API provides an API for accessing entries in
+  # a zip archive that is similar to ruby's builtin File and Dir
   # classes.
   #
   # Requiring 'zip/filesystem' includes this module in Zip::File
   # making the methods in this module available on Zip::File objects.
   #
-  # Using this API the following example creates a new zip file 
+  # Using this API the following example creates a new zip file
   # <code>my.zip</code> containing a normal entry with the name
   # <code>first.txt</code>, a directory entry named <code>mydir</code>
   # and finally another normal entry named <code>second.txt</code>
   #
   #   require 'zip/filesystem'
-  #   
+  #
   #   Zip::File.open("my.zip", Zip::File::CREATE) {
   #     |zipfile|
   #     zipfile.file.open("first.txt", "w") { |f| f.puts "Hello world" }
@@ -23,12 +23,12 @@ module Zip
   #     zipfile.file.open("mydir/second.txt", "w") { |f| f.puts "Hello again" }
   #   }
   #
-  # Reading is as easy as writing, as the following example shows. The 
+  # Reading is as easy as writing, as the following example shows. The
   # example writes the contents of <code>first.txt</code> from zip archive
   # <code>my.zip</code> to standard out.
   #
   #   require 'zip/filesystem'
-  #   
+  #
   #   Zip::File.open("my.zip") {
   #     |zipfile|
   #     puts zipfile.file.read("first.txt")
@@ -91,7 +91,7 @@ module Zip
         end
 
         def kind_of?(t)
-          super || t == ::File::Stat 
+          super || t == ::File::Stat
         end
 
         delegate_to_fs_file :file?, :directory?, :pipe?, :chardev?, :symlink?,
@@ -288,7 +288,7 @@ module Zip
       def file?(fileName)
         entry = @mappedZip.find_entry(fileName)
         entry != nil && entry.file?
-      end      
+      end
 
       def dirname(fileName)
         ::File.dirname(fileName)
@@ -483,7 +483,7 @@ module Zip
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
-        @mappedZip.each { 
+        @mappedZip.each {
           |fileName|
           match = subDirEntriesRegex.match(fileName)
           yield(match[1]) unless match == nil
@@ -584,7 +584,7 @@ module Zip
       end
 
       def rename(fileName, newName, &continueOnExistsProc)
-        @zipFile.rename(expand_to_entry(fileName), expand_to_entry(newName), 
+        @zipFile.rename(expand_to_entry(fileName), expand_to_entry(newName),
                         &continueOnExistsProc)
       end
 

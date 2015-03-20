@@ -6,7 +6,7 @@ module Zip
       @crc = Zlib::crc32
       @size = 0
     end
-    
+
     def << (data)
       val = data.to_s
       @crc = Zlib::crc32(val, @crc)
