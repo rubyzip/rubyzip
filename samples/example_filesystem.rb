@@ -6,7 +6,7 @@ require 'zip/zipfilesystem'
 
 EXAMPLE_ZIP = "filesystem.zip"
 
-File.delete(EXAMPLE_ZIP) if File.exists?(EXAMPLE_ZIP)
+File.delete(EXAMPLE_ZIP) if File.exist?(EXAMPLE_ZIP)
 
 Zip::File.open(EXAMPLE_ZIP, Zip::File::CREATE) {
   |zf|
