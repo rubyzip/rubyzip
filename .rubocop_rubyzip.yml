@@ -110,11 +110,6 @@ Style/ElseAlignment:
 Style/EmptyElse:
   Enabled: false
 
-# Offense count: 26
-# Cop supports --auto-correct.
-Style/EmptyLines:
-  Enabled: false
-
 # Offense count: 8
 # Cop supports --auto-correct.
 Style/EmptyLinesAroundAccessModifier:

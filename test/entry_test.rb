@@ -161,5 +161,4 @@ class ZipEntryTest < MiniTest::Test
     assert_match(/mimetypeapplication\/epub\+zip/, first_100_bytes)
   end
 
-
 end

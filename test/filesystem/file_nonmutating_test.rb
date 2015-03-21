@@ -111,7 +111,6 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     assert_equal(nil, @zip_file.file.stat("dir2/dir21").size?)
   end
 
-
   def test_file?
     assert(@zip_file.file.file?("file1"))
     assert(@zip_file.file.file?("dir2/file21"))
@@ -159,7 +158,6 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     @zip_file.file.utime(t_bak, "file1")
     assert_equal(t_bak, @zip_file.file.mtime("file1"))
   end
-
 
   def assert_always_false(operation)
     assert(! @zip_file.file.send(operation, "noSuchFile"))

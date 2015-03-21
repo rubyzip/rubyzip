@@ -10,7 +10,6 @@ module Zip
         data.to_s.bytesize
       end
 
-
       def print(*params)
         self << params.join($,) << $\.to_s
       end

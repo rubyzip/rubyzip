@@ -1,6 +1,5 @@
 require 'test_helper'
 
-
 class ZipFileTest < MiniTest::Test
   include CommonZipFileFixture
 

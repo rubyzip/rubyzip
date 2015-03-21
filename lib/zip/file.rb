@@ -222,7 +222,6 @@ module Zip
       end
     end
 
-
     # Returns an input stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.

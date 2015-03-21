@@ -76,7 +76,6 @@ module DecompressorTests
     assert(@refText.length > 1000)
     assert(@refLines.length > 40)
 
-
     assert_equal(@refText[0...100], @decompressor.sysread(100))
 
     assert(!@decompressor.input_finished?)
@@ -84,8 +83,6 @@ module DecompressorTests
     assert_equal(@refText[100...(100+buf.length)], buf)
   end
 end
-
-
 
 module AssertEntry
   def assert_next_entry(filename, zis)
@@ -149,7 +146,6 @@ module AssertEntry
   end
 end
 
-
 module CrcTest
 
   class TestOutputStream
@@ -177,7 +173,6 @@ module CrcTest
   end
 end
 
-
 module Enumerable
   def compare_enumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
@@ -187,7 +182,6 @@ module Enumerable
     return self.size == otherAsArray.size
   end
 end
-
 
 module CommonZipFileFixture
   include AssertEntry
@@ -202,7 +196,6 @@ module CommonZipFileFixture
     FileUtils.cp(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
   end
 end
-
 
 module ExtraAssertions
 

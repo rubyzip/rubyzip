@@ -34,7 +34,6 @@ class DeflaterTest < MiniTest::Test
     assert(default < no)
   end
 
-
   private
   def load_file(fileName)
     txt = nil

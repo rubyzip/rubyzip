@@ -18,7 +18,6 @@ class ZipFileExtractTest < MiniTest::Test
       AssertEntry.assert_contents(EXTRACTED_FILENAME,
                                   zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
-
       ::File.unlink(EXTRACTED_FILENAME)
 
       entry = zf.get_entry(ENTRY_TO_EXTRACT)

@@ -56,7 +56,6 @@ class TestFiles
   end
 end
 
-
 # For representation and creation of
 # test data
 class TestZipFile

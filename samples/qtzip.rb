@@ -9,12 +9,9 @@ system('rbuic -o zipdialogui.rb zipdialogui.ui')
 require 'zipdialogui.rb'
 require 'zip'
 
-
-
 a = Qt::Application.new(ARGV)
 
 class ZipDialog < ZipDialogUI
-
 
   def initialize
     super()
@@ -39,7 +36,6 @@ class ZipDialog < ZipDialogUI
       lv.insert_item(Qt::ListViewItem.new(lv, e.name, e.size.to_s))
     end
   end
-
 
   def load(zipfile)
     @zip_filename = zipfile

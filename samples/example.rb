@@ -16,7 +16,6 @@ Zip::InputStream.open("example.zip") do |zis|
   puts "'#{zis.gets.chomp}'"
 end
 
-
 ####### Using ZipFile to read the directory of a zip file: #######
 
 zf = Zip::File.new("example.zip")
@@ -26,7 +25,6 @@ zf.each_with_index do |entry, index|
   # entry can be the ZipEntry object or any object which has a to_s method that
   # returns the name of the entry.
 end
-
 
 ####### Using ZipOutputStream to write a zip file: #######
 
@@ -76,7 +74,6 @@ Zip::File.split("large_zip_file.zip", 1048576, true, 'part_zip_file') do
   |part_count, part_index, chunk_bytes, segment_bytes|
   puts "#{part_index} of #{part_count} part splitting: #{(chunk_bytes.to_f/segment_bytes.to_f * 100).to_i}%"
 end
-
 
 # For other examples, look at zip.rb and ziptest.rb
 
