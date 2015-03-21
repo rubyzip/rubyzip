@@ -132,8 +132,8 @@ module Zip
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0
         raise GPFBit3Error,
-          'General purpose flag Bit 3 is set so not possible to get proper info from local header.' + \
-          'Please use ::Zip::File instead of ::Zip::InputStream'
+              'General purpose flag Bit 3 is set so not possible to get proper info from local header.' + \
+              'Please use ::Zip::File instead of ::Zip::InputStream'
       end
       @decompressor  = get_decompressor
       flush

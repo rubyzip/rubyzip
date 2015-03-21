@@ -95,9 +95,9 @@ module Zip
         end
 
         delegate_to_fs_file :file?, :directory?, :pipe?, :chardev?, :symlink?,
-          :socket?, :blockdev?, :readable?, :readable_real?, :writable?, :ctime,
-          :writable_real?, :executable?, :executable_real?, :sticky?, :owned?,
-          :grpowned?, :setuid?, :setgid?, :zero?, :size, :size?, :mtime, :atime
+                            :socket?, :blockdev?, :readable?, :readable_real?, :writable?, :ctime,
+                            :writable_real?, :executable?, :executable_real?, :sticky?, :owned?,
+                            :grpowned?, :setuid?, :setgid?, :zero?, :size, :size?, :mtime, :atime
 
         def blocks; nil; end
 

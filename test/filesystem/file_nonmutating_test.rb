@@ -36,7 +36,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       |f|
       blockCalled = true
       assert_equal("this is the entry 'file1' in my test archive!",
-        f.readline.chomp)
+                   f.readline.chomp)
     }
     assert(blockCalled)
 
@@ -45,7 +45,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       |f|
       blockCalled = true
       assert_equal("this is the entry 'file1' in my test archive!",
-        f.readline.chomp)
+                   f.readline.chomp)
     }
     assert(blockCalled)
 
@@ -55,7 +55,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       |f|
       blockCalled = true
       assert_equal("this is the entry 'dir2/file21' in my test archive!",
-        f.readline.chomp)
+                   f.readline.chomp)
     }
     assert(blockCalled)
     @zip_file.dir.chdir "/"
@@ -67,7 +67,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     begin
       is = @zip_file.file.open("file1")
       assert_equal("this is the entry 'file1' in my test archive!",
-        is.readline.chomp)
+                   is.readline.chomp)
     ensure
       is.close if is
     end
@@ -77,7 +77,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     begin
       is = @zip_file.file.new("file1")
       assert_equal("this is the entry 'file1' in my test archive!",
-        is.readline.chomp)
+                   is.readline.chomp)
     ensure
       is.close if is
     end
@@ -284,17 +284,17 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
 
   def test_mtime
     assert_equal(::Zip::DOSTime.at(1027694306),
-      @zip_file.file.mtime("dir2/file21"))
+                 @zip_file.file.mtime("dir2/file21"))
     assert_equal(::Zip::DOSTime.at(1027690863),
-      @zip_file.file.mtime("dir2/dir21"))
+                 @zip_file.file.mtime("dir2/dir21"))
     assert_raises(Errno::ENOENT) {
       @zip_file.file.mtime("noSuchEntry")
     }
 
     assert_equal(::Zip::DOSTime.at(1027694306),
-      @zip_file.file.stat("dir2/file21").mtime)
+                 @zip_file.file.stat("dir2/file21").mtime)
     assert_equal(::Zip::DOSTime.at(1027690863),
-      @zip_file.file.stat("dir2/dir21").mtime)
+                 @zip_file.file.stat("dir2/dir21").mtime)
   end
 
   def test_ctime

@@ -46,8 +46,8 @@ if __FILE__ == $0
     def self.run(args)
       check_args(args)
       Zip::ZipFind.find_file(args[PATH_ARG_INDEX],
-          args[FILENAME_PATTERN_ARG_INDEX],
-          args[ZIPFILE_PATTERN_ARG_INDEX]) {
+                             args[FILENAME_PATTERN_ARG_INDEX],
+                             args[ZIPFILE_PATTERN_ARG_INDEX]) {
   |fileName|
   report_entry_found fileName
       }

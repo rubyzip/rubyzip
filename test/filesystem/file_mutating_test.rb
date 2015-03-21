@@ -27,7 +27,7 @@ class ZipFsFileMutatingTest < MiniTest::Test
         f.write "This is what I'm writing"
       }
       assert_equal("This is what I'm writing",
-                    zf.file.read("test_open_write_entry"))
+                   zf.file.read("test_open_write_entry"))
 
       # Test with existing entry
       zf.file.open("file1", "wb") { #also check that 'b' option is ignored
@@ -35,7 +35,7 @@ class ZipFsFileMutatingTest < MiniTest::Test
         f.write "This is what I'm writing too"
       }
       assert_equal("This is what I'm writing too",
-                    zf.file.read("file1"))
+                   zf.file.read("file1"))
     }
   end
 
