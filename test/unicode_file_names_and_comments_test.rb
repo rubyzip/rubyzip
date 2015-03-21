@@ -3,7 +3,6 @@
 require 'test_helper'
 
 class ZipUnicodeFileNamesAndComments < MiniTest::Test
-
   FILENAME = File.join(File.dirname(__FILE__), "test1.zip")
 
   def test_unicode_file_name
@@ -48,5 +47,4 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Test
     end
     ::File.unlink(FILENAME)
   end
-
 end

@@ -198,7 +198,6 @@ module Zip
       rescue Error
         nil
       end
-
     end
 
     public
@@ -686,7 +685,6 @@ module Zip
         end
       end
     end
-
   end
 end
 

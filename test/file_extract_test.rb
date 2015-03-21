@@ -80,5 +80,4 @@ class ZipFileExtractTest < MiniTest::Test
     end
     assert(!File.exist?(outFile))
   end
-
 end

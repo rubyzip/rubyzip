@@ -11,5 +11,4 @@ class Zip64SupportTest < MiniTest::Test
     assert(test_rb.size == 482)
     assert(test_rb.compressed_size == 229)
   end
-
 end

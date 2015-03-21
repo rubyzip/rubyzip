@@ -11,7 +11,6 @@ require 'zip'
 #   zf = ZipFileGenerator.new(directoryToZip, outputFile)
 #   zf.write()
 class ZipFileGenerator
-
   # Initialize with the directory to zip and the location of the output archive.
   def initialize(inputDir, outputFile)
     @inputDir = inputDir
@@ -46,5 +45,4 @@ class ZipFileGenerator
       end
     end
   end
-
 end

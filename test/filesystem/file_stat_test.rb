@@ -2,7 +2,6 @@ require 'test_helper'
 require 'zip/filesystem'
 
 class ZipFsFileStatTest < MiniTest::Test
-
   def setup
     @zip_file = ::Zip::File.new("test/data/zipWithDirs.zip")
   end
@@ -62,5 +61,4 @@ class ZipFsFileStatTest < MiniTest::Test
   def test_blksize
     assert_nil(@zip_file.file.stat("file1").blksize)
   end
-
 end

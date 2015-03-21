@@ -57,5 +57,4 @@ class BasicZipFileTest < MiniTest::Test
                                     fileAndEntryName)
     end
   end
-
 end

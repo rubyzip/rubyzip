@@ -181,7 +181,6 @@ module Zip
       @compressor << data
       self
     end
-
   end
 end
 

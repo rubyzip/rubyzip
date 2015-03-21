@@ -46,7 +46,6 @@ if ENV['FULL_ZIP64_TEST']
       # but some OSes (*cough* OSX) still bundle a 5.xx release
       assert system("unzip -t #{test_filename}"), "third-party zip validation failed"
     end
-
   end
 
 end

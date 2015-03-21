@@ -52,7 +52,6 @@ class TestFiles
       end
       Dir.mkdir(name)
     end
-
   end
 end
 

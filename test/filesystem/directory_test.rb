@@ -118,5 +118,4 @@ class ZipFsDirectoryTest < MiniTest::Test
       end
     end
   end
-
 end

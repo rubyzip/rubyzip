@@ -43,7 +43,6 @@ module Zip
   # interface for accessing the filesystem, ie. the File and Dir classes.
 
   class File < CentralDirectory
-
     CREATE               = 1
     SPLIT_SIGNATURE      = 0x08074b50
     ZIP64_EOCD_SIGNATURE = 0x06064b50
@@ -426,7 +425,6 @@ module Zip
       temp_file.binmode
       temp_file
     end
-
   end
 end
 

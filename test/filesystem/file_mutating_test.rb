@@ -85,5 +85,4 @@ class ZipFsFileMutatingTest < MiniTest::Test
       assert(zf.file.exists?("dir1/dir11/"))
     end
   end
-
 end

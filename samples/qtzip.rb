@@ -12,7 +12,6 @@ require 'zip'
 a = Qt::Application.new(ARGV)
 
 class ZipDialog < ZipDialogUI
-
   def initialize
     super()
     connect(child('add_button'), SIGNAL('clicked()'),

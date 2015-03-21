@@ -73,5 +73,4 @@ class ZipExtraFieldTest < MiniTest::Test
     extra1.create("IUnix")
     assert_equal(extra1, extra3)
   end
-
 end

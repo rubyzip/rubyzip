@@ -65,14 +65,11 @@ module Zip
     # The individual methods are not documented due to their
     # similarity with the methods in File
     class ZipFsFile
-
       attr_writer :dir
 #      protected :dir
 
       class ZipFsStat
-
         class << self
-
           def delegate_to_fs_file(*methods)
             methods.each do |method|
               self.class_eval <<-end_eval, __FILE__, __LINE__ + 1
@@ -82,7 +79,6 @@ module Zip
               end_eval
             end
           end
-
         end
 
         def initialize(zipFsFile, entryName)
@@ -430,7 +426,6 @@ module Zip
     # The individual methods are not documented due to their
     # similarity with the methods in Dir
     class ZipFsDir
-
       def initialize(mappedZip)
         @mappedZip = mappedZip
       end
@@ -504,7 +499,6 @@ module Zip
       def chroot(*_args)
         raise NotImplementedError, "The chroot() function is not implemented"
       end
-
     end
 
     class ZipFsDirIterator # :nodoc:all

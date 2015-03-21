@@ -166,5 +166,4 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal("$VERBOSE =", zis.read(10))
     end
   end
-
 end

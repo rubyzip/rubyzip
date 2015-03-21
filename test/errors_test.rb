@@ -2,7 +2,6 @@
 require 'test_helper'
 
 class ErrorsTest < MiniTest::Test
-
   def test_rescue_legacy_zip_error
     raise ::Zip::Error
   rescue ::Zip::ZipError
@@ -32,5 +31,4 @@ class ErrorsTest < MiniTest::Test
     raise ::Zip::InternalError
   rescue ::Zip::ZipInternalError
   end
-
 end

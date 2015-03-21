@@ -502,5 +502,4 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       assert_equal(orig_file, zip_file)
     end
   end
-
 end
