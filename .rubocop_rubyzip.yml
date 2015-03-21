@@ -97,11 +97,6 @@ Style/CommentAnnotation:
 Style/CommentIndentation:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/DefWithParentheses:
-  Enabled: false
-
 # Offense count: 88
 Style/Documentation:
   Enabled: false

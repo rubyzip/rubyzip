@@ -16,7 +16,7 @@ a = Qt::Application.new(ARGV)
 class ZipDialog < ZipDialogUI
 
 
-  def initialize()
+  def initialize
     super()
     connect(child('add_button'), SIGNAL('clicked()'),
             self, SLOT('add_files()'))
@@ -32,7 +32,7 @@ class ZipDialog < ZipDialogUI
     Zip::File.foreach(@zip_filename, &proc)
   end
 
-  def refresh()
+  def refresh
     lv = child("entry_list_view")
     lv.clear
     each do |e|
