@@ -1,7 +1,6 @@
 require 'zip'
 
 module Zip
-
   # The ZipFileSystem API provides an API for accessing entries in
   # a zip archive that is similar to ruby's builtin File and Dir
   # classes.
@@ -35,7 +34,6 @@ module Zip
   #   }
 
   module FileSystem
-
     def initialize # :nodoc:
       mappedZip = ZipFileNameMapper.new(self)
       @zipFsDir  = ZipFsDir.new(mappedZip)

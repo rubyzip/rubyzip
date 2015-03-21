@@ -29,13 +29,11 @@ module Zip
         yield(fileName) if fileNamePattern.match(fileName)
       end
     end
-
   end
 end
 
 if __FILE__ == $0
   module ZipFindConsoleRunner
-
     PATH_ARG_INDEX = 0;
     FILENAME_PATTERN_ARG_INDEX = 1;
     ZIPFILE_PATTERN_ARG_INDEX = 2;
@@ -63,7 +61,6 @@ if __FILE__ == $0
     def self.report_entry_found(fileName)
       puts fileName
     end
-
   end
 
   ZipFindConsoleRunner.run(ARGV)

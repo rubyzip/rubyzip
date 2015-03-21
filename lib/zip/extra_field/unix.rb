@@ -34,5 +34,4 @@ module Zip
       ''
     end
   end
-
 end

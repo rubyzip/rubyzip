@@ -41,5 +41,4 @@ module Zip
       [@atime, @mtime].pack("VV")
     end
   end
-
 end

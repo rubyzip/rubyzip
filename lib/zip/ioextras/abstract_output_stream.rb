@@ -38,7 +38,6 @@ module Zip
           self << "\n" unless val[-1, 1] == "\n"
         end
       end
-
     end
   end
 end

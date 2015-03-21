@@ -147,7 +147,6 @@ module AssertEntry
 end
 
 module CrcTest
-
   class TestOutputStream
     include ::Zip::IOExtras::AbstractOutputStream
 
@@ -198,7 +197,6 @@ module CommonZipFileFixture
 end
 
 module ExtraAssertions
-
   def assert_forwarded(anObject, method, retVal, *expectedArgs)
     callArgs = nil
     setCallArgsProc = proc { |args| callArgs = args }
@@ -215,5 +213,4 @@ module ExtraAssertions
   ensure
     anObject.instance_eval "undef #{method}; alias #{method} #{method}_org"
   end
-
 end

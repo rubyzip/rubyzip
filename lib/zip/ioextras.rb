@@ -1,6 +1,5 @@
 module Zip
   module IOExtras #:nodoc:
-
     CHUNK_SIZE = 131072
 
     RANGE_ALL = 0..-1
@@ -26,7 +25,6 @@ module Zip
         object == IO || super
       end
     end
-
   end # IOExtras namespace module
 end
 
