@@ -66,9 +66,17 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_find_entry
-    # by default, #find_entry is case-sensitive
-    assert_equal(ZIP_ENTRIES[0], @zipEntrySet.find_entry('name1'))
-    assert_equal(ZIP_ENTRIES[0], @zipEntrySet.find_entry('NaMe1', false))
+    entries = [::Zip::Entry.new("zipfile.zip", "MiXeDcAsEnAmE", "comment1")]
+
+    ::Zip.case_insensitive_match = true
+    zipEntrySet = ::Zip::EntrySet.new(entries)
+    assert_equal(entries[0], zipEntrySet.find_entry('MiXeDcAsEnAmE'))
+    assert_equal(entries[0], zipEntrySet.find_entry('mixedcasename'))
+
+    ::Zip.case_insensitive_match = false
+    zipEntrySet = ::Zip::EntrySet.new(entries)
+    assert_equal(entries[0], zipEntrySet.find_entry('MiXeDcAsEnAmE'))
+    assert_equal(nil, zipEntrySet.find_entry('mixedcasename'))
   end
 
   def test_entries_with_sort
