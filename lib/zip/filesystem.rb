@@ -232,12 +232,12 @@ module Zip
       def open(fileName, openMode = "r", permissionInt = 0644, &block)
         openMode.gsub!("b", "") # ignore b option
         case openMode
-          when "r"
-            @mappedZip.get_input_stream(fileName, &block)
-          when "w"
-            @mappedZip.get_output_stream(fileName, permissionInt, &block)
-          else
-            raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
+        when "r"
+          @mappedZip.get_input_stream(fileName, &block)
+        when "w"
+          @mappedZip.get_output_stream(fileName, permissionInt, &block)
+        else
+          raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
         end
       end
 

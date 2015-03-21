@@ -71,11 +71,6 @@ Style/BarePercentLiterals:
 Style/CaseEquality:
   Enabled: false
 
-# Offense count: 2
-# Configuration parameters: IndentWhenRelativeTo, SupportedStyles, IndentOneStep.
-Style/CaseIndentation:
-  Enabled: false
-
 # Offense count: 7
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/ClassAndModuleChildren:
