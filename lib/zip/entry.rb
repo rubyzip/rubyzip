@@ -83,7 +83,7 @@ module Zip
       end
     end
 
-    alias_method :mtime, :time
+    alias mtime time
 
     def time=(value)
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')

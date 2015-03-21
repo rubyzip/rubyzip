@@ -177,26 +177,26 @@ module Zip
       def exists?(fileName)
         expand_path(fileName) == '/' || @mappedZip.find_entry(fileName) != nil
       end
-      alias_method :exist?, :exists?
+      alias exist? exists?
 
       # Permissions not implemented, so if the file exists it is accessible
-      alias_method :owned?,           :exists?
-      alias_method :grpowned?,        :exists?
+      alias owned? exists?
+      alias grpowned? exists?
 
       def readable?(fileName)
         unix_mode_cmp(fileName, 0444)
       end
-      alias_method :readable_real?,   :readable?
+      alias readable_real? readable?
 
       def writable?(fileName)
         unix_mode_cmp(fileName, 0222)
       end
-      alias_method :writable_real?,   :writable?
+      alias writable_real? writable?
 
       def executable?(fileName)
         unix_mode_cmp(fileName, 0111)
       end
-      alias_method :executable_real?, :executable?
+      alias executable_real? executable?
 
       def setuid?(fileName)
         unix_mode_cmp(fileName, 04000)
@@ -379,7 +379,7 @@ module Zip
         ZipFsStat.new(self, fileName)
       end
 
-      alias_method :lstat, :stat
+      alias lstat stat
 
       def readlines(fileName)
         open(fileName) { |is| is.readlines }
@@ -410,7 +410,7 @@ module Zip
         @mappedZip.rename(fileToRename, newName) { true }
       end
 
-      alias_method :unlink, :delete
+      alias unlink delete
 
       def expand_path(aPath)
         @mappedZip.expand_path(aPath)
@@ -448,7 +448,7 @@ module Zip
       end
 
       def pwd; @mappedZip.pwd; end
-      alias_method :getwd, :pwd
+      alias getwd pwd
 
       def chdir(aDirectoryName)
         unless @file.stat(aDirectoryName).directory?
@@ -487,8 +487,8 @@ module Zip
         end
         @mappedZip.remove(entryName)
       end
-      alias_method :rmdir,  :delete
-      alias_method :unlink, :delete
+      alias rmdir delete
+      alias unlink delete
 
       def mkdir(entryName, permissionInt = 0755)
         @mappedZip.mkdir(entryName, permissionInt)

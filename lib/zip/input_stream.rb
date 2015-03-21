@@ -86,7 +86,7 @@ module Zip
       @output_buffer.empty? && @decompressor.eof
     end
 
-    alias_method :eof?, :eof
+    alias :eof? eof
 
     class << self
       # Same as #initialize but if a block is passed the opened

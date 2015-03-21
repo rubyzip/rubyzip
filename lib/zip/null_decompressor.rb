@@ -18,7 +18,7 @@ module Zip
       true
     end
 
-    alias_method :eof?, :eof
+    alias eof? eof
   end
 end
 
