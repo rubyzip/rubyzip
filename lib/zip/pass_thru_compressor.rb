@@ -3,13 +3,13 @@ module Zip
     def initialize(outputStream)
       super()
       @output_stream = outputStream
-      @crc = Zlib::crc32
+      @crc = Zlib.crc32
       @size = 0
     end
 
     def << (data)
       val = data.to_s
-      @crc = Zlib::crc32(val, @crc)
+      @crc = Zlib.crc32(val, @crc)
       @size += val.bytesize
       @output_stream << val
     end

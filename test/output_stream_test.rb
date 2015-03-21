@@ -88,7 +88,7 @@ class ZipOutputStreamTest < MiniTest::Test
       zos << file.read
     end
 
-    ::Zip::InputStream::open(TEST_ZIP.zip_name) do |io|
+    ::Zip::InputStream.open(TEST_ZIP.zip_name) do |io|
       while (entry = io.get_next_entry)
         assert(::Zip::DOSTime.at(file.mtime).dos_equals(::Zip::DOSTime.at(entry.mtime))) # Compare DOS Times, since they are stored with two seconds accuracy
       end

@@ -13,7 +13,7 @@ module Zip
 
     def << (data)
       val   = data.to_s
-      @crc  = Zlib::crc32(val, @crc)
+      @crc  = Zlib.crc32(val, @crc)
       @size += val.bytesize
       @buffer_stream << @zlib_deflater.deflate(data)
     end

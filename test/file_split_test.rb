@@ -41,8 +41,8 @@ class ZipFileSplitTest < MiniTest::Test
         zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
 
         assert(File.exist?(EXTRACTED_FILENAME))
-        AssertEntry::assert_contents(EXTRACTED_FILENAME,
-                                     zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
+        AssertEntry.assert_contents(EXTRACTED_FILENAME,
+                                    zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
 
         File.unlink(EXTRACTED_FILENAME)
@@ -51,8 +51,8 @@ class ZipFileSplitTest < MiniTest::Test
         entry.extract(EXTRACTED_FILENAME)
 
         assert(File.exist?(EXTRACTED_FILENAME))
-        AssertEntry::assert_contents(EXTRACTED_FILENAME,
-                                     entry.get_input_stream() { |is| is.read })
+        AssertEntry.assert_contents(EXTRACTED_FILENAME,
+                                    entry.get_input_stream() { |is| is.read })
 
       end
     end

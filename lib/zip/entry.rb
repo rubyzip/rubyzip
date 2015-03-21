@@ -374,9 +374,9 @@ module Zip
 
     def file_stat(path) # :nodoc:
       if @follow_symlinks
-        ::File::stat(path)
+        ::File.stat(path)
       else
-        ::File::lstat(path)
+        ::File.lstat(path)
       end
     end
 
@@ -595,7 +595,7 @@ module Zip
       return if ::File.directory?(dest_path)
       if ::File.exist?(dest_path)
         if block_given? && yield(self, dest_path)
-          ::FileUtils::rm_f dest_path
+          ::FileUtils.rm_f dest_path
         else
           raise ::Zip::DestinationFileExistsError,
                 "Cannot create directory '#{dest_path}'. "+
