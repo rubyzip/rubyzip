@@ -55,7 +55,6 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
 #          file name (variable size)
 #          extra field (variable size)
 #          file comment (variable size)
-
     end
   end
 

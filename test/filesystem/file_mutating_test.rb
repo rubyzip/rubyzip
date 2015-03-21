@@ -51,7 +51,6 @@ class ZipFsFileMutatingTest < MiniTest::Test
 
   def test_chmod
     ::Zip::File.open(TEST_ZIP) do |zf|
-
       zf.file.chmod(0765, "file1")
     end
 

@@ -26,7 +26,6 @@ class ZipFileExtractTest < MiniTest::Test
       assert(File.exist?(EXTRACTED_FILENAME))
       AssertEntry.assert_contents(EXTRACTED_FILENAME,
                                   entry.get_input_stream() { |is| is.read })
-
     end
   end
 
