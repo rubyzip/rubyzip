@@ -28,7 +28,9 @@ class ZipFileGenerator
   end
 
   # A helper method to make the recursion work.
+
   private
+
   def writeEntries(entries, path, io)
 
     entries.each do |e|

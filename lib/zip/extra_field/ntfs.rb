@@ -65,6 +65,7 @@ module Zip
     end
 
     private
+
     def parse_tags(content)
       return {} if content.nil?
       tags = {}

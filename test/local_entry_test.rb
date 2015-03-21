@@ -126,6 +126,7 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   private
+
   def compare_local_entry_headers(entry1, entry2)
     assert_equal(entry1.compressed_size, entry2.compressed_size)
     assert_equal(entry1.crc, entry2.crc)

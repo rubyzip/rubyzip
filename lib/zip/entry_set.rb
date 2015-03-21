@@ -72,11 +72,13 @@ module Zip
     end
 
     protected
+
     def sorted_entries
       ::Zip.sort_entries ? Hash[@entry_set.sort] : @entry_set
     end
 
     private
+
     def to_key(entry)
       entry.to_s.chomp('/')
     end

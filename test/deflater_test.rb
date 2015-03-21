@@ -35,6 +35,7 @@ class DeflaterTest < MiniTest::Test
   end
 
   private
+
   def load_file(fileName)
     txt = nil
     File.open(fileName, "rb") { |f| txt = f.read }
