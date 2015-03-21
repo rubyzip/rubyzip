@@ -35,10 +35,9 @@ class ZipDialog < ZipDialogUI
   def refresh()
     lv = child("entry_list_view")
     lv.clear
-    each {
-      |e|
+    each do |e|
       lv.insert_item(Qt::ListViewItem.new(lv, e.name, e.size.to_s))
-    }
+    end
   end
 
 
@@ -49,13 +48,11 @@ class ZipDialog < ZipDialogUI
 
   def add_files
     l = Qt::FileDialog.getOpenFileNames(nil, nil, self)
-    zipfile {
-      |zf|
-      l.each {
-        |path|
+    zipfile do |zf|
+      l.each do |path|
         zf.add(File.basename(path), path)
-      }
-    }
+      end
+    end
     refresh
   end
 

@@ -256,25 +256,25 @@ module Zip
       end
 
       def chown(ownerInt, groupInt, *filenames)
-        filenames.each { |fileName|
+        filenames.each do |fileName|
           e = get_entry(fileName)
           unless e.extra.member?("IUnix")
             e.extra.create("IUnix")
           end
           e.extra["IUnix"].uid = ownerInt
           e.extra["IUnix"].gid = groupInt
-        }
+        end
         filenames.size
       end
 
       def chmod (modeInt, *filenames)
-        filenames.each { |fileName|
+        filenames.each do |fileName|
           e = get_entry(fileName)
           e.fstype = 3 # force convertion filesystem type to unix
           e.unix_perms = modeInt
           e.external_file_attributes = modeInt << 16
           e.dirty = true
-        }
+        end
         filenames.size
       end
 
@@ -307,9 +307,9 @@ module Zip
       end
 
       def utime(modifiedTime, *fileNames)
-        fileNames.each { |fileName|
+        fileNames.each do |fileName|
           get_entry(fileName).time = modifiedTime
-        }
+        end
       end
 
       def mtime(fileName)
@@ -404,13 +404,12 @@ module Zip
       end
 
       def delete(*args)
-        args.each {
-          |fileName|
+        args.each do |fileName|
           if directory?(fileName)
             raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
           end
           @mappedZip.remove(fileName)
-        }
+        end
       end
 
       def rename(fileToRename, newName)
@@ -483,11 +482,10 @@ module Zip
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
-        @mappedZip.each {
-          |fileName|
+        @mappedZip.each do |fileName|
           match = subDirEntriesRegex.match(fileName)
           yield(match[1]) unless match == nil
-        }
+        end
       end
 
       def delete(entryName)
@@ -595,10 +593,9 @@ module Zip
       # Turns entries into strings and adds leading /
       # and removes trailing slash on directories
       def each
-        @zipFile.each {
-          |e|
+        @zipFile.each do |e|
           yield("/"+e.to_s.chomp("/"))
-        }
+        end
       end
 
       def expand_path(aPath)

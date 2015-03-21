@@ -23,10 +23,9 @@ class ZipSettingsTest < MiniTest::Test
   end
 
   def extract_test_dir(&aProc)
-    open_zip {
-        |zf|
+    open_zip do |zf|
       zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME, &aProc)
-    }
+    end
   end
 
   def test_true_on_exists_proc

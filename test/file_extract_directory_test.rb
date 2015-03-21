@@ -11,10 +11,9 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
   end
 
   def extract_test_dir(&aProc)
-    open_zip {
-        |zf|
+    open_zip do |zf|
       zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME, &aProc)
-    }
+    end
   end
 
   def setup
@@ -43,13 +42,12 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
   def test_extractDirectoryExistsAsFileOverwrite
     File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
     gotCalled = false
-    extract_test_dir {
-        |entry, destPath|
+    extract_test_dir do |entry, destPath|
       gotCalled = true
       assert_equal(TEST_OUT_NAME, destPath)
       assert(entry.directory?)
       true
-    }
+    end
     assert(gotCalled)
     assert(File.directory?(TEST_OUT_NAME))
   end

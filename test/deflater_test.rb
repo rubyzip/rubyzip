@@ -42,23 +42,21 @@ class DeflaterTest < MiniTest::Test
   end
 
   def deflate(data, fileName)
-    File.open(fileName, "wb") {
-        |file|
+    File.open(fileName, "wb") do |file|
       deflater = ::Zip::Deflater.new(file)
       deflater << data
       deflater.finish
       assert_equal(deflater.size, data.size)
       file << "trailing data for zlib with -MAX_WBITS"
-    }
+    end
   end
 
   def inflate(fileName)
     txt = nil
-    File.open(fileName, "rb") {
-        |file|
+    File.open(fileName, "rb") do |file|
       inflater = ::Zip::Inflater.new(file)
       txt = inflater.sysread
-    }
+    end
   end
 
   def test_crc

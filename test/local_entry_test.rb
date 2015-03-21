@@ -28,19 +28,19 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_readDateTime
-    ::File.open("test/data/rubycode.zip", "rb") {
+    ::File.open("test/data/rubycode.zip", "rb") do
         |file|
       entry = ::Zip::Entry.read_local_entry(file)
       assert_equal("zippedruby1.rb", entry.name)
       assert_equal(::Zip::DOSTime.at(1019261638), entry.time)
-    }
+    end
   end
 
   def test_read_local_entryFromNonZipFile
-    ::File.open("test/data/file2.txt") {
+    ::File.open("test/data/file2.txt") do
         |file|
       assert_equal(nil, ::Zip::Entry.read_local_entry(file))
-    }
+    end
   end
 
   def test_read_local_entryFromTruncatedZipFile

@@ -81,11 +81,10 @@ class AbstractInputStreamTest < MiniTest::Test
 
   def test_each_line
     lineNumber=0
-    @io.each_line {
-        |line|
+    @io.each_line do |line|
       assert_equal(TEST_LINES[lineNumber], line)
       lineNumber+=1
-    }
+    end
   end
 
   def test_readlines

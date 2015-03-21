@@ -32,37 +32,34 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
 
   def test_open_read
     blockCalled = false
-    @zip_file.file.open("file1", "r") {
-      |f|
+    @zip_file.file.open("file1", "r") do |f|
       blockCalled = true
       assert_equal("this is the entry 'file1' in my test archive!",
                    f.readline.chomp)
-    }
+    end
     assert(blockCalled)
 
     blockCalled = false
-    @zip_file.file.open("file1", "rb") { # test binary flag is ignored
-      |f|
+    @zip_file.file.open("file1", "rb") do |f| # test binary flag is ignored
       blockCalled = true
       assert_equal("this is the entry 'file1' in my test archive!",
                    f.readline.chomp)
-    }
+    end
     assert(blockCalled)
 
     blockCalled = false
     @zip_file.dir.chdir "dir2"
-    @zip_file.file.open("file21", "r") {
-      |f|
+    @zip_file.file.open("file21", "r") do |f|
       blockCalled = true
       assert_equal("this is the entry 'dir2/file21' in my test archive!",
                    f.readline.chomp)
-    }
+    end
     assert(blockCalled)
     @zip_file.dir.chdir "/"
 
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       @zip_file.file.open("noSuchEntry")
-    }
+    end
 
     begin
       is = @zip_file.file.open("file1")
@@ -82,18 +79,18 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       is.close if is
     end
     begin
-      is = @zip_file.file.new("file1") {
-  fail "should not call block"
-      }
+      is = @zip_file.file.new("file1") do
+       fail "should not call block"
+      end
     ensure
       is.close if is
     end
   end
 
   def test_symlink
-    assert_raises(NotImplementedError) {
+    assert_raises(NotImplementedError) do
       @zip_file.file.symlink("file1", "aSymlink")
-    }
+    end
   end
 
   def test_size
@@ -130,21 +127,21 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   include ExtraAssertions
 
   def test_dirname
-    assert_forwarded(File, :dirname, "retVal", "a/b/c/d") {
+    assert_forwarded(File, :dirname, "retVal", "a/b/c/d") do
       @zip_file.file.dirname("a/b/c/d")
-    }
+    end
   end
 
   def test_basename
-    assert_forwarded(File, :basename, "retVal", "a/b/c/d") {
+    assert_forwarded(File, :basename, "retVal", "a/b/c/d") do
       @zip_file.file.basename("a/b/c/d")
-    }
+    end
   end
 
   def test_split
-    assert_forwarded(File, :split, "retVal", "a/b/c/d") {
+    assert_forwarded(File, :split, "retVal", "a/b/c/d") do
       @zip_file.file.split("a/b/c/d")
-    }
+    end
   end
 
   def test_join
@@ -201,15 +198,15 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_truncate
-    assert_raises(StandardError, "truncate not supported") {
+    assert_raises(StandardError, "truncate not supported") do
       @zip_file.file.truncate("file1", 100)
-    }
+    end
   end
 
   def assert_e_n_o_e_n_t(operation, args = ["NoSuchFile"])
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       @zip_file.file.send(operation, *args)
-    }
+    end
   end
 
   def test_ftype
@@ -220,9 +217,9 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_link
-    assert_raises(NotImplementedError) {
+    assert_raises(NotImplementedError) do
       @zip_file.file.link("file1", "someOtherString")
-    }
+    end
   end
 
   def test_directory?
@@ -252,34 +249,31 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     assert(! @zip_file.file.zero?("file1"))
     assert(@zip_file.file.zero?("dir1"))
     blockCalled = false
-    ::Zip::File.open("test/data/generated/5entry.zip") {
-      |zf|
+    ::Zip::File.open("test/data/generated/5entry.zip") do |zf|
       blockCalled = true
       assert(zf.file.zero?("test/data/generated/empty.txt"))
-    }
+    end
     assert(blockCalled)
 
     assert(! @zip_file.file.stat("file1").zero?)
     assert(@zip_file.file.stat("dir1").zero?)
     blockCalled = false
-    ::Zip::File.open("test/data/generated/5entry.zip") {
-      |zf|
+    ::Zip::File.open("test/data/generated/5entry.zip") do |zf|
       blockCalled = true
       assert(zf.file.stat("test/data/generated/empty.txt").zero?)
-    }
+    end
     assert(blockCalled)
   end
 
   def test_expand_path
-    ::Zip::File.open("test/data/zipWithDirs.zip") {
-      |zf|
+    ::Zip::File.open("test/data/zipWithDirs.zip") do |zf|
       assert_equal("/", zf.file.expand_path("."))
       zf.dir.chdir "dir1"
       assert_equal("/dir1", zf.file.expand_path("."))
       assert_equal("/dir1/file12", zf.file.expand_path("file12"))
       assert_equal("/", zf.file.expand_path(".."))
       assert_equal("/dir2/dir21", zf.file.expand_path("../dir2/dir21"))
-    }
+    end
   end
 
   def test_mtime
@@ -287,9 +281,9 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
                  @zip_file.file.mtime("dir2/file21"))
     assert_equal(::Zip::DOSTime.at(1027690863),
                  @zip_file.file.mtime("dir2/dir21"))
-    assert_raises(Errno::ENOENT) {
+    assert_raises(Errno::ENOENT) do
       @zip_file.file.mtime("noSuchEntry")
-    }
+    end
 
     assert_equal(::Zip::DOSTime.at(1027694306),
                  @zip_file.file.stat("dir2/file21").mtime)
@@ -385,17 +379,17 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_readlink
-    assert_raises(NotImplementedError) {
+    assert_raises(NotImplementedError) do
       @zip_file.file.readlink("someString")
-    }
+    end
   end
 
   def test_stat
     s = @zip_file.file.stat("file1")
     assert(s.kind_of?(File::Stat)) # It pretends
-    assert_raises(Errno::ENOENT, "No such file or directory - noSuchFile") {
+    assert_raises(Errno::ENOENT, "No such file or directory - noSuchFile") do
       @zip_file.file.stat("noSuchFile")
-    }
+    end
   end
 
   def test_lstat
@@ -403,9 +397,9 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_pipe
-    assert_raises(NotImplementedError) {
+    assert_raises(NotImplementedError) do
       @zip_file.file.pipe
-    }
+    end
   end
 
   def test_foreach

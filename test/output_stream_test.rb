@@ -113,11 +113,11 @@ class ZipOutputStreamTest < MiniTest::Test
   end
 
   def assert_i_o_error_in_closed_stream
-    assert_raises(IOError) {
+    assert_raises(IOError) do
       zos = ::Zip::OutputStream.new("test/data/generated/test_putOnClosedStream.zip")
       zos.close
       yield zos
-    }
+    end
   end
 
   def write_test_zip(zos)

@@ -19,12 +19,12 @@ class MainApp < Gtk::Window
 
     @zipfile = nil
     @buttonPanel = ButtonPanel.new
-    @buttonPanel.openButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
+    @buttonPanel.openButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       show_file_selector
-    }
-    @buttonPanel.extractButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
+    end
+    @buttonPanel.extractButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       puts "Not implemented!"
-    }
+    end
     box.pack_start(@buttonPanel, false, false, 0)
 
     sw = Gtk::ScrolledWindow.new
@@ -35,10 +35,9 @@ class MainApp < Gtk::Window
     @clist.set_selection_mode(Gtk::SELECTION_BROWSE)
     @clist.set_column_width(0, 120)
     @clist.set_column_width(1, 120)
-    @clist.signal_connect(Gtk::CList::SIGNAL_SELECT_ROW) {
-      |_w, row, _column, _event|
+    @clist.signal_connect(Gtk::CList::SIGNAL_SELECT_ROW) do |_w, row, _column, _event|
       @selected_row = row
-    }
+    end
     sw.add(@clist)
   end
 
@@ -58,24 +57,23 @@ class MainApp < Gtk::Window
   def show_file_selector
     @fileSelector = Gtk::FileSelection.new("Open zip file")
     @fileSelector.show
-    @fileSelector.ok_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
+    @fileSelector.ok_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       open_zip(@fileSelector.filename)
       @fileSelector.destroy
-    }
-    @fileSelector.cancel_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) {
+    end
+    @fileSelector.cancel_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       @fileSelector.destroy
-    }
+    end
   end
 
   def open_zip(filename)
     @zipfile = Zip::File.open(filename)
     @clist.clear
-    @zipfile.each {
-      |entry|
+    @zipfile.each do |entry|
       @clist.append([ entry.name,
                       entry.size.to_s,
                       (100.0*entry.compressedSize/entry.size).to_s+"%" ])
-    }
+    end
   end
 end
 

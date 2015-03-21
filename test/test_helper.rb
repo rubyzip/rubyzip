@@ -98,8 +98,7 @@ module AssertEntry
   end
 
   def assert_entryContentsForStream(filename, zis, entryName)
-    File.open(filename, "rb") {
-        |file|
+    File.open(filename, "rb") do |file|
       expected = file.read
       actual = zis.read
       if (expected != actual)
@@ -111,7 +110,7 @@ module AssertEntry
           assert_equal(expected, actual)
         end
       end
-    }
+    end
   end
 
   def AssertEntry.assert_contents(filename, aString)
@@ -182,10 +181,9 @@ end
 module Enumerable
   def compare_enumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
-    each_with_index {
-        |element, index|
+    each_with_index do |element, index|
       return false unless yield(element, otherAsArray[index])
-    }
+    end
     return self.size == otherAsArray.size
   end
 end

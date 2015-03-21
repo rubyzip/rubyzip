@@ -11,21 +11,21 @@ class ZipFsDirIteratorTest < MiniTest::Test
 
   def test_close
     @dirIt.close
-    assert_raises(IOError, "closed directory") {
+    assert_raises(IOError, "closed directory") do
       @dirIt.each { |e| p e }
-    }
-    assert_raises(IOError, "closed directory") {
+    end
+    assert_raises(IOError, "closed directory") do
       @dirIt.read
-    }
-    assert_raises(IOError, "closed directory") {
+    end
+    assert_raises(IOError, "closed directory") do
       @dirIt.rewind
-    }
-    assert_raises(IOError, "closed directory") {
+    end
+    assert_raises(IOError, "closed directory") do
       @dirIt.seek(0)
-    }
-    assert_raises(IOError, "closed directory") {
+    end
+    assert_raises(IOError, "closed directory") do
       @dirIt.tell
-    }
+    end
 
   end
 
@@ -35,10 +35,9 @@ class ZipFsDirIteratorTest < MiniTest::Test
   end
 
   def test_read
-    FILENAME_ARRAY.size.times {
-      |i|
+    FILENAME_ARRAY.size.times do |i|
       assert_equal(FILENAME_ARRAY[i], @dirIt.read)
-    }
+    end
   end
 
   def test_rewind

@@ -43,28 +43,24 @@ class ZipFileTest < MiniTest::Test
 
   def test_get_output_stream
     entryCount = nil
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       entryCount = zf.size
-      zf.get_output_stream('newEntry.txt') {
-          |os|
+      zf.get_output_stream('newEntry.txt') do |os|
         os.write "Putting stuff in newEntry.txt"
-      }
+      end
       assert_equal(entryCount+1, zf.size)
       assert_equal("Putting stuff in newEntry.txt", zf.read("newEntry.txt"))
 
-      zf.get_output_stream(zf.get_entry('test/data/generated/empty.txt')) {
-          |os|
+      zf.get_output_stream(zf.get_entry('test/data/generated/empty.txt')) do |os|
         os.write "Putting stuff in data/generated/empty.txt"
-      }
+      end
       assert_equal(entryCount+1, zf.size)
       assert_equal("Putting stuff in data/generated/empty.txt", zf.read("test/data/generated/empty.txt"))
 
       custom_entry_args = [ZipEntryTest::TEST_COMMENT, ZipEntryTest::TEST_EXTRA, ZipEntryTest::TEST_COMPRESSED_SIZE, ZipEntryTest::TEST_CRC, ::Zip::Entry::STORED, ZipEntryTest::TEST_SIZE, ZipEntryTest::TEST_TIME]
-      zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) {
-          |os|
+      zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) do |os|
         os.write "Some data"
-      }
+      end
       assert_equal(entryCount+2, zf.size)
       entry = zf.get_entry('entry_with_custom_args.txt')
       assert_equal(custom_entry_args[0], entry.comment)
@@ -74,19 +70,17 @@ class ZipFileTest < MiniTest::Test
       assert_equal(custom_entry_args[5], entry.size)
       assert_equal(custom_entry_args[6], entry.time)
 
-      zf.get_output_stream('entry.bin') {
-          |os|
+      zf.get_output_stream('entry.bin') do |os|
         os.write(::File.open('test/data/generated/5entry.zip', 'rb').read)
-      }
-    }
+      end
+    end
 
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(entryCount+3, zf.size)
       assert_equal("Putting stuff in newEntry.txt", zf.read("newEntry.txt"))
       assert_equal("Putting stuff in data/generated/empty.txt", zf.read("test/data/generated/empty.txt"))
       assert_equal(File.open('test/data/generated/5entry.zip', 'rb').read, zf.read("entry.bin"))
-    }
+    end
   end
 
   def test_cleans_up_tempfiles_after_close
@@ -133,39 +127,34 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_addExistingEntryName
-    assert_raises(::Zip::EntryExistsError) {
-      ::Zip::File.open(TEST_ZIP.zip_name) {
-          |zf|
+    assert_raises(::Zip::EntryExistsError) do
+      ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.add(zf.entries.first.name, "test/data/file2.txt")
-      }
-    }
+      end
+    end
   end
 
   def test_addExistingEntryNameReplace
     gotCalled = false
     replacedEntry = nil
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       replacedEntry = zf.entries.first.name
       zf.add(replacedEntry, "test/data/file2.txt") { gotCalled = true; true }
-    }
+    end
     assert(gotCalled)
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_contains(zf, replacedEntry, "test/data/file2.txt")
-    }
+    end
   end
 
   def test_addDirectory
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       zf.add(TestFiles::EMPTY_TEST_DIR, TestFiles::EMPTY_TEST_DIR)
-    }
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    end
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       dirEntry = zf.entries.detect { |e| e.name == TestFiles::EMPTY_TEST_DIR+"/" }
       assert(dirEntry.directory?)
-    }
+    end
   end
 
   def test_remove
@@ -281,9 +270,7 @@ class ZipFileTest < MiniTest::Test
     target_entry = "target_entryName"
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
     assert(!zf.entries.include?(nonEntry))
-    assert_raises(Errno::ENOENT) {
-      zf.rename(nonEntry, target_entry)
-    }
+    assert_raises(Errno::ENOENT) { zf.rename(nonEntry, target_entry) }
     zf.commit
     assert(!zf.entries.include?(target_entry))
   ensure
@@ -293,9 +280,7 @@ class ZipFileTest < MiniTest::Test
   def test_renameEntryToExistingEntry
     entry1, entry2, * = TEST_ZIP.entry_names
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
-    assert_raises(::Zip::EntryExistsError) {
-      zf.rename(entry1, entry2)
-    }
+    assert_raises(::Zip::EntryExistsError) { zf.rename(entry1, entry2) }
   ensure
     zf.close
   end
@@ -321,12 +306,9 @@ class ZipFileTest < MiniTest::Test
 
   def test_replaceNonEntry
     entryToReplace = "nonExistingEntryname"
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
-      assert_raises(Errno::ENOENT) {
-        zf.replace(entryToReplace, "test/data/file2.txt")
-      }
-    }
+    ::Zip::File.open(TEST_ZIP.zip_name) do  |zf|
+      assert_raises(Errno::ENOENT) { zf.replace(entryToReplace, "test/data/file2.txt") }
+    end
   end
 
   def test_commit
@@ -420,11 +402,10 @@ class ZipFileTest < MiniTest::Test
       zf.rename(entry_to_rename, renamedName)
       assert_contains(zf, renamedName)
 
-      TestFiles::BINARY_TEST_FILES.each {
-          |filename|
+      TestFiles::BINARY_TEST_FILES.each do |filename|
         zf.add(filename, filename)
         assert_contains(zf, filename)
-      }
+      end
 
       assert_contains(zf, originalEntries.last.to_s)
       filename_to_remove = originalEntries.map(&:to_s).find { |name| name.match('longBinary') }
@@ -438,10 +419,9 @@ class ZipFileTest < MiniTest::Test
       zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
       assert_contains(zfRead, TestFiles::RANDOM_ASCII_FILE1)
       assert_contains(zfRead, renamedName)
-      TestFiles::BINARY_TEST_FILES.each {
-          |filename|
+      TestFiles::BINARY_TEST_FILES.each do |filename|
         assert_contains(zfRead, filename)
-      }
+      end
       assert_not_contains(zfRead, filename_to_remove)
     ensure
       zfRead.close
@@ -453,18 +433,16 @@ class ZipFileTest < MiniTest::Test
       zf = ::Zip::File.new(TEST_ZIP.zip_name)
       originalEntries = zf.entries.dup
 
-      originalEntries.each {
-          |entry|
+      originalEntries.each do |entry|
         zf.remove(entry)
         assert_not_contains(zf, entry)
-      }
+      end
       assert(zf.entries.empty?)
 
-      TestFiles::ASCII_TEST_FILES.each {
-          |filename|
+      TestFiles::ASCII_TEST_FILES.each do |filename|
         zf.add(filename, filename)
         assert_contains(zf, filename)
-      }
+      end
       assert_equal(zf.entries.sort.map { |e| e.name }, TestFiles::ASCII_TEST_FILES)
 
       zf.rename(TestFiles::ASCII_TEST_FILES[0], "newName")
@@ -477,10 +455,9 @@ class ZipFileTest < MiniTest::Test
       zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
       asciiTestFiles = TestFiles::ASCII_TEST_FILES.dup
       asciiTestFiles.shift
-      asciiTestFiles.each {
-          |filename|
+      asciiTestFiles.each do |filename|
         assert_contains(zf, filename)
-      }
+      end
 
       assert_contains(zf, "newName")
     ensure
@@ -498,30 +475,26 @@ class ZipFileTest < MiniTest::Test
 
   def test_preserve_file_order
     entryNames = nil
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       entryNames = zf.entries.map { |e| e.to_s }
       zf.get_output_stream("a.txt") { |os| os.write "this is a.txt" }
       zf.get_output_stream("z.txt") { |os| os.write "this is z.txt" }
       zf.get_output_stream("k.txt") { |os| os.write "this is k.txt" }
       entryNames << "a.txt" << "z.txt" << "k.txt"
-    }
+    end
 
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(entryNames, zf.entries.map { |e| e.to_s })
       entries = zf.entries.sort_by { |e| e.name }.reverse
-      entries.each {
-          |e|
+      entries.each do |e|
         zf.remove e
         zf.get_output_stream(e) { |os| os.write "foo" }
-      }
+      end
       entryNames = entries.map { |e| e.to_s }
-    }
-    ::Zip::File.open(TEST_ZIP.zip_name) {
-        |zf|
+    end
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(entryNames, zf.entries.map { |e| e.to_s })
-    }
+    end
   end
 
   def test_streaming

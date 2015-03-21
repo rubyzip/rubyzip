@@ -19,58 +19,49 @@ class ZipFsFileMutatingTest < MiniTest::Test
   end
 
   def test_open_write
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
-
-      zf.file.open("test_open_write_entry", "w") {
-        |f|
+    ::Zip::File.open(TEST_ZIP) do |zf|
+      zf.file.open("test_open_write_entry", "w") do |f|
         f.write "This is what I'm writing"
-      }
+      end
       assert_equal("This is what I'm writing",
                    zf.file.read("test_open_write_entry"))
 
       # Test with existing entry
-      zf.file.open("file1", "wb") { #also check that 'b' option is ignored
-        |f|
+      zf.file.open("file1", "wb") do |f| #also check that 'b' option is ignored
         f.write "This is what I'm writing too"
-      }
+      end
       assert_equal("This is what I'm writing too",
                    zf.file.read("file1"))
-    }
+    end
   end
 
   def test_rename
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
-      assert_raises(Errno::ENOENT, "") {
+    ::Zip::File.open(TEST_ZIP) do |zf|
+      assert_raises(Errno::ENOENT, "") do
         zf.file.rename("NoSuchFile", "bimse")
-      }
+      end
       zf.file.rename("file1", "newNameForFile1")
-    }
+    end
 
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
+    ::Zip::File.open(TEST_ZIP) do |zf|
       assert(! zf.file.exists?("file1"))
       assert(zf.file.exists?("newNameForFile1"))
-    }
+    end
   end
 
   def test_chmod
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
+    ::Zip::File.open(TEST_ZIP) do |zf|
 
       zf.file.chmod(0765, "file1")
-    }
+    end
 
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
+    ::Zip::File.open(TEST_ZIP) do |zf|
       assert_equal(0100765,  zf.file.stat("file1").mode)
-    }
+    end
   end
 
   def do_test_delete_or_unlink(symbol)
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
+    ::Zip::File.open(TEST_ZIP) do |zf|
       assert(zf.file.exists?("dir2/dir21/dir221/file2221"))
       zf.file.send(symbol, "dir2/dir21/dir221/file2221")
       assert(! zf.file.exists?("dir2/dir21/dir221/file2221"))
@@ -84,17 +75,16 @@ class ZipFsFileMutatingTest < MiniTest::Test
       assert_raises(Errno::ENOENT) { zf.file.send(symbol, "noSuchFile") }
       assert_raises(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11") }
       assert_raises(Errno::EISDIR) { zf.file.send(symbol, "dir1/dir11/") }
-    }
+    end
 
-    ::Zip::File.open(TEST_ZIP) {
-      |zf|
+    ::Zip::File.open(TEST_ZIP) do |zf|
       assert(! zf.file.exists?("dir2/dir21/dir221/file2221"))
       assert(! zf.file.exists?("dir1/file11"))
       assert(! zf.file.exists?("dir1/file12"))
 
       assert(zf.file.exists?("dir1/dir11"))
       assert(zf.file.exists?("dir1/dir11/"))
-    }
+    end
   end
 
 end

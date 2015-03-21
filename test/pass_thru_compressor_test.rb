@@ -4,8 +4,7 @@ class PassThruCompressorTest < MiniTest::Test
   include CrcTest
 
   def test_size
-    File.open("test/data/generated/dummy.txt", "wb") {
-        |file|
+    File.open("test/data/generated/dummy.txt", "wb") do |file|
       compressor = ::Zip::PassThruCompressor.new(file)
 
       assert_equal(0, compressor.size)
@@ -22,7 +21,7 @@ class PassThruCompressorTest < MiniTest::Test
 
       compressor << t3
       assert_equal(compressor.size, t1.size + t2.size + t3.size)
-    }
+    end
   end
 
   def test_crc

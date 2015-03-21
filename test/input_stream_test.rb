@@ -11,11 +11,11 @@ class ZipInputStreamTest < MiniTest::Test
   end
 
   def test_openWithBlock
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do
         |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
-    }
+    end
   end
 
   def test_openWithoutBlock
@@ -50,7 +50,7 @@ class ZipInputStreamTest < MiniTest::Test
   end
 
   def test_incompleteReads
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do
         |zis|
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)
@@ -73,7 +73,7 @@ class ZipInputStreamTest < MiniTest::Test
       entry = zis.get_next_entry # longBinary.bin
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[4], entry.name)
       assert zis.gets.length > 0
-    }
+    end
   end
 
   def test_incomplete_reads_from_string_io
@@ -114,7 +114,7 @@ class ZipInputStreamTest < MiniTest::Test
   end
 
   def test_rewind
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do
         |zis|
       e = zis.get_next_entry
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], e.name)
@@ -141,11 +141,11 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal(0, zis.pos)
 
       assert_entry(e.name, zis, e.name)
-    }
+    end
   end
 
   def test_mix_read_and_gets
-    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do
         |zis|
       zis.get_next_entry
       assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
@@ -154,7 +154,7 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal(false, zis.eof?)
       assert_equal("$VERBOSE =", zis.read(10))
       assert_equal(false, zis.eof?)
-    }
+    end
   end
 
   def test_ungetc
