@@ -25,7 +25,7 @@ module Zip
     def ==(other)
       return false if self.class != other.class
       each do |k, v|
-        v != other[k] and return false
+        return false if v != other[k]
       end
       true
     end
