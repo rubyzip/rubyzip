@@ -13,10 +13,8 @@ module Zip
       @entry_set.include?(to_key(entry))
     end
 
-    def find_entry(entry, case_sensitively = true)
-      return @entry_set[to_key(entry)] if case_sensitively
-      entry = @entry_set.find { |k, _| k.downcase == to_key(entry).downcase }
-      entry.last if entry
+    def find_entry(entry)
+      @entry_set[to_key(entry)]
     end
 
     def <<(entry)
@@ -80,7 +78,9 @@ module Zip
     private
 
     def to_key(entry)
-      entry.to_s.chomp('/')
+      k = entry.to_s.chomp('/')
+      k.downcase! if ::Zip.case_insensitive_match
+      k
     end
   end
 end
