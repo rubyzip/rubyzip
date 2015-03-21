@@ -3,7 +3,7 @@ require 'test_helper'
 class ZipFileExtractDirectoryTest < MiniTest::Test
   include CommonZipFileFixture
 
-  TEST_OUT_NAME = "test/data/generated/emptyOutDir"
+  TEST_OUT_NAME = 'test/data/generated/emptyOutDir'
 
   def open_zip(&aProc)
     assert(aProc != nil)
@@ -35,12 +35,12 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
   end
 
   def test_extractDirectoryExistsAsFile
-    File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
+    File.open(TEST_OUT_NAME, 'w') { |f| f.puts 'something' }
     assert_raises(::Zip::DestinationFileExistsError) { extract_test_dir }
   end
 
   def test_extractDirectoryExistsAsFileOverwrite
-    File.open(TEST_OUT_NAME, "w") { |f| f.puts "something" }
+    File.open(TEST_OUT_NAME, 'w') { |f| f.puts 'something' }
     gotCalled = false
     extract_test_dir do |entry, destPath|
       gotCalled = true

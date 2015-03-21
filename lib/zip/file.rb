@@ -130,7 +130,7 @@ module Zip
         begin
           zf.write_buffer(io)
         rescue IOError => e
-          raise unless e.message == "not opened for writing"
+          raise unless e.message == 'not opened for writing'
         end
       end
 
@@ -263,7 +263,7 @@ module Zip
     # Convenience method for adding the contents of a file to the archive
     def add(entry, src_path, &continue_on_exists_proc)
       continue_on_exists_proc ||= proc { ::Zip.continue_on_exists_proc }
-      check_entry_exists(entry, continue_on_exists_proc, "add")
+      check_entry_exists(entry, continue_on_exists_proc, 'add')
       new_entry = entry.kind_of?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
       new_entry.gather_fileinfo_from_srcpath(src_path)
       new_entry.dirty = true
@@ -382,7 +382,7 @@ module Zip
               "entry name '#{newEntry}' indicates directory entry, but "+
                 "'#{srcPath}' is not a directory"
       elsif !newEntry.is_directory && srcPathIsDirectory
-        newEntry.name += "/"
+        newEntry.name += '/'
       end
       newEntry.is_directory && srcPathIsDirectory
     end

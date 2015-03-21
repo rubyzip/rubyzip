@@ -35,7 +35,7 @@ module Zip
 
         if tbuf.nil? || tbuf.length == 0
           return nil if number_of_bytes
-          return ""
+          return ''
         end
 
         @pos += tbuf.length

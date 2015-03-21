@@ -19,12 +19,12 @@ class ZipInputStreamTest < MiniTest::Test
   end
 
   def test_openWithoutBlock
-    zis = ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb"))
+    zis = ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, 'rb'))
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_openBufferWithBlock
-    ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, "rb")) do |zis|
+    ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, 'rb')) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
     end
@@ -120,19 +120,19 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], e.name)
 
       # Do a little reading
-      buf = ""
+      buf = ''
       buf << zis.read(100)
       assert_equal(100, zis.pos)
-      buf << (zis.gets || "")
-      buf << (zis.gets || "")
+      buf << (zis.gets || '')
+      buf << (zis.gets || '')
       assert_equal(false, zis.eof?)
 
       zis.rewind
 
-      buf2 = ""
+      buf2 = ''
       buf2 << zis.read(100)
-      buf2 << (zis.gets || "")
-      buf2 << (zis.gets || "")
+      buf2 << (zis.gets || '')
+      buf2 << (zis.gets || '')
 
       assert_equal(buf, buf2)
 
@@ -148,11 +148,11 @@ class ZipInputStreamTest < MiniTest::Test
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do
         |zis|
       zis.get_next_entry
-      assert_equal("#!/usr/bin/env ruby", zis.gets.chomp)
+      assert_equal('#!/usr/bin/env ruby', zis.gets.chomp)
       assert_equal(false, zis.eof?)
-      assert_equal("", zis.gets.chomp)
+      assert_equal('', zis.gets.chomp)
       assert_equal(false, zis.eof?)
-      assert_equal("$VERBOSE =", zis.read(10))
+      assert_equal('$VERBOSE =', zis.read(10))
       assert_equal(false, zis.eof?)
     end
   end
@@ -163,7 +163,7 @@ class ZipInputStreamTest < MiniTest::Test
       first_line = zis.gets.chomp
       first_line.reverse.bytes.each { |b| zis.ungetc(b) }
       assert_equal('#!/usr/bin/env ruby', zis.gets.chomp)
-      assert_equal("$VERBOSE =", zis.read(10))
+      assert_equal('$VERBOSE =', zis.read(10))
     end
   end
 end

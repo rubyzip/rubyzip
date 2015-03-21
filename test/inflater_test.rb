@@ -4,7 +4,7 @@ class InflaterTest < MiniTest::Test
 
   def setup
     super
-    @file = File.new("test/data/file1.txt.deflatedData", "rb")
+    @file = File.new('test/data/file1.txt.deflatedData', 'rb')
     @decompressor = ::Zip::Inflater.new(@file)
   end
 

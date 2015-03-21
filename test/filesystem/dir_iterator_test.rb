@@ -10,19 +10,19 @@ class ZipFsDirIteratorTest < MiniTest::Test
 
   def test_close
     @dirIt.close
-    assert_raises(IOError, "closed directory") do
+    assert_raises(IOError, 'closed directory') do
       @dirIt.each { |e| p e }
     end
-    assert_raises(IOError, "closed directory") do
+    assert_raises(IOError, 'closed directory') do
       @dirIt.read
     end
-    assert_raises(IOError, "closed directory") do
+    assert_raises(IOError, 'closed directory') do
       @dirIt.rewind
     end
-    assert_raises(IOError, "closed directory") do
+    assert_raises(IOError, 'closed directory') do
       @dirIt.seek(0)
     end
-    assert_raises(IOError, "closed directory") do
+    assert_raises(IOError, 'closed directory') do
       @dirIt.tell
     end
   end

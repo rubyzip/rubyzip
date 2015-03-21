@@ -2,12 +2,12 @@ require 'test_helper'
 
 class ZipEntrySetTest < MiniTest::Test
   ZIP_ENTRIES = [
-    ::Zip::Entry.new("zipfile.zip", "name1", "comment1"),
-    ::Zip::Entry.new("zipfile.zip", "name3", "comment1"),
-    ::Zip::Entry.new("zipfile.zip", "name2", "comment1"),
-    ::Zip::Entry.new("zipfile.zip", "name4", "comment1"),
-    ::Zip::Entry.new("zipfile.zip", "name5", "comment1"),
-    ::Zip::Entry.new("zipfile.zip", "name6", "comment1")
+    ::Zip::Entry.new('zipfile.zip', 'name1', 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name3', 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name2', 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name4', 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name5', 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name6', 'comment1')
   ]
 
   def setup
@@ -20,20 +20,20 @@ class ZipEntrySetTest < MiniTest::Test
 
   def test_include
     assert(@zipEntrySet.include?(ZIP_ENTRIES.first))
-    assert(!@zipEntrySet.include?(::Zip::Entry.new("different.zip", "different", "aComment")))
+    assert(!@zipEntrySet.include?(::Zip::Entry.new('different.zip', 'different', 'aComment')))
   end
 
   def test_size
     assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
     assert_equal(ZIP_ENTRIES.size, @zipEntrySet.length)
-    @zipEntrySet << ::Zip::Entry.new("a", "b", "c")
+    @zipEntrySet << ::Zip::Entry.new('a', 'b', 'c')
     assert_equal(ZIP_ENTRIES.size + 1, @zipEntrySet.length)
   end
 
   def test_add
     zes = ::Zip::EntrySet.new
-    entry1 = ::Zip::Entry.new("zf.zip", "name1")
-    entry2 = ::Zip::Entry.new("zf.zip", "name2")
+    entry1 = ::Zip::Entry.new('zf.zip', 'name1')
+    entry2 = ::Zip::Entry.new('zf.zip', 'name2')
     zes << entry1
     assert(zes.include?(entry1))
     zes.push(entry2)
@@ -88,7 +88,7 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_compound
-    newEntry = ::Zip::Entry.new("zf.zip", "new entry", "new entry's comment")
+    newEntry = ::Zip::Entry.new('zf.zip', 'new entry', "new entry's comment")
     assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
     @zipEntrySet << newEntry
     assert_equal(ZIP_ENTRIES.size + 1, @zipEntrySet.size)
@@ -103,15 +103,15 @@ class ZipEntrySetTest < MiniTest::Test
     assert_equal(@zipEntrySet, copy)
 
     # demonstrate that this is a deep copy
-    copy.entries[0].name = "a totally different name"
+    copy.entries[0].name = 'a totally different name'
     assert(@zipEntrySet != copy)
   end
 
   def test_parent
     entries = [
-      ::Zip::Entry.new("zf.zip", "a/"),
-      ::Zip::Entry.new("zf.zip", "a/b/"),
-      ::Zip::Entry.new("zf.zip", "a/b/c/")
+      ::Zip::Entry.new('zf.zip', 'a/'),
+      ::Zip::Entry.new('zf.zip', 'a/b/'),
+      ::Zip::Entry.new('zf.zip', 'a/b/c/')
     ]
     entrySet = ::Zip::EntrySet.new(entries)
 
@@ -128,14 +128,14 @@ class ZipEntrySetTest < MiniTest::Test
 
   def test_glob2
     entries = [
-      ::Zip::Entry.new("zf.zip", "a/"),
-      ::Zip::Entry.new("zf.zip", "a/b/b1"),
-      ::Zip::Entry.new("zf.zip", "a/b/c/"),
-      ::Zip::Entry.new("zf.zip", "a/b/c/c1")
+      ::Zip::Entry.new('zf.zip', 'a/'),
+      ::Zip::Entry.new('zf.zip', 'a/b/b1'),
+      ::Zip::Entry.new('zf.zip', 'a/b/c/'),
+      ::Zip::Entry.new('zf.zip', 'a/b/c/c1')
     ]
     entrySet = ::Zip::EntrySet.new(entries)
 
-    assert_equal(entries[0, 1], entrySet.glob("*"))
+    assert_equal(entries[0, 1], entrySet.glob('*'))
 #    assert_equal(entries[FIXME], entrySet.glob("**"))
 #    res = entrySet.glob('a*')
 #    assert_equal(entries.size, res.size)

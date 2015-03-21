@@ -2,7 +2,7 @@
 
 $VERBOSE=true
 
-$: << "../lib"
+$: << '../lib'
 
 require 'Qt'
 system('rbuic -o zipdialogui.rb zipdialogui.ui')
@@ -29,7 +29,7 @@ class ZipDialog < ZipDialogUI
   end
 
   def refresh
-    lv = child("entry_list_view")
+    lv = child('entry_list_view')
     lv.clear
     each do |e|
       lv.insert_item(Qt::ListViewItem.new(lv, e.name, e.size.to_s))
@@ -70,7 +70,7 @@ class ZipDialog < ZipDialogUI
 
     d = Qt::FileDialog.get_existing_directory(nil, self)
     if (!d)
-      puts "No directory chosen"
+      puts 'No directory chosen'
     else
       zipfile { |zf| items.each { |e| zf.extract(e, File.join(d, e)) } }
     end

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$: << "../lib"
+$: << '../lib'
 
 $VERBOSE = true
 
@@ -11,7 +11,7 @@ class MainApp < Gtk::Window
   def initialize
     super()
     set_usize(400, 256)
-    set_title("rubyzip")
+    set_title('rubyzip')
     signal_connect(Gtk::Window::SIGNAL_DESTROY) { Gtk.main_quit }
 
     box = Gtk::VBox.new(false, 0)
@@ -23,7 +23,7 @@ class MainApp < Gtk::Window
       show_file_selector
     end
     @buttonPanel.extractButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
-      puts "Not implemented!"
+      puts 'Not implemented!'
     end
     box.pack_start(@buttonPanel, false, false, 0)
 
@@ -47,15 +47,15 @@ class MainApp < Gtk::Window
       super
       set_layout(Gtk::BUTTONBOX_START)
       set_spacing(0)
-      @openButton = Gtk::Button.new("Open archive")
-      @extractButton = Gtk::Button.new("Extract entry")
+      @openButton = Gtk::Button.new('Open archive')
+      @extractButton = Gtk::Button.new('Extract entry')
       pack_start(@openButton)
       pack_start(@extractButton)
     end
   end
 
   def show_file_selector
-    @fileSelector = Gtk::FileSelection.new("Open zip file")
+    @fileSelector = Gtk::FileSelection.new('Open zip file')
     @fileSelector.show
     @fileSelector.ok_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       open_zip(@fileSelector.filename)
@@ -72,7 +72,7 @@ class MainApp < Gtk::Window
     @zipfile.each do |entry|
       @clist.append([ entry.name,
                       entry.size.to_s,
-                      (100.0*entry.compressedSize/entry.size).to_s+"%" ])
+                      (100.0*entry.compressedSize/entry.size).to_s+'%' ])
     end
   end
 end

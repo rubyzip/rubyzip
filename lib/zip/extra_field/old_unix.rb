@@ -1,7 +1,7 @@
 module Zip
   # Olf Info-ZIP Extra for UNIX uid/gid and file timestampes
   class ExtraField::OldUnix < ExtraField::Generic
-    HEADER_ID = "UX"
+    HEADER_ID = 'UX'
     register_map
 
     def initialize(binstr = nil)
@@ -19,7 +19,7 @@ module Zip
       size, content = initial_parse(binstr)
       # size: 0 for central directory. 4 for local header
       return if (!size || size == 0)
-      atime, mtime, uid, gid = content.unpack("VVvv")
+      atime, mtime, uid, gid = content.unpack('VVvv')
       @uid ||= uid
       @gid ||= gid
       @atime ||= atime
@@ -34,11 +34,11 @@ module Zip
     end
 
     def pack_for_local
-      [@atime, @mtime, @uid, @gid].pack("VVvv")
+      [@atime, @mtime, @uid, @gid].pack('VVvv')
     end
 
     def pack_for_c_dir
-      [@atime, @mtime].pack("VV")
+      [@atime, @mtime].pack('VV')
     end
   end
 end

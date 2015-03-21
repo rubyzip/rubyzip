@@ -34,7 +34,7 @@ module IOizeString
     when IO::SEEK_CUR
       newPos = @tell + index
     else
-      raise "Error in test method IOizeString::seek"
+      raise 'Error in test method IOizeString::seek'
     end
     if (newPos < 0 || newPos >= size)
       raise Errno::EINVAL
@@ -51,7 +51,7 @@ end
 module DecompressorTests
   # expects @refText, @refLines and @decompressor
 
-  TEST_FILE = "test/data/file1.txt"
+  TEST_FILE = 'test/data/file1.txt'
 
   def setup
     @refText = ''
@@ -95,13 +95,13 @@ module AssertEntry
   end
 
   def assert_entryContentsForStream(filename, zis, entryName)
-    File.open(filename, "rb") do |file|
+    File.open(filename, 'rb') do |file|
       expected = file.read
       actual = zis.read
       if (expected != actual)
         if ((expected && actual) && (expected.length > 400 || actual.length > 400))
-          zipEntryFilename=entryName+".zipEntry"
-          File.open(zipEntryFilename, "wb") { |entryfile| entryfile << actual }
+          zipEntryFilename=entryName+'.zipEntry'
+          File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
           fail("File '#{filename}' is different from '#{zipEntryFilename}'")
         else
           assert_equal(expected, actual)
@@ -111,12 +111,12 @@ module AssertEntry
   end
 
   def AssertEntry.assert_contents(filename, aString)
-    fileContents = ""
-    File.open(filename, "rb") { |f| fileContents = f.read }
+    fileContents = ''
+    File.open(filename, 'rb') { |f| fileContents = f.read }
     if (fileContents != aString)
       if (fileContents.length > 400 || aString.length > 400)
-        stringFile = filename + ".other"
-        File.open(stringFile, "wb") { |f| f << aString }
+        stringFile = filename + '.other'
+        File.open(stringFile, 'wb') { |f| f << aString }
         fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
       else
         assert_equal(fileContents, aString)
@@ -153,7 +153,7 @@ module CrcTest
     attr_accessor :buffer
 
     def initialize
-      @buffer = ""
+      @buffer = ''
     end
 
     def << (data)
@@ -185,10 +185,10 @@ end
 module CommonZipFileFixture
   include AssertEntry
 
-  EMPTY_FILENAME = "emptyZipFile.zip"
+  EMPTY_FILENAME = 'emptyZipFile.zip'
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-  TEST_ZIP.zip_name = "test/data/generated/5entry_copy.zip"
+  TEST_ZIP.zip_name = 'test/data/generated/5entry_copy.zip'
 
   def setup
     File.delete(EMPTY_FILENAME) if File.exist?(EMPTY_FILENAME)

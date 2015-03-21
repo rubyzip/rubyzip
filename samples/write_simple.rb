@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$: << "../lib"
+$: << '../lib'
 
 require 'zip'
 
@@ -8,5 +8,5 @@ include Zip
 
 OutputStream.open('simple.zip') do |zos|
   zos.put_next_entry 'entry.txt'
-  zos.puts "Hello world"
+  zos.puts 'Hello world'
 end

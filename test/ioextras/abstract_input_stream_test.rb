@@ -6,7 +6,7 @@ class AbstractInputStreamTest < MiniTest::Test
 
   TEST_LINES = ["Hello world#{$/}",
                 "this is the second line#{$/}",
-                "this is the last line"]
+                'this is the last line']
   TEST_STRING = TEST_LINES.join
   class TestAbstractInputStream
     include ::Zip::IOExtras::AbstractInputStream
@@ -49,8 +49,8 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   def test_getsMultiCharSeperator
-    assert_equal("Hell", @io.gets("ll"))
-    assert_equal("o world#{$/}this is the second l", @io.gets("d l"))
+    assert_equal('Hell', @io.gets('ll'))
+    assert_equal("o world#{$/}this is the second l", @io.gets('d l'))
   end
 
   LONG_LINES = [
@@ -95,7 +95,7 @@ class AbstractInputStreamTest < MiniTest::Test
     test_gets
     begin
       @io.readline
-      fail "EOFError expected"
+      fail 'EOFError expected'
     rescue EOFError
     end
   end

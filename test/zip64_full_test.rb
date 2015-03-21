@@ -44,7 +44,7 @@ if ENV['FULL_ZIP64_TEST']
       # note: if this fails, be sure you have UnZip version 6.0 or newer
       # as this is the first version to support zip64 extensions
       # but some OSes (*cough* OSX) still bundle a 5.xx release
-      assert system("unzip -t #{test_filename}"), "third-party zip validation failed"
+      assert system("unzip -t #{test_filename}"), 'third-party zip validation failed'
     end
   end
 

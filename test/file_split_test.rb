@@ -2,9 +2,9 @@ require 'test_helper'
 
 class ZipFileSplitTest < MiniTest::Test
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-  TEST_ZIP.zip_name = "large_zip_file.zip"
-  EXTRACTED_FILENAME = "test/data/generated/extEntrySplit"
-  UNSPLITTED_FILENAME = "test/data/generated/unsplitted.zip"
+  TEST_ZIP.zip_name = 'large_zip_file.zip'
+  EXTRACTED_FILENAME = 'test/data/generated/extEntrySplit'
+  UNSPLITTED_FILENAME = 'test/data/generated/unsplitted.zip'
   ENTRY_TO_EXTRACT = TEST_ZIP.entry_names.first
 
   def setup
@@ -21,7 +21,7 @@ class ZipFileSplitTest < MiniTest::Test
   end
 
   def test_split_method_respond
-    assert_respond_to ::Zip::File, :split, "Does not have split class method"
+    assert_respond_to ::Zip::File, :split, 'Does not have split class method'
   end
 
   def test_split

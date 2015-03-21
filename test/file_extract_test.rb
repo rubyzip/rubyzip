@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ZipFileExtractTest < MiniTest::Test
   include CommonZipFileFixture
-  EXTRACTED_FILENAME = "test/data/generated/extEntry"
+  EXTRACTED_FILENAME = 'test/data/generated/extEntry'
   ENTRY_TO_EXTRACT, *REMAINING_ENTRIES = TEST_ZIP.entry_names.reverse
 
   def setup
@@ -30,22 +30,22 @@ class ZipFileExtractTest < MiniTest::Test
   end
 
   def test_extractExists
-    writtenText = "written text"
-    ::File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
+    writtenText = 'written text'
+    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(writtenText) }
 
     assert_raises(::Zip::DestinationFileExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.extract(zf.entries.first, EXTRACTED_FILENAME)
       end
     end
-    File.open(EXTRACTED_FILENAME, "r") do |f|
+    File.open(EXTRACTED_FILENAME, 'r') do |f|
       assert_equal(writtenText, f.read)
     end
   end
 
   def test_extractExistsOverwrite
-    writtenText = "written text"
-    ::File.open(EXTRACTED_FILENAME, "w") { |f| f.write(writtenText) }
+    writtenText = 'written text'
+    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(writtenText) }
 
     gotCalledCorrectly = false
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
@@ -57,23 +57,23 @@ class ZipFileExtractTest < MiniTest::Test
     end
 
     assert(gotCalledCorrectly)
-    ::File.open(EXTRACTED_FILENAME, "r") do |f|
+    ::File.open(EXTRACTED_FILENAME, 'r') do |f|
       assert(writtenText != f.read)
     end
   end
 
   def test_extractNonEntry
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
-    assert_raises(Errno::ENOENT) { zf.extract("nonExistingEntry", "nonExistingEntry") }
+    assert_raises(Errno::ENOENT) { zf.extract('nonExistingEntry', 'nonExistingEntry') }
   ensure
     zf.close if zf
   end
 
   def test_extractNonEntry2
-    outFile = "outfile"
+    outFile = 'outfile'
     assert_raises(Errno::ENOENT) do
       zf = ::Zip::File.new(TEST_ZIP.zip_name)
-      nonEntry = "hotdog-diddelidoo"
+      nonEntry = 'hotdog-diddelidoo'
       assert(!zf.entries.include?(nonEntry))
       zf.extract(nonEntry, outFile)
       zf.close

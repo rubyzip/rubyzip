@@ -7,7 +7,7 @@ module Zip
     end
 
     def self.name
-      @name ||= self.to_s.split("::")[-1]
+      @name ||= self.to_s.split('::')[-1]
     end
 
     # return field [size, content] or false
@@ -16,10 +16,10 @@ module Zip
         # If nil, start with empty.
         return false
       elsif binstr[0, 2] != self.class.const_get(:HEADER_ID)
-        $stderr.puts "Warning: weired extra feild header ID. skip parsing"
+        $stderr.puts 'Warning: weired extra feild header ID. skip parsing'
         return false
       end
-      [binstr[2, 2].unpack("v")[0], binstr[4..-1]]
+      [binstr[2, 2].unpack('v')[0], binstr[4..-1]]
     end
 
     def ==(other)
@@ -32,12 +32,12 @@ module Zip
 
     def to_local_bin
       s = pack_for_local
-      self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") << s
+      self.class.const_get(:HEADER_ID) + [s.bytesize].pack('v') << s
     end
 
     def to_c_dir_bin
       s = pack_for_c_dir
-      self.class.const_get(:HEADER_ID) + [s.bytesize].pack("v") << s
+      self.class.const_get(:HEADER_ID) + [s.bytesize].pack('v') << s
     end
   end
 end

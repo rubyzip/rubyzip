@@ -3,7 +3,7 @@ module Zip
     include Singleton
 
     def <<(_data)
-      raise IOError, "closed stream"
+      raise IOError, 'closed stream'
     end
 
     attr_reader :size, :compressed_size

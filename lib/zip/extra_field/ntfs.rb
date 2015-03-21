@@ -27,7 +27,7 @@ module Zip
 
       tag1 = tags[1]
       if tag1
-        ntfs_mtime, ntfs_atime, ntfs_ctime = tag1.unpack("Q<Q<Q<")
+        ntfs_mtime, ntfs_atime, ntfs_ctime = tag1.unpack('Q<Q<Q<')
         ntfs_mtime && @mtime ||= from_ntfs_time(ntfs_mtime)
         ntfs_atime && @atime ||= from_ntfs_time(ntfs_atime)
         ntfs_ctime && @ctime ||= from_ntfs_time(ntfs_ctime)
@@ -48,7 +48,7 @@ module Zip
     # But 7-zip for Windows only stores at central dir
     def pack_for_c_dir
       # reserved 0 and tag 1
-      s = [0, 1].pack("Vv")
+      s = [0, 1].pack('Vv')
 
       tag1 = ''.force_encoding(Encoding::BINARY)
       if @mtime

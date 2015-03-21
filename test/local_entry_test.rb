@@ -9,7 +9,7 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_read_local_entryHeaderOfFirstTestZipEntry
-    ::File.open(TestZipFile::TEST_ZIP3.zip_name, "rb") do |file|
+    ::File.open(TestZipFile::TEST_ZIP3.zip_name, 'rb') do |file|
       entry = ::Zip::Entry.read_local_entry(file)
 
       assert_equal('', entry.comment)
@@ -27,34 +27,34 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_readDateTime
-    ::File.open("test/data/rubycode.zip", "rb") do
+    ::File.open('test/data/rubycode.zip', 'rb') do
         |file|
       entry = ::Zip::Entry.read_local_entry(file)
-      assert_equal("zippedruby1.rb", entry.name)
+      assert_equal('zippedruby1.rb', entry.name)
       assert_equal(::Zip::DOSTime.at(1019261638), entry.time)
     end
   end
 
   def test_read_local_entryFromNonZipFile
-    ::File.open("test/data/file2.txt") do
+    ::File.open('test/data/file2.txt') do
         |file|
       assert_equal(nil, ::Zip::Entry.read_local_entry(file))
     end
   end
 
   def test_read_local_entryFromTruncatedZipFile
-    zipFragment=""
+    zipFragment=''
     ::File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
     zipFragment.extend(IOizeString).reset
     entry = ::Zip::Entry.new
     entry.read_local_entry(zipFragment)
-    fail "ZipError expected"
+    fail 'ZipError expected'
   rescue ::Zip::Error
   end
 
   def test_writeEntry
-    entry = ::Zip::Entry.new("file.zip", "entryName", "my little comment",
-                             "thisIsSomeExtraInformation", 100, 987654,
+    entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
+                             'thisIsSomeExtraInformation', 100, 987654,
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file(LEH_FILE, CEH_FILE, entry)
     entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
@@ -65,8 +65,8 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_writeEntryWithZip64
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new("file.zip", "entryName", "my little comment",
-                             "thisIsSomeExtraInformation", 100, 987654,
+    entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
+                             'thisIsSomeExtraInformation', 100, 987654,
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file(LEH_FILE, CEH_FILE, entry)
     entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
@@ -79,8 +79,8 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_write64Entry
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new("bigfile.zip", "entryName", "my little equine",
-                             "malformed extra field because why not",
+    entry = ::Zip::Entry.new('bigfile.zip', 'entryName', 'my little equine',
+                             'malformed extra field because why not',
                              0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
                              0x9988776655443322)
     write_to_file(LEH_FILE, CEH_FILE, entry)
@@ -92,9 +92,9 @@ class ZipLocalEntryTest < MiniTest::Test
   def test_rewriteLocalHeader64
     ::Zip.write_zip64_support = true
     buf1 = StringIO.new
-    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry = ::Zip::Entry.new('file.zip', 'entryName')
     entry.write_local_entry(buf1)
-    assert(entry.extra['Zip64'].nil?, "zip64 extra is unnecessarily present")
+    assert(entry.extra['Zip64'].nil?, 'zip64 extra is unnecessarily present')
 
     buf2 = StringIO.new
     entry.size = 0x123456789ABCDEF0
@@ -106,7 +106,7 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_readLocalOffset
-    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry = ::Zip::Entry.new('file.zip', 'entryName')
     entry.local_header_offset = 12345
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
@@ -116,7 +116,7 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_read64LocalOffset
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry = ::Zip::Entry.new('file.zip', 'entryName')
     entry.local_header_offset = 0x0123456789ABCDEF
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
@@ -142,15 +142,15 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def write_to_file(localFileName, centralFileName, entry)
-    ::File.open(localFileName, "wb") { |f| entry.write_local_entry(f) }
-    ::File.open(centralFileName, "wb") { |f| entry.write_c_dir_entry(f) }
+    ::File.open(localFileName, 'wb') { |f| entry.write_local_entry(f) }
+    ::File.open(centralFileName, 'wb') { |f| entry.write_c_dir_entry(f) }
   end
 
   def read_from_file(localFileName, centralFileName)
     localEntry = nil
     cdirEntry = nil
-    ::File.open(localFileName, "rb") { |f| localEntry = ::Zip::Entry.read_local_entry(f) }
-    ::File.open(centralFileName, "rb") { |f| cdirEntry = ::Zip::Entry.read_c_dir_entry(f) }
+    ::File.open(localFileName, 'rb') { |f| localEntry = ::Zip::Entry.read_local_entry(f) }
+    ::File.open(centralFileName, 'rb') { |f| cdirEntry = ::Zip::Entry.read_c_dir_entry(f) }
     [localEntry, cdirEntry]
   end
 end

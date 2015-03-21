@@ -46,15 +46,15 @@ module Zip
         end
         header << (mtime.to_binary_dos_time & 0xff)
         header << (mtime.to_binary_dos_time >> 8)
-      end.map{|x| encode x}.pack("C*")
+      end.map{|x| encode x}.pack('C*')
     end
 
     def encrypt(data)
-      data.unpack("C*").map{|x| encode x}.pack("C*")
+      data.unpack('C*').map{|x| encode x}.pack('C*')
     end
 
     def data_descriptor(crc32, compressed_size, uncomprssed_size)
-      [0x08074b50, crc32, compressed_size, uncomprssed_size].pack("VVVV")
+      [0x08074b50, crc32, compressed_size, uncomprssed_size].pack('VVVV')
     end
 
     def reset!
@@ -74,7 +74,7 @@ module Zip
     include TraditionalEncryption
 
     def decrypt(data)
-      data.unpack("C*").map{|x| decode x}.pack("C*")
+      data.unpack('C*').map{|x| decode x}.pack('C*')
     end
 
     def reset!(header)

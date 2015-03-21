@@ -223,7 +223,7 @@ module Zip
       static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
 
       unless static_sized_fields_buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
-        raise Error, "Premature end of file. Not enough data for zip entry local header"
+        raise Error, 'Premature end of file. Not enough data for zip entry local header'
       end
 
       unpack_local_entry(static_sized_fields_buf)
@@ -239,7 +239,7 @@ module Zip
       @name.gsub!('\\', '/')
 
       if extra && extra.bytesize != @extra_length
-        raise ::Zip::Error, "Truncated local zip entry header"
+        raise ::Zip::Error, 'Truncated local zip entry header'
       else
         if ::Zip::ExtraField === @extra
           @extra.merge(extra)
@@ -345,7 +345,7 @@ module Zip
 
     def check_c_dir_entry_comment_size
       unless @comment && @comment.bytesize == @comment_length
-        raise ::Zip::Error, "Truncated cdir zip entry header"
+        raise ::Zip::Error, 'Truncated cdir zip entry header'
       end
     end
 
@@ -557,7 +557,7 @@ module Zip
       if @zipfile.is_a?(::IO) || @zipfile.is_a?(::StringIO)
         yield @zipfile
       else
-        ::File.open(@zipfile, "rb", &block)
+        ::File.open(@zipfile, 'rb', &block)
       end
     end
 
@@ -570,7 +570,7 @@ module Zip
     def set_time(binary_dos_date, binary_dos_time)
       @time = ::Zip::DOSTime.parse_binary_dos_format(binary_dos_date, binary_dos_time)
     rescue ArgumentError
-      puts "Invalid date/time in zip entry" if ::Zip.warn_invalid_date
+      puts 'Invalid date/time in zip entry' if ::Zip.warn_invalid_date
     end
 
     def create_file(dest_path, _continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
@@ -578,7 +578,7 @@ module Zip
         raise ::Zip::DestinationFileExistsError,
               "Destination '#{dest_path}' already exists"
       end
-      ::File.open(dest_path, "wb") do |os|
+      ::File.open(dest_path, 'wb') do |os|
         get_input_stream do |is|
           set_extra_attributes_on_path(dest_path)
 
@@ -598,7 +598,7 @@ module Zip
         else
           raise ::Zip::DestinationFileExistsError,
                 "Cannot create directory '#{dest_path}'. "+
-                  "A file already exists with that name"
+                  'A file already exists with that name'
         end
       end
       ::FileUtils.mkdir_p(dest_path)
@@ -623,12 +623,12 @@ module Zip
           else
             raise ::Zip::DestinationFileExistsError,
                   "Cannot create symlink '#{dest_path}'. "+
-                    "A symlink already exists with that name"
+                    'A symlink already exists with that name'
           end
         else
           raise ::Zip::DestinationFileExistsError,
                 "Cannot create symlink '#{dest_path}'. "+
-                  "A file already exists with that name"
+                  'A file already exists with that name'
         end
       end
 

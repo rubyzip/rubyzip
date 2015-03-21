@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-$: << "../lib"
+$: << '../lib'
 
 require 'zip'
 require 'find'

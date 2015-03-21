@@ -102,8 +102,8 @@ module Zip
 
         def gid
           e = get_entry
-          if e.extra.member? "IUnix"
-            e.extra["IUnix"].gid || 0
+          if e.extra.member? 'IUnix'
+            e.extra['IUnix'].gid || 0
           else
             0
           end
@@ -111,8 +111,8 @@ module Zip
 
         def uid
           e = get_entry
-          if e.extra.member? "IUnix"
-            e.extra["IUnix"].uid || 0
+          if e.extra.member? 'IUnix'
+            e.extra['IUnix'].uid || 0
           else
             0
           end
@@ -130,11 +130,11 @@ module Zip
 
         def ftype
           if file?
-            return "file"
+            return 'file'
           elsif directory?
-            return "directory"
+            return 'directory'
           else
-            raise StandardError, "Unknown file type"
+            raise StandardError, 'Unknown file type'
           end
         end
 
@@ -175,7 +175,7 @@ module Zip
       private :unix_mode_cmp
 
       def exists?(fileName)
-        expand_path(fileName) == "/" || @mappedZip.find_entry(fileName) != nil
+        expand_path(fileName) == '/' || @mappedZip.find_entry(fileName) != nil
       end
       alias_method :exist?, :exists?
 
@@ -215,27 +215,27 @@ module Zip
       end
 
       def truncate(_fileName, _len)
-        raise StandardError, "truncate not supported"
+        raise StandardError, 'truncate not supported'
       end
 
       def directory?(fileName)
         entry = @mappedZip.find_entry(fileName)
-        expand_path(fileName) == "/" || (entry != nil && entry.directory?)
+        expand_path(fileName) == '/' || (entry != nil && entry.directory?)
       end
 
-      def open(fileName, openMode = "r", permissionInt = 0644, &block)
-        openMode.gsub!("b", "") # ignore b option
+      def open(fileName, openMode = 'r', permissionInt = 0644, &block)
+        openMode.gsub!('b', '') # ignore b option
         case openMode
-        when "r"
+        when 'r'
           @mappedZip.get_input_stream(fileName, &block)
-        when "w"
+        when 'w'
           @mappedZip.get_output_stream(fileName, permissionInt, &block)
         else
-          raise StandardError, "openmode '#{openMode} not supported" unless openMode == "r"
+          raise StandardError, "openmode '#{openMode} not supported" unless openMode == 'r'
         end
       end
 
-      def new(fileName, openMode = "r")
+      def new(fileName, openMode = 'r')
         open(fileName, openMode)
       end
 
@@ -252,11 +252,11 @@ module Zip
       def chown(ownerInt, groupInt, *filenames)
         filenames.each do |fileName|
           e = get_entry(fileName)
-          unless e.extra.member?("IUnix")
-            e.extra.create("IUnix")
+          unless e.extra.member?('IUnix')
+            e.extra.create('IUnix')
           end
-          e.extra["IUnix"].uid = ownerInt
-          e.extra["IUnix"].gid = groupInt
+          e.extra['IUnix'].uid = ownerInt
+          e.extra['IUnix'].gid = groupInt
         end
         filenames.size
       end
@@ -312,10 +312,10 @@ module Zip
 
       def atime(fileName)
         e = get_entry(fileName)
-        if e.extra.member? "UniversalTime"
-          e.extra["UniversalTime"].atime
-        elsif e.extra.member? "NTFS"
-          e.extra["NTFS"].atime
+        if e.extra.member? 'UniversalTime'
+          e.extra['UniversalTime'].atime
+        elsif e.extra.member? 'NTFS'
+          e.extra['NTFS'].atime
         else
           nil
         end
@@ -323,10 +323,10 @@ module Zip
 
       def ctime(fileName)
         e = get_entry(fileName)
-        if e.extra.member? "UniversalTime"
-          e.extra["UniversalTime"].ctime
-        elsif e.extra.member? "NTFS"
-          e.extra["NTFS"].ctime
+        if e.extra.member? 'UniversalTime'
+          e.extra['UniversalTime'].ctime
+        elsif e.extra.member? 'NTFS'
+          e.extra['NTFS'].ctime
         else
           nil
         end
@@ -353,23 +353,23 @@ module Zip
       end
 
       def ftype(fileName)
-        @mappedZip.get_entry(fileName).directory? ? "directory" : "file"
+        @mappedZip.get_entry(fileName).directory? ? 'directory' : 'file'
       end
 
       def readlink(_fileName)
-        raise NotImplementedError, "The readlink() function is not implemented"
+        raise NotImplementedError, 'The readlink() function is not implemented'
       end
 
       def symlink(_fileName, _symlinkName)
-        raise NotImplementedError, "The symlink() function is not implemented"
+        raise NotImplementedError, 'The symlink() function is not implemented'
       end
 
       def link(_fileName, _symlinkName)
-        raise NotImplementedError, "The link() function is not implemented"
+        raise NotImplementedError, 'The link() function is not implemented'
       end
 
       def pipe
-        raise NotImplementedError, "The pipe() function is not implemented"
+        raise NotImplementedError, 'The pipe() function is not implemented'
       end
 
       def stat(fileName)
@@ -495,7 +495,7 @@ module Zip
       end
 
       def chroot(*_args)
-        raise NotImplementedError, "The chroot() function is not implemented"
+        raise NotImplementedError, 'The chroot() function is not implemented'
       end
     end
 
@@ -512,27 +512,27 @@ module Zip
       end
 
       def each(&aProc)
-        raise IOError, "closed directory" if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames == nil
         @fileNames.each(&aProc)
       end
 
       def read
-        raise IOError, "closed directory" if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames == nil
         @fileNames[(@index+=1)-1]
       end
 
       def rewind
-        raise IOError, "closed directory" if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames == nil
         @index = 0
       end
 
       def seek(anIntegerPosition)
-        raise IOError, "closed directory" if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames == nil
         @index = anIntegerPosition
       end
 
       def tell
-        raise IOError, "closed directory" if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames == nil
         @index
       end
     end
@@ -544,7 +544,7 @@ module Zip
 
       def initialize(zipFile)
         @zipFile = zipFile
-        @pwd = "/"
+        @pwd = '/'
       end
 
       attr_accessor :pwd
@@ -586,15 +586,15 @@ module Zip
       # and removes trailing slash on directories
       def each
         @zipFile.each do |e|
-          yield("/"+e.to_s.chomp("/"))
+          yield('/'+e.to_s.chomp('/'))
         end
       end
 
       def expand_path(aPath)
-        expanded = aPath.start_with?("/") ? aPath : ::File.join(@pwd, aPath)
-        expanded.gsub!(/\/\.(\/|$)/, "")
-        expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, "")
-        expanded.empty? ? "/" : expanded
+        expanded = aPath.start_with?('/') ? aPath : ::File.join(@pwd, aPath)
+        expanded.gsub!(/\/\.(\/|$)/, '')
+        expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, '')
+        expanded.empty? ? '/' : expanded
       end
 
       private

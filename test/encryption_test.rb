@@ -26,7 +26,7 @@ class EncryptionTest < MiniTest::Test
       end
     end
 
-    @output.unpack("C*").each_with_index do |c, i|
+    @output.unpack('C*').each_with_index do |c, i|
       assert_equal test_file[i].ord, c
     end
   end

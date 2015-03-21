@@ -33,7 +33,7 @@ module Zip
                          iostream.rewind
                          iostream
                        else
-                         ::File.new(@file_name, "wb")
+                         ::File.new(@file_name, 'wb')
                        end
       @entry_set = ::Zip::EntrySet.new
       @compressor = ::Zip::NullCompressor.instance
@@ -86,7 +86,7 @@ module Zip
     # Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
     def put_next_entry(entry_name, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zip.default_compression)
-      raise Error, "zip stream is closed" if @closed
+      raise Error, 'zip stream is closed' if @closed
       if entry_name.kind_of?(Entry)
         new_entry = entry_name
       else
@@ -103,8 +103,8 @@ module Zip
 
     def copy_raw_entry(entry)
       entry = entry.dup
-      raise Error, "zip stream is closed" if @closed
-      raise Error, "entry is not a ZipEntry" unless entry.is_a?(Entry)
+      raise Error, 'zip stream is closed' if @closed
+      raise Error, 'entry is not a ZipEntry' unless entry.is_a?(Entry)
       finalize_current_entry
       @entry_set << entry
       src_pos = entry.local_header_offset

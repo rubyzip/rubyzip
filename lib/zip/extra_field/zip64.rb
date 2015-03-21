@@ -51,16 +51,16 @@ module Zip
     def pack_for_local
       # local header entries must contain original size and compressed size; other fields do not apply
       return '' unless @original_size && @compressed_size
-      [@original_size, @compressed_size].pack("Q<Q<")
+      [@original_size, @compressed_size].pack('Q<Q<')
     end
 
     def pack_for_c_dir
       # central directory entries contain only fields that didn't fit in the main entry part
       packed = ''.force_encoding('BINARY')
-      packed << [@original_size].pack("Q<") if @original_size
-      packed << [@compressed_size].pack("Q<") if @compressed_size
-      packed << [@relative_header_offset].pack("Q<") if @relative_header_offset
-      packed << [@disk_start_number].pack("V") if @disk_start_number
+      packed << [@original_size].pack('Q<') if @original_size
+      packed << [@compressed_size].pack('Q<') if @compressed_size
+      packed << [@relative_header_offset].pack('Q<') if @relative_header_offset
+      packed << [@disk_start_number].pack('V') if @disk_start_number
       packed
     end
   end
