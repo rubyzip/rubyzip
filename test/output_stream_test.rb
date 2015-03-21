@@ -109,7 +109,6 @@ class ZipOutputStreamTest < MiniTest::Test
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(stored_text + stored_text2, zf.read(entry_name))
     end
-
   end
 
   def assert_i_o_error_in_closed_stream

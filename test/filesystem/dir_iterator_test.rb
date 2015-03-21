@@ -25,7 +25,6 @@ class ZipFsDirIteratorTest < MiniTest::Test
     assert_raises(IOError, "closed directory") do
       @dirIt.tell
     end
-
   end
 
   def test_each

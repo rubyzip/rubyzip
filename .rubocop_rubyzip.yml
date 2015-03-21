@@ -110,11 +110,6 @@ Style/ElseAlignment:
 Style/EmptyElse:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/EmptyLinesAroundMethodBody:
-  Enabled: false
-
 # Offense count: 13
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

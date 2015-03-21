@@ -31,7 +31,6 @@ class ZipFileGenerator
   private
 
   def writeEntries(entries, path, io)
-
     entries.each do |e|
       zipFilePath = path == "" ? e : File.join(path, e)
       diskFilePath = File.join(@inputDir, zipFilePath)

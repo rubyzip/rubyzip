@@ -74,7 +74,6 @@ class ZipDialog < ZipDialogUI
     else
       zipfile { |zf| items.each { |e| zf.extract(e, File.join(d, e)) } }
     end
-
   end
 
   slots 'add_files()', 'extract_files()'
