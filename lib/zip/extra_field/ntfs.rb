@@ -12,7 +12,7 @@ module Zip
       @ctime = nil
       @mtime = nil
       @atime = nil
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     attr_accessor :atime, :ctime, :mtime
@@ -20,7 +20,7 @@ module Zip
     def merge(binstr)
       return if binstr.empty?
       size, content = initial_parse(binstr)
-      (size && content) or return
+      (size && content) || return
 
       content = content[4..-1]
       tags = parse_tags(content)
@@ -28,9 +28,9 @@ module Zip
       tag1 = tags[1]
       if tag1
         ntfs_mtime, ntfs_atime, ntfs_ctime = tag1.unpack("Q<Q<Q<")
-        ntfs_mtime and @mtime ||= from_ntfs_time(ntfs_mtime)
-        ntfs_atime and @atime ||= from_ntfs_time(ntfs_atime)
-        ntfs_ctime and @ctime ||= from_ntfs_time(ntfs_ctime)
+        ntfs_mtime && @mtime ||= from_ntfs_time(ntfs_mtime)
+        ntfs_atime && @atime ||= from_ntfs_time(ntfs_atime)
+        ntfs_ctime && @ctime ||= from_ntfs_time(ntfs_ctime)
       end
     end
 

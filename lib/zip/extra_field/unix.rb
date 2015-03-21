@@ -7,7 +7,7 @@ module Zip
     def initialize(binstr = nil)
       @uid = 0
       @gid = 0
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     attr_accessor :uid, :gid

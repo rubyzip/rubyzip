@@ -13,7 +13,7 @@ module Zip
       @compressed_size        = nil
       @relative_header_offset = nil
       @disk_start_number      = nil
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     def ==(other)

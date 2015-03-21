@@ -9,7 +9,7 @@ module Zip
       @gid = 0
       @atime = nil
       @mtime = nil
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     attr_accessor :uid, :gid, :atime, :mtime
