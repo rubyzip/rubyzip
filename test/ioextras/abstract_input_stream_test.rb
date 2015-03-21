@@ -54,9 +54,9 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   LONG_LINES = [
-      'x'*48 + "\r\n",
-      'y'*49 + "\r\n",
-      'rest'
+    'x'*48 + "\r\n",
+    'y'*49 + "\r\n",
+    'rest'
   ]
 
   def test_getsMulitCharSeperator_split

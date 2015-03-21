@@ -93,12 +93,12 @@ class ZipEntryTest < MiniTest::Test
     assert_equal(-1, (::Zip::Entry.new("zf.zip", "a") <=> ::Zip::Entry.new("zf.zip", "b")))
 
     entries = [
-        ::Zip::Entry.new("zf.zip", "5"),
-        ::Zip::Entry.new("zf.zip", "1"),
-        ::Zip::Entry.new("zf.zip", "3"),
-        ::Zip::Entry.new("zf.zip", "4"),
-        ::Zip::Entry.new("zf.zip", "0"),
-        ::Zip::Entry.new("zf.zip", "2")
+      ::Zip::Entry.new("zf.zip", "5"),
+      ::Zip::Entry.new("zf.zip", "1"),
+      ::Zip::Entry.new("zf.zip", "3"),
+      ::Zip::Entry.new("zf.zip", "4"),
+      ::Zip::Entry.new("zf.zip", "0"),
+      ::Zip::Entry.new("zf.zip", "2")
     ]
 
     entries.sort!

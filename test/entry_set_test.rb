@@ -2,12 +2,12 @@ require 'test_helper'
 
 class ZipEntrySetTest < MiniTest::Test
   ZIP_ENTRIES = [
-      ::Zip::Entry.new("zipfile.zip", "name1", "comment1"),
-      ::Zip::Entry.new("zipfile.zip", "name3", "comment1"),
-      ::Zip::Entry.new("zipfile.zip", "name2", "comment1"),
-      ::Zip::Entry.new("zipfile.zip", "name4", "comment1"),
-      ::Zip::Entry.new("zipfile.zip", "name5", "comment1"),
-      ::Zip::Entry.new("zipfile.zip", "name6", "comment1")
+    ::Zip::Entry.new("zipfile.zip", "name1", "comment1"),
+    ::Zip::Entry.new("zipfile.zip", "name3", "comment1"),
+    ::Zip::Entry.new("zipfile.zip", "name2", "comment1"),
+    ::Zip::Entry.new("zipfile.zip", "name4", "comment1"),
+    ::Zip::Entry.new("zipfile.zip", "name5", "comment1"),
+    ::Zip::Entry.new("zipfile.zip", "name6", "comment1")
   ]
 
   def setup
@@ -109,9 +109,9 @@ class ZipEntrySetTest < MiniTest::Test
 
   def test_parent
     entries = [
-        ::Zip::Entry.new("zf.zip", "a/"),
-        ::Zip::Entry.new("zf.zip", "a/b/"),
-        ::Zip::Entry.new("zf.zip", "a/b/c/")
+      ::Zip::Entry.new("zf.zip", "a/"),
+      ::Zip::Entry.new("zf.zip", "a/b/"),
+      ::Zip::Entry.new("zf.zip", "a/b/c/")
     ]
     entrySet = ::Zip::EntrySet.new(entries)
 
@@ -128,10 +128,10 @@ class ZipEntrySetTest < MiniTest::Test
 
   def test_glob2
     entries = [
-        ::Zip::Entry.new("zf.zip", "a/"),
-        ::Zip::Entry.new("zf.zip", "a/b/b1"),
-        ::Zip::Entry.new("zf.zip", "a/b/c/"),
-        ::Zip::Entry.new("zf.zip", "a/b/c/c1")
+      ::Zip::Entry.new("zf.zip", "a/"),
+      ::Zip::Entry.new("zf.zip", "a/b/b1"),
+      ::Zip::Entry.new("zf.zip", "a/b/c/"),
+      ::Zip::Entry.new("zf.zip", "a/b/c/c1")
     ]
     entrySet = ::Zip::EntrySet.new(entries)
 
