@@ -250,11 +250,6 @@ Style/PercentLiteralDelimiters:
 Style/PredicateName:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Enabled: false
-
 # Offense count: 3
 # Configuration parameters: MaxSlashes.
 Style/RegexpLiteral:

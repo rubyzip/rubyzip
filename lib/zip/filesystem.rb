@@ -165,12 +165,10 @@ module Zip
       private :get_entry
 
       def unix_mode_cmp(fileName, mode)
-        begin
-          e = get_entry(fileName)
-          e.fstype == 3 && ((e.external_file_attributes >> 16) & mode ) != 0
-        rescue Errno::ENOENT
-          false
-        end
+        e = get_entry(fileName)
+        e.fstype == 3 && ((e.external_file_attributes >> 16) & mode ) != 0
+      rescue Errno::ENOENT
+        false
       end
       private :unix_mode_cmp
 
