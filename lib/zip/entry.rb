@@ -471,7 +471,7 @@ module Zip
       keys_equal && time.dos_equals(other.time)
     end
 
-    def <=> (other)
+    def <=>(other)
       to_s <=> other.to_s
     end
 

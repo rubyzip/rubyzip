@@ -10,7 +10,7 @@ module Zip
       @buffer_stream = ::StringIO.new('')
     end
 
-    def << (data)
+    def <<(data)
       val   = data.to_s
       @crc  = Zlib.crc32(val, @crc)
       @size += val.bytesize

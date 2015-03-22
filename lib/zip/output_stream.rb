@@ -177,7 +177,7 @@ module Zip
     public
 
     # Modeled after IO.<<
-    def << (data)
+    def <<(data)
       @compressor << data
       self
     end

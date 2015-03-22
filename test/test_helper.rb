@@ -156,7 +156,7 @@ module CrcTest
       @buffer = ''
     end
 
-    def << (data)
+    def <<(data)
       @buffer << data
       self
     end

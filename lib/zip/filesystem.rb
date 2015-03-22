@@ -275,7 +275,7 @@ module Zip
         filenames.size
       end
 
-      def chmod (modeInt, *filenames)
+      def chmod(modeInt, *filenames)
         filenames.each do |fileName|
           e = get_entry(fileName)
           e.fstype = 3 # force convertion filesystem type to unix
