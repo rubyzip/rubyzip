@@ -255,11 +255,6 @@ Style/PredicateName:
 Style/RedundantBegin:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RedundantException:
-  Enabled: false
-
 # Offense count: 3
 # Configuration parameters: MaxSlashes.
 Style/RegexpLiteral:

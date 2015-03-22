@@ -153,7 +153,7 @@ module Zip
       if directory? || file? || symlink?
         __send__("create_#{@ftype}", dest_path, &block)
       else
-        raise RuntimeError, "unknown file type #{inspect}"
+        raise "unknown file type #{inspect}"
       end
 
       self
@@ -529,7 +529,7 @@ module Zip
                  end
                  :symlink
                else
-                 raise RuntimeError, "unknown file type: #{src_path.inspect} #{stat.inspect}"
+                 raise "unknown file type: #{src_path.inspect} #{stat.inspect}"
                end
 
       @filepath = src_path
