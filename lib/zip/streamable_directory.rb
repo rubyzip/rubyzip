@@ -4,8 +4,8 @@ module Zip
       super(zipfile, entry)
 
       @ftype = :directory
-      entry.get_extra_attributes_from_path(srcPath) if (srcPath)
-      @unix_perms = permissionInt if (permissionInt)
+      entry.get_extra_attributes_from_path(srcPath) if srcPath
+      @unix_perms = permissionInt if permissionInt
     end
   end
 end

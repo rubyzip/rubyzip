@@ -36,7 +36,7 @@ module IOizeString
     else
       raise 'Error in test method IOizeString::seek'
     end
-    if (newPos < 0 || newPos >= size)
+    if newPos < 0 || newPos >= size
       raise Errno::EINVAL
     else
       @tell=newPos
@@ -99,7 +99,7 @@ module AssertEntry
       expected = file.read
       actual = zis.read
       if (expected != actual)
-        if ((expected && actual) && (expected.length > 400 || actual.length > 400))
+        if (expected && actual) && (expected.length > 400 || actual.length > 400)
           zipEntryFilename=entryName+'.zipEntry'
           File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
           fail("File '#{filename}' is different from '#{zipEntryFilename}'")
@@ -114,7 +114,7 @@ module AssertEntry
     fileContents = ''
     File.open(filename, 'rb') { |f| fileContents = f.read }
     if (fileContents != aString)
-      if (fileContents.length > 400 || aString.length > 400)
+      if fileContents.length > 400 || aString.length > 400
         stringFile = filename + '.other'
         File.open(stringFile, 'wb') { |f| f << aString }
         fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")

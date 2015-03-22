@@ -399,7 +399,7 @@ module Zip
     end
 
     def set_extra_attributes_on_path(dest_path) # :nodoc:
-      return unless (file? || directory?)
+      return unless file? || directory?
 
       case @fstype
       when ::Zip::FSTYPE_UNIX
