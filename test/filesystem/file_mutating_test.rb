@@ -44,7 +44,7 @@ class ZipFsFileMutatingTest < MiniTest::Test
     end
 
     ::Zip::File.open(TEST_ZIP) do |zf|
-      assert(! zf.file.exists?('file1'))
+      assert(!zf.file.exists?('file1'))
       assert(zf.file.exists?('newNameForFile1'))
     end
   end
@@ -63,13 +63,13 @@ class ZipFsFileMutatingTest < MiniTest::Test
     ::Zip::File.open(TEST_ZIP) do |zf|
       assert(zf.file.exists?('dir2/dir21/dir221/file2221'))
       zf.file.send(symbol, 'dir2/dir21/dir221/file2221')
-      assert(! zf.file.exists?('dir2/dir21/dir221/file2221'))
+      assert(!zf.file.exists?('dir2/dir21/dir221/file2221'))
 
       assert(zf.file.exists?('dir1/file11'))
       assert(zf.file.exists?('dir1/file12'))
       zf.file.send(symbol, 'dir1/file11', 'dir1/file12')
-      assert(! zf.file.exists?('dir1/file11'))
-      assert(! zf.file.exists?('dir1/file12'))
+      assert(!zf.file.exists?('dir1/file11'))
+      assert(!zf.file.exists?('dir1/file12'))
 
       assert_raises(Errno::ENOENT) { zf.file.send(symbol, 'noSuchFile') }
       assert_raises(Errno::EISDIR) { zf.file.send(symbol, 'dir1/dir11') }
@@ -77,9 +77,9 @@ class ZipFsFileMutatingTest < MiniTest::Test
     end
 
     ::Zip::File.open(TEST_ZIP) do |zf|
-      assert(! zf.file.exists?('dir2/dir21/dir221/file2221'))
-      assert(! zf.file.exists?('dir1/file11'))
-      assert(! zf.file.exists?('dir1/file12'))
+      assert(!zf.file.exists?('dir2/dir21/dir221/file2221'))
+      assert(!zf.file.exists?('dir1/file11'))
+      assert(!zf.file.exists?('dir1/file12'))
 
       assert(zf.file.exists?('dir1/dir11'))
       assert(zf.file.exists?('dir1/dir11/'))

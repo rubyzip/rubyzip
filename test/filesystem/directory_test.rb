@@ -18,7 +18,7 @@ class ZipFsDirectoryTest < MiniTest::Test
       end
       assert(zf.file.exists?('dir1'))
       zf.dir.delete('dir1')
-      assert(! zf.file.exists?('dir1'))
+      assert(!zf.file.exists?('dir1'))
     end
   end
 
@@ -68,12 +68,12 @@ class ZipFsDirectoryTest < MiniTest::Test
       assert_raises(Errno::ENOENT, 'No such file or directory - noSuchDir') do
         zf.dir.foreach('noSuchDir') { |_e| blockCalled = true }
       end
-      assert(! blockCalled)
+      assert(!blockCalled)
 
       assert_raises(Errno::ENOTDIR, 'Not a directory - file1') do
         zf.dir.foreach('file1') { |_e| blockCalled = true }
       end
-      assert(! blockCalled)
+      assert(!blockCalled)
 
       entries = []
       zf.dir.foreach('.') { |e| entries << e }
