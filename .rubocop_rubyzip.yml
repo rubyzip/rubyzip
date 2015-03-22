@@ -267,12 +267,6 @@ Style/Semicolon:
 Style/SignalException:
   Enabled: false
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: AllowIfMethodIsEmpty.
-Style/SingleLineMethods:
-  Enabled: false
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/SpaceAfterComma:

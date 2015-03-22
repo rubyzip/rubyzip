@@ -93,7 +93,9 @@ module Zip
                             :writable_real?, :executable?, :executable_real?, :sticky?, :owned?,
                             :grpowned?, :setuid?, :setgid?, :zero?, :size, :size?, :mtime, :atime
 
-        def blocks; nil; end
+        def blocks
+          nil
+        end
 
         def get_entry
           @zipFsFile.__send__(:get_entry, @entryName)
@@ -118,15 +120,25 @@ module Zip
           end
         end
 
-        def ino; 0; end
+        def ino
+          0
+        end
 
-        def dev; 0; end
+        def dev
+          0
+        end
 
-        def rdev; 0; end
+        def rdev
+          0
+        end
 
-        def rdev_major; 0; end
+        def rdev_major
+          0
+        end
 
-        def rdev_minor; 0; end
+        def rdev_minor
+          0
+        end
 
         def ftype
           if file?
@@ -138,9 +150,13 @@ module Zip
           end
         end
 
-        def nlink; 1; end
+        def nlink
+          1
+        end
 
-        def blksize; nil; end
+        def blksize
+          nil
+        end
 
         def mode
           e = get_entry
@@ -445,7 +461,9 @@ module Zip
         dirIt
       end
 
-      def pwd; @mappedZip.pwd; end
+      def pwd
+        @mappedZip.pwd
+      end
       alias getwd pwd
 
       def chdir(aDirectoryName)
