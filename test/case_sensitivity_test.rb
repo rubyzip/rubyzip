@@ -38,7 +38,7 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
 
     assert_raises Zip::EntryExistsError do
-        SRC_FILES.each { |fn, en| zf.add(en, fn) }
+      SRC_FILES.each { |fn, en| zf.add(en, fn) }
     end
 
   end
