@@ -56,7 +56,7 @@ class ZipFileTest < MiniTest::Test
     ::Zip.case_insensitive_match = true
 
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
-    assert_equal(SRC_FILES.collect{ |fn, en| en.downcase }.uniq.size, zfRead.entries.length)
+    assert_equal(SRC_FILES.collect { |fn, en| en.downcase }.uniq.size, zfRead.entries.length)
     assert_equal(SRC_FILES.last.last.downcase, zfRead.entries.first.name.downcase)
     AssertEntry.assert_contents(SRC_FILES.last.first,
                                 zfRead.get_input_stream(SRC_FILES.last.last) { |zis| zis.read })
