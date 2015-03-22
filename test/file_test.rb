@@ -337,8 +337,8 @@ class ZipFileTest < MiniTest::Test
     zf.commit
     zf.close
     zf2 = ::Zip::File.open(filename)
-    assert(zf2.entries.detect { |e| e.name == 'test1.txt' } != nil )
-    assert(zf2.entries.detect { |e| e.name == 'test2.txt' } != nil )
+    assert(zf2.entries.detect { |e| e.name == 'test1.txt' } != nil)
+    assert(zf2.entries.detect { |e| e.name == 'test2.txt' } != nil)
     res = system("unzip -t #{filename}")
     assert_equal(res, true)
   end

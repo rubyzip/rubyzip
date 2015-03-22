@@ -283,11 +283,6 @@ Style/SpaceBeforeBlockBraces:
 Style/SpaceInsideBrackets:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/SpaceInsideParens:
-  Enabled: false
-
 # Offense count: 30
 # Cop supports --auto-correct.
 Style/SpecialGlobalVars:

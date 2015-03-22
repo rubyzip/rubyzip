@@ -182,7 +182,7 @@ module Zip
 
       def unix_mode_cmp(fileName, mode)
         e = get_entry(fileName)
-        e.fstype == 3 && ((e.external_file_attributes >> 16) & mode ) != 0
+        e.fstype == 3 && ((e.external_file_attributes >> 16) & mode) != 0
       rescue Errno::ENOENT
         false
       end
