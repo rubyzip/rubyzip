@@ -207,7 +207,7 @@ module Zip
         return if zip_file_size <= segment_size
         segment_count = get_segment_count_for_split(zip_file_size, segment_size)
         # Checking for correct zip structure
-        self.open(zip_file_name) {}
+        open(zip_file_name) {}
         partial_zip_file_name = get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
         szip_file_index       = 0
         ::File.open(zip_file_name, 'rb') do |zip_file|
@@ -411,9 +411,9 @@ module Zip
       ObjectSpace.undefine_finalizer(tmpfile)
       tmpfile.close
       if yield tmp_filename
-        ::File.rename(tmp_filename, self.name)
+        ::File.rename(tmp_filename, name)
         if defined?(@exist_file_perms)
-          ::File.chmod(@exist_file_perms, self.name)
+          ::File.chmod(@exist_file_perms, name)
         end
       end
     ensure

@@ -93,7 +93,7 @@ module Zip
       # stream is passed to the block and closed when the block
       # returns.
       def open(filename_or_io, offset = 0, decrypter = nil)
-        zio = self.new(filename_or_io, offset, decrypter)
+        zio = new(filename_or_io, offset, decrypter)
         return zio unless block_given?
         begin
           yield zio
@@ -104,7 +104,7 @@ module Zip
 
       def open_buffer(filename_or_io, offset = 0)
         puts 'open_buffer is deprecated!!! Use open instead!'
-        self.open(filename_or_io, offset)
+        open(filename_or_io, offset)
       end
     end
 

@@ -2,12 +2,12 @@ module Zip
   class ExtraField::Generic
     def self.register_map
       if self.const_defined?(:HEADER_ID)
-        ::Zip::ExtraField::ID_MAP[self.const_get(:HEADER_ID)] = self
+        ::Zip::ExtraField::ID_MAP[const_get(:HEADER_ID)] = self
       end
     end
 
     def self.name
-      @name ||= self.to_s.split('::')[-1]
+      @name ||= to_s.split('::')[-1]
     end
 
     # return field [size, content] or false

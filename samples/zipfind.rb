@@ -25,7 +25,7 @@ module Zip
     end
 
     def self.find_file(path, fileNamePattern, zipFilePattern = /\.zip$/i)
-      self.find(path, zipFilePattern) do |fileName|
+      find(path, zipFilePattern) do |fileName|
         yield(fileName) if fileNamePattern.match(fileName)
       end
     end

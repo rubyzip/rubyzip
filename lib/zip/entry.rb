@@ -94,7 +94,7 @@ module Zip
     end
 
     def file_type_is?(type)
-      raise InternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
+      raise InternalError, "current filetype is unknown: #{inspect}" unless @ftype
       @ftype == type
     end
 
@@ -143,7 +143,7 @@ module Zip
     end
 
     def next_header_offset #:nodoc:all
-      local_entry_offset + self.compressed_size + data_descriptor_size
+      local_entry_offset + compressed_size + data_descriptor_size
     end
 
     # Extracts entry to file dest_path (defaults to @name).
@@ -151,9 +151,9 @@ module Zip
       block ||= proc { ::Zip.on_exists_proc }
 
       if directory? || file? || symlink?
-        self.__send__("create_#{@ftype}", dest_path, &block)
+        __send__("create_#{@ftype}", dest_path, &block)
       else
-        raise RuntimeError, "unknown file type #{self.inspect}"
+        raise RuntimeError, "unknown file type #{inspect}"
       end
 
       self
@@ -192,7 +192,7 @@ module Zip
       end
 
       def read_local_entry(io)
-        entry = self.new(io)
+        entry = new(io)
         entry.read_local_entry(io)
         entry
       rescue Error
@@ -466,13 +466,13 @@ module Zip
       return false unless other.class == self.class
       # Compares contents of local entry and exposed fields
       keys_equal = %w(compression_method crc compressed_size size name extra filepath).all? do |k|
-        other.__send__(k.to_sym) == self.__send__(k.to_sym)
+        other.__send__(k.to_sym) == __send__(k.to_sym)
       end
-      keys_equal && self.time.dos_equals(other.time)
+      keys_equal && time.dos_equals(other.time)
     end
 
     def <=> (other)
-      self.to_s <=> other.to_s
+      to_s <=> other.to_s
     end
 
     # Returns an IO like object for the given ZipEntry.
@@ -540,7 +540,7 @@ module Zip
       if @ftype == :directory
         zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::STORED)
       elsif @filepath
-        zip_output_stream.put_next_entry(self, nil, nil, self.compression_method || ::Zip::Entry::DEFLATED)
+        zip_output_stream.put_next_entry(self, nil, nil, compression_method || ::Zip::Entry::DEFLATED)
         get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
       else
         zip_output_stream.copy_raw_entry(self)

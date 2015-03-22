@@ -178,7 +178,7 @@ module Enumerable
     each_with_index do |element, index|
       return false unless yield(element, otherAsArray[index])
     end
-    self.size == otherAsArray.size
+    size == otherAsArray.size
   end
 end
 

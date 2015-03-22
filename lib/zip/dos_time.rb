@@ -37,7 +37,7 @@ module Zip
       month  = (0b111100000 & binaryDosDate) >> 5
       year   = ((0b1111111000000000 & binaryDosDate) >> 9) + 1980
       begin
-        self.local(year, month, day, hour, minute, second)
+        local(year, month, day, hour, minute, second)
       end
     end
   end
