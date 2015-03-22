@@ -34,9 +34,9 @@ end
 
 if __FILE__ == $0
   module ZipFindConsoleRunner
-    PATH_ARG_INDEX = 0;
-    FILENAME_PATTERN_ARG_INDEX = 1;
-    ZIPFILE_PATTERN_ARG_INDEX = 2;
+    PATH_ARG_INDEX = 0
+    FILENAME_PATTERN_ARG_INDEX = 1
+    ZIPFILE_PATTERN_ARG_INDEX = 2
 
     def self.run(args)
       check_args(args)
