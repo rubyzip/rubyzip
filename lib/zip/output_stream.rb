@@ -24,7 +24,7 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream=false, encrypter=nil)
+    def initialize(file_name, stream = false, encrypter = nil)
       super()
       @file_name = file_name
       @output_stream = if stream
