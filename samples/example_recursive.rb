@@ -40,7 +40,7 @@ class ZipFileGenerator
         subdir =Dir.entries(diskFilePath); subdir.delete('.'); subdir.delete('..')
         writeEntries(subdir, zipFilePath, io)
       else
-        io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, 'rb').read())}
+        io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, 'rb').read()) }
       end
     end
   end
