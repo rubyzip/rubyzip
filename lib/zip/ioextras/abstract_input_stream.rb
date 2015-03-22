@@ -83,7 +83,7 @@ module Zip
         end
         sep_index = [match_index + a_sep_string.bytesize, number_of_bytes || @output_buffer.bytesize].min
         @pos     += sep_index
-        return @output_buffer.slice!(0...sep_index)
+        @output_buffer.slice!(0...sep_index)
       end
 
       def ungetc(byte)

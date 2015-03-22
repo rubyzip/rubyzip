@@ -14,7 +14,7 @@ if ENV['FULL_ZIP64_TEST']
 
     def prepareTestFile(test_filename)
       ::File.delete(test_filename) if ::File.exist?(test_filename)
-      return test_filename
+      test_filename
     end
 
     def test_largeZipFile

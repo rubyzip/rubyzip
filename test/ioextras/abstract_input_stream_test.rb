@@ -20,7 +20,7 @@ class AbstractInputStreamTest < MiniTest::Test
     def sysread(charsToRead, _buf = nil)
       retVal=@contents[@readPointer, charsToRead]
       @readPointer+=charsToRead
-      return retVal
+      retVal
     end
 
     def produce_input

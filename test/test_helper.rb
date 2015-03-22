@@ -21,7 +21,7 @@ module IOizeString
     count = size unless count
     retVal = slice(@tell, count)
     @tell += count
-    return retVal
+    retVal
   end
 
   def seek(index, offset)
@@ -178,7 +178,7 @@ module Enumerable
     each_with_index do |element, index|
       return false unless yield(element, otherAsArray[index])
     end
-    return self.size == otherAsArray.size
+    self.size == otherAsArray.size
   end
 end
 

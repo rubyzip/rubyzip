@@ -246,7 +246,7 @@ module Zip
       # Returns nil for not found and nil for directories
       def size?(fileName)
         entry = @mappedZip.find_entry(fileName)
-        return (entry == nil || entry.directory?) ? nil : entry.size
+        (entry == nil || entry.directory?) ? nil : entry.size
       end
 
       def chown(ownerInt, groupInt, *filenames)
