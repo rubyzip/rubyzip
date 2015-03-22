@@ -267,11 +267,6 @@ Style/Semicolon:
 Style/SignalException:
   Enabled: false
 
-# Offense count: 53
-# Cop supports --auto-correct.
-Style/SpaceAroundOperators:
-  Enabled: false
-
 # Offense count: 30
 # Cop supports --auto-correct.
 Style/SpecialGlobalVars:

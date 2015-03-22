@@ -21,11 +21,11 @@ class TestFiles
       Dir.mkdir 'test/data/generated' unless Dir.exist?('test/data/generated')
 
       ASCII_TEST_FILES.each_with_index do |filename, index|
-        create_random_ascii(filename, 1E4 * (index+1))
+        create_random_ascii(filename, 1E4 * (index + 1))
       end
 
       BINARY_TEST_FILES.each_with_index do |filename, index|
-        create_random_binary(filename, 1E4 * (index+1))
+        create_random_binary(filename, 1E4 * (index + 1))
       end
 
       ensure_dir(EMPTY_TEST_DIR)
@@ -61,8 +61,8 @@ class TestZipFile
   attr_accessor :zip_name, :entry_names, :comment
 
   def initialize(zip_name, entry_names, comment = '')
-    @zip_name=zip_name
-    @entry_names=entry_names
+    @zip_name = zip_name
+    @entry_names = entry_names
     @comment = comment
   end
 
@@ -75,14 +75,14 @@ class TestZipFile
     ::File.chmod(0640, 'test/data/generated/empty_chmod640.txt')
 
     File.open('test/data/generated/short.txt', 'w') { |file| file << 'ABCDEF' }
-    ziptestTxt=''
-    File.open('test/data/file2.txt') { |file| ziptestTxt=file.read }
+    ziptestTxt = ''
+    File.open('test/data/file2.txt') { |file| ziptestTxt = file.read }
     File.open('test/data/generated/longAscii.txt', 'w') do |file|
       file << ziptestTxt while file.tell < 1E5
     end
 
-    testBinaryPattern=''
-    File.open('test/data/generated/empty.zip') { |file| testBinaryPattern=file.read }
+    testBinaryPattern = ''
+    File.open('test/data/generated/empty.zip') { |file| testBinaryPattern = file.read }
     testBinaryPattern *= 4
 
     File.open('test/data/generated/longBinary.bin', 'wb') do |file|

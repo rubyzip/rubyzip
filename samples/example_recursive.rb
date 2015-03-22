@@ -37,7 +37,7 @@ class ZipFileGenerator
       puts 'Deflating ' + diskFilePath
       if  File.directory?(diskFilePath)
         io.mkdir(zipFilePath)
-        subdir =Dir.entries(diskFilePath); subdir.delete('.'); subdir.delete('..')
+        subdir = Dir.entries(diskFilePath); subdir.delete('.'); subdir.delete('..')
         writeEntries(subdir, zipFilePath, io)
       else
         io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, 'rb').read()) }

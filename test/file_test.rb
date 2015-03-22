@@ -47,20 +47,20 @@ class ZipFileTest < MiniTest::Test
       zf.get_output_stream('newEntry.txt') do |os|
         os.write 'Putting stuff in newEntry.txt'
       end
-      assert_equal(entryCount+1, zf.size)
+      assert_equal(entryCount + 1, zf.size)
       assert_equal('Putting stuff in newEntry.txt', zf.read('newEntry.txt'))
 
       zf.get_output_stream(zf.get_entry('test/data/generated/empty.txt')) do |os|
         os.write 'Putting stuff in data/generated/empty.txt'
       end
-      assert_equal(entryCount+1, zf.size)
+      assert_equal(entryCount + 1, zf.size)
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
 
       custom_entry_args = [ZipEntryTest::TEST_COMMENT, ZipEntryTest::TEST_EXTRA, ZipEntryTest::TEST_COMPRESSED_SIZE, ZipEntryTest::TEST_CRC, ::Zip::Entry::STORED, ZipEntryTest::TEST_SIZE, ZipEntryTest::TEST_TIME]
       zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) do |os|
         os.write 'Some data'
       end
-      assert_equal(entryCount+2, zf.size)
+      assert_equal(entryCount + 2, zf.size)
       entry = zf.get_entry('entry_with_custom_args.txt')
       assert_equal(custom_entry_args[0], entry.comment)
       assert_equal(custom_entry_args[2], entry.compressed_size)
@@ -75,7 +75,7 @@ class ZipFileTest < MiniTest::Test
     end
 
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      assert_equal(entryCount+3, zf.size)
+      assert_equal(entryCount + 3, zf.size)
       assert_equal('Putting stuff in newEntry.txt', zf.read('newEntry.txt'))
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
       assert_equal(File.open('test/data/generated/5entry.zip', 'rb').read, zf.read('entry.bin'))
@@ -151,7 +151,7 @@ class ZipFileTest < MiniTest::Test
       zf.add(TestFiles::EMPTY_TEST_DIR, TestFiles::EMPTY_TEST_DIR)
     end
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      dirEntry = zf.entries.detect { |e| e.name == TestFiles::EMPTY_TEST_DIR+'/' }
+      dirEntry = zf.entries.detect { |e| e.name == TestFiles::EMPTY_TEST_DIR + '/' }
       assert(dirEntry.directory?)
     end
   end

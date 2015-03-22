@@ -27,7 +27,7 @@ class ZipCentralDirectoryTest < MiniTest::Test
   end
 
   def test_ReadFromTruncatedZipFile
-    fragment=''
+    fragment = ''
     File.open('test/data/testDirectory.bin', 'rb') { |f| fragment = f.read }
     fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
     fragment.extend(IOizeString)

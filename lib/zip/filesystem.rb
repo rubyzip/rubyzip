@@ -534,7 +534,7 @@ module Zip
 
       def read
         raise IOError, 'closed directory' if @fileNames == nil
-        @fileNames[(@index+=1)-1]
+        @fileNames[(@index += 1) - 1]
       end
 
       def rewind
@@ -602,7 +602,7 @@ module Zip
       # and removes trailing slash on directories
       def each
         @zipFile.each do |e|
-          yield('/'+e.to_s.chomp('/'))
+          yield('/' + e.to_s.chomp('/'))
         end
       end
 

@@ -154,7 +154,7 @@ class ZipEntryTest < MiniTest::Test
     end
     zipfile.close
 
-    f= File.open('/tmp/no_compress.zip', 'rb')
+    f = File.open('/tmp/no_compress.zip', 'rb')
     first_100_bytes = f.read(100)
     f.close
 

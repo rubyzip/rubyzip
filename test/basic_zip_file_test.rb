@@ -5,7 +5,7 @@ class BasicZipFileTest < MiniTest::Test
 
   def setup
     @zip_file = ::Zip::File.new(TestZipFile::TEST_ZIP2.zip_name)
-    @testEntryNameIndex=0
+    @testEntryNameIndex = 0
   end
 
   def test_entries

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$VERBOSE=true
+$VERBOSE = true
 
 $: << '../lib'
 

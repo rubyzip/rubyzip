@@ -39,7 +39,7 @@ module IOizeString
     if newPos < 0 || newPos >= size
       raise Errno::EINVAL
     else
-      @tell=newPos
+      @tell = newPos
     end
   end
 
@@ -80,7 +80,7 @@ module DecompressorTests
 
     assert(!@decompressor.input_finished?)
     buf = @decompressor.produce_input
-    assert_equal(@refText[100...(100+buf.length)], buf)
+    assert_equal(@refText[100...(100 + buf.length)], buf)
   end
 end
 
@@ -100,7 +100,7 @@ module AssertEntry
       actual = zis.read
       if (expected != actual)
         if (expected && actual) && (expected.length > 400 || actual.length > 400)
-          zipEntryFilename=entryName+'.zipEntry'
+          zipEntryFilename = entryName + '.zipEntry'
           File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
           fail("File '#{filename}' is different from '#{zipEntryFilename}'")
         else

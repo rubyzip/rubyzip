@@ -43,7 +43,7 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_read_local_entryFromTruncatedZipFile
-    zipFragment=''
+    zipFragment = ''
     ::File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
     zipFragment.extend(IOizeString).reset
     entry = ::Zip::Entry.new

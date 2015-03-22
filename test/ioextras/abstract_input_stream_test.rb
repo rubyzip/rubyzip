@@ -18,8 +18,8 @@ class AbstractInputStreamTest < MiniTest::Test
     end
 
     def sysread(charsToRead, _buf = nil)
-      retVal=@contents[@readPointer, charsToRead]
-      @readPointer+=charsToRead
+      retVal = @contents[@readPointer, charsToRead]
+      @readPointer += charsToRead
       retVal
     end
 
@@ -54,8 +54,8 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   LONG_LINES = [
-    'x'*48 + "\r\n",
-    'y'*49 + "\r\n",
+    'x' * 48 + "\r\n",
+    'y' * 49 + "\r\n",
     'rest'
   ]
 
@@ -69,7 +69,7 @@ class AbstractInputStreamTest < MiniTest::Test
   def test_getsWithSepAndIndex
     io = TestAbstractInputStream.new(LONG_LINES.join)
     assert_equal('x', io.gets("\r\n", 1))
-    assert_equal('x'*47 + "\r", io.gets("\r\n", 48))
+    assert_equal('x' * 47 + "\r", io.gets("\r\n", 48))
     assert_equal("\n", io.gets(nil, 1))
     assert_equal('yy', io.gets(nil, 2))
   end
@@ -80,10 +80,10 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   def test_each_line
-    lineNumber=0
+    lineNumber = 0
     @io.each_line do |line|
       assert_equal(TEST_LINES[lineNumber], line)
-      lineNumber+=1
+      lineNumber += 1
     end
   end
 

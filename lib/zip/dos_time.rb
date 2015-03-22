@@ -13,7 +13,7 @@ module Zip
     # bits 9-15 year (four digit year minus 1980)
 
     def to_binary_dos_time
-      (sec/2) +
+      (sec / 2) +
         (min << 5) +
         (hour << 11)
     end
@@ -26,7 +26,7 @@ module Zip
 
     # Dos time is only stored with two seconds accuracy
     def dos_equals(other)
-      to_i/2 == other.to_i/2
+      to_i / 2 == other.to_i / 2
     end
 
     def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)
