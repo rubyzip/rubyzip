@@ -236,7 +236,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_chown
-    assert_equal(2, @zip_file.file.chown(1,2, 'dir1', 'file1'))
+    assert_equal(2, @zip_file.file.chown(1, 2, 'dir1', 'file1'))
     assert_equal(1, @zip_file.file.stat('dir1').uid)
     assert_equal(2, @zip_file.file.stat('dir1').gid)
     assert_equal(2, @zip_file.file.chown(nil, nil, 'dir1', 'file1'))
@@ -435,9 +435,9 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       {
         'globTest/foo.txt' => ['globTest/foo.txt'],
         '*/foo.txt' => ['globTest/foo.txt'],
-        '**/foo.txt' => ['globTest/foo.txt','globTest/foo/bar/baz/foo.txt'],
+        '**/foo.txt' => ['globTest/foo.txt', 'globTest/foo/bar/baz/foo.txt'],
         '*/foo/**/*.txt' => ['globTest/foo/bar/baz/foo.txt']
-      }.each do |spec,expected_results|
+      }.each do |spec, expected_results|
         results = zf.glob(spec)
         assert results.all?{|entry| entry.is_a? ::Zip::Entry }
 

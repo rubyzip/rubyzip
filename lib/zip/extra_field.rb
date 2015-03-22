@@ -61,7 +61,7 @@ module Zip
     # does not prevent known fields from being read back in
     def ordered_values
       result = []
-      each { |k,v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
+      each { |k, v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
       result
     end
 

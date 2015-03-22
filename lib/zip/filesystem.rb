@@ -479,8 +479,8 @@ module Zip
         entries
       end
 
-      def glob(*args,&block)
-        @mappedZip.glob(*args,&block)
+      def glob(*args, &block)
+        @mappedZip.glob(*args, &block)
       end
 
       def foreach(aDirectoryName)

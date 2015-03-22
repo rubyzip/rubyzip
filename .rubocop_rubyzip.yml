@@ -267,11 +267,6 @@ Style/Semicolon:
 Style/SignalException:
   Enabled: false
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/SpaceAfterComma:
-  Enabled: false
-
 # Offense count: 7
 # Cop supports --auto-correct.
 Style/SpaceAfterMethodName:
