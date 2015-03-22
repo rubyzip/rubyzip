@@ -278,11 +278,6 @@ Style/SpaceAroundOperators:
 Style/SpaceBeforeBlockBraces:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-Style/SpaceInsideBrackets:
-  Enabled: false
-
 # Offense count: 30
 # Cop supports --auto-correct.
 Style/SpecialGlobalVars:
