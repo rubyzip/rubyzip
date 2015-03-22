@@ -66,7 +66,7 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_find_entry
-    entries = [::Zip::Entry.new("zipfile.zip", "MiXeDcAsEnAmE", "comment1")]
+    entries = [::Zip::Entry.new('zipfile.zip', 'MiXeDcAsEnAmE', 'comment1')]
 
     ::Zip.case_insensitive_match = true
     zipEntrySet = ::Zip::EntrySet.new(entries)
