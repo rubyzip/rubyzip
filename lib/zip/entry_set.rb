@@ -49,7 +49,7 @@ module Zip
 
     # deep clone
     def dup
-      EntrySet.new(@entry_set.map { |_key, value| value.dup })
+      EntrySet.new(@entry_set.values.map(&:dup))
     end
 
     def ==(other)
