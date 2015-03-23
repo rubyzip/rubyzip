@@ -455,7 +455,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       zf.glob('**/foo.txt') do |match|
         results << "<#{match.class.name}: #{match}>"
       end
-      assert((not results.empty?), 'block not run, or run out of context')
+      assert((!results.empty?), 'block not run, or run out of context')
       assert_equal 2, results.size
       assert_operator results, :include?, '<Zip::Entry: globTest/foo.txt>'
       assert_operator results, :include?, '<Zip::Entry: globTest/foo/bar/baz/foo.txt>'

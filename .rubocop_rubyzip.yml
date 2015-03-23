@@ -193,11 +193,6 @@ Style/NilComparison:
 Style/NonNilCheck:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Not:
-  Enabled: false
-
 # Offense count: 3
 # Configuration parameters: MaxSlashes.
 Style/RegexpLiteral:
