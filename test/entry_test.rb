@@ -139,13 +139,13 @@ class ZipEntryTest < MiniTest::Test
     end
 
     zipfile = Zip::File.open('/tmp/no_compress.zip', Zip::File::CREATE)
-    mimetype_entry = Zip::Entry.new(zipfile,                #@zipfile
-                                    'mimetype',             #@name
-                                    '',                     #@comment
-                                    '',                     #@extra
-                                    0,                      #@compressed_size
-                                    0,                      #@crc
-                                    Zip::Entry::STORED)     #@comppressed_method
+    mimetype_entry = Zip::Entry.new(zipfile,                # @zipfile
+                                    'mimetype',             # @name
+                                    '',                     # @comment
+                                    '',                     # @extra
+                                    0,                      # @compressed_size
+                                    0,                      # @crc
+                                    Zip::Entry::STORED)     # @comppressed_method
 
     zipfile.add(mimetype_entry, 'test/data/mimetype')
 

@@ -407,7 +407,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       index = 0
 
       zf.file.foreach('test/data/file1.txt') do |l|
-        #Ruby replaces \n with \r\n automatically on windows
+        # Ruby replaces \n with \r\n automatically on windows
         newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
         assert_equal(ref[index], newline)
         index = index.next
@@ -421,7 +421,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       index = 0
 
       zf.file.foreach('test/data/file1.txt', ' ') do |l|
-        #Ruby replaces \n with \r\n automatically on windows
+        # Ruby replaces \n with \r\n automatically on windows
         newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
         assert_equal(ref[index], newline)
         index = index.next
@@ -464,8 +464,8 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
 
   def test_popen
     if Zip::RUNNING_ON_WINDOWS
-      #This is pretty much projectile vomit but it allows the test to be
-      #run on windows also
+      # This is pretty much projectile vomit but it allows the test to be
+      # run on windows also
       system_dir = ::File.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
       zipfile_dir = @zip_file.file.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
       assert_equal(system_dir, zipfile_dir)
@@ -485,7 +485,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       orig_file = ::File.readlines('test/data/file1.txt')
       zip_file = zf.file.readlines('test/data/file1.txt')
 
-      #Ruby replaces \n with \r\n automatically on windows
+      # Ruby replaces \n with \r\n automatically on windows
       zip_file.each { |l| l.gsub!(/\r\n/, "\n") } if Zip::RUNNING_ON_WINDOWS
 
       assert_equal(orig_file, zip_file)
@@ -496,7 +496,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     ::Zip::File.open('test/data/generated/zipWithDir.zip') do |zf|
       orig_file = ::File.read('test/data/file1.txt')
 
-      #Ruby replaces \n with \r\n automatically on windows
+      # Ruby replaces \n with \r\n automatically on windows
       zip_file = Zip::RUNNING_ON_WINDOWS ? \
           zf.file.read('test/data/file1.txt').gsub(/\r\n/, "\n") : zf.file.read('test/data/file1.txt')
       assert_equal(orig_file, zip_file)

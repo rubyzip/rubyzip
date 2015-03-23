@@ -94,10 +94,10 @@ class ZipFsDirectoryTest < MiniTest::Test
   end
 
   # Globbing not supported yet
-  #def test_glob
+  # def test_glob
   #  # test alias []-operator too
   #  fail "implement test"
-  #end
+  # end
 
   def test_open_new
     ::Zip::File.open(TEST_ZIP) do |zf|

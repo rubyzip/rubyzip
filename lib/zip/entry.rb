@@ -39,8 +39,8 @@ module Zip
       @unix_uid            = nil
       @unix_gid            = nil
       @unix_perms          = nil
-      #@posix_acl = nil
-      #@ntfs_acl = nil
+      # @posix_acl = nil
+      # @ntfs_acl = nil
       @dirty               = false
     end
 
@@ -314,8 +314,8 @@ module Zip
                  when ::Zip::FILE_TYPE_SYMLINK
                    :symlink
                  else
-                   #best case guess for whether it is a file or not
-                   #Otherwise this would be set to unknown and that entry would never be able to extracted
+                   # best case guess for whether it is a file or not
+                   # Otherwise this would be set to unknown and that entry would never be able to extracted
                    if name_is_directory?
                      :directory
                    else

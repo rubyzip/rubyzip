@@ -1,6 +1,6 @@
 module Zip
   class DOSTime < Time #:nodoc:all
-    #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
+    # MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
 
     # Register CX, the Time:
     # Bits 0-4  2 second increments (0-29)
