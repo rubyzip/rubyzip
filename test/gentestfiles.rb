@@ -114,9 +114,9 @@ class TestZipFile
   end
 
   TEST_ZIP1 = TestZipFile.new('test/data/generated/empty.zip', [])
-  TEST_ZIP2 = TestZipFile.new('test/data/generated/5entry.zip', %w{ test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin},
+  TEST_ZIP2 = TestZipFile.new('test/data/generated/5entry.zip', %w(test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin),
                               'my zip comment')
-  TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w{ test/data/file1.txt })
+  TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w(test/data/file1.txt))
   TEST_ZIP4 = TestZipFile.new('test/data/generated/zipWithDir.zip', ['test/data/file1.txt',
                                                                      TestFiles::EMPTY_TEST_DIR])
 end

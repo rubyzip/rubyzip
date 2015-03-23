@@ -204,12 +204,6 @@ Style/NumericLiterals:
   MinDigits: 12
 
 # Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Enabled: false
-
-# Offense count: 3
 # Configuration parameters: MaxSlashes.
 Style/RegexpLiteral:
   Enabled: false
