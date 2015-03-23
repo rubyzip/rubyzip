@@ -375,16 +375,16 @@ module Zip
 
     private
 
-    def is_directory(newEntry, srcPath)
+    def directory?(newEntry, srcPath)
       srcPathIsDirectory = ::File.directory?(srcPath)
-      if newEntry.is_directory && !srcPathIsDirectory
+      if newEntry.directory? && !srcPathIsDirectory
         raise ArgumentError,
               "entry name '#{newEntry}' indicates directory entry, but " \
                   "'#{srcPath}' is not a directory"
-      elsif !newEntry.is_directory && srcPathIsDirectory
+      elsif !newEntry.directory? && srcPathIsDirectory
         newEntry.name += '/'
       end
-      newEntry.is_directory && srcPathIsDirectory
+      newEntry.directory? && srcPathIsDirectory
     end
 
     def check_entry_exists(entryName, continue_on_exists_proc, procedureName)
