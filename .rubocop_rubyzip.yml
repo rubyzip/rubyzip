@@ -173,10 +173,6 @@ Style/ModuleFunction:
 Style/MultilineBlockChain:
   Enabled: false
 
-# Offense count: 1
-Style/MultilineTernaryOperator:
-  Enabled: false
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Style/NilComparison:

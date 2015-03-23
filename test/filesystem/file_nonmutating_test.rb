@@ -497,8 +497,11 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       orig_file = ::File.read('test/data/file1.txt')
 
       # Ruby replaces \n with \r\n automatically on windows
-      zip_file = Zip::RUNNING_ON_WINDOWS ? \
-          zf.file.read('test/data/file1.txt').gsub(/\r\n/, "\n") : zf.file.read('test/data/file1.txt')
+      zip_file = if Zip::RUNNING_ON_WINDOWS
+                   zf.file.read('test/data/file1.txt').gsub(/\r\n/, "\n")
+                 else
+                   zf.file.read('test/data/file1.txt')
+                 end
       assert_equal(orig_file, zip_file)
     end
   end
