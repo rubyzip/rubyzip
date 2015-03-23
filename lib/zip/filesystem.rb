@@ -173,7 +173,7 @@ module Zip
       end
 
       def get_entry(fileName)
-        if !exists?(fileName)
+        unless exists?(fileName)
           raise Errno::ENOENT, "No such file or directory - #{fileName}"
         end
         @mappedZip.find_entry(fileName)
@@ -387,7 +387,7 @@ module Zip
       end
 
       def stat(fileName)
-        if !exists?(fileName)
+        unless exists?(fileName)
           raise Errno::ENOENT, fileName
         end
         ZipFsStat.new(self, fileName)

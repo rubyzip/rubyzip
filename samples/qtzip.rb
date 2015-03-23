@@ -79,7 +79,7 @@ class ZipDialog < ZipDialogUI
   slots 'add_files()', 'extract_files()'
 end
 
-if !ARGV[0]
+unless ARGV[0]
   puts "usage: #{$0} zipname"
   exit
 end
