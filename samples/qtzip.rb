@@ -88,5 +88,5 @@ zd = ZipDialog.new
 zd.load(ARGV[0])
 
 a.mainWidget = zd
-zd.show()
-a.exec()
+zd.show
+a.exec

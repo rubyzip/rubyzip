@@ -77,7 +77,7 @@ class MainApp < Gtk::Window
   end
 end
 
-mainApp = MainApp.new()
+mainApp = MainApp.new
 
 mainApp.show_all
 
