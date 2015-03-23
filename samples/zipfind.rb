@@ -12,14 +12,13 @@ module Zip
     def self.find(path, zipFilePattern = /\.zip$/i)
       Find.find(path) do |fileName|
         yield(fileName)
-        if zipFilePattern.match(fileName) && File.file?(fileName)
-          begin
-            Zip::File.foreach(fileName) do |zipEntry|
-              yield(fileName + File::SEPARATOR + zipEntry.to_s)
-            end
-          rescue Errno::EACCES => ex
-            puts ex
+        next unless zipFilePattern.match(fileName) && File.file?(fileName)
+        begin
+          Zip::File.foreach(fileName) do |zipEntry|
+            yield(fileName + File::SEPARATOR + zipEntry.to_s)
           end
+        rescue Errno::EACCES => ex
+          puts ex
         end
       end
     end
