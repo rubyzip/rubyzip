@@ -165,7 +165,7 @@ Style/InfiniteLoop:
 Style/MethodName:
   Enabled: false
 
-# Offense count: 2
+# Offense count: 1
 Style/ModuleFunction:
   Enabled: false
 
