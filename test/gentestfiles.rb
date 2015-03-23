@@ -108,8 +108,8 @@ class TestZipFile
     # http://stahlworks.com/dev/index.php?tool=zipunzip
     # that works with the above code
     raise $!.to_s +
-              "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" +
-              "to create test data. If you don't have it you can download\n" +
+              "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" \
+              "to create test data. If you don't have it you can download\n" \
               'the necessary test files at http://sf.net/projects/rubyzip.'
   end
 

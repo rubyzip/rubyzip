@@ -170,11 +170,6 @@ Style/Lambda:
 Style/LeadingCommentSpace:
   Enabled: false
 
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
-  Enabled: false
-
 # Offense count: 7
 # Cop supports --auto-correct.
 Style/MethodCallParentheses:

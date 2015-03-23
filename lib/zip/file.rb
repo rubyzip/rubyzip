@@ -379,7 +379,7 @@ module Zip
       srcPathIsDirectory = ::File.directory?(srcPath)
       if newEntry.is_directory && !srcPathIsDirectory
         raise ArgumentError,
-              "entry name '#{newEntry}' indicates directory entry, but " +
+              "entry name '#{newEntry}' indicates directory entry, but " \
                   "'#{srcPath}' is not a directory"
       elsif !newEntry.is_directory && srcPathIsDirectory
         newEntry.name += '/'

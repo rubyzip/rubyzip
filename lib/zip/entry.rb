@@ -514,7 +514,7 @@ module Zip
                when 'file'
                  if name_is_directory?
                    raise ArgumentError,
-                         "entry name '#{newEntry}' indicates directory entry, but " +
+                         "entry name '#{newEntry}' indicates directory entry, but " \
                              "'#{src_path}' is not a directory"
                  end
                  :file
@@ -524,7 +524,7 @@ module Zip
                when 'link'
                  if name_is_directory?
                    raise ArgumentError,
-                         "entry name '#{newEntry}' indicates directory entry, but " +
+                         "entry name '#{newEntry}' indicates directory entry, but " \
                              "'#{src_path}' is not a directory"
                  end
                  :symlink
@@ -597,7 +597,7 @@ module Zip
           ::FileUtils.rm_f dest_path
         else
           raise ::Zip::DestinationFileExistsError,
-                "Cannot create directory '#{dest_path}'. " +
+                "Cannot create directory '#{dest_path}'. " \
                     'A file already exists with that name'
         end
       end
@@ -622,12 +622,12 @@ module Zip
             return
           else
             raise ::Zip::DestinationFileExistsError,
-                  "Cannot create symlink '#{dest_path}'. " +
+                  "Cannot create symlink '#{dest_path}'. " \
                       'A symlink already exists with that name'
           end
         else
           raise ::Zip::DestinationFileExistsError,
-                "Cannot create symlink '#{dest_path}'. " +
+                "Cannot create symlink '#{dest_path}'. " \
                     'A file already exists with that name'
         end
       end
