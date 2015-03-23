@@ -160,11 +160,6 @@ Style/IfUnlessModifier:
 Style/InfiniteLoop:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Lambda:
-  Enabled: false
-
 # Offense count: 24
 # Cop supports --auto-correct.
 Style/LeadingCommentSpace:
