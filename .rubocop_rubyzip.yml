@@ -173,11 +173,6 @@ Style/ModuleFunction:
 Style/MultilineBlockChain:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Style/MultilineBlockLayout:
-  Enabled: false
-
 # Offense count: 11
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
