@@ -7,7 +7,7 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
 
       assert_equal('longAscii.txt', entry.name)
       assert_equal(::Zip::Entry::DEFLATED, entry.compression_method)
-      assert_equal(106490, entry.size)
+      assert_equal(106_490, entry.size)
       assert_equal(3784, entry.compressed_size)
       assert_equal(0xfcd1799c, entry.crc)
       assert_equal('', entry.comment)
@@ -31,8 +31,8 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
       entry = ::Zip::Entry.read_c_dir_entry(file)
       assert_equal('longBinary.bin', entry.name)
       assert_equal(::Zip::Entry::DEFLATED, entry.compression_method)
-      assert_equal(1000024, entry.size)
-      assert_equal(70847, entry.compressed_size)
+      assert_equal(1_000_024, entry.size)
+      assert_equal(70_847, entry.compressed_size)
       assert_equal(0x10da7d59, entry.crc)
       assert_equal('', entry.comment)
 

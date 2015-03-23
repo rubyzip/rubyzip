@@ -61,16 +61,16 @@ Zip::OutputStream.open('large_zip_file.zip') do |zos|
   puts 'Creating zip file...'
   10.times do |i|
     zos.put_next_entry("large_entry_#{i}.txt")
-    zos.puts 'Hello' * 104857600
+    zos.puts 'Hello' * 104_857_600
   end
 end
 
 # Splitting created large zip file
-part_zips_count = Zip::File.split('large_zip_file.zip', 2097152, false)
+part_zips_count = Zip::File.split('large_zip_file.zip', 2_097_152, false)
 puts "Zip file splitted in #{part_zips_count} parts"
 
 # Track splitting an archive
-Zip::File.split('large_zip_file.zip', 1048576, true, 'part_zip_file') do |part_count, part_index, chunk_bytes, segment_bytes|
+Zip::File.split('large_zip_file.zip', 1_048_576, true, 'part_zip_file') do |part_count, part_index, chunk_bytes, segment_bytes|
   puts "#{part_index} of #{part_count} part splitting: #{(chunk_bytes.to_f / segment_bytes.to_f * 100).to_i}%"
 end
 

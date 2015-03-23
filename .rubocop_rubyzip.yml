@@ -198,11 +198,6 @@ Style/NonNilCheck:
 Style/Not:
   Enabled: false
 
-# Offense count: 43
-# Cop supports --auto-correct.
-Style/NumericLiterals:
-  MinDigits: 12
-
 # Offense count: 3
 # Configuration parameters: MaxSlashes.
 Style/RegexpLiteral:

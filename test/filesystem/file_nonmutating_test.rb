@@ -275,17 +275,17 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_mtime
-    assert_equal(::Zip::DOSTime.at(1027694306),
+    assert_equal(::Zip::DOSTime.at(1_027_694_306),
                  @zip_file.file.mtime('dir2/file21'))
-    assert_equal(::Zip::DOSTime.at(1027690863),
+    assert_equal(::Zip::DOSTime.at(1_027_690_863),
                  @zip_file.file.mtime('dir2/dir21'))
     assert_raises(Errno::ENOENT) do
       @zip_file.file.mtime('noSuchEntry')
     end
 
-    assert_equal(::Zip::DOSTime.at(1027694306),
+    assert_equal(::Zip::DOSTime.at(1_027_694_306),
                  @zip_file.file.stat('dir2/file21').mtime)
-    assert_equal(::Zip::DOSTime.at(1027690863),
+    assert_equal(::Zip::DOSTime.at(1_027_690_863),
                  @zip_file.file.stat('dir2/dir21').mtime)
   end
 
@@ -301,7 +301,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
 
   def test_ntfs_time
     ::Zip::File.open('test/data/ntfs.zip') do |zf|
-      t = ::Zip::DOSTime.at(1410496497.405178)
+      t = ::Zip::DOSTime.at(1_410_496_497.405178)
       assert_equal(zf.file.mtime('data.txt'), t)
       assert_equal(zf.file.atime('data.txt'), t)
       assert_equal(zf.file.ctime('data.txt'), t)

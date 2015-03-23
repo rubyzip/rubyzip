@@ -25,7 +25,7 @@ class ZipFileSplitTest < MiniTest::Test
   end
 
   def test_split
-    result = ::Zip::File.split(TEST_ZIP.zip_name, 65536, false)
+    result = ::Zip::File.split(TEST_ZIP.zip_name, 65_536, false)
 
     unless result.nil?
       Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|

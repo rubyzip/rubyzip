@@ -52,10 +52,10 @@ class ZipCentralDirectoryTest < MiniTest::Test
   def test_write64_to_stream
     ::Zip.write_zip64_support = true
     entries = [::Zip::Entry.new('file.zip', 'file1-little', 'comment1', '', 200, 101, ::Zip::Entry::STORED, 200),
-               ::Zip::Entry.new('file.zip', 'file2-big', 'comment2', '', 18000000000, 102, ::Zip::Entry::DEFLATED, 20000000000),
-               ::Zip::Entry.new('file.zip', 'file3-alsobig', 'comment3', '', 15000000000, 103, ::Zip::Entry::DEFLATED, 21000000000),
+               ::Zip::Entry.new('file.zip', 'file2-big', 'comment2', '', 18_000_000_000, 102, ::Zip::Entry::DEFLATED, 20_000_000_000),
+               ::Zip::Entry.new('file.zip', 'file3-alsobig', 'comment3', '', 15_000_000_000, 103, ::Zip::Entry::DEFLATED, 21_000_000_000),
                ::Zip::Entry.new('file.zip', 'file4-little', 'comment4', '', 100, 104, ::Zip::Entry::DEFLATED, 121)]
-    [0, 250, 18000000300, 33000000350].each_with_index do |offset, index|
+    [0, 250, 18_000_000_300, 33_000_000_350].each_with_index do |offset, index|
       entries[index].local_header_offset = offset
     end
     cdir = ::Zip::CentralDirectory.new(entries, 'zip comment')

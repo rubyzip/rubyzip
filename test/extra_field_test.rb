@@ -21,7 +21,7 @@ class ZipExtraFieldTest < MiniTest::Test
     str = "\x0A\x00 \x00\x00\x00\x00\x00\x01\x00\x18\x00\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01"
     extra = ::Zip::ExtraField.new(str)
     assert(extra.member?('NTFS'))
-    t = ::Zip::DOSTime.at(1410496497.405178)
+    t = ::Zip::DOSTime.at(1_410_496_497.405178)
     assert_equal(t, extra['NTFS'].mtime)
     assert_equal(t, extra['NTFS'].atime)
     assert_equal(t, extra['NTFS'].ctime)

@@ -30,7 +30,7 @@ class ZipLocalEntryTest < MiniTest::Test
     ::File.open('test/data/rubycode.zip', 'rb') do |file|
       entry = ::Zip::Entry.read_local_entry(file)
       assert_equal('zippedruby1.rb', entry.name)
-      assert_equal(::Zip::DOSTime.at(1019261638), entry.time)
+      assert_equal(::Zip::DOSTime.at(1_019_261_638), entry.time)
     end
   end
 
@@ -52,7 +52,7 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_writeEntry
     entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
-                             'thisIsSomeExtraInformation', 100, 987654,
+                             'thisIsSomeExtraInformation', 100, 987_654,
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file(LEH_FILE, CEH_FILE, entry)
     entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
@@ -64,7 +64,7 @@ class ZipLocalEntryTest < MiniTest::Test
   def test_writeEntryWithZip64
     ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
-                             'thisIsSomeExtraInformation', 100, 987654,
+                             'thisIsSomeExtraInformation', 100, 987_654,
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file(LEH_FILE, CEH_FILE, entry)
     entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
@@ -105,7 +105,7 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_readLocalOffset
     entry = ::Zip::Entry.new('file.zip', 'entryName')
-    entry.local_header_offset = 12345
+    entry.local_header_offset = 12_345
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
     ::File.open(CEH_FILE, 'rb') { |f| read_entry = ::Zip::Entry.read_c_dir_entry(f) }

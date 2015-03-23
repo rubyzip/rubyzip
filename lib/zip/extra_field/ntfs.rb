@@ -5,8 +5,8 @@ module Zip
     HEADER_ID = [0x000A].pack('v')
     register_map
 
-    WINDOWS_TICK = 10000000.0
-    SEC_TO_UNIX_EPOCH = 11644473600
+    WINDOWS_TICK = 10_000_000.0
+    SEC_TO_UNIX_EPOCH = 11_644_473_600
 
     def initialize(binstr = nil)
       @ctime = nil

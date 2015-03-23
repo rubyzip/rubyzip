@@ -4,7 +4,7 @@ class ZipEntryTest < MiniTest::Test
   TEST_ZIPFILE = 'someZipFile.zip'
   TEST_COMMENT = 'a comment'
   TEST_COMPRESSED_SIZE = 1234
-  TEST_CRC = 325324
+  TEST_CRC = 325_324
   TEST_EXTRA = 'Some data here'
   TEST_COMPRESSIONMETHOD = ::Zip::Entry::DEFLATED
   TEST_NAME = 'entry name'
@@ -50,28 +50,28 @@ class ZipEntryTest < MiniTest::Test
   def test_equality
     entry1 = ::Zip::Entry.new('file.zip', 'name', 'isNotCompared',
                               'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10000)
+                              ::Zip::Entry::DEFLATED, 10_000)
     entry2 = ::Zip::Entry.new('file.zip', 'name', 'isNotComparedXXX',
                               'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10000)
+                              ::Zip::Entry::DEFLATED, 10_000)
     entry3 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10000)
+                              ::Zip::Entry::DEFLATED, 10_000)
     entry4 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10000)
+                              ::Zip::Entry::DEFLATED, 10_000)
     entry5 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 1234,
-                              ::Zip::Entry::DEFLATED, 10000)
+                              ::Zip::Entry::DEFLATED, 10_000)
     entry6 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 123,
-                              ::Zip::Entry::DEFLATED, 10000)
+                              ::Zip::Entry::DEFLATED, 10_000)
     entry7 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 123,
-                              ::Zip::Entry::STORED, 10000)
+                              ::Zip::Entry::STORED, 10_000)
     entry8 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 123,
-                              ::Zip::Entry::STORED, 100000)
+                              ::Zip::Entry::STORED, 100_000)
 
     assert_equal(entry1, entry1)
     assert_equal(entry1, entry2)

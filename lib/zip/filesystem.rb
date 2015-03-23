@@ -163,7 +163,7 @@ module Zip
           if e.fstype == 3
             e.external_file_attributes >> 16
           else
-            33206 # 33206 is equivalent to -rw-rw-rw-
+            33_206 # 33206 is equivalent to -rw-rw-rw-
           end
         end
       end

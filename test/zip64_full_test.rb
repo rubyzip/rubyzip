@@ -27,9 +27,9 @@ if ENV['FULL_ZIP64_TEST']
         io.write(first_text)
 
         # write just over 4GB (stored, so the zip file exceeds 4GB)
-        buf = 'blah' * 16384
+        buf = 'blah' * 16_384
         io.put_next_entry('huge_file', nil, nil, ::Zip::Entry::STORED)
-        65537.times { io.write(buf) }
+        65_537.times { io.write(buf) }
 
         io.put_next_entry('last_file.txt')
         io.write(last_text)

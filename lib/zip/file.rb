@@ -46,8 +46,8 @@ module Zip
     CREATE               = 1
     SPLIT_SIGNATURE      = 0x08074b50
     ZIP64_EOCD_SIGNATURE = 0x06064b50
-    MAX_SEGMENT_SIZE     = 3221225472
-    MIN_SEGMENT_SIZE     = 65536
+    MAX_SEGMENT_SIZE     = 3_221_225_472
+    MIN_SEGMENT_SIZE     = 65_536
     DATA_BUFFER_SIZE     = 8192
 
     attr_reader :name
