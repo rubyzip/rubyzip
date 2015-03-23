@@ -19,8 +19,8 @@ module Zip
     def ==(other)
       other.original_size == @original_size &&
         other.compressed_size == @compressed_size &&
-          other.relative_header_offset == @relative_header_offset &&
-            other.disk_start_number == @disk_start_number
+        other.relative_header_offset == @relative_header_offset &&
+        other.disk_start_number == @disk_start_number
     end
 
     def merge(binstr)

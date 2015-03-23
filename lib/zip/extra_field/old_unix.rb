@@ -29,8 +29,8 @@ module Zip
     def ==(other)
       @uid == other.uid &&
         @gid == other.gid &&
-          @atime == other.atime &&
-            @mtime == other.mtime
+        @atime == other.atime &&
+        @mtime == other.mtime
     end
 
     def pack_for_local

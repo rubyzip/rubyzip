@@ -173,12 +173,6 @@ Style/ModuleFunction:
 Style/MultilineBlockChain:
   Enabled: false
 
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/MultilineOperationIndentation:
-  Enabled: false
-
 # Offense count: 1
 Style/MultilineTernaryOperator:
   Enabled: false
