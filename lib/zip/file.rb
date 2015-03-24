@@ -180,7 +180,7 @@ module Zip
       def save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
         ssegment_size  = zip_file_size - zip_file.pos
         ssegment_size  = segment_size if ssegment_size > segment_size
-        szip_file_name = "#{partial_zip_file_name}.#{'%03d' % (szip_file_index)}"
+        szip_file_name = "#{partial_zip_file_name}.#{format('%03d', szip_file_index)}"
         ::File.open(szip_file_name, 'wb') do |szip_file|
           if szip_file_index == 1
             ssegment_size = put_split_signature(szip_file, segment_size)

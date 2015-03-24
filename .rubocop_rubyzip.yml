@@ -134,10 +134,10 @@ Style/EmptyLinesAroundMethodBody:
 Style/FileName:
   Enabled: false
 
-# Offense count: 2
+# Offense count: 1
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/FormatString:
-  Enabled: false
+  Enabled: true
 
 # Offense count: 1
 # Cop supports --auto-correct.
