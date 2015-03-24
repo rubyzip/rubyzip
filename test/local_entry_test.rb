@@ -8,7 +8,7 @@ class ZipLocalEntryTest < MiniTest::Test
     ::Zip.write_zip64_support = false
   end
 
-  def test_read_local_entryHeaderOfFirstTestZipEntry
+  def test_read_local_entry_header_of_first_test_zip_entry
     ::File.open(TestZipFile::TEST_ZIP3.zip_name, 'rb') do |file|
       entry = ::Zip::Entry.read_local_entry(file)
 
@@ -26,7 +26,7 @@ class ZipLocalEntryTest < MiniTest::Test
     end
   end
 
-  def test_readDateTime
+  def test_read_date_time
     ::File.open('test/data/rubycode.zip', 'rb') do |file|
       entry = ::Zip::Entry.read_local_entry(file)
       assert_equal('zippedruby1.rb', entry.name)
@@ -34,13 +34,13 @@ class ZipLocalEntryTest < MiniTest::Test
     end
   end
 
-  def test_read_local_entryFromNonZipFile
+  def test_read_local_entry_from_non_zip_file
     ::File.open('test/data/file2.txt') do |file|
       assert_equal(nil, ::Zip::Entry.read_local_entry(file))
     end
   end
 
-  def test_read_local_entryFromTruncatedZipFile
+  def test_read_local_entry_from_truncated_zip_file
     zipFragment = ''
     ::File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
     zipFragment.extend(IOizeString).reset
@@ -50,7 +50,7 @@ class ZipLocalEntryTest < MiniTest::Test
   rescue ::Zip::Error
   end
 
-  def test_writeEntry
+  def test_write_entry
     entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
                              'thisIsSomeExtraInformation', 100, 987_654,
                              ::Zip::Entry::DEFLATED, 400)
@@ -61,7 +61,7 @@ class ZipLocalEntryTest < MiniTest::Test
     compare_c_dir_entry_headers(entry, entryReadCentral)
   end
 
-  def test_writeEntryWithZip64
+  def test_write_entry_with_zip64
     ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
                              'thisIsSomeExtraInformation', 100, 987_654,
@@ -75,7 +75,7 @@ class ZipLocalEntryTest < MiniTest::Test
     compare_c_dir_entry_headers(entry, entryReadCentral)
   end
 
-  def test_write64Entry
+  def test_write_64entry
     ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new('bigfile.zip', 'entryName', 'my little equine',
                              'malformed extra field because why not',
@@ -87,7 +87,7 @@ class ZipLocalEntryTest < MiniTest::Test
     compare_c_dir_entry_headers(entry, entryReadCentral)
   end
 
-  def test_rewriteLocalHeader64
+  def test_rewrite_local_header64
     ::Zip.write_zip64_support = true
     buf1 = StringIO.new
     entry = ::Zip::Entry.new('file.zip', 'entryName')
@@ -103,7 +103,7 @@ class ZipLocalEntryTest < MiniTest::Test
     assert_equal(buf1.size, buf2.size) # it can't grow, or we'd clobber file data
   end
 
-  def test_readLocalOffset
+  def test_read_local_offset
     entry = ::Zip::Entry.new('file.zip', 'entryName')
     entry.local_header_offset = 12_345
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
@@ -112,7 +112,7 @@ class ZipLocalEntryTest < MiniTest::Test
     compare_c_dir_entry_headers(entry, read_entry)
   end
 
-  def test_read64LocalOffset
+  def test_read64_local_offset
     ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new('file.zip', 'entryName')
     entry.local_header_offset = 0x0123456789ABCDEF

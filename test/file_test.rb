@@ -10,7 +10,7 @@ class ZipFileTest < MiniTest::Test
     ::Zip.write_zip64_support = false
   end
 
-  def test_createFromScratchToBuffer
+  def test_create_from_scratch_to_buffer
     comment = 'a short comment'
 
     buffer = ::Zip::File.add_buffer do |zf|
@@ -26,7 +26,7 @@ class ZipFileTest < MiniTest::Test
     assert_equal(2, zfRead.entries.length)
   end
 
-  def test_createFromScratch
+  def test_create_from_scratch
     comment = 'a short comment'
 
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
@@ -125,7 +125,7 @@ class ZipFileTest < MiniTest::Test
     assert_equal(::File.stat(srcZip).mode, 0100664)
   end
 
-  def test_addExistingEntryName
+  def test_add_existing_entry_name
     assert_raises(::Zip::EntryExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.add(zf.entries.first.name, 'test/data/file2.txt')
@@ -133,7 +133,7 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
-  def test_addExistingEntryNameReplace
+  def test_add_existing_entry_name_replace
     gotCalled = false
     replacedEntry = nil
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
@@ -146,7 +146,7 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
-  def test_addDirectory
+  def test_add_directory
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       zf.add(TestFiles::EMPTY_TEST_DIR, TestFiles::EMPTY_TEST_DIR)
     end
@@ -230,7 +230,7 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
-  def test_renameToExistingEntry
+  def test_rename_to_existing_entry
     oldEntries = nil
     ::Zip::File.open(TEST_ZIP.zip_name) { |zf| oldEntries = zf.entries }
 
@@ -245,7 +245,7 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
-  def test_renameToExistingEntryOverwrite
+  def test_rename_to_existing_entry_overwrite
     oldEntries = nil
     ::Zip::File.open(TEST_ZIP.zip_name) { |zf| oldEntries = zf.entries }
 
@@ -264,7 +264,7 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
-  def test_renameNonEntry
+  def test_rename_non_entry
     nonEntry = 'bogusEntry'
     target_entry = 'target_entryName'
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
@@ -276,7 +276,7 @@ class ZipFileTest < MiniTest::Test
     zf.close
   end
 
-  def test_renameEntryToExistingEntry
+  def test_rename_entry_to_existing_entry
     entry1, entry2, * = TEST_ZIP.entry_names
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
     assert_raises(::Zip::EntryExistsError) { zf.rename(entry1, entry2) }
@@ -303,7 +303,7 @@ class ZipFileTest < MiniTest::Test
     zfRead.close
   end
 
-  def test_replaceNonEntry
+  def test_replace_non_entry
     entryToReplace = 'nonExistingEntryname'
     ::Zip::File.open(TEST_ZIP.zip_name) do  |zf|
       assert_raises(Errno::ENOENT) { zf.replace(entryToReplace, 'test/data/file2.txt') }
@@ -367,7 +367,7 @@ class ZipFileTest < MiniTest::Test
   # This test tests that after commit, you
   # can delete the file you used to add the entry to the zip file
   # with
-  def test_commitUseZipEntry
+  def test_commit_use_zip_entry
     FileUtils.cp(TestFiles::RANDOM_ASCII_FILE1, OK_DELETE_FILE)
     zf = ::Zip::File.open(TEST_ZIP.zip_name)
     zf.add('okToDelete.txt', OK_DELETE_FILE)
@@ -464,7 +464,7 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
-  def test_changeComment
+  def test_change_comment
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       zf.comment = 'my changed comment'
     end
@@ -522,7 +522,7 @@ class ZipFileTest < MiniTest::Test
 
   def assert_contains(zf, entryName, filename = entryName)
     assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entryContents(zf, entryName, filename) if File.exist?(filename)
+    assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
   end
 
   def assert_not_contains(zf, entryName)

@@ -57,7 +57,7 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
     end
   end
 
-  def test_ReadEntryFromTruncatedZipFile
+  def test_read_entry_from_truncated_zip_file
     fragment = ''
     File.open('test/data/testDirectory.bin') { |f| fragment = f.read(12) } # cdir entry header is at least 46 bytes
     fragment.extend(IOizeString)

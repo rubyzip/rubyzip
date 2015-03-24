@@ -10,19 +10,19 @@ class ZipInputStreamTest < MiniTest::Test
     zis.close
   end
 
-  def test_openWithBlock
+  def test_open_with_block
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
     end
   end
 
-  def test_openWithoutBlock
+  def test_open_without_block
     zis = ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, 'rb'))
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
-  def test_openBufferWithBlock
+  def test_open_buffer_with_block
     ::Zip::InputStream.open(File.new(TestZipFile::TEST_ZIP2.zip_name, 'rb')) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
@@ -43,12 +43,12 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
-  def test_openBufferWithoutBlock
+  def test_open_buffer_without_block
     zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
-  def test_incompleteReads
+  def test_incomplete_reads
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)

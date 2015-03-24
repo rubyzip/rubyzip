@@ -160,11 +160,6 @@ Style/IfUnlessModifier:
 Style/InfiniteLoop:
   Enabled: false
 
-# Offense count: 58
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/MethodName:
-  Enabled: false
-
 # Offense count: 1
 Style/ModuleFunction:
   Enabled: false

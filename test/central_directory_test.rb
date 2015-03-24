@@ -17,7 +17,7 @@ class ZipCentralDirectoryTest < MiniTest::Test
     end
   end
 
-  def test_readFromInvalidStream
+  def test_read_from_invalid_stream
     File.open('test/data/file2.txt', 'rb') do |zipFile|
       cdir = ::Zip::CentralDirectory.new
       cdir.read_from_stream(zipFile)
@@ -26,7 +26,7 @@ class ZipCentralDirectoryTest < MiniTest::Test
   rescue ::Zip::Error
   end
 
-  def test_ReadFromTruncatedZipFile
+  def test_read_from_truncated_zip_file
     fragment = ''
     File.open('test/data/testDirectory.bin', 'rb') { |f| fragment = f.read }
     fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete

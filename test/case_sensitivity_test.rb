@@ -65,6 +65,6 @@ class ZipFileTest < MiniTest::Test
   private
   def assert_contains(zf, entryName, filename = entryName)
     assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entryContents(zf, entryName, filename) if File.exist?(filename)
+    assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
   end
 end

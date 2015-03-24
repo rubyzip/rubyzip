@@ -24,7 +24,7 @@ class ZipFileGenerator
     entries.delete('..')
     io = Zip::File.open(@outputFile, Zip::File::CREATE)
 
-    writeEntries(entries, '', io)
+    write_entries(entries, '', io)
     io.close
   end
 
@@ -32,7 +32,7 @@ class ZipFileGenerator
 
   private
 
-  def writeEntries(entries, path, io)
+  def write_entries(entries, path, io)
     entries.each do |e|
       zipFilePath = path == '' ? e : File.join(path, e)
       diskFilePath = File.join(@inputDir, zipFilePath)
@@ -42,7 +42,7 @@ class ZipFileGenerator
         subdir = Dir.entries(diskFilePath)
         subdir.delete('.')
         subdir.delete('..')
-        writeEntries(subdir, zipFilePath, io)
+        write_entries(subdir, zipFilePath, io)
       else
         io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, 'rb').read) }
       end

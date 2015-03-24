@@ -48,7 +48,7 @@ class AbstractInputStreamTest < MiniTest::Test
     assert_equal(4, @io.lineno)
   end
 
-  def test_getsMultiCharSeperator
+  def test_gets_multi_char_seperator
     assert_equal('Hell', @io.gets('ll'))
     assert_equal("o world#{$/}this is the second l", @io.gets('d l'))
   end
@@ -59,14 +59,14 @@ class AbstractInputStreamTest < MiniTest::Test
     'rest'
   ]
 
-  def test_getsMulitCharSeperator_split
+  def test_gets_mulit_char_seperator_split
     io = TestAbstractInputStream.new(LONG_LINES.join)
     assert_equal(LONG_LINES[0], io.gets("\r\n"))
     assert_equal(LONG_LINES[1], io.gets("\r\n"))
     assert_equal(LONG_LINES[2], io.gets("\r\n"))
   end
 
-  def test_getsWithSepAndIndex
+  def test_gets_with_sep_and_index
     io = TestAbstractInputStream.new(LONG_LINES.join)
     assert_equal('x', io.gets("\r\n", 1))
     assert_equal('x' * 47 + "\r", io.gets("\r\n", 48))
@@ -74,7 +74,7 @@ class AbstractInputStreamTest < MiniTest::Test
     assert_equal('yy', io.gets(nil, 2))
   end
 
-  def test_getsWithIndex
+  def test_gets_with_index
     assert_equal(TEST_LINES[0], @io.gets(100))
     assert_equal('this', @io.gets(4))
   end

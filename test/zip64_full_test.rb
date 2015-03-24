@@ -12,16 +12,16 @@ if ENV['FULL_ZIP64_TEST']
       ::Zip.reset!
     end
 
-    def prepareTestFile(test_filename)
+    def prepare_test_file(test_filename)
       ::File.delete(test_filename) if ::File.exist?(test_filename)
       test_filename
     end
 
-    def test_largeZipFile
+    def test_large_zip_file
       ::Zip.write_zip64_support = true
       first_text = 'starting out small'
       last_text = 'this tests files starting after 4GB in the archive'
-      test_filename = prepareTestFile('huge.zip')
+      test_filename = prepare_test_file('huge.zip')
       ::Zip::OutputStream.open(test_filename) do |io|
         io.put_next_entry('first_file.txt')
         io.write(first_text)

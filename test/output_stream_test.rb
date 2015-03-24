@@ -47,13 +47,13 @@ class ZipOutputStreamTest < MiniTest::Test
     assert_test_zip_contents(TEST_ZIP)
   end
 
-  def test_writingToClosedStream
+  def test_writing_to_closed_stream
     assert_i_o_error_in_closed_stream { |zos| zos << 'hello world' }
     assert_i_o_error_in_closed_stream { |zos| zos.puts 'hello world' }
     assert_i_o_error_in_closed_stream { |zos| zos.write 'hello world' }
   end
 
-  def test_cannotOpenFile
+  def test_cannot_open_file
     name = TestFiles::EMPTY_TEST_DIR
     begin
       ::Zip::OutputStream.open(name)

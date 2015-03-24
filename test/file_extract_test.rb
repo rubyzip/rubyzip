@@ -29,7 +29,7 @@ class ZipFileExtractTest < MiniTest::Test
     end
   end
 
-  def test_extractExists
+  def test_extract_exists
     writtenText = 'written text'
     ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(writtenText) }
 
@@ -43,7 +43,7 @@ class ZipFileExtractTest < MiniTest::Test
     end
   end
 
-  def test_extractExistsOverwrite
+  def test_extract_exists_overwrite
     writtenText = 'written text'
     ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(writtenText) }
 
@@ -62,14 +62,14 @@ class ZipFileExtractTest < MiniTest::Test
     end
   end
 
-  def test_extractNonEntry
+  def test_extract_non_entry
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
     assert_raises(Errno::ENOENT) { zf.extract('nonExistingEntry', 'nonExistingEntry') }
   ensure
     zf.close if zf
   end
 
-  def test_extractNonEntry2
+  def test_extract_non_entry_2
     outFile = 'outfile'
     assert_raises(Errno::ENOENT) do
       zf = ::Zip::File.new(TEST_ZIP.zip_name)

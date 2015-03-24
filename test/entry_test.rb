@@ -12,7 +12,7 @@ class ZipEntryTest < MiniTest::Test
   TEST_ISDIRECTORY = false
   TEST_TIME = Time.now
 
-  def test_constructorAndGetters
+  def test_constructor_and_getters
     entry = ::Zip::Entry.new(TEST_ZIPFILE,
                              TEST_NAME,
                              TEST_COMMENT,
@@ -33,7 +33,7 @@ class ZipEntryTest < MiniTest::Test
     assert_equal(TEST_TIME, entry.time)
   end
 
-  def test_is_directoryAndIsFile
+  def test_is_directory_and_is_file
     assert(::Zip::Entry.new(TEST_ZIPFILE, 'hello').file?)
     assert(!::Zip::Entry.new(TEST_ZIPFILE, 'hello').directory?)
 
@@ -110,7 +110,7 @@ class ZipEntryTest < MiniTest::Test
     assert_equal('5', entries[5].to_s)
   end
 
-  def test_parentAsString
+  def test_parent_as_string
     entry1 = ::Zip::Entry.new('zf.zip', 'aa')
     entry2 = ::Zip::Entry.new('zf.zip', 'aa/')
     entry3 = ::Zip::Entry.new('zf.zip', 'aa/bb')

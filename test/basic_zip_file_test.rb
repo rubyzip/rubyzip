@@ -49,12 +49,12 @@ class BasicZipFileTest < MiniTest::Test
     assert_equal(TestZipFile::TEST_ZIP2.entry_names.length, count)
   end
 
-  def test_get_input_streamBlock
+  def test_get_input_stream_block
     fileAndEntryName = @zip_file.entries.first.name
     @zip_file.get_input_stream(fileAndEntryName) do |zis|
-      assert_entryContentsForStream(fileAndEntryName,
-                                    zis,
-                                    fileAndEntryName)
+      assert_entry_contents_for_stream(fileAndEntryName,
+                                       zis,
+                                       fileAndEntryName)
     end
   end
 end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 class NotZippedRuby
-  def returnTrue
+  def return_true
     true
   end
 end

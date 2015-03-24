@@ -59,11 +59,11 @@ module DecompressorTests
     @refLines = @refText.split($/)
   end
 
-  def test_readEverything
+  def test_read_everything
     assert_equal(@refText, @decompressor.sysread)
   end
 
-  def test_readInChunks
+  def test_read_in_chunks
     chunkSize = 5
     while (decompressedChunk = @decompressor.sysread(chunkSize))
       assert_equal(@refText.slice!(0, chunkSize), decompressedChunk)
@@ -71,7 +71,7 @@ module DecompressorTests
     assert_equal(0, @refText.size)
   end
 
-  def test_mixingReadsAndProduceInput
+  def test_mixing_reads_and_produce_input
     # Just some preconditions to make sure we have enough data for this test
     assert(@refText.length > 1000)
     assert(@refLines.length > 40)
@@ -91,10 +91,10 @@ module AssertEntry
 
   def assert_entry(filename, zis, entryName)
     assert_equal(filename, entryName)
-    assert_entryContentsForStream(filename, zis, entryName)
+    assert_entry_contents_for_stream(filename, zis, entryName)
   end
 
-  def assert_entryContentsForStream(filename, zis, entryName)
+  def assert_entry_contents_for_stream(filename, zis, entryName)
     File.open(filename, 'rb') do |file|
       expected = file.read
       actual = zis.read
@@ -138,9 +138,9 @@ module AssertEntry
     end
   end
 
-  def assert_entryContents(zipFile, entryName, filename = entryName.to_s)
+  def assert_entry_contents(zipFile, entryName, filename = entryName.to_s)
     zis = zipFile.get_input_stream(entryName)
-    assert_entryContentsForStream(filename, zis, entryName)
+    assert_entry_contents_for_stream(filename, zis, entryName)
   ensure
     zis.close if zis
   end
