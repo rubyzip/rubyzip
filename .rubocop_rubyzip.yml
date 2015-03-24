@@ -110,10 +110,6 @@ Style/CommentIndentation:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 3
-Style/EmptyElse:
-  Enabled: false
-
 # Offense count: 1
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/FormatString:

@@ -328,8 +328,6 @@ module Zip
           e.extra['UniversalTime'].atime
         elsif e.extra.member? 'NTFS'
           e.extra['NTFS'].atime
-        else
-          nil
         end
       end
 
@@ -339,8 +337,6 @@ module Zip
           e.extra['UniversalTime'].ctime
         elsif e.extra.member? 'NTFS'
           e.extra['NTFS'].ctime
-        else
-          nil
         end
       end
 

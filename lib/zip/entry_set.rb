@@ -32,8 +32,6 @@ module Zip
     def delete(entry)
       if @entry_set.delete(to_key(entry))
         entry
-      else
-        nil
       end
     end
 
