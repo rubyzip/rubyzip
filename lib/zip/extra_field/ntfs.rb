@@ -55,9 +55,7 @@ module Zip
         tag1 << [to_ntfs_time(@mtime)].pack('Q<')
         if @atime
           tag1 << [to_ntfs_time(@atime)].pack('Q<')
-          if @ctime
-            tag1 << [to_ntfs_time(@ctime)].pack('Q<')
-          end
+          tag1 << [to_ntfs_time(@ctime)].pack('Q<') if @ctime
         end
       end
       s << [tag1.bytesize].pack('v') << tag1

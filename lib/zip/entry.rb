@@ -654,10 +654,7 @@ module Zip
     def prep_zip64_extra(for_local_header) #:nodoc:all
       return unless ::Zip.write_zip64_support
       need_zip64 = @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
-      unless for_local_header
-        need_zip64 ||= @local_header_offset >= 0xFFFFFFFF
-      end
-
+      need_zip64 ||= @local_header_offset >= 0xFFFFFFFF unless for_local_header
       if need_zip64
         @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
         @extra.delete('Zip64Placeholder')

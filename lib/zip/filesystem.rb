@@ -266,9 +266,7 @@ module Zip
       def chown(ownerInt, groupInt, *filenames)
         filenames.each do |fileName|
           e = get_entry(fileName)
-          unless e.extra.member?('IUnix')
-            e.extra.create('IUnix')
-          end
+          e.extra.create('IUnix') unless e.extra.member?('IUnix')
           e.extra['IUnix'].uid = ownerInt
           e.extra['IUnix'].gid = groupInt
         end
@@ -387,9 +385,7 @@ module Zip
       end
 
       def stat(fileName)
-        unless exists?(fileName)
-          raise Errno::ENOENT, fileName
-        end
+        raise Errno::ENOENT, fileName unless exists?(fileName)
         ZipFsStat.new(self, fileName)
       end
 

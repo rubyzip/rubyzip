@@ -199,9 +199,7 @@ class ZipFileTest < MiniTest::Test
 
   def test_rename_with_each
     zf_name = 'test_rename_zip.zip'
-    if ::File.exist?(zf_name)
-      ::File.unlink(zf_name)
-    end
+    ::File.unlink(zf_name) if ::File.exist?(zf_name)
     arr = []
     arr_renamed = []
     ::Zip::File.open(zf_name, ::Zip::File::CREATE) do |zf|
@@ -225,9 +223,7 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.open(zf_name)
     assert_equal(zf.entries.map(&:name), arr_renamed)
     zf.close
-    if ::File.exist?(zf_name)
-      ::File.unlink(zf_name)
-    end
+    ::File.unlink(zf_name) if ::File.exist?(zf_name)
   end
 
   def test_rename_to_existing_entry

@@ -75,9 +75,7 @@ module Zip
         over_limit   = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         while (match_index = @output_buffer.index(a_sep_string, buffer_index)).nil? && !over_limit
           buffer_index = [buffer_index, @output_buffer.bytesize - a_sep_string.bytesize].max
-          if input_finished?
-            return @output_buffer.empty? ? nil : flush
-          end
+          return @output_buffer.empty? ? nil : flush if input_finished?
           @output_buffer << produce_input
           over_limit = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         end

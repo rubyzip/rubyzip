@@ -354,9 +354,7 @@ module Zip
     # if no entry is found.
     def get_entry(entry)
       selected_entry = find_entry(entry)
-      unless selected_entry
-        raise Errno::ENOENT, entry
-      end
+      raise Errno::ENOENT, entry unless selected_entry
       selected_entry.restore_ownership   = @restore_ownership
       selected_entry.restore_permissions = @restore_permissions
       selected_entry.restore_times       = @restore_times
@@ -365,9 +363,7 @@ module Zip
 
     # Creates a directory
     def mkdir(entryName, permissionInt = 0755)
-      if find_entry(entryName)
-        raise Errno::EEXIST, "File exists - #{entryName}"
-      end
+      raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
       @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
@@ -400,9 +396,7 @@ module Zip
     end
 
     def check_file(path)
-      unless ::File.readable?(path)
-        raise Errno::ENOENT, path
-      end
+      raise Errno::ENOENT, path unless ::File.readable?(path)
     end
 
     def on_success_replace
@@ -412,9 +406,7 @@ module Zip
       tmpfile.close
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
-        if defined?(@exist_file_perms)
-          ::File.chmod(@exist_file_perms, name)
-        end
+        ::File.chmod(@exist_file_perms, name) if defined?(@exist_file_perms)
       end
     ensure
       tmpfile.unlink if tmpfile
