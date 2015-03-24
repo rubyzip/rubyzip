@@ -22,9 +22,6 @@ Lint/RescueException:
 Lint/UnusedBlockArgument:
   Enabled: false
 
-# Offense count: 1
-Lint/UselessAccessModifier:
-  Enabled: false
 
 # Offense count: 1
 Lint/UselessComparison:

@@ -162,8 +162,6 @@ module Zip
       @name
     end
 
-    protected
-
     class << self
       def read_zip_short(io) # :nodoc:
         io.read(2).unpack('v')[0]
