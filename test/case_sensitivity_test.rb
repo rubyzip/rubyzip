@@ -40,7 +40,6 @@ class ZipFileTest < MiniTest::Test
     assert_raises Zip::EntryExistsError do
       SRC_FILES.each { |fn, en| zf.add(en, fn) }
     end
-
   end
 
   # Ensure that names are treated case insensitively when reading files and +case_insensitive_match = true+
