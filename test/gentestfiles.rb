@@ -66,7 +66,7 @@ class TestZipFile
     @comment = comment
   end
 
-  def TestZipFile.create_test_zips
+  def self.create_test_zips
     raise "failed to create test zip '#{TEST_ZIP1.zip_name}'" unless system("/usr/bin/zip #{TEST_ZIP1.zip_name} test/data/file2.txt")
     raise "failed to remove entry from '#{TEST_ZIP1.zip_name}'" unless system("/usr/bin/zip #{TEST_ZIP1.zip_name} -d test/data/file2.txt")
 

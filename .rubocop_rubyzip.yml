@@ -91,11 +91,6 @@ Style/ClassAndModuleChildren:
 Style/ClassCheck:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/ClassMethods:
-  Enabled: false
-
 # Offense count: 89
 Style/Documentation:
   Enabled: false

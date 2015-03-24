@@ -110,7 +110,7 @@ module AssertEntry
     end
   end
 
-  def AssertEntry.assert_contents(filename, aString)
+  def self.assert_contents(filename, aString)
     fileContents = ''
     File.open(filename, 'rb') { |f| fileContents = f.read }
     if (fileContents != aString)
