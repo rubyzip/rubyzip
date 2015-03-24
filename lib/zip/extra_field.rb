@@ -3,7 +3,7 @@ module Zip
     ID_MAP = {}
 
     def initialize(binstr = nil)
-      binstr && merge(binstr)
+      merge(binstr) if binstr
     end
 
     def extra_field_type_exist(binstr, id, len, i)
