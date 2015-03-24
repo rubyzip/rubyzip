@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ZipSettingsTest < MiniTest::Test
-  # TODO Refactor out into common test module
+  # TODO: Refactor out into common test module
   include CommonZipFileFixture
 
   TEST_OUT_NAME = 'test/data/generated/emptyOutDir'

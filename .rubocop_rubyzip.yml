@@ -96,11 +96,6 @@ Style/ClassCheck:
 Style/ClassMethods:
   Enabled: false
 
-# Offense count: 1
-# Configuration parameters: Keywords.
-Style/CommentAnnotation:
-  Enabled: false
-
 # Offense count: 89
 Style/Documentation:
   Enabled: false
