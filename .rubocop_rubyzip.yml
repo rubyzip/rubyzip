@@ -17,12 +17,6 @@ Lint/LiteralInCondition:
 Lint/RescueException:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Lint/UnusedBlockArgument:
-  Enabled: false
-
-
 # Offense count: 1
 Lint/UselessComparison:
   Enabled: false
