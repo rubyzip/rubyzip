@@ -199,7 +199,7 @@ Zip::ZipFind.find traverses into zip archives too.
 ======
 Source reorganized. Added ziprequire, which can be used to load ruby
 modules from a zip file, in a fashion similar to jar files in
-Java. Added gtkRubyzip, another sample application. Implemented
+Java. Added gtk_ruby_zip, another sample application. Implemented
 ZipInputStream.lineno and ZipInputStream.rewind
 
 Bug fixes:

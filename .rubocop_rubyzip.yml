@@ -130,11 +130,6 @@ Style/EmptyLinesAroundMethodBody:
   Enabled: false
 
 # Offense count: 1
-# Configuration parameters: Exclude.
-Style/FileName:
-  Enabled: false
-
-# Offense count: 1
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/FormatString:
   Enabled: false
