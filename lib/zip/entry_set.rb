@@ -30,9 +30,7 @@ module Zip
     alias length size
 
     def delete(entry)
-      if @entry_set.delete(to_key(entry))
-        entry
-      end
+      entry if @entry_set.delete(to_key(entry))
     end
 
     def each(&block)
