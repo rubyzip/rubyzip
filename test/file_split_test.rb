@@ -27,32 +27,31 @@ class ZipFileSplitTest < MiniTest::Test
   def test_split
     result = ::Zip::File.split(TEST_ZIP.zip_name, 65_536, false)
 
-    unless result.nil?
-      Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
-        File.open(zip_file_name, 'rb') do |zip_file|
-          zip_file.read([::Zip::File::SPLIT_SIGNATURE].pack('V').size) if index == 0
-          File.open(UNSPLITTED_FILENAME, 'ab') do |file|
-            file << zip_file.read
-          end
+    return if result.nil?
+    Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
+      File.open(zip_file_name, 'rb') do |zip_file|
+        zip_file.read([::Zip::File::SPLIT_SIGNATURE].pack('V').size) if index == 0
+        File.open(UNSPLITTED_FILENAME, 'ab') do |file|
+          file << zip_file.read
         end
       end
+    end
 
-      ::Zip::File.open(UNSPLITTED_FILENAME) do |zf|
-        zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
+    ::Zip::File.open(UNSPLITTED_FILENAME) do |zf|
+      zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
 
-        assert(File.exist?(EXTRACTED_FILENAME))
-        AssertEntry.assert_contents(EXTRACTED_FILENAME,
-                                    zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
+      assert(File.exist?(EXTRACTED_FILENAME))
+      AssertEntry.assert_contents(EXTRACTED_FILENAME,
+                                  zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
 
-        File.unlink(EXTRACTED_FILENAME)
+      File.unlink(EXTRACTED_FILENAME)
 
-        entry = zf.get_entry(ENTRY_TO_EXTRACT)
-        entry.extract(EXTRACTED_FILENAME)
+      entry = zf.get_entry(ENTRY_TO_EXTRACT)
+      entry.extract(EXTRACTED_FILENAME)
 
-        assert(File.exist?(EXTRACTED_FILENAME))
-        AssertEntry.assert_contents(EXTRACTED_FILENAME,
-                                    entry.get_input_stream { |is| is.read })
-      end
+      assert(File.exist?(EXTRACTED_FILENAME))
+      AssertEntry.assert_contents(EXTRACTED_FILENAME,
+                                  entry.get_input_stream { |is| is.read })
     end
   end
 end

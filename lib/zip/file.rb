@@ -385,13 +385,12 @@ module Zip
 
     def check_entry_exists(entryName, continue_on_exists_proc, procedureName)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
-      if @entry_set.include?(entryName)
-        if continue_on_exists_proc.call
-          remove get_entry(entryName)
-        else
-          raise ::Zip::EntryExistsError,
-                procedureName + " failed. Entry #{entryName} already exists"
-        end
+      return unless @entry_set.include?(entryName)
+      if continue_on_exists_proc.call
+        remove get_entry(entryName)
+      else
+        raise ::Zip::EntryExistsError,
+              procedureName + " failed. Entry #{entryName} already exists"
       end
     end
 

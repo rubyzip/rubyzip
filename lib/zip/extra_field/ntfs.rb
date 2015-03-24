@@ -26,12 +26,11 @@ module Zip
       tags = parse_tags(content)
 
       tag1 = tags[1]
-      if tag1
-        ntfs_mtime, ntfs_atime, ntfs_ctime = tag1.unpack('Q<Q<Q<')
-        ntfs_mtime && @mtime ||= from_ntfs_time(ntfs_mtime)
-        ntfs_atime && @atime ||= from_ntfs_time(ntfs_atime)
-        ntfs_ctime && @ctime ||= from_ntfs_time(ntfs_ctime)
-      end
+      return unless tag1
+      ntfs_mtime, ntfs_atime, ntfs_ctime = tag1.unpack('Q<Q<Q<')
+      ntfs_mtime && @mtime ||= from_ntfs_time(ntfs_mtime)
+      ntfs_atime && @atime ||= from_ntfs_time(ntfs_atime)
+      ntfs_ctime && @ctime ||= from_ntfs_time(ntfs_ctime)
     end
 
     def ==(other)

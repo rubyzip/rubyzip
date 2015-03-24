@@ -45,9 +45,8 @@ module Zip
     end
 
     def check_name(name)
-      if name.start_with?('/')
-        raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
-      end
+      return unless name.start_with?('/')
+      raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
     def initialize(*args)
@@ -332,21 +331,18 @@ module Zip
     end
 
     def check_c_dir_entry_static_header_length(buf)
-      unless buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
-        raise Error, 'Premature end of file. Not enough data for zip cdir entry header'
-      end
+      return if buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
+      raise Error, 'Premature end of file. Not enough data for zip cdir entry header'
     end
 
     def check_c_dir_entry_signature
-      unless header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
-        raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
-      end
+      return if header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+      raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
     end
 
     def check_c_dir_entry_comment_size
-      unless @comment && @comment.bytesize == @comment_length
-        raise ::Zip::Error, 'Truncated cdir zip entry header'
-      end
+      return if @comment && @comment.bytesize == @comment_length
+      raise ::Zip::Error, 'Truncated cdir zip entry header'
     end
 
     def read_c_dir_extra_field(io)
@@ -380,12 +376,11 @@ module Zip
     end
 
     def get_extra_attributes_from_path(path) # :nodoc:
-      unless Zip::RUNNING_ON_WINDOWS
-        stat        = file_stat(path)
-        @unix_uid   = stat.uid
-        @unix_gid   = stat.gid
-        @unix_perms = stat.mode & 07777
-      end
+      return if Zip::RUNNING_ON_WINDOWS
+      stat        = file_stat(path)
+      @unix_uid   = stat.uid
+      @unix_gid   = stat.gid
+      @unix_perms = stat.mode & 07777
     end
 
     def set_unix_permissions_on_path(dest_path)
