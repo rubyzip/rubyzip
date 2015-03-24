@@ -38,22 +38,22 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
 
       entry = ::Zip::Entry.read_c_dir_entry(file)
       assert_equal(nil, entry)
-# Fields that are not check by this test:
-#          version made by                 2 bytes
-#          version needed to extract       2 bytes
-#          general purpose bit flag        2 bytes
-#          last mod file time              2 bytes
-#          last mod file date              2 bytes
-#          compressed size                 4 bytes
-#          uncompressed size               4 bytes
-#          disk number start               2 bytes
-#          internal file attributes        2 bytes
-#          external file attributes        4 bytes
-#          relative offset of local header 4 bytes
+      # Fields that are not check by this test:
+      #          version made by                 2 bytes
+      #          version needed to extract       2 bytes
+      #          general purpose bit flag        2 bytes
+      #          last mod file time              2 bytes
+      #          last mod file date              2 bytes
+      #          compressed size                 4 bytes
+      #          uncompressed size               4 bytes
+      #          disk number start               2 bytes
+      #          internal file attributes        2 bytes
+      #          external file attributes        4 bytes
+      #          relative offset of local header 4 bytes
 
-#          file name (variable size)
-#          extra field (variable size)
-#          file comment (variable size)
+      #          file name (variable size)
+      #          extra field (variable size)
+      #          file comment (variable size)
     end
   end
 

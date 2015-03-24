@@ -475,10 +475,10 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     end
   end
 
-# Can be added later
-#  def test_select
-#    fail "implement test"
-#  end
+  # Can be added later
+  #  def test_select
+  #    fail "implement test"
+  #  end
 
   def test_readlines
     ::Zip::File.open('test/data/generated/zipWithDir.zip') do |zf|

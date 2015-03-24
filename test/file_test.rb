@@ -373,13 +373,13 @@ class ZipFileTest < MiniTest::Test
     assert_contains(zf, 'okToDelete.txt', OK_DELETE_MOVED_FILE)
   end
 
-#  def test_close
-#    zf = ZipFile.new(TEST_ZIP.zip_name)
-#    zf.close
-#    assert_raises(IOError) {
-#      zf.extract(TEST_ZIP.entry_names.first, "hullubullu")
-#    }
-#  end
+  #  def test_close
+  #    zf = ZipFile.new(TEST_ZIP.zip_name)
+  #    zf.close
+  #    assert_raises(IOError) {
+  #      zf.extract(TEST_ZIP.entry_names.first, "hullubullu")
+  #    }
+  #  end
 
   def test_compound1
     renamedName = 'renamedName'

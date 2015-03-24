@@ -144,9 +144,9 @@ class ZipEntrySetTest < MiniTest::Test
     entrySet = ::Zip::EntrySet.new(entries)
 
     assert_equal(entries[0, 1], entrySet.glob('*'))
-#    assert_equal(entries[FIXME], entrySet.glob("**"))
-#    res = entrySet.glob('a*')
-#    assert_equal(entries.size, res.size)
-#    assert_equal(entrySet.map { |e| e.name }, res.map { |e| e.name })
+    # assert_equal(entries[FIXME], entrySet.glob("**"))
+    # res = entrySet.glob('a*')
+    # assert_equal(entries.size, res.size)
+    # assert_equal(entrySet.map { |e| e.name }, res.map { |e| e.name })
   end
 end
