@@ -146,12 +146,6 @@ Style/GuardClause:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: SupportedStyles.
-Style/HashSyntax:
-  EnforcedStyle: hash_rockets
-
-# Offense count: 1
-# Cop supports --auto-correct.
 Style/InfiniteLoop:
   Enabled: false
 
