@@ -67,7 +67,7 @@ module Zip
       @time               = args[8] || ::Zip::DOSTime.now
 
       @ftype = name_is_directory? ? :directory : :file
-      @extra = ::Zip::ExtraField.new(@extra.to_s) unless ::Zip::ExtraField === @extra
+      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.is_a?(::Zip::ExtraField)
     end
 
     def time
@@ -240,7 +240,7 @@ module Zip
       if extra && extra.bytesize != @extra_length
         raise ::Zip::Error, 'Truncated local zip entry header'
       else
-        if ::Zip::ExtraField === @extra
+        if @extra.is_a?(::Zip::ExtraField)
           @extra.merge(extra)
         else
           @extra = ::Zip::ExtraField.new(extra)

@@ -94,7 +94,7 @@ module Zip
       end
       new_entry.comment = comment unless comment.nil?
       unless extra.nil?
-        new_entry.extra = ExtraField === extra ? extra : ExtraField.new(extra.to_s)
+        new_entry.extra = extra.is_a?(ExtraField) ? extra : ExtraField.new(extra.to_s)
       end
       new_entry.compression_method = compression_method unless compression_method.nil?
       init_next_entry(new_entry, level)

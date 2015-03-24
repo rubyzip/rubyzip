@@ -76,10 +76,6 @@ Style/Alias:
 Style/Blocks:
   Enabled: false
 
-# Offense count: 3
-Style/CaseEquality:
-  Enabled: false
-
 # Offense count: 7
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/ClassAndModuleChildren:
