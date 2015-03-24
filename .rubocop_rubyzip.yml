@@ -137,7 +137,7 @@ Style/FileName:
 # Offense count: 1
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/FormatString:
-  Enabled: true
+  Enabled: false
 
 # Offense count: 1
 # Cop supports --auto-correct.
