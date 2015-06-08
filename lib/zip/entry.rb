@@ -488,6 +488,7 @@ module Zip
         end
       else
         zis = ::Zip::InputStream.new(@zipfile, local_header_offset)
+        zis.instance_variable_set(:@internal, true)
         zis.get_next_entry
         if block_given?
           begin

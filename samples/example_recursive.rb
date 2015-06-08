@@ -7,14 +7,15 @@ require 'zip'
 #
 # Usage:
 #   directoryToZip = "/tmp/input"
-#   outputFile = "/tmp/out.zip"
-#   zf = ZipFileGenerator.new(directoryToZip, outputFile)
+#   output_file = "/tmp/out.zip"
+#   zf = ZipFileGenerator.new(directory_to_zip, output_file)
 #   zf.write()
 class ZipFileGenerator
+
   # Initialize with the directory to zip and the location of the output archive.
-  def initialize(inputDir, outputFile)
-    @inputDir = inputDir
-    @outputFile = outputFile
+  def initialize(input_dir, output_file)
+    @input_dir = input_dir
+    @output_file = output_file
   end
 
   # Zip the input directory.
