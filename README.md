@@ -4,11 +4,11 @@
 [![Code Climate](https://codeclimate.com/github/rubyzip/rubyzip.svg)](https://codeclimate.com/github/rubyzip/rubyzip)
 [![Coverage Status](https://img.shields.io/coveralls/rubyzip/rubyzip.svg)](https://coveralls.io/r/rubyzip/rubyzip?branch=master)
 
-rubyzip is a ruby library for reading and writing zip files.
+Rubyzip is a ruby library for reading and writing zip files.
 
 ## Important note
 
-Rubyzip interface changed!!! No need to do `require "zip/zip"` and `Zip` prefix in class names removed.
+The Rubyzip interface has changed!!! No need to do `require "zip/zip"` and `Zip` prefix in class names removed.
 
 If you have issues with any third-party gems that require an old version of rubyzip, you can use this workaround:
 
@@ -22,7 +22,7 @@ gem 'zip-zip' # will load compatibility for old rubyzip API.
 * Ruby 1.9.2 or greater
 
 ## Installation
-rubyzip is available on RubyGems, so:
+Rubyzip is available on RubyGems:
 
 ```
 gem install rubyzip
@@ -78,39 +78,54 @@ require 'zip'
 
 class ZipFileGenerator
   # Initialize with the directory to zip and the location of the output archive.
-  def initialize(inputDir, outputFile)
-    @inputDir = inputDir
-    @outputFile = outputFile
+  def initialize(input_dir, output_file)
+    @input_dir = input_dir
+    @output_file = output_file
   end
+
   # Zip the input directory.
-  def write()
-    entries = Dir.entries(@inputDir); entries.delete("."); entries.delete("..")
-    io = Zip::File.open(@outputFile, Zip::File::CREATE);
-    writeEntries(entries, "", io)
-    io.close();
+  def write
+    entries = Dir.entries(@input_dir) - %w(. ..)
+
+    ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |io|
+      write_entries entries, '', io
+    end
   end
-  # A helper method to make the recursion work.
+
   private
-  def writeEntries(entries, path, io)
-    entries.each { |e|
-      zipFilePath = path == "" ? e : File.join(path, e)
-      diskFilePath = File.join(@inputDir, zipFilePath)
-      puts "Deflating " + diskFilePath
-      if File.directory?(diskFilePath)
-        io.mkdir(zipFilePath)
-        subdir =Dir.entries(diskFilePath); subdir.delete("."); subdir.delete("..")
-        writeEntries(subdir, zipFilePath, io)
+
+  # A helper method to make the recursion work.
+  def write_entries(entries, path, io)
+    entries.each do |e|
+      zip_file_path = path == '' ? e : File.join(path, e)
+      disk_file_path = File.join(@input_dir, zip_file_path)
+      puts "Deflating #{disk_file_path}"
+
+      if File.directory? disk_file_path
+        recursively_deflate_directory(disk_file_path, io, zip_file_path)
       else
-        io.get_output_stream(zipFilePath) { |f| f.print(File.open(diskFilePath, "rb").read())}
+        put_into_archive(disk_file_path, io, zip_file_path)
       end
-    }
+    end
+  end
+
+  def recursively_deflate_directory(disk_file_path, io, zip_file_path)
+    io.mkdir zip_file_path
+    subdir = Dir.entries(disk_file_path) - %w(. ..)
+    write_entries subdir, zip_file_path, io
+  end
+
+  def put_into_archive(disk_file_path, io, zip_file_path)
+    io.get_output_stream(zip_file_path) do |f|
+      f.puts(File.open(disk_file_path, 'rb').read)
+    end
   end
 end
 ```
 
 ### Save zip archive entries in sorted by name state
 
-To saving zip archives in sorted order like below you need to set `::Zip.sort_entries` to `true`
+To save zip archives in sorted order like below, you need to set `::Zip.sort_entries` to `true`
 
 ```
 Vegetable/
@@ -124,7 +139,7 @@ fruit/mango
 fruit/orange
 ```
 
-After this entries in zip archive will be saved in ordered state.
+After this, entries in the zip archive will be saved in ordered state.
 
 ### Reading a Zip file
 
@@ -150,17 +165,17 @@ end
 
 `::Zip::InputStream` usable for fast reading zip file content because it not read Central directory.
 
-But there is one exception when it not working - General Purpose Flag Bit 3.
+But there is one exception when it is not working - General Purpose Flag Bit 3.
 
 ```
 If bit 3 (0x08) of the general-purpose flags field is set, then the CRC-32 and file sizes are not known when the header is written. The fields in the local header are filled with zero, and the CRC-32 and size are appended in a 12-byte structure (optionally preceded by a 4-byte signature) immediately after the compressed data
 ```
 
-If `::Zip::InputStream` will found such entry in zip archive it will raise exception.
+If `::Zip::InputStream` finds such entry in the zip archive it will raise an exception.
 
 ### Password Protection (Experimental)
 
-RubyZip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:
+Rubyzip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:
 
 ```ruby
 Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new('password')) do |out|
@@ -212,13 +227,13 @@ Additionally, if you want to configure rubyzip to overwrite existing files while
 Zip.continue_on_exists_proc = true
 ```
 
-If you want to store non english names and want to open properly file on Windows(pre 7) you need to set next option:
+If you want to store non-english names and want to open them on Windows(pre 7) you need to set this option:
 
 ```ruby
 Zip.unicode_names = true
 ```
 
-In some zip date of files stored in incorrect format. You can hide warning about it by using:
+Some zip files might have an invalid date format, which will raise a warning. You can hide this warning with the following setting:
 
 ```ruby
 Zip.warn_invalid_date = false
@@ -231,7 +246,7 @@ Zip.default_compression = Zlib::DEFAULT_COMPRESSION
 ```
 It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
 
-All settings in same time
+You can set multiple settings at the same time by using a block:
 
 ```ruby
   Zip.setup do |c|
@@ -242,7 +257,7 @@ All settings in same time
   end
 ```
 
-By default Zip64 support is disabled for writing. To enable it do next:
+By default, Zip64 support is disabled for writing. To enable it do this:
 
 ```ruby
 Zip.write_zip64_support = true
@@ -252,7 +267,7 @@ _NOTE_: If you will enable Zip64 writing then you will need zip extractor with Z
 
 ## Developing
 
-To run tests you need run next commands:
+To run the test you need to do this:
 
 ```
 bundle install
@@ -279,5 +294,5 @@ extra-field support contributed by Tatsuki Sugiura (sugi at nemui.org)
 
 ## License
 
-rubyzip is distributed under the same license as ruby. See
+Rubyzip is distributed under the same license as ruby. See
 http://www.ruby-lang.org/en/LICENSE.txt
