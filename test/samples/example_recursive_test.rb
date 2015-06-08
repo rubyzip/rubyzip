@@ -13,7 +13,7 @@ class ExampleRecursiveTest < MiniTest::Test
 
   def teardown
     FileUtils.rm_rf TEMP_DIRECTORY
-    FileUtils.rm_f  OUTPUT_DIRECTORY
+    FileUtils.rm_f OUTPUT_DIRECTORY
   end
 
   def test_write
