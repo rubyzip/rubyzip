@@ -260,7 +260,7 @@ module Zip
       # Returns nil for not found and nil for directories
       def size?(fileName)
         entry = @mappedZip.find_entry(fileName)
-        (entry == nil || entry.directory?) ? nil : entry.size
+        (entry.nil? || entry.directory?) ? nil : entry.size
       end
 
       def chown(ownerInt, groupInt, *filenames)
@@ -286,7 +286,7 @@ module Zip
 
       def zero?(fileName)
         sz = size(fileName)
-        sz == nil || sz == 0
+        sz.nil? || sz == 0
       rescue Errno::ENOENT
         false
       end
@@ -485,7 +485,7 @@ module Zip
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
         @mappedZip.each do |fileName|
           match = subDirEntriesRegex.match(fileName)
-          yield(match[1]) unless match == nil
+          yield(match[1]) unless match.nil?
         end
       end
 
@@ -520,27 +520,27 @@ module Zip
       end
 
       def each(&aProc)
-        raise IOError, 'closed directory' if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames.nil?
         @fileNames.each(&aProc)
       end
 
       def read
-        raise IOError, 'closed directory' if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames.nil?
         @fileNames[(@index += 1) - 1]
       end
 
       def rewind
-        raise IOError, 'closed directory' if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames.nil?
         @index = 0
       end
 
       def seek(anIntegerPosition)
-        raise IOError, 'closed directory' if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames.nil?
         @index = anIntegerPosition
       end
 
       def tell
-        raise IOError, 'closed directory' if @fileNames == nil
+        raise IOError, 'closed directory' if @fileNames.nil?
         @index
       end
     end

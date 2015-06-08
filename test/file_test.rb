@@ -315,7 +315,7 @@ class ZipFileTest < MiniTest::Test
 
     zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
     assert(zfRead.entries.detect { |e| e.name == newName } != nil)
-    assert(zfRead.entries.detect { |e| e.name == oldName } == nil)
+    assert(zfRead.entries.detect { |e| e.name == oldName }.nil?)
     zfRead.close
 
     zf.close
@@ -354,7 +354,7 @@ class ZipFileTest < MiniTest::Test
     File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
     zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
     assert(zfRead.entries.detect { |e| e.name == newName } != nil)
-    assert(zfRead.entries.detect { |e| e.name == oldName } == nil)
+    assert(zfRead.entries.detect { |e| e.name == oldName }.nil?)
     zfRead.close
 
     zf.close
@@ -522,6 +522,6 @@ class ZipFileTest < MiniTest::Test
   end
 
   def assert_not_contains(zf, entryName)
-    assert(zf.entries.detect { |e| e.name == entryName } == nil, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
+    assert(zf.entries.detect { |e| e.name == entryName }.nil?, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
   end
 end

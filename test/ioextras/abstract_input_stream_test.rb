@@ -28,7 +28,7 @@ class AbstractInputStreamTest < MiniTest::Test
     end
 
     def input_finished?
-      @contents[@readPointer] == nil
+      @contents[@readPointer].nil?
     end
   end
 
