@@ -235,7 +235,7 @@ module Zip
     # File.open method.
     def get_output_stream(entry, permission_int = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
       new_entry =
-        if entry.kind_of?(Entry)
+        if entry.is_a?(Entry)
           entry
         else
           Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
@@ -264,7 +264,7 @@ module Zip
     def add(entry, src_path, &continue_on_exists_proc)
       continue_on_exists_proc ||= proc { ::Zip.continue_on_exists_proc }
       check_entry_exists(entry, continue_on_exists_proc, 'add')
-      new_entry = entry.kind_of?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
+      new_entry = entry.is_a?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
       new_entry.gather_fileinfo_from_srcpath(src_path)
       new_entry.dirty = true
       @entry_set << new_entry

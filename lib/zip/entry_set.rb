@@ -49,7 +49,7 @@ module Zip
     end
 
     def ==(other)
-      return false unless other.kind_of?(EntrySet)
+      return false unless other.is_a?(EntrySet)
       @entry_set.values == other.entry_set.values
     end
 
