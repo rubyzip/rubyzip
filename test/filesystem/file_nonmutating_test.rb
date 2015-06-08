@@ -384,7 +384,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
 
   def test_stat
     s = @zip_file.file.stat('file1')
-    assert(s.is_a?(File::Stat)) # It pretends
+    assert(s.kind_of?(File::Stat)) # It pretends
     assert_raises(Errno::ENOENT, 'No such file or directory - noSuchFile') do
       @zip_file.file.stat('noSuchFile')
     end

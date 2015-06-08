@@ -58,9 +58,9 @@ class ZipOutputStreamTest < MiniTest::Test
     begin
       ::Zip::OutputStream.open(name)
     rescue Exception
-      assert($!.is_a?(Errno::EISDIR) || # Linux
-                 $!.is_a?(Errno::EEXIST) || # Windows/cygwin
-                 $!.is_a?(Errno::EACCES), # Windows
+      assert($!.kind_of?(Errno::EISDIR) || # Linux
+                 $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
+                 $!.kind_of?(Errno::EACCES), # Windows
              "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.class}")
     end
   end

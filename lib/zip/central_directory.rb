@@ -17,7 +17,7 @@ module Zip
 
     def initialize(entries = EntrySet.new, comment = '') #:nodoc:
       super()
-      @entry_set = entries.is_a?(EntrySet) ? entries : EntrySet.new(entries)
+      @entry_set = entries.kind_of?(EntrySet) ? entries : EntrySet.new(entries)
       @comment   = comment
     end
 
@@ -197,7 +197,7 @@ module Zip
     end
 
     def ==(other) #:nodoc:
-      return false unless other.is_a?(CentralDirectory)
+      return false unless other.kind_of?(CentralDirectory)
       @entry_set.entries.sort == other.entries.sort && comment == other.comment
     end
   end
