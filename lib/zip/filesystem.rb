@@ -189,7 +189,7 @@ module Zip
       private :unix_mode_cmp
 
       def exists?(fileName)
-        expand_path(fileName) == '/' || @mappedZip.find_entry(fileName) != nil
+        expand_path(fileName) == '/' || !@mappedZip.find_entry(fileName).nil?
       end
       alias exist? exists?
 
@@ -234,7 +234,7 @@ module Zip
 
       def directory?(fileName)
         entry = @mappedZip.find_entry(fileName)
-        expand_path(fileName) == '/' || (entry != nil && entry.directory?)
+        expand_path(fileName) == '/' || (!entry.nil? && entry.directory?)
       end
 
       def open(fileName, openMode = 'r', permissionInt = 0644, &block)
@@ -293,7 +293,7 @@ module Zip
 
       def file?(fileName)
         entry = @mappedZip.find_entry(fileName)
-        entry != nil && entry.file?
+        !entry.nil? && entry.file?
       end
 
       def dirname(fileName)

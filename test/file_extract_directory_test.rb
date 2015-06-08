@@ -6,7 +6,7 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
   TEST_OUT_NAME = 'test/data/generated/emptyOutDir'
 
   def open_zip(&aProc)
-    assert(aProc != nil)
+    assert(!aProc.nil?)
     ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)
   end
 

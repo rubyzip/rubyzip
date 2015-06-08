@@ -125,7 +125,7 @@ module AssertEntry
   end
 
   def assert_stream_contents(zis, testZipFile)
-    assert(zis != nil)
+    assert(!zis.nil?)
     testZipFile.entry_names.each do |entryName|
       assert_next_entry(entryName, zis)
     end

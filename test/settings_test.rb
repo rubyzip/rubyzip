@@ -18,7 +18,7 @@ class ZipSettingsTest < MiniTest::Test
   end
 
   def open_zip(&aProc)
-    assert(aProc != nil)
+    assert(!aProc.nil?)
     ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)
   end
 
