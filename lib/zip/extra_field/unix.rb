@@ -18,8 +18,8 @@ module Zip
       # size: 0 for central directory. 4 for local header
       return if !size || size == 0
       uid, gid = content.unpack('vv')
-      @uid     ||= uid
-      @gid     ||= gid
+      @uid ||= uid
+      @gid ||= gid
     end
 
     def ==(other)

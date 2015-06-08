@@ -190,7 +190,7 @@ module Zip
             segment_bytes_left = ssegment_size - chunk_bytes
             buffer_size        = segment_bytes_left < DATA_BUFFER_SIZE ? segment_bytes_left : DATA_BUFFER_SIZE
             chunk              = zip_file.read(buffer_size)
-            chunk_bytes        += buffer_size
+            chunk_bytes += buffer_size
             szip_file << chunk
             # Info for track splitting
             yield segment_count, szip_file_index, chunk_bytes, ssegment_size if block_given?
