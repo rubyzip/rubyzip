@@ -1,7 +1,6 @@
 module Zip
   class DOSTime < Time #:nodoc:all
-
-    #MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
+    # MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
 
     # Register CX, the Time:
     # Bits 0-4  2 second increments (0-29)
@@ -14,7 +13,7 @@ module Zip
     # bits 9-15 year (four digit year minus 1980)
 
     def to_binary_dos_time
-      (sec/2) +
+      (sec / 2) +
         (min << 5) +
         (hour << 11)
     end
@@ -27,7 +26,7 @@ module Zip
 
     # Dos time is only stored with two seconds accuracy
     def dos_equals(other)
-      to_i/2 == other.to_i/2
+      to_i / 2 == other.to_i / 2
     end
 
     def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)
@@ -38,7 +37,7 @@ module Zip
       month  = (0b111100000 & binaryDosDate) >> 5
       year   = ((0b1111111000000000 & binaryDosDate) >> 9) + 1980
       begin
-        self.local(year, month, day, hour, minute, second)
+        local(year, month, day, hour, minute, second)
       end
     end
   end

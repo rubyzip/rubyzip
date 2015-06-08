@@ -39,15 +39,14 @@ module Zip
       @unix_uid            = nil
       @unix_gid            = nil
       @unix_perms          = nil
-      #@posix_acl = nil
-      #@ntfs_acl = nil
+      # @posix_acl = nil
+      # @ntfs_acl = nil
       @dirty               = false
     end
 
     def check_name(name)
-      if name.start_with?('/')
-        raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
-      end
+      return unless name.start_with?('/')
+      raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
     def initialize(*args)
@@ -68,7 +67,7 @@ module Zip
       @time               = args[8] || ::Zip::DOSTime.now
 
       @ftype = name_is_directory? ? :directory : :file
-      @extra = ::Zip::ExtraField.new(@extra.to_s) unless ::Zip::ExtraField === @extra
+      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.is_a?(::Zip::ExtraField)
     end
 
     def time
@@ -83,7 +82,7 @@ module Zip
       end
     end
 
-    alias :mtime :time
+    alias mtime time
 
     def time=(value)
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
@@ -94,7 +93,7 @@ module Zip
     end
 
     def file_type_is?(type)
-      raise InternalError, "current filetype is unknown: #{self.inspect}" unless @ftype
+      raise InternalError, "current filetype is unknown: #{inspect}" unless @ftype
       @ftype == type
     end
 
@@ -143,7 +142,7 @@ module Zip
     end
 
     def next_header_offset #:nodoc:all
-      local_entry_offset + self.compressed_size + data_descriptor_size
+      local_entry_offset + compressed_size + data_descriptor_size
     end
 
     # Extracts entry to file dest_path (defaults to @name).
@@ -151,9 +150,9 @@ module Zip
       block ||= proc { ::Zip.on_exists_proc }
 
       if directory? || file? || symlink?
-        self.__send__("create_#{@ftype}", dest_path, &block)
+        __send__("create_#{@ftype}", dest_path, &block)
       else
-        raise RuntimeError, "unknown file type #{self.inspect}"
+        raise "unknown file type #{inspect}"
       end
 
       self
@@ -162,8 +161,6 @@ module Zip
     def to_s
       @name
     end
-
-    protected
 
     class << self
       def read_zip_short(io) # :nodoc:
@@ -180,10 +177,10 @@ module Zip
 
       def read_c_dir_entry(io) #:nodoc:all
         path = if io.is_a?(::IO)
-              io.path
-             else
-               io
-             end
+                 io.path
+               else
+                 io
+               end
         entry = new(path)
         entry.read_c_dir_entry(io)
         entry
@@ -192,13 +189,12 @@ module Zip
       end
 
       def read_local_entry(io)
-        entry = self.new(io)
+        entry = new(io)
         entry.read_local_entry(io)
         entry
       rescue Error
         nil
       end
-
     end
 
     public
@@ -224,7 +220,7 @@ module Zip
       static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
 
       unless static_sized_fields_buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
-        raise Error, "Premature end of file. Not enough data for zip entry local header"
+        raise Error, 'Premature end of file. Not enough data for zip entry local header'
       end
 
       unpack_local_entry(static_sized_fields_buf)
@@ -240,9 +236,9 @@ module Zip
       @name.gsub!('\\', '/')
 
       if extra && extra.bytesize != @extra_length
-        raise ::Zip::Error, "Truncated local zip entry header"
+        raise ::Zip::Error, 'Truncated local zip entry header'
       else
-        if ::Zip::ExtraField === @extra
+        if @extra.is_a?(::Zip::ExtraField)
           @extra.merge(extra)
         else
           @extra = ::Zip::ExtraField.new(extra)
@@ -315,8 +311,8 @@ module Zip
                  when ::Zip::FILE_TYPE_SYMLINK
                    :symlink
                  else
-                   #best case guess for whether it is a file or not
-                   #Otherwise this would be set to unknown and that entry would never be able to extracted
+                   # best case guess for whether it is a file or not
+                   # Otherwise this would be set to unknown and that entry would never be able to extracted
                    if name_is_directory?
                      :directory
                    else
@@ -333,21 +329,18 @@ module Zip
     end
 
     def check_c_dir_entry_static_header_length(buf)
-      unless buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
-        raise Error, 'Premature end of file. Not enough data for zip cdir entry header'
-      end
+      return if buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
+      raise Error, 'Premature end of file. Not enough data for zip cdir entry header'
     end
 
     def check_c_dir_entry_signature
-      unless header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
-        raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
-      end
+      return if header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+      raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
     end
 
     def check_c_dir_entry_comment_size
-      unless @comment && @comment.bytesize == @comment_length
-        raise ::Zip::Error, "Truncated cdir zip entry header"
-      end
+      return if @comment && @comment.bytesize == @comment_length
+      raise ::Zip::Error, 'Truncated cdir zip entry header'
     end
 
     def read_c_dir_extra_field(io)
@@ -374,19 +367,18 @@ module Zip
 
     def file_stat(path) # :nodoc:
       if @follow_symlinks
-        ::File::stat(path)
+        ::File.stat(path)
       else
-        ::File::lstat(path)
+        ::File.lstat(path)
       end
     end
 
     def get_extra_attributes_from_path(path) # :nodoc:
-      unless Zip::RUNNING_ON_WINDOWS
-        stat        = file_stat(path)
-        @unix_uid   = stat.uid
-        @unix_gid   = stat.gid
-        @unix_perms = stat.mode & 07777
-      end
+      return if Zip::RUNNING_ON_WINDOWS
+      stat        = file_stat(path)
+      @unix_uid   = stat.uid
+      @unix_gid   = stat.gid
+      @unix_perms = stat.mode & 07777
     end
 
     def set_unix_permissions_on_path(dest_path)
@@ -400,7 +392,7 @@ module Zip
     end
 
     def set_extra_attributes_on_path(dest_path) # :nodoc:
-      return unless (file? || directory?)
+      return unless file? || directory?
 
       case @fstype
       when ::Zip::FSTYPE_UNIX
@@ -467,13 +459,13 @@ module Zip
       return false unless other.class == self.class
       # Compares contents of local entry and exposed fields
       keys_equal = %w(compression_method crc compressed_size size name extra filepath).all? do |k|
-        other.__send__(k.to_sym) == self.__send__(k.to_sym)
+        other.__send__(k.to_sym) == __send__(k.to_sym)
       end
-      keys_equal && self.time.dos_equals(other.time)
+      keys_equal && time.dos_equals(other.time)
     end
 
-    def <=> (other)
-      self.to_s <=> other.to_s
+    def <=>(other)
+      to_s <=> other.to_s
     end
 
     # Returns an IO like object for the given ZipEntry.
@@ -516,8 +508,8 @@ module Zip
                when 'file'
                  if name_is_directory?
                    raise ArgumentError,
-                         "entry name '#{newEntry}' indicates directory entry, but "+
-                           "'#{src_path}' is not a directory"
+                         "entry name '#{newEntry}' indicates directory entry, but " \
+                             "'#{src_path}' is not a directory"
                  end
                  :file
                when 'directory'
@@ -526,12 +518,12 @@ module Zip
                when 'link'
                  if name_is_directory?
                    raise ArgumentError,
-                         "entry name '#{newEntry}' indicates directory entry, but "+
-                           "'#{src_path}' is not a directory"
+                         "entry name '#{newEntry}' indicates directory entry, but " \
+                             "'#{src_path}' is not a directory"
                  end
                  :symlink
                else
-                 raise RuntimeError, "unknown file type: #{src_path.inspect} #{stat.inspect}"
+                 raise "unknown file type: #{src_path.inspect} #{stat.inspect}"
                end
 
       @filepath = src_path
@@ -542,7 +534,7 @@ module Zip
       if @ftype == :directory
         zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::STORED)
       elsif @filepath
-        zip_output_stream.put_next_entry(self, nil, nil, self.compression_method || ::Zip::Entry::DEFLATED)
+        zip_output_stream.put_next_entry(self, nil, nil, compression_method || ::Zip::Entry::DEFLATED)
         get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
       else
         zip_output_stream.copy_raw_entry(self)
@@ -552,14 +544,14 @@ module Zip
     def parent_as_string
       entry_name  = name.chomp('/')
       slash_index = entry_name.rindex('/')
-      slash_index ? entry_name.slice(0, slash_index+1) : nil
+      slash_index ? entry_name.slice(0, slash_index + 1) : nil
     end
 
     def get_raw_input_stream(&block)
       if @zipfile.is_a?(::IO) || @zipfile.is_a?(::StringIO)
         yield @zipfile
       else
-        ::File.open(@zipfile, "rb", &block)
+        ::File.open(@zipfile, 'rb', &block)
       end
     end
 
@@ -572,20 +564,20 @@ module Zip
     def set_time(binary_dos_date, binary_dos_time)
       @time = ::Zip::DOSTime.parse_binary_dos_format(binary_dos_date, binary_dos_time)
     rescue ArgumentError
-      STDERR.puts "Invalid date/time in zip entry" if ::Zip.warn_invalid_date
+      STDERR.puts 'Invalid date/time in zip entry' if ::Zip.warn_invalid_date
     end
 
-    def create_file(dest_path, continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
+    def create_file(dest_path, _continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
       if ::File.exist?(dest_path) && !yield(self, dest_path)
         raise ::Zip::DestinationFileExistsError,
               "Destination '#{dest_path}' already exists"
       end
-      ::File.open(dest_path, "wb") do |os|
+      ::File.open(dest_path, 'wb') do |os|
         get_input_stream do |is|
           set_extra_attributes_on_path(dest_path)
 
           buf = ''
-          while buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf)
+          while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
             os << buf
           end
         end
@@ -596,11 +588,11 @@ module Zip
       return if ::File.directory?(dest_path)
       if ::File.exist?(dest_path)
         if block_given? && yield(self, dest_path)
-          ::FileUtils::rm_f dest_path
+          ::FileUtils.rm_f dest_path
         else
           raise ::Zip::DestinationFileExistsError,
-                "Cannot create directory '#{dest_path}'. "+
-                  "A file already exists with that name"
+                "Cannot create directory '#{dest_path}'. " \
+                    'A file already exists with that name'
         end
       end
       ::FileUtils.mkdir_p(dest_path)
@@ -624,13 +616,13 @@ module Zip
             return
           else
             raise ::Zip::DestinationFileExistsError,
-                  "Cannot create symlink '#{dest_path}'. "+
-                    "A symlink already exists with that name"
+                  "Cannot create symlink '#{dest_path}'. " \
+                      'A symlink already exists with that name'
           end
         else
           raise ::Zip::DestinationFileExistsError,
-                "Cannot create symlink '#{dest_path}'. "+
-                  "A file already exists with that name"
+                "Cannot create symlink '#{dest_path}'. " \
+                    'A file already exists with that name'
         end
       end
 
@@ -640,12 +632,11 @@ module Zip
     # apply missing data from the zip64 extra information field, if present
     # (required when file sizes exceed 2**32, but can be used for all files)
     def parse_zip64_extra(for_local_header) #:nodoc:all
-      if zip64 = @extra['Zip64']
-        if for_local_header
-          @size, @compressed_size = zip64.parse(@size, @compressed_size)
-        else
-          @size, @compressed_size, @local_header_offset = zip64.parse(@size, @compressed_size, @local_header_offset)
-        end
+      return if @extra['Zip64'].nil?
+      if for_local_header
+        @size, @compressed_size = @extra['Zip64'].parse(@size, @compressed_size)
+      else
+        @size, @compressed_size, @local_header_offset = @extra['Zip64'].parse(@size, @compressed_size, @local_header_offset)
       end
     end
 
@@ -657,10 +648,7 @@ module Zip
     def prep_zip64_extra(for_local_header) #:nodoc:all
       return unless ::Zip.write_zip64_support
       need_zip64 = @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
-      unless for_local_header
-        need_zip64 ||= @local_header_offset >= 0xFFFFFFFF
-      end
-
+      need_zip64 ||= @local_header_offset >= 0xFFFFFFFF unless for_local_header
       if need_zip64
         @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
         @extra.delete('Zip64Placeholder')
@@ -688,7 +676,6 @@ module Zip
         end
       end
     end
-
   end
 end
 

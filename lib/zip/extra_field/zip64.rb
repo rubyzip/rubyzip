@@ -6,21 +6,22 @@ module Zip
     register_map
 
     def initialize(binstr = nil)
-      @content = nil # unparsed binary; we don't actually know what this contains
-                     # without looking for FFs in the associated file header
-                     # call parse after initializing with a binary string
+      # unparsed binary; we don't actually know what this contains
+      # without looking for FFs in the associated file header
+      # call parse after initializing with a binary string
+      @content = nil
       @original_size          = nil
       @compressed_size        = nil
       @relative_header_offset = nil
       @disk_start_number      = nil
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     def ==(other)
       other.original_size == @original_size &&
         other.compressed_size == @compressed_size &&
-          other.relative_header_offset == @relative_header_offset &&
-            other.disk_start_number == @disk_start_number
+        other.relative_header_offset == @relative_header_offset &&
+        other.disk_start_number == @disk_start_number
     end
 
     def merge(binstr)
@@ -51,16 +52,16 @@ module Zip
     def pack_for_local
       # local header entries must contain original size and compressed size; other fields do not apply
       return '' unless @original_size && @compressed_size
-      [@original_size, @compressed_size].pack("Q<Q<")
+      [@original_size, @compressed_size].pack('Q<Q<')
     end
 
     def pack_for_c_dir
       # central directory entries contain only fields that didn't fit in the main entry part
       packed = ''.force_encoding('BINARY')
-      packed << [@original_size].pack("Q<") if @original_size
-      packed << [@compressed_size].pack("Q<") if @compressed_size
-      packed << [@relative_header_offset].pack("Q<") if @relative_header_offset
-      packed << [@disk_start_number].pack("V") if @disk_start_number
+      packed << [@original_size].pack('Q<') if @original_size
+      packed << [@compressed_size].pack('Q<') if @compressed_size
+      packed << [@relative_header_offset].pack('Q<') if @relative_header_offset
+      packed << [@disk_start_number].pack('V') if @disk_start_number
       packed
     end
   end

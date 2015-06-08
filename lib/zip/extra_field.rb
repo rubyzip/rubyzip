@@ -3,7 +3,7 @@ module Zip
     ID_MAP = {}
 
     def initialize(binstr = nil)
-      binstr and merge(binstr)
+      merge(binstr) if binstr
     end
 
     def extra_field_type_exist(binstr, id, len, i)
@@ -51,7 +51,7 @@ module Zip
     end
 
     def create(name)
-      unless field_class = ID_MAP.values.find { |k| k.name == name }
+      unless (field_class = ID_MAP.values.find { |k| k.name == name })
         raise Error, "Unknown extra field '#{name}'"
       end
       self[name] = field_class.new
@@ -61,7 +61,7 @@ module Zip
     # does not prevent known fields from being read back in
     def ordered_values
       result = []
-      self.each { |k,v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
+      each { |k, v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
       result
     end
 
@@ -69,7 +69,7 @@ module Zip
       ordered_values.map! { |v| v.to_local_bin.force_encoding('BINARY') }.join
     end
 
-    alias :to_s :to_local_bin
+    alias to_s to_local_bin
 
     def to_c_dir_bin
       ordered_values.map! { |v| v.to_c_dir_bin.force_encoding('BINARY') }.join
@@ -83,8 +83,8 @@ module Zip
       to_local_bin.bytesize
     end
 
-    alias :length :local_size
-    alias :size :local_size
+    alias length local_size
+    alias size local_size
   end
 end
 

@@ -1,6 +1,5 @@
 module Zip
   class Deflater < Compressor #:nodoc:all
-
     def initialize(output_stream, level = Zip.default_compression, encrypter = NullEncrypter.new)
       super()
       @output_stream = output_stream
@@ -11,9 +10,9 @@ module Zip
       @buffer_stream = ::StringIO.new('')
     end
 
-    def << (data)
+    def <<(data)
       val   = data.to_s
-      @crc  = Zlib::crc32(val, @crc)
+      @crc  = Zlib.crc32(val, @crc)
       @size += val.bytesize
       @buffer_stream << @zlib_deflater.deflate(data)
     end

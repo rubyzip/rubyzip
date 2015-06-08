@@ -1,13 +1,13 @@
 module Zip
   # Info-ZIP Extra for UNIX uid/gid
   class ExtraField::IUnix < ExtraField::Generic
-    HEADER_ID = "Ux"
+    HEADER_ID = 'Ux'
     register_map
 
     def initialize(binstr = nil)
       @uid = 0
       @gid = 0
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     attr_accessor :uid, :gid
@@ -16,10 +16,10 @@ module Zip
       return if binstr.empty?
       size, content = initial_parse(binstr)
       # size: 0 for central directory. 4 for local header
-      return if (!size || size == 0)
-      uid, gid = content.unpack("vv")
-      @uid     ||= uid
-      @gid     ||= gid
+      return if !size || size == 0
+      uid, gid = content.unpack('vv')
+      @uid ||= uid
+      @gid ||= gid
     end
 
     def ==(other)
@@ -27,12 +27,11 @@ module Zip
     end
 
     def pack_for_local
-      [@uid, @gid].pack("vv")
+      [@uid, @gid].pack('vv')
     end
 
     def pack_for_c_dir
       ''
     end
   end
-
 end

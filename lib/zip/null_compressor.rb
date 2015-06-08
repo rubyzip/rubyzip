@@ -2,8 +2,8 @@ module Zip
   class NullCompressor < Compressor #:nodoc:all
     include Singleton
 
-    def <<(data)
-      raise IOError, "closed stream"
+    def <<(_data)
+      raise IOError, 'closed stream'
     end
 
     attr_reader :size, :compressed_size

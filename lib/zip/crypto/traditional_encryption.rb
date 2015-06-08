@@ -26,7 +26,7 @@ module Zip
 
     def update_keys(n)
       @key0 = ~Zlib.crc32(n, ~@key0)
-      @key1 = ((@key1 + (@key0 & 0xff)) * 134775813 + 1) & 0xffffffff
+      @key1 = ((@key1 + (@key0 & 0xff)) * 134_775_813 + 1) & 0xffffffff
       @key2 = ~Zlib.crc32((@key1 >> 24).chr, ~@key2)
     end
 
@@ -46,15 +46,15 @@ module Zip
         end
         header << (mtime.to_binary_dos_time & 0xff)
         header << (mtime.to_binary_dos_time >> 8)
-      end.map{|x| encode x}.pack("C*")
+      end.map { |x| encode x }.pack('C*')
     end
 
     def encrypt(data)
-      data.unpack("C*").map{|x| encode x}.pack("C*")
+      data.unpack('C*').map { |x| encode x }.pack('C*')
     end
 
     def data_descriptor(crc32, compressed_size, uncomprssed_size)
-      [0x08074b50, crc32, compressed_size, uncomprssed_size].pack("VVVV")
+      [0x08074b50, crc32, compressed_size, uncomprssed_size].pack('VVVV')
     end
 
     def reset!
@@ -74,7 +74,7 @@ module Zip
     include TraditionalEncryption
 
     def decrypt(data)
-      data.unpack("C*").map{|x| decode x}.pack("C*")
+      data.unpack('C*').map { |x| decode x }.pack('C*')
     end
 
     def reset!(header)

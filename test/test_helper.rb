@@ -21,7 +21,7 @@ module IOizeString
     count = size unless count
     retVal = slice(@tell, count)
     @tell += count
-    return retVal
+    retVal
   end
 
   def seek(index, offset)
@@ -34,12 +34,12 @@ module IOizeString
     when IO::SEEK_CUR
       newPos = @tell + index
     else
-      raise "Error in test method IOizeString::seek"
+      raise 'Error in test method IOizeString::seek'
     end
-    if (newPos < 0 || newPos >= size)
+    if newPos < 0 || newPos >= size
       raise Errno::EINVAL
     else
-      @tell=newPos
+      @tell = newPos
     end
   end
 
@@ -51,7 +51,7 @@ end
 module DecompressorTests
   # expects @refText, @refLines and @decompressor
 
-  TEST_FILE = "test/data/file1.txt"
+  TEST_FILE = 'test/data/file1.txt'
 
   def setup
     @refText = ''
@@ -59,11 +59,11 @@ module DecompressorTests
     @refLines = @refText.split($/)
   end
 
-  def test_readEverything
+  def test_read_everything
     assert_equal(@refText, @decompressor.sysread)
   end
 
-  def test_readInChunks
+  def test_read_in_chunks
     chunkSize = 5
     while (decompressedChunk = @decompressor.sysread(chunkSize))
       assert_equal(@refText.slice!(0, chunkSize), decompressedChunk)
@@ -71,21 +71,18 @@ module DecompressorTests
     assert_equal(0, @refText.size)
   end
 
-  def test_mixingReadsAndProduceInput
+  def test_mixing_reads_and_produce_input
     # Just some preconditions to make sure we have enough data for this test
     assert(@refText.length > 1000)
     assert(@refLines.length > 40)
-
 
     assert_equal(@refText[0...100], @decompressor.sysread(100))
 
     assert(!@decompressor.input_finished?)
     buf = @decompressor.produce_input
-    assert_equal(@refText[100...(100+buf.length)], buf)
+    assert_equal(@refText[100...(100 + buf.length)], buf)
   end
 end
-
-
 
 module AssertEntry
   def assert_next_entry(filename, zis)
@@ -94,33 +91,32 @@ module AssertEntry
 
   def assert_entry(filename, zis, entryName)
     assert_equal(filename, entryName)
-    assert_entryContentsForStream(filename, zis, entryName)
+    assert_entry_contents_for_stream(filename, zis, entryName)
   end
 
-  def assert_entryContentsForStream(filename, zis, entryName)
-    File.open(filename, "rb") {
-        |file|
+  def assert_entry_contents_for_stream(filename, zis, entryName)
+    File.open(filename, 'rb') do |file|
       expected = file.read
       actual = zis.read
       if (expected != actual)
-        if ((expected && actual) && (expected.length > 400 || actual.length > 400))
-          zipEntryFilename=entryName+".zipEntry"
-          File.open(zipEntryFilename, "wb") { |entryfile| entryfile << actual }
+        if (expected && actual) && (expected.length > 400 || actual.length > 400)
+          zipEntryFilename = entryName + '.zipEntry'
+          File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
           fail("File '#{filename}' is different from '#{zipEntryFilename}'")
         else
           assert_equal(expected, actual)
         end
       end
-    }
+    end
   end
 
-  def AssertEntry.assert_contents(filename, aString)
-    fileContents = ""
-    File.open(filename, "rb") { |f| fileContents = f.read }
+  def self.assert_contents(filename, aString)
+    fileContents = ''
+    File.open(filename, 'rb') { |f| fileContents = f.read }
     if (fileContents != aString)
-      if (fileContents.length > 400 || aString.length > 400)
-        stringFile = filename + ".other"
-        File.open(stringFile, "wb") { |f| f << aString }
+      if fileContents.length > 400 || aString.length > 400
+        stringFile = filename + '.other'
+        File.open(stringFile, 'wb') { |f| f << aString }
         fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
       else
         assert_equal(fileContents, aString)
@@ -129,7 +125,7 @@ module AssertEntry
   end
 
   def assert_stream_contents(zis, testZipFile)
-    assert(zis != nil)
+    assert(!zis.nil?)
     testZipFile.entry_names.each do |entryName|
       assert_next_entry(entryName, zis)
     end
@@ -142,27 +138,25 @@ module AssertEntry
     end
   end
 
-  def assert_entryContents(zipFile, entryName, filename = entryName.to_s)
+  def assert_entry_contents(zipFile, entryName, filename = entryName.to_s)
     zis = zipFile.get_input_stream(entryName)
-    assert_entryContentsForStream(filename, zis, entryName)
+    assert_entry_contents_for_stream(filename, zis, entryName)
   ensure
     zis.close if zis
   end
 end
 
-
 module CrcTest
-
   class TestOutputStream
     include ::Zip::IOExtras::AbstractOutputStream
 
     attr_accessor :buffer
 
     def initialize
-      @buffer = ""
+      @buffer = ''
     end
 
-    def << (data)
+    def <<(data)
       @buffer << data
       self
     end
@@ -178,26 +172,23 @@ module CrcTest
   end
 end
 
-
 module Enumerable
   def compare_enumerables(otherEnumerable)
     otherAsArray = otherEnumerable.to_a
-    each_with_index {
-        |element, index|
+    each_with_index do |element, index|
       return false unless yield(element, otherAsArray[index])
-    }
-    return self.size == otherAsArray.size
+    end
+    size == otherAsArray.size
   end
 end
-
 
 module CommonZipFileFixture
   include AssertEntry
 
-  EMPTY_FILENAME = "emptyZipFile.zip"
+  EMPTY_FILENAME = 'emptyZipFile.zip'
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-  TEST_ZIP.zip_name = "test/data/generated/5entry_copy.zip"
+  TEST_ZIP.zip_name = 'test/data/generated/5entry_copy.zip'
 
   def setup
     File.delete(EMPTY_FILENAME) if File.exist?(EMPTY_FILENAME)
@@ -205,9 +196,7 @@ module CommonZipFileFixture
   end
 end
 
-
 module ExtraAssertions
-
   def assert_forwarded(anObject, method, retVal, *expectedArgs)
     callArgs = nil
     setCallArgsProc = proc { |args| callArgs = args }
@@ -224,5 +213,4 @@ module ExtraAssertions
   ensure
     anObject.instance_eval "undef #{method}; alias #{method} #{method}_org"
   end
-
 end

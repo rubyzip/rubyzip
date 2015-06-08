@@ -1,6 +1,5 @@
 module Zip
   class PassThruDecompressor < Decompressor  #:nodoc:all
-
     def initialize(input_stream, chars_to_read)
       super(input_stream)
       @chars_to_read = chars_to_read
@@ -31,8 +30,8 @@ module Zip
       @read_so_far >= @chars_to_read
     end
 
-    alias :eof :input_finished?
-    alias :eof? :input_finished?
+    alias eof input_finished?
+    alias eof? input_finished?
   end
 end
 

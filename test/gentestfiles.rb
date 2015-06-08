@@ -3,13 +3,13 @@
 $VERBOSE = true
 
 class TestFiles
-  RANDOM_ASCII_FILE1  = "test/data/generated/randomAscii1.txt"
-  RANDOM_ASCII_FILE2  = "test/data/generated/randomAscii2.txt"
-  RANDOM_ASCII_FILE3  = "test/data/generated/randomAscii3.txt"
-  RANDOM_BINARY_FILE1 = "test/data/generated/randomBinary1.bin"
-  RANDOM_BINARY_FILE2 = "test/data/generated/randomBinary2.bin"
+  RANDOM_ASCII_FILE1  = 'test/data/generated/randomAscii1.txt'
+  RANDOM_ASCII_FILE2  = 'test/data/generated/randomAscii2.txt'
+  RANDOM_ASCII_FILE3  = 'test/data/generated/randomAscii3.txt'
+  RANDOM_BINARY_FILE1 = 'test/data/generated/randomBinary1.bin'
+  RANDOM_BINARY_FILE2 = 'test/data/generated/randomBinary2.bin'
 
-  EMPTY_TEST_DIR = "test/data/generated/emptytestdir"
+  EMPTY_TEST_DIR = 'test/data/generated/emptytestdir'
 
   ASCII_TEST_FILES = [RANDOM_ASCII_FILE1, RANDOM_ASCII_FILE2, RANDOM_ASCII_FILE3]
   BINARY_TEST_FILES = [RANDOM_BINARY_FILE1, RANDOM_BINARY_FILE2]
@@ -18,34 +18,30 @@ class TestFiles
 
   class << self
     def create_test_files
-        Dir.mkdir "test/data/generated" unless Dir.exist?('test/data/generated')
+      Dir.mkdir 'test/data/generated' unless Dir.exist?('test/data/generated')
 
-        ASCII_TEST_FILES.each_with_index do |filename, index|
-          create_random_ascii(filename, 1E4 * (index+1))
-        end
+      ASCII_TEST_FILES.each_with_index do |filename, index|
+        create_random_ascii(filename, 1E4 * (index + 1))
+      end
 
-        BINARY_TEST_FILES.each_with_index do |filename, index|
-          create_random_binary(filename, 1E4 * (index+1))
-        end
+      BINARY_TEST_FILES.each_with_index do |filename, index|
+        create_random_binary(filename, 1E4 * (index + 1))
+      end
 
-        ensure_dir(EMPTY_TEST_DIR)
+      ensure_dir(EMPTY_TEST_DIR)
     end
 
     private
 
     def create_random_ascii(filename, size)
-      File.open(filename, "wb") do |file|
-        while (file.tell < size)
-          file << rand
-        end
+      File.open(filename, 'wb') do |file|
+        file << rand while file.tell < size
       end
     end
 
     def create_random_binary(filename, size)
-      File.open(filename, "wb") do |file|
-        while (file.tell < size)
-          file << [rand].pack("V")
-        end
+      File.open(filename, 'wb') do |file|
+        file << [rand].pack('V') while file.tell < size
       end
     end
 
@@ -56,47 +52,41 @@ class TestFiles
       end
       Dir.mkdir(name)
     end
-
   end
 end
-
 
 # For representation and creation of
 # test data
 class TestZipFile
   attr_accessor :zip_name, :entry_names, :comment
 
-  def initialize(zip_name, entry_names, comment = "")
-    @zip_name=zip_name
-    @entry_names=entry_names
+  def initialize(zip_name, entry_names, comment = '')
+    @zip_name = zip_name
+    @entry_names = entry_names
     @comment = comment
   end
 
-  def TestZipFile.create_test_zips
+  def self.create_test_zips
     raise "failed to create test zip '#{TEST_ZIP1.zip_name}'" unless system("/usr/bin/zip #{TEST_ZIP1.zip_name} test/data/file2.txt")
     raise "failed to remove entry from '#{TEST_ZIP1.zip_name}'" unless system("/usr/bin/zip #{TEST_ZIP1.zip_name} -d test/data/file2.txt")
 
-    File.open("test/data/generated/empty.txt", "w") {}
-    File.open("test/data/generated/empty_chmod640.txt", "w") {}
-    ::File.chmod(0640, "test/data/generated/empty_chmod640.txt")
+    File.open('test/data/generated/empty.txt', 'w') {}
+    File.open('test/data/generated/empty_chmod640.txt', 'w') {}
+    ::File.chmod(0640, 'test/data/generated/empty_chmod640.txt')
 
-    File.open("test/data/generated/short.txt", "w") { |file| file << "ABCDEF" }
-    ziptestTxt=""
-    File.open("test/data/file2.txt") { |file| ziptestTxt=file.read }
-    File.open("test/data/generated/longAscii.txt", "w") do |file|
-      while (file.tell < 1E5)
-        file << ziptestTxt
-      end
+    File.open('test/data/generated/short.txt', 'w') { |file| file << 'ABCDEF' }
+    ziptestTxt = ''
+    File.open('test/data/file2.txt') { |file| ziptestTxt = file.read }
+    File.open('test/data/generated/longAscii.txt', 'w') do |file|
+      file << ziptestTxt while file.tell < 1E5
     end
 
-    testBinaryPattern=""
-    File.open("test/data/generated/empty.zip") { |file| testBinaryPattern=file.read }
+    testBinaryPattern = ''
+    File.open('test/data/generated/empty.zip') { |file| testBinaryPattern = file.read }
     testBinaryPattern *= 4
 
-    File.open("test/data/generated/longBinary.bin", "wb") do |file|
-      while (file.tell < 6E5)
-        file << testBinaryPattern << rand << "\0"
-      end
+    File.open('test/data/generated/longBinary.bin', 'wb') do |file|
+      file << testBinaryPattern << rand << "\0" while file.tell < 6E5
     end
 
     raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" unless system("/usr/bin/zip #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}")
@@ -118,17 +108,15 @@ class TestZipFile
     # http://stahlworks.com/dev/index.php?tool=zipunzip
     # that works with the above code
     raise $!.to_s +
-              "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" +
-              "to create test data. If you don't have it you can download\n" +
-              "the necessary test files at http://sf.net/projects/rubyzip."
+      "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" \
+      "to create test data. If you don't have it you can download\n" \
+      'the necessary test files at http://sf.net/projects/rubyzip.'
   end
 
-  TEST_ZIP1 = TestZipFile.new("test/data/generated/empty.zip", [])
-  TEST_ZIP2 = TestZipFile.new("test/data/generated/5entry.zip", %w{ test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin},
-                              "my zip comment")
-  TEST_ZIP3 = TestZipFile.new("test/data/generated/test1.zip", %w{ test/data/file1.txt })
-  TEST_ZIP4 = TestZipFile.new("test/data/generated/zipWithDir.zip", ["test/data/file1.txt",
-                                                                TestFiles::EMPTY_TEST_DIR])
+  TEST_ZIP1 = TestZipFile.new('test/data/generated/empty.zip', [])
+  TEST_ZIP2 = TestZipFile.new('test/data/generated/5entry.zip', %w(test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin),
+                              'my zip comment')
+  TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w(test/data/file1.txt))
+  TEST_ZIP4 = TestZipFile.new('test/data/generated/zipWithDir.zip', ['test/data/file1.txt',
+                                                                     TestFiles::EMPTY_TEST_DIR])
 end
-
-

@@ -1,7 +1,7 @@
 module Zip
   # Info-ZIP Additional timestamp field
   class ExtraField::UniversalTime < ExtraField::Generic
-    HEADER_ID = "UT"
+    HEADER_ID = 'UT'
     register_map
 
     def initialize(binstr = nil)
@@ -9,7 +9,7 @@ module Zip
       @mtime = nil
       @atime = nil
       @flag  = nil
-      binstr and merge(binstr)
+      binstr && merge(binstr)
     end
 
     attr_accessor :atime, :ctime, :mtime, :flag
@@ -17,11 +17,11 @@ module Zip
     def merge(binstr)
       return if binstr.empty?
       size, content = initial_parse(binstr)
-      size or return
-      @flag, mtime, atime, ctime = content.unpack("CVVV")
-      mtime and @mtime ||= ::Zip::DOSTime.at(mtime)
-      atime and @atime ||= ::Zip::DOSTime.at(atime)
-      ctime and @ctime ||= ::Zip::DOSTime.at(ctime)
+      size || return
+      @flag, mtime, atime, ctime = content.unpack('CVVV')
+      mtime && @mtime ||= ::Zip::DOSTime.at(mtime)
+      atime && @atime ||= ::Zip::DOSTime.at(atime)
+      ctime && @ctime ||= ::Zip::DOSTime.at(ctime)
     end
 
     def ==(other)
@@ -31,16 +31,16 @@ module Zip
     end
 
     def pack_for_local
-      s = [@flag].pack("C")
-      @flag & 1 != 0 and s << [@mtime.to_i].pack("V")
-      @flag & 2 != 0 and s << [@atime.to_i].pack("V")
-      @flag & 4 != 0 and s << [@ctime.to_i].pack("V")
+      s = [@flag].pack('C')
+      @flag & 1 != 0 && s << [@mtime.to_i].pack('V')
+      @flag & 2 != 0 && s << [@atime.to_i].pack('V')
+      @flag & 4 != 0 && s << [@ctime.to_i].pack('V')
       s
     end
 
     def pack_for_c_dir
-      s = [@flag].pack("C")
-      @flag & 1 == 1 and s << [@mtime.to_i].pack("V")
+      s = [@flag].pack('C')
+      @flag & 1 == 1 && s << [@mtime.to_i].pack('V')
       s
     end
   end

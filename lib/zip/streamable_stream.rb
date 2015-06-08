@@ -1,5 +1,5 @@
 module Zip
-  class StreamableStream < DelegateClass(Entry) #nodoc:all
+  class StreamableStream < DelegateClass(Entry) # nodoc:all
     def initialize(entry)
       super(entry)
       dirname = if zipfile.is_a?(::String)
@@ -24,7 +24,7 @@ module Zip
     end
 
     def get_input_stream
-      if !@temp_file.closed?
+      unless @temp_file.closed?
         raise StandardError, "cannot open entry for reading while its open for writing - #{name}"
       end
       @temp_file.open # reopens tempfile from top

@@ -16,7 +16,7 @@ class TraditionalEncrypterTest < MiniTest::Test
 
   def test_header
     @encrypter.reset!
-    exepected = [239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack("C*")
+    exepected = [239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack('C*')
     Random.stub(:rand, 1) do
       assert_equal exepected, @encrypter.header(@mtime)
     end
@@ -28,7 +28,7 @@ class TraditionalEncrypterTest < MiniTest::Test
     assert_raises(NoMethodError) { @encrypter.encrypt(nil) }
     assert_raises(NoMethodError) { @encrypter.encrypt(1) }
     assert_equal '', @encrypter.encrypt('')
-    assert_equal [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].pack("C*"), @encrypter.encrypt('a' * 10)
+    assert_equal [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].pack('C*'), @encrypter.encrypt('a' * 10)
   end
 
   def test_reset!
@@ -60,19 +60,19 @@ class TraditionalDecrypterTest < MiniTest::Test
   end
 
   def test_decrypt
-    @decrypter.reset!([239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack("C*"))
+    @decrypter.reset!([239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack('C*'))
     [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].map(&:chr).each do |c|
       assert_equal 'a', @decrypter.decrypt(c)
     end
   end
 
   def test_reset!
-    @decrypter.reset!([239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack("C*"))
+    @decrypter.reset!([239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack('C*'))
     [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].map(&:chr).each do |c|
       assert_equal 'a', @decrypter.decrypt(c)
     end
     assert_equal 91.chr, @decrypter.decrypt(2.chr)
-    @decrypter.reset!([239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack("C*"))
+    @decrypter.reset!([239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack('C*'))
     [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].map(&:chr).each do |c|
       assert_equal 'a', @decrypter.decrypt(c)
     end

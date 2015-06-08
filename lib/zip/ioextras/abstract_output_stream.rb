@@ -10,7 +10,6 @@ module Zip
         data.to_s.bytesize
       end
 
-
       def print(*params)
         self << params.join($,) << $\.to_s
       end
@@ -39,7 +38,6 @@ module Zip
           self << "\n" unless val[-1, 1] == "\n"
         end
       end
-
     end
   end
 end

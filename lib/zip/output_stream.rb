@@ -24,7 +24,7 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream=false, encrypter=nil)
+    def initialize(file_name, stream = false, encrypter = nil)
       super()
       @file_name = file_name
       @output_stream = if stream
@@ -33,7 +33,7 @@ module Zip
                          iostream.rewind
                          iostream
                        else
-                         ::File.new(@file_name, "wb")
+                         ::File.new(@file_name, 'wb')
                        end
       @entry_set = ::Zip::EntrySet.new
       @compressor = ::Zip::NullCompressor.instance
@@ -86,7 +86,7 @@ module Zip
     # Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
     def put_next_entry(entry_name, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zip.default_compression)
-      raise Error, "zip stream is closed" if @closed
+      raise Error, 'zip stream is closed' if @closed
       if entry_name.kind_of?(Entry)
         new_entry = entry_name
       else
@@ -94,7 +94,7 @@ module Zip
       end
       new_entry.comment = comment unless comment.nil?
       unless extra.nil?
-        new_entry.extra = ExtraField === extra ? extra : ExtraField.new(extra.to_s)
+        new_entry.extra = extra.is_a?(ExtraField) ? extra : ExtraField.new(extra.to_s)
       end
       new_entry.compression_method = compression_method unless compression_method.nil?
       init_next_entry(new_entry, level)
@@ -103,8 +103,8 @@ module Zip
 
     def copy_raw_entry(entry)
       entry = entry.dup
-      raise Error, "zip stream is closed" if @closed
-      raise Error, "entry is not a ZipEntry" unless entry.is_a?(Entry)
+      raise Error, 'zip stream is closed' if @closed
+      raise Error, 'entry is not a ZipEntry' unless entry.is_a?(Entry)
       finalize_current_entry
       @entry_set << entry
       src_pos = entry.local_header_offset
@@ -177,11 +177,10 @@ module Zip
     public
 
     # Modeled after IO.<<
-    def << (data)
+    def <<(data)
       @compressor << data
       self
     end
-
   end
 end
 

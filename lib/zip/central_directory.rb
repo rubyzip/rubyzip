@@ -5,7 +5,7 @@ module Zip
     END_OF_CDS             = 0x06054b50
     ZIP64_END_OF_CDS       = 0x06064b50
     ZIP64_EOCD_LOCATOR     = 0x07064b50
-    MAX_END_OF_CDS_SIZE    = 65536 + 18
+    MAX_END_OF_CDS_SIZE    = 65_536 + 18
     STATIC_EOCD_SIZE       = 22
 
     attr_reader :comment
@@ -96,7 +96,7 @@ module Zip
       @size_in_bytes                                = Entry.read_zip_64_long(buf)
       @cdir_offset                                  = Entry.read_zip_64_long(buf)
       @zip_64_extensible                            = buf.slice!(0, buf.bytesize)
-      raise Error, "Zip consistency problem while reading eocd structure" unless buf.size == 0
+      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.size == 0
     end
 
     def read_e_o_c_d(buf) #:nodoc:
@@ -113,14 +113,14 @@ module Zip
                                                       else
                                                         buf.read(comment_length)
                                                       end
-      raise Error, "Zip consistency problem while reading eocd structure" unless buf.size == 0
+      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.size == 0
     end
 
     def read_central_directory_entries(io) #:nodoc:
       begin
         io.seek(@cdir_offset, IO::SEEK_SET)
       rescue Errno::EINVAL
-        raise Error, "Zip consistency problem while reading central directory entry"
+        raise Error, 'Zip consistency problem while reading central directory entry'
       end
       @entry_set = EntrySet.new
       @size.times do
@@ -140,7 +140,7 @@ module Zip
 
     def get_e_o_c_d(buf) #:nodoc:
       sig_index = buf.rindex([END_OF_CDS].pack('V'))
-      raise Error, "Zip end of central directory signature not found" unless sig_index
+      raise Error, 'Zip end of central directory signature not found' unless sig_index
       buf = buf.slice!((sig_index + 4)..(buf.bytesize))
 
       def buf.read(count)
@@ -165,9 +165,9 @@ module Zip
 
     def get_64_e_o_c_d(buf) #:nodoc:
       zip_64_start = buf.rindex([ZIP64_END_OF_CDS].pack('V'))
-      raise Error, "Zip64 end of central directory signature not found" unless zip_64_start
+      raise Error, 'Zip64 end of central directory signature not found' unless zip_64_start
       zip_64_locator = buf.rindex([ZIP64_EOCD_LOCATOR].pack('V'))
-      raise Error, "Zip64 end of central directory signature locator not found" unless zip_64_locator
+      raise Error, 'Zip64 end of central directory signature locator not found' unless zip_64_locator
       buf = buf.slice!((zip_64_start + 4)..zip_64_locator)
 
       def buf.read(count)

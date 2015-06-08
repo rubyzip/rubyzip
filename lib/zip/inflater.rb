@@ -20,7 +20,7 @@ module Zip
     end
 
     def produce_input
-      if (@output_buffer.empty?)
+      if @output_buffer.empty?
         internal_produce_input
       else
         @output_buffer.slice!(0...(@output_buffer.length))
@@ -33,8 +33,8 @@ module Zip
       @output_buffer.empty? && internal_input_finished?
     end
 
-    alias :eof :input_finished?
-    alias :eof? :input_finished?
+    alias :eof input_finished?
+    alias :eof? input_finished?
 
     private
 

@@ -86,14 +86,14 @@ module Zip
       @output_buffer.empty? && @decompressor.eof
     end
 
-    alias :eof? :eof
+    alias :eof? eof
 
     class << self
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
       def open(filename_or_io, offset = 0, decrypter = nil)
-        zio = self.new(filename_or_io, offset, decrypter)
+        zio = new(filename_or_io, offset, decrypter)
         return zio unless block_given?
         begin
           yield zio
@@ -103,8 +103,8 @@ module Zip
       end
 
       def open_buffer(filename_or_io, offset = 0)
-        puts "open_buffer is deprecated!!! Use open instead!"
-        self.open(filename_or_io, offset)
+        puts 'open_buffer is deprecated!!! Use open instead!'
+        open(filename_or_io, offset)
       end
     end
 
@@ -132,8 +132,8 @@ module Zip
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0 && !@internal
         raise GPFBit3Error,
-          'General purpose flag Bit 3 is set so not possible to get proper info from local header.' + \
-          'Please use ::Zip::File instead of ::Zip::InputStream'
+              'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
+              'Please use ::Zip::File instead of ::Zip::InputStream'
       end
       @decompressor  = get_decompressor
       flush

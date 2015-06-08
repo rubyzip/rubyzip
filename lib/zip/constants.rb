@@ -6,7 +6,7 @@ module Zip
 
   LOCAL_ENTRY_SIGNATURE                  = 0x04034b50
   LOCAL_ENTRY_STATIC_HEADER_LENGTH       = 30
-  LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4+4+4
+  LOCAL_ENTRY_TRAILING_DESCRIPTOR_LENGTH = 4 + 4 + 4
   VERSION_MADE_BY                        = 52 # this library's version
   VERSION_NEEDED_TO_EXTRACT              = 20
   VERSION_NEEDED_TO_EXTRACT_ZIP64        = 45
@@ -58,6 +58,6 @@ module Zip
     FSTYPE_TANDEM   => 'Tandem NSK'.freeze,
     FSTYPE_THEOS    => 'Theos'.freeze,
     FSTYPE_MAC_OSX  => 'Mac OS/X (Darwin)'.freeze,
-    FSTYPE_ATHEOS   => 'AtheOS'.freeze,
+    FSTYPE_ATHEOS   => 'AtheOS'.freeze
   }.freeze
 end

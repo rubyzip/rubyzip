@@ -35,7 +35,7 @@ module Zip
 
         if tbuf.nil? || tbuf.length == 0
           return nil if number_of_bytes
-          return ""
+          return ''
         end
 
         @pos += tbuf.length
@@ -75,15 +75,13 @@ module Zip
         over_limit   = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         while (match_index = @output_buffer.index(a_sep_string, buffer_index)).nil? && !over_limit
           buffer_index = [buffer_index, @output_buffer.bytesize - a_sep_string.bytesize].max
-          if input_finished?
-            return @output_buffer.empty? ? nil : flush
-          end
+          return @output_buffer.empty? ? nil : flush if input_finished?
           @output_buffer << produce_input
           over_limit = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         end
         sep_index = [match_index + a_sep_string.bytesize, number_of_bytes || @output_buffer.bytesize].min
-        @pos     += sep_index
-        return @output_buffer.slice!(0...sep_index)
+        @pos += sep_index
+        @output_buffer.slice!(0...sep_index)
       end
 
       def ungetc(byte)
@@ -103,9 +101,7 @@ module Zip
       end
 
       def each_line(a_sep_string = $/)
-        while true
-          yield readline(a_sep_string)
-        end
+        yield readline(a_sep_string) while true
       rescue EOFError
       end
 

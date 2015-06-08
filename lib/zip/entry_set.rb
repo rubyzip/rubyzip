@@ -21,20 +21,16 @@ module Zip
       @entry_set[to_key(entry)] = entry
     end
 
-    alias :push :<<
+    alias push <<
 
     def size
       @entry_set.size
     end
 
-    alias :length :size
+    alias length size
 
     def delete(entry)
-      if @entry_set.delete(to_key(entry))
-        entry
-      else
-        nil
-      end
+      entry if @entry_set.delete(to_key(entry))
     end
 
     def each(&block)
@@ -49,7 +45,7 @@ module Zip
 
     # deep clone
     def dup
-      EntrySet.new(@entry_set.map { |key, value| value.dup })
+      EntrySet.new(@entry_set.values.map(&:dup))
     end
 
     def ==(other)
@@ -61,7 +57,7 @@ module Zip
       @entry_set[to_key(entry.parent_as_string)]
     end
 
-    def glob(pattern, flags = ::File::FNM_PATHNAME|::File::FNM_DOTMATCH)
+    def glob(pattern, flags = ::File::FNM_PATHNAME | ::File::FNM_DOTMATCH)
       entries.map do |entry|
         next nil unless ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
         yield(entry) if block_given?
@@ -70,11 +66,13 @@ module Zip
     end
 
     protected
+
     def sorted_entries
       ::Zip.sort_entries ? Hash[@entry_set.sort] : @entry_set
     end
 
     private
+
     def to_key(entry)
       k = entry.to_s.chomp('/')
       k.downcase! if ::Zip.case_insensitive_match

@@ -12,4 +12,3 @@ class PassThruDecompressorTest < MiniTest::Test
     @file.close
   end
 end
-

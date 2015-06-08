@@ -1,8 +1,8 @@
 module Zip
   module NullDecompressor #:nodoc:all
-    extend self
+    module_function
 
-    def sysread(numberOfBytes = nil, buf = nil)
+    def sysread(_numberOfBytes = nil, _buf = nil)
       nil
     end
 
@@ -18,7 +18,7 @@ module Zip
       true
     end
 
-    alias :eof? :eof
+    alias eof? eof
   end
 end
 

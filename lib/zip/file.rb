@@ -43,12 +43,11 @@ module Zip
   # interface for accessing the filesystem, ie. the File and Dir classes.
 
   class File < CentralDirectory
-
     CREATE               = 1
     SPLIT_SIGNATURE      = 0x08074b50
     ZIP64_EOCD_SIGNATURE = 0x06064b50
-    MAX_SEGMENT_SIZE     = 3221225472
-    MIN_SEGMENT_SIZE     = 65536
+    MAX_SEGMENT_SIZE     = 3_221_225_472
+    MIN_SEGMENT_SIZE     = 65_536
     DATA_BUFFER_SIZE     = 8192
 
     attr_reader :name
@@ -131,7 +130,7 @@ module Zip
         begin
           zf.write_buffer(io)
         rescue IOError => e
-          raise unless e.message == "not opened for writing"
+          raise unless e.message == 'not opened for writing'
         end
       end
 
@@ -181,7 +180,7 @@ module Zip
       def save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
         ssegment_size  = zip_file_size - zip_file.pos
         ssegment_size  = segment_size if ssegment_size > segment_size
-        szip_file_name = "#{partial_zip_file_name}.#{'%03d'%(szip_file_index)}"
+        szip_file_name = "#{partial_zip_file_name}.#{format('%03d', szip_file_index)}"
         ::File.open(szip_file_name, 'wb') do |szip_file|
           if szip_file_index == 1
             ssegment_size = put_split_signature(szip_file, segment_size)
@@ -191,7 +190,7 @@ module Zip
             segment_bytes_left = ssegment_size - chunk_bytes
             buffer_size        = segment_bytes_left < DATA_BUFFER_SIZE ? segment_bytes_left : DATA_BUFFER_SIZE
             chunk              = zip_file.read(buffer_size)
-            chunk_bytes        += buffer_size
+            chunk_bytes += buffer_size
             szip_file << chunk
             # Info for track splitting
             yield segment_count, szip_file_index, chunk_bytes, ssegment_size if block_given?
@@ -208,7 +207,7 @@ module Zip
         return if zip_file_size <= segment_size
         segment_count = get_segment_count_for_split(zip_file_size, segment_size)
         # Checking for correct zip structure
-        self.open(zip_file_name) {}
+        open(zip_file_name) {}
         partial_zip_file_name = get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
         szip_file_index       = 0
         ::File.open(zip_file_name, 'rb') do |zip_file|
@@ -221,7 +220,6 @@ module Zip
         szip_file_index
       end
     end
-
 
     # Returns an input stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically
@@ -265,7 +263,7 @@ module Zip
     # Convenience method for adding the contents of a file to the archive
     def add(entry, src_path, &continue_on_exists_proc)
       continue_on_exists_proc ||= proc { ::Zip.continue_on_exists_proc }
-      check_entry_exists(entry, continue_on_exists_proc, "add")
+      check_entry_exists(entry, continue_on_exists_proc, 'add')
       new_entry = entry.kind_of?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
       new_entry.gather_fileinfo_from_srcpath(src_path)
       new_entry.dirty = true
@@ -356,9 +354,7 @@ module Zip
     # if no entry is found.
     def get_entry(entry)
       selected_entry = find_entry(entry)
-      unless selected_entry
-        raise Errno::ENOENT, entry
-      end
+      raise Errno::ENOENT, entry unless selected_entry
       selected_entry.restore_ownership   = @restore_ownership
       selected_entry.restore_permissions = @restore_permissions
       selected_entry.restore_times       = @restore_times
@@ -367,9 +363,7 @@ module Zip
 
     # Creates a directory
     def mkdir(entryName, permissionInt = 0755)
-      if find_entry(entryName)
-        raise Errno::EEXIST, "File exists - #{entryName}"
-      end
+      raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
       @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
@@ -377,34 +371,31 @@ module Zip
 
     private
 
-    def is_directory(newEntry, srcPath)
+    def directory?(newEntry, srcPath)
       srcPathIsDirectory = ::File.directory?(srcPath)
-      if newEntry.is_directory && !srcPathIsDirectory
+      if newEntry.directory? && !srcPathIsDirectory
         raise ArgumentError,
-              "entry name '#{newEntry}' indicates directory entry, but "+
-                "'#{srcPath}' is not a directory"
-      elsif !newEntry.is_directory && srcPathIsDirectory
-        newEntry.name += "/"
+              "entry name '#{newEntry}' indicates directory entry, but " \
+                  "'#{srcPath}' is not a directory"
+      elsif !newEntry.directory? && srcPathIsDirectory
+        newEntry.name += '/'
       end
-      newEntry.is_directory && srcPathIsDirectory
+      newEntry.directory? && srcPathIsDirectory
     end
 
     def check_entry_exists(entryName, continue_on_exists_proc, procedureName)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
-      if @entry_set.include?(entryName)
-        if continue_on_exists_proc.call
-          remove get_entry(entryName)
-        else
-          raise ::Zip::EntryExistsError,
-                procedureName + " failed. Entry #{entryName} already exists"
-        end
+      return unless @entry_set.include?(entryName)
+      if continue_on_exists_proc.call
+        remove get_entry(entryName)
+      else
+        raise ::Zip::EntryExistsError,
+              procedureName + " failed. Entry #{entryName} already exists"
       end
     end
 
     def check_file(path)
-      unless ::File.readable?(path)
-        raise Errno::ENOENT, path
-      end
+      raise Errno::ENOENT, path unless ::File.readable?(path)
     end
 
     def on_success_replace
@@ -413,10 +404,8 @@ module Zip
       ObjectSpace.undefine_finalizer(tmpfile)
       tmpfile.close
       if yield tmp_filename
-        ::File.rename(tmp_filename, self.name)
-        if defined?(@exist_file_perms)
-          ::File.chmod(@exist_file_perms, self.name)
-        end
+        ::File.rename(tmp_filename, name)
+        ::File.chmod(@exist_file_perms, name) if defined?(@exist_file_perms)
       end
     ensure
       tmpfile.unlink if tmpfile
@@ -427,7 +416,6 @@ module Zip
       temp_file.binmode
       temp_file
     end
-
   end
 end
 

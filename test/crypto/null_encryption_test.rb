@@ -4,7 +4,7 @@ class NullEncrypterTest < MiniTest::Test
   def setup
     @encrypter = ::Zip::NullEncrypter.new
   end
-  
+
   def test_header_bytesize
     assert_equal 0, @encrypter.header_bytesize
   end
@@ -32,7 +32,7 @@ class NullDecrypterTest < MiniTest::Test
   def setup
     @decrypter = ::Zip::NullDecrypter.new
   end
-  
+
   def test_header_bytesize
     assert_equal 0, @decrypter.header_bytesize
   end
