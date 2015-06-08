@@ -20,33 +20,39 @@ class ZipFileGenerator
 
   # Zip the input directory.
   def write
-    entries = Dir.entries(@inputDir)
-    entries.delete('.')
-    entries.delete('..')
-    io = Zip::File.open(@outputFile, Zip::File::CREATE)
+    entries = Dir.entries(@input_dir) - %w(. ..)
 
-    write_entries(entries, '', io)
-    io.close
+    ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |io|
+      write_entries entries, '', io
+    end
   end
-
-  # A helper method to make the recursion work.
 
   private
 
+  # A helper method to make the recursion work.
   def write_entries(entries, path, io)
     entries.each do |e|
-      zipFilePath = path == '' ? e : File.join(path, e)
-      diskFilePath = File.join(@inputDir, zipFilePath)
-      puts 'Deflating ' + diskFilePath
-      if  File.directory?(diskFilePath)
-        io.mkdir(zipFilePath)
-        subdir = Dir.entries(diskFilePath)
-        subdir.delete('.')
-        subdir.delete('..')
-        write_entries(subdir, zipFilePath, io)
+      zip_file_path = path == '' ? e : File.join(path, e)
+      disk_file_path = File.join(@input_dir, zip_file_path)
+      puts "Deflating #{disk_file_path}"
+
+      if File.directory? disk_file_path
+        recursively_deflate_directory(disk_file_path, io, zip_file_path)
       else
-        io.get_output_stream(zipFilePath) { |f| f.puts(File.open(diskFilePath, 'rb').read) }
+        put_into_archive(disk_file_path, io, zip_file_path)
       end
+    end
+  end
+
+  def recursively_deflate_directory(disk_file_path, io, zip_file_path)
+    io.mkdir zip_file_path
+    subdir = Dir.entries(disk_file_path) - %w(. ..)
+    write_entries subdir, zip_file_path, io
+  end
+
+  def put_into_archive(disk_file_path, io, zip_file_path)
+    io.get_output_stream(zip_file_path) do |f|
+      f.puts(File.open(disk_file_path, 'rb').read)
     end
   end
 end
