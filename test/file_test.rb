@@ -521,6 +521,19 @@ class ZipFileTest < MiniTest::Test
     assert data =~ /Simonov/
   end
 
+  def test_nonexistant_zip
+    assert_raises(::Zip::Error) do
+      ::Zip::File.open('fake.zip') 
+    end
+  end
+
+  def test_empty_zip
+    puts `touch empty.zip`
+    assert_raises(::Zip::Error) do
+      ::Zip::File.open('empty.zip')
+    end
+  end
+
   private
 
   def assert_contains(zf, entryName, filename = entryName)
