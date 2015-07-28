@@ -78,6 +78,8 @@ module Zip
       when create
         @file_permissions = create_file_permissions
         @entry_set = EntrySet.new
+      when ::File.zero?(file_name)
+        raise Error, "File #{file_name} has zero size. Did you mean to pass the create flag?"
       else
         raise Error, "File #{file_name} not found"
       end
