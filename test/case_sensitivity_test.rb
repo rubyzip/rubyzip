@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZipFileTest < MiniTest::Test
+class ZipCaseSensitivityTest < MiniTest::Test
   include CommonZipFileFixture
 
   SRC_FILES = [['test/data/file1.txt', 'testfile.rb'],
