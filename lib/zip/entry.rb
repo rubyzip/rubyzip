@@ -176,7 +176,7 @@ module Zip
       end
 
       def read_c_dir_entry(io) #:nodoc:all
-        path = if io.is_a?(::IO)
+        path = if io.respond_to?(:path)
                  io.path
                else
                  io
@@ -548,7 +548,7 @@ module Zip
     end
 
     def get_raw_input_stream(&block)
-      if @zipfile.is_a?(::IO) || @zipfile.is_a?(::StringIO)
+      if @zipfile.respond_to?(:seek) && @zipfile.respond_to?(:read)
         yield @zipfile
       else
         ::File.open(@zipfile, 'rb', &block)

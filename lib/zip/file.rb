@@ -49,6 +49,7 @@ module Zip
     MAX_SEGMENT_SIZE     = 3_221_225_472
     MIN_SEGMENT_SIZE     = 65_536
     DATA_BUFFER_SIZE     = 8192
+    IO_METHODS           = [:tell, :seek, :read, :close]
 
     attr_reader :name
 
@@ -117,13 +118,13 @@ module Zip
       # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io, options = {})
-        unless io.is_a?(IO) || io.is_a?(String) || io.is_a?(Tempfile) || io.is_a?(StringIO)
-          raise "Zip::File.open_buffer expects an argument of class String, IO, StringIO, or Tempfile. Found: #{io.class}"
+        unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.is_a?(String)
+          raise "Zip::File.open_buffer expects a String or IO-like argument (responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
         end
         if io.is_a?(::String)
           require 'stringio'
           io = ::StringIO.new(io)
-        elsif io.is_a?(IO)
+        elsif io.respond_to?(:binmode)
           # https://github.com/rubyzip/rubyzip/issues/119
           io.binmode
         end
