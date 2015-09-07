@@ -3,6 +3,16 @@ require 'test_helper'
 class ZipInputStreamTest < MiniTest::Test
   include AssertEntry
 
+  class IOLike
+    extend Forwardable
+
+    def initialize(path, mode)
+      @file = File.new(path, mode)
+    end
+
+    delegate ::Zip::File::IO_METHODS => :@file
+  end
+
   def test_new
     zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
@@ -46,6 +56,13 @@ class ZipInputStreamTest < MiniTest::Test
   def test_open_buffer_without_block
     zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+  end
+
+  def test_open_io_like_with_block
+    ::Zip::InputStream.open(IOLike.new(TestZipFile::TEST_ZIP2.zip_name, 'rb')) do |zis|
+      assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
+      assert_equal(true, zis.eof?)
+    end
   end
 
   def test_incomplete_reads

@@ -111,8 +111,7 @@ module Zip
     protected
 
     def get_io(io_or_file, offset = 0)
-      case io_or_file
-      when IO, StringIO
+      if io_or_file.respond_to?(:seek)
         io = io_or_file.dup
         io.seek(offset, ::IO::SEEK_SET)
         io
