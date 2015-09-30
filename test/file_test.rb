@@ -523,7 +523,7 @@ class ZipFileTest < MiniTest::Test
 
   def test_nonexistant_zip
     assert_raises(::Zip::Error) do
-      ::Zip::File.open('fake.zip') 
+      ::Zip::File.open('fake.zip')
     end
   end
 
@@ -532,6 +532,18 @@ class ZipFileTest < MiniTest::Test
     assert_raises(::Zip::Error) do
       ::Zip::File.open('empty.zip')
     end
+  end
+
+  def test_odd_extra_field
+    entry_count = 0
+    File.open 'test/data/oddExtraField.zip', 'rb' do |zip_io|
+      Zip::File.open_buffer zip_io.read do |zip|
+        zip.each do |zip_entry|
+          entry_count += 1
+        end
+      end
+    end
+    assert_equal 13, entry_count
   end
 
   private

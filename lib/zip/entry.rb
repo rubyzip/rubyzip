@@ -239,7 +239,7 @@ module Zip
         raise ::Zip::Error, 'Truncated local zip entry header'
       else
         if @extra.is_a?(::Zip::ExtraField)
-          @extra.merge(extra)
+          @extra.merge(extra) if extra
         else
           @extra = ::Zip::ExtraField.new(extra)
         end
