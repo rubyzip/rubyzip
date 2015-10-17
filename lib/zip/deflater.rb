@@ -7,18 +7,21 @@ module Zip
       @size          = 0
       @crc           = ::Zlib.crc32
       @encrypter     = encrypter
-      @buffer_stream = ::StringIO.new('')
     end
 
     def <<(data)
       val   = data.to_s
       @crc  = Zlib.crc32(val, @crc)
       @size += val.bytesize
-      @buffer_stream << @zlib_deflater.deflate(data)
+      buffer = @zlib_deflater.deflate(data)
+      if buffer.empty?
+        @output_stream
+      else
+        @output_stream << @encrypter.encrypt(buffer)
+      end
     end
 
     def finish
-      @output_stream << @encrypter.encrypt(@buffer_stream.string)
       @output_stream << @encrypter.encrypt(@zlib_deflater.finish) until @zlib_deflater.finished?
     end
 
