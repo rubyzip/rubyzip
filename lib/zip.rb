@@ -30,10 +30,6 @@ require 'zip/streamable_stream'
 require 'zip/streamable_directory'
 require 'zip/constants'
 require 'zip/errors'
-if defined? JRUBY_VERSION
-  require 'jruby'
-  JRuby.objectspace = true
-end
 
 module Zip
   extend self

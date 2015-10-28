@@ -6,6 +6,11 @@ require 'digest/sha1'
 require 'zip'
 require 'gentestfiles'
 
+if defined? JRUBY_VERSION
+  require 'jruby'
+  JRuby.objectspace = true
+end
+
 TestFiles.create_test_files
 TestZipFile.create_test_zips
 
