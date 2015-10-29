@@ -405,11 +405,11 @@ module Zip
     def on_success_replace
       tmpfile      = get_tempfile
       tmp_filename = tmpfile.path
-      tmpfile.close
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
         ::File.chmod(@file_permissions, name) if defined?(@file_permissions)
       end
+      tmpfile.close
     end
 
     def get_tempfile
