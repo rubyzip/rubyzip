@@ -406,7 +406,9 @@ module Zip
       tmpfile      = get_tempfile
       tmp_filename = tmpfile.path
       if yield tmp_filename
-        ::File.rename(tmp_filename, name)
+        new_file = ::File.new(name, "w")
+        IO.copy_stream tmpfile, new_file
+        new_file.close
         ::File.chmod(@file_permissions, name) if defined?(@file_permissions)
       end
       tmpfile.close
