@@ -405,14 +405,11 @@ module Zip
     def on_success_replace
       tmpfile      = get_tempfile
       tmp_filename = tmpfile.path
-      ObjectSpace.undefine_finalizer(tmpfile)
       tmpfile.close
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
         ::File.chmod(@file_permissions, name) if defined?(@file_permissions)
       end
-    ensure
-      tmpfile.unlink if tmpfile
     end
 
     def get_tempfile
