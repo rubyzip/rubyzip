@@ -572,6 +572,7 @@ module Zip
         raise ::Zip::DestinationFileExistsError,
               "Destination '#{dest_path}' already exists"
       end
+      ::FileUtils.mkdir_p(::File.dirname(dest_path))
       ::File.open(dest_path, 'wb') do |os|
         get_input_stream do |is|
           set_extra_attributes_on_path(dest_path)

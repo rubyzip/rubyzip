@@ -11,22 +11,11 @@ class ZipFileExtractTest < MiniTest::Test
   end
 
   def test_extract
-    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      zf.extract(ENTRY_TO_EXTRACT, EXTRACTED_FILENAME)
+    assert_extract(EXTRACTED_FILENAME)
+  end
 
-      assert(File.exist?(EXTRACTED_FILENAME))
-      AssertEntry.assert_contents(EXTRACTED_FILENAME,
-                                  zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
-
-      ::File.unlink(EXTRACTED_FILENAME)
-
-      entry = zf.get_entry(ENTRY_TO_EXTRACT)
-      entry.extract(EXTRACTED_FILENAME)
-
-      assert(File.exist?(EXTRACTED_FILENAME))
-      AssertEntry.assert_contents(EXTRACTED_FILENAME,
-                                  entry.get_input_stream { |is| is.read })
-    end
+  def test_extract_nested_file
+    assert_extract('test/data/generated/a/b/c/extEntry')
   end
 
   def test_extract_exists
@@ -79,5 +68,26 @@ class ZipFileExtractTest < MiniTest::Test
       zf.close
     end
     assert(!File.exist?(outFile))
+  end
+
+  private
+
+  def assert_extract(extracted_filename)
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+      zf.extract(ENTRY_TO_EXTRACT, extracted_filename)
+
+      assert(File.exist?(extracted_filename))
+      AssertEntry.assert_contents(extracted_filename,
+                                  zf.get_input_stream(ENTRY_TO_EXTRACT) { |is| is.read })
+
+      ::File.unlink(extracted_filename)
+
+      entry = zf.get_entry(ENTRY_TO_EXTRACT)
+      entry.extract(extracted_filename)
+
+      assert(File.exist?(extracted_filename))
+      AssertEntry.assert_contents(extracted_filename,
+                                  entry.get_input_stream { |is| is.read })
+    end
   end
 end
