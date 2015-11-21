@@ -415,7 +415,7 @@ module Zip
     end
 
     def get_tempfile
-      Tempfile.new(::File.basename(name), ::File.dirname(name))
+      Tempfile.new(::File.basename(name), ::File.dirname(name), binmode: true)
     end
 
     def create_file_permissions
