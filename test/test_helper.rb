@@ -9,6 +9,11 @@ require 'gentestfiles'
 TestFiles.create_test_files
 TestZipFile.create_test_zips
 
+if defined? JRUBY_VERSION
+  require 'jruby'
+  JRuby.objectspace = true
+end
+
 ::MiniTest.after_run do
   FileUtils.rm_rf('test/data/generated')
 end

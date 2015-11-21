@@ -404,8 +404,7 @@ module Zip
 
     def on_success_replace
       tmpfile      = get_tempfile
-      tmp_filename = tmpfile.path
-      ObjectSpace.undefine_finalizer(tmpfile)
+      tmp_filename = tmpfile.path.dup
       tmpfile.close
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
@@ -416,9 +415,7 @@ module Zip
     end
 
     def get_tempfile
-      temp_file = Tempfile.new(::File.basename(name), ::File.dirname(name))
-      temp_file.binmode
-      temp_file
+      Tempfile.new(::File.basename(name), ::File.dirname(name))
     end
 
     def create_file_permissions
