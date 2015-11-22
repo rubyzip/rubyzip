@@ -403,19 +403,22 @@ module Zip
     end
 
     def on_success_replace
-      tmpfile      = get_tempfile
-      tmp_filename = tmpfile.path.dup
-      tmpfile.close
+      tmp_filename = create_tmpname
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
         ::File.chmod(@file_permissions, name) if defined?(@file_permissions)
       end
     ensure
-      tmpfile.unlink if tmpfile
+      ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
     end
 
-    def get_tempfile
-      Tempfile.new(::File.basename(name), ::File.dirname(name))
+    def create_tmpname
+      dirname, basename = ::File.split(name)
+      ::Dir::Tmpname.create(basename, dirname) do |tmpname|
+        opts = {perm: 0600, mode: ::File::CREAT | ::File::WRONLY | ::File::EXCL}
+        f = File.open(tmpname, opts)
+        f.close
+      end
     end
 
     def create_file_permissions

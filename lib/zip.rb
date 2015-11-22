@@ -1,6 +1,7 @@
 require 'delegate'
 require 'singleton'
 require 'tempfile'
+require 'tmpdir'
 require 'fileutils'
 require 'stringio'
 require 'zlib'
