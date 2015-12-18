@@ -70,7 +70,9 @@ class ZipSettingsTest < MiniTest::Test
     test_file = File.join(File.dirname(__FILE__), 'data', 'WarnInvalidDate.zip')
     Zip.warn_invalid_date = false
 
-    ::Zip::File.open(test_file) do |_zf|
+    assert_output('', '') do
+      ::Zip::File.open(test_file) do |_zf|
+      end
     end
   end
 
@@ -78,7 +80,9 @@ class ZipSettingsTest < MiniTest::Test
     test_file = File.join(File.dirname(__FILE__), 'data', 'WarnInvalidDate.zip')
     Zip.warn_invalid_date = true
 
-    ::Zip::File.open(test_file) do |_zf|
+    assert_output('', /Invalid date\/time in zip entry/) do
+      ::Zip::File.open(test_file) do |_zf|
+      end
     end
   end
 
