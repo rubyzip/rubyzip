@@ -18,7 +18,7 @@ module Zip
     end
 
     def <<(entry)
-      @entry_set[to_key(entry)] = entry
+      @entry_set[to_key(entry)] = entry if entry
     end
 
     alias push <<
