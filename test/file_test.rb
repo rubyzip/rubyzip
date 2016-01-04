@@ -546,6 +546,10 @@ class ZipFileTest < MiniTest::Test
     assert_equal 13, entry_count
   end
 
+  def test_open_xls_does_not_raise_type_error
+    ::Zip::File.open('test/data/test.xls')
+  end
+
   private
 
   def assert_contains(zf, entryName, filename = entryName)
