@@ -64,12 +64,12 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(file_name, create = nil, buffer = false, encrypter = nil, options = {})
+    def initialize(file_name, create = nil, buffer = false, options = {})
       super()
       @name    = file_name
       @comment = ''
       @create  = create
-      @encrypter = encrypter
+      @encrypter = options[:encrypter]
       case
       when !buffer && ::File.size?(file_name)
         @create = nil
@@ -97,7 +97,7 @@ module Zip
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
       def open(file_name, create = nil, encrypter = nil)
-        zf = ::Zip::File.new(file_name, create, encrypter)
+        zf = ::Zip::File.new(file_name, create, false, encrypter: encrypter)
         return zf unless block_given?
         begin
           yield zf
