@@ -97,7 +97,6 @@ module Zip
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
       def open(file_name, create = nil, encrypter = nil)
-        binding.pry # debug
         zf = ::Zip::File.new(file_name, create, false, encrypter: encrypter)
         return zf unless block_given?
         begin
