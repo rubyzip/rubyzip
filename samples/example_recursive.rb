@@ -51,7 +51,7 @@ class ZipFileGenerator
 
   def put_into_archive(disk_file_path, io, zip_file_path)
     io.get_output_stream(zip_file_path) do |f|
-      f.puts(File.open(disk_file_path, 'rb').read)
+      f.write(File.open(disk_file_path, 'rb').read)
     end
   end
 end
