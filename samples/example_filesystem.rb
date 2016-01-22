@@ -2,7 +2,7 @@
 
 $: << '../lib'
 
-require 'zip/zipfilesystem'
+require 'zip/filesystem'
 
 EXAMPLE_ZIP = 'filesystem.zip'
 
