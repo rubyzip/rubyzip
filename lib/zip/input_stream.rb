@@ -108,6 +108,11 @@ module Zip
       end
     end
 
+    def entry_size
+      return 0 if @current_entry.nil?
+      @current_entry.size
+    end
+
     protected
 
     def get_io(io_or_file, offset = 0)

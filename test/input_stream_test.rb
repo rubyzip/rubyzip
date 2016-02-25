@@ -179,4 +179,16 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal('$VERBOSE =', zis.read(10))
     end
   end
+
+  def test_test_entry_size
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      assert_equal(zis.entry_size, 0)
+      zis.get_next_entry
+      assert_equal(zis.entry_size, 123702)
+      zis.get_next_entry
+      zis.get_next_entry
+      zis.get_next_entry
+      assert_equal(zis.entry_size, 6)
+    end
+  end
 end

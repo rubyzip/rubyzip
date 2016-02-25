@@ -30,6 +30,10 @@ class AbstractInputStreamTest < MiniTest::Test
     def input_finished?
       @contents[@readPointer].nil?
     end
+
+    def entry_size
+      @contents.length
+    end
   end
 
   def setup
@@ -98,5 +102,9 @@ class AbstractInputStreamTest < MiniTest::Test
       fail 'EOFError expected'
     rescue EOFError
     end
+  end
+
+  def test_length
+    assert_equal(TEST_STRING.length, @io.length)
   end
 end
