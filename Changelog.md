@@ -1,3 +1,15 @@
+1.2.0
+=====
+
+* Don't enable JRuby objectspace #252
+* Fixes an exception thrown when decoding some weird .zip files #248
+* Use duck typing with IO methods #244
+* Added error for empty (zero bit) zip file #242
+* Accept StringIO in Zip.open_buffer #238
+* Do something more expected with new file permissions #237
+* Case insensitivity option for #find_entry #222
+* Fixes in documentation and examples
+
 1.1.7
 =====
 
