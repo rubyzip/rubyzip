@@ -218,7 +218,7 @@ buffer = Zip::OutputStream.write_buffer do |out|
   out.write rels.to_xml(:indent => 0).gsub("\n","")
 end
 
-File.open(new_path, "w") {|f| f.write(buffer.string) }
+File.open(new_path, "wb") {|f| f.write(buffer.string) }
 ```
 
 ## Configuration
