@@ -43,9 +43,13 @@ class FilePermissionsTest < MiniTest::Test
 
       assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
     end
+
+    def test_umask_027
+      set_umask(0027) do
+        create_files
       end
 
-      assert_equal((DEFAULT_PERMS - umask), ::File.stat(FILENAME).mode)
+      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
     end
 
   end
