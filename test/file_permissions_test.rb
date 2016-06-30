@@ -2,9 +2,11 @@ require 'test_helper'
 
 class FilePermissionsTest < MiniTest::Test
 
-  FILENAME = File.join(File.dirname(__FILE__), "umask.zip")
+  ZIPNAME = File.join(File.dirname(__FILE__), "umask.zip")
+  FILENAME = File.join(File.dirname(__FILE__), "umask.txt")
 
   def teardown
+    ::File.unlink(ZIPNAME)
     ::File.unlink(FILENAME)
   end
 
@@ -14,35 +16,33 @@ class FilePermissionsTest < MiniTest::Test
     DEFAULT_PERMS = 0644
 
     def test_windows_perms
-      create_file
-
-      assert_equal DEFAULT_PERMS, ::File.stat(FILENAME).mode
+      create_files
+      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
     end
 
   else
     # Unix tests
 
-    DEFAULT_PERMS = 0100666
-
     def test_current_umask
-      umask = DEFAULT_PERMS - ::File.umask
-      create_file
-
-      assert_equal umask, ::File.stat(FILENAME).mode
+      create_files
+      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
     end
 
     def test_umask_000
       set_umask(0000) do
-        create_file
+        create_files
       end
 
-      assert_equal DEFAULT_PERMS, ::File.stat(FILENAME).mode
+      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
     end
 
     def test_umask_066
-      umask = 0066
-      set_umask(umask) do
-        create_file
+      set_umask(0066) do
+        create_files
+      end
+
+      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
+    end
       end
 
       assert_equal((DEFAULT_PERMS - umask), ::File.stat(FILENAME).mode)
@@ -50,9 +50,13 @@ class FilePermissionsTest < MiniTest::Test
 
   end
 
-  def create_file
-    ::Zip::File.open(FILENAME, ::Zip::File::CREATE) do |zip|
+  def create_files
+    ::Zip::File.open(ZIPNAME, ::Zip::File::CREATE) do |zip|
       zip.comment = "test"
+    end
+
+    ::File.open(FILENAME, 'w') do |file|
+      file << 'test'
     end
   end
 
