@@ -17,7 +17,7 @@ class FilePermissionsTest < MiniTest::Test
 
     def test_windows_perms
       create_files
-      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
+      assert_matching_permissions FILENAME, ZIPNAME
     end
 
   else
@@ -25,7 +25,7 @@ class FilePermissionsTest < MiniTest::Test
 
     def test_current_umask
       create_files
-      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
+      assert_matching_permissions FILENAME, ZIPNAME
     end
 
     def test_umask_000
@@ -33,7 +33,7 @@ class FilePermissionsTest < MiniTest::Test
         create_files
       end
 
-      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
+      assert_matching_permissions FILENAME, ZIPNAME
     end
 
     def test_umask_066
@@ -41,7 +41,7 @@ class FilePermissionsTest < MiniTest::Test
         create_files
       end
 
-      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
+      assert_matching_permissions FILENAME, ZIPNAME
     end
 
     def test_umask_027
@@ -49,9 +49,16 @@ class FilePermissionsTest < MiniTest::Test
         create_files
       end
 
-      assert_equal ::File.stat(FILENAME).mode, ::File.stat(ZIPNAME).mode
+      assert_matching_permissions FILENAME, ZIPNAME
     end
 
+  end
+
+  def assert_matching_permissions(expected_file, actual_file)
+    assert_equal(
+      ::File.stat(expected_file).mode.to_s(8).rjust(4, '0'),
+      ::File.stat(actual_file).mode.to_s(8).rjust(4, '0')
+    )
   end
 
   def create_files
