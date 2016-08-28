@@ -9,6 +9,8 @@ class TestFiles
   RANDOM_BINARY_FILE1 = 'test/data/generated/randomBinary1.bin'
   RANDOM_BINARY_FILE2 = 'test/data/generated/randomBinary2.bin'
 
+  NULL_FILE = 'test/data/generated/null.zip' # Zero length, so not a zip file.
+
   EMPTY_TEST_DIR = 'test/data/generated/emptytestdir'
 
   ASCII_TEST_FILES = [RANDOM_ASCII_FILE1, RANDOM_ASCII_FILE2, RANDOM_ASCII_FILE3]
@@ -27,6 +29,8 @@ class TestFiles
       BINARY_TEST_FILES.each_with_index do |filename, index|
         create_random_binary(filename, 1E4 * (index + 1))
       end
+
+      system("touch #{NULL_FILE}")
 
       ensure_dir(EMPTY_TEST_DIR)
     end

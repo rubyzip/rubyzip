@@ -528,9 +528,8 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_empty_zip
-    puts `touch empty.zip`
     assert_raises(::Zip::Error) do
-      ::Zip::File.open('empty.zip')
+      ::Zip::File.open(TestFiles::NULL_FILE)
     end
   end
 
