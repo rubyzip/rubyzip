@@ -144,7 +144,9 @@ module Zip
       when @current_entry.nil?
         ::Zip::NullDecompressor
       when @current_entry.compression_method == ::Zip::Entry::STORED
-        ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
+        header = @archive_io.read(@decrypter.header_bytesize)
+        @decrypter.reset!(header)
+        ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size, @decrypter)
       when @current_entry.compression_method == ::Zip::Entry::DEFLATED
         header = @archive_io.read(@decrypter.header_bytesize)
         @decrypter.reset!(header)

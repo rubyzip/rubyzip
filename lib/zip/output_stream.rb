@@ -147,7 +147,7 @@ module Zip
       when Entry::DEFLATED then
         ::Zip::Deflater.new(@output_stream, level, @encrypter)
       when Entry::STORED then
-        ::Zip::PassThruCompressor.new(@output_stream)
+        ::Zip::PassThruCompressor.new(@output_stream, @encrypter)
       else
         raise ::Zip::CompressionMethodError,
               "Invalid compression method: '#{entry.compression_method}'"

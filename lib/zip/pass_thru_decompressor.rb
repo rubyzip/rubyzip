@@ -1,10 +1,11 @@
 module Zip
   class PassThruDecompressor < Decompressor  #:nodoc:all
-    def initialize(input_stream, chars_to_read)
+    def initialize(input_stream, chars_to_read, decrypter)
       super(input_stream)
       @chars_to_read = chars_to_read
       @read_so_far = 0
       @has_returned_empty_string = false
+      @decrypter = decrypter
     end
 
     def sysread(number_of_bytes = nil, buf = '')
@@ -19,7 +20,7 @@ module Zip
         number_of_bytes = @chars_to_read - @read_so_far
       end
       @read_so_far += number_of_bytes
-      @input_stream.read(number_of_bytes, buf)
+      @decrypter.decrypt(@input_stream.read(number_of_bytes, buf))
     end
 
     def produce_input
