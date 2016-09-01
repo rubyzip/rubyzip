@@ -22,6 +22,7 @@ matrix:
     - rvm: ruby-head
     - rvm: rbx-2
     - rvm: jruby-head
+    - rvm: jruby-9.0.5.0
 before_install:
   - gem update --system
   - gem install bundler
