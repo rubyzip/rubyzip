@@ -10,48 +10,33 @@ class FilePermissionsTest < MiniTest::Test
     ::File.unlink(FILENAME)
   end
 
-  if ::Zip::RUNNING_ON_WINDOWS
-    # Windows tests
+  def test_current_umask
+    create_files
+    assert_matching_permissions FILENAME, ZIPNAME
+  end
 
-    DEFAULT_PERMS = 0644
-
-    def test_windows_perms
+  def test_umask_000
+    set_umask(0000) do
       create_files
-      assert_matching_permissions FILENAME, ZIPNAME
     end
 
-  else
-    # Unix tests
+    assert_matching_permissions FILENAME, ZIPNAME
+  end
 
-    def test_current_umask
+  def test_umask_066
+    set_umask(0066) do
       create_files
-      assert_matching_permissions FILENAME, ZIPNAME
     end
 
-    def test_umask_000
-      set_umask(0000) do
-        create_files
-      end
+    assert_matching_permissions FILENAME, ZIPNAME
+  end
 
-      assert_matching_permissions FILENAME, ZIPNAME
+  def test_umask_027
+    set_umask(0027) do
+      create_files
     end
 
-    def test_umask_066
-      set_umask(0066) do
-        create_files
-      end
-
-      assert_matching_permissions FILENAME, ZIPNAME
-    end
-
-    def test_umask_027
-      set_umask(0027) do
-        create_files
-      end
-
-      assert_matching_permissions FILENAME, ZIPNAME
-    end
-
+    assert_matching_permissions FILENAME, ZIPNAME
   end
 
   def assert_matching_permissions(expected_file, actual_file)
