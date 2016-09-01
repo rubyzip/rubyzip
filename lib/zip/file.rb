@@ -77,7 +77,6 @@ module Zip
           read_from_stream(f)
         end
       when create
-        @file_permissions = create_file_permissions
         @entry_set = EntrySet.new
       when ::File.zero?(file_name)
         raise Error, "File #{file_name} has zero size. Did you mean to pass the create flag?"
@@ -406,7 +405,7 @@ module Zip
       tmp_filename = create_tmpname
       if yield tmp_filename
         ::File.rename(tmp_filename, name)
-        ::File.chmod(@file_permissions, name) if defined?(@file_permissions)
+        ::File.chmod(@file_permissions, name) if @create.nil?
       end
     ensure
       ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
@@ -415,14 +414,10 @@ module Zip
     def create_tmpname
       dirname, basename = ::File.split(name)
       ::Dir::Tmpname.create(basename, dirname) do |tmpname|
-        opts = {perm: 0600, mode: ::File::CREAT | ::File::WRONLY | ::File::EXCL}
+        opts = {mode: ::File::CREAT | ::File::WRONLY | ::File::EXCL}
         f = File.open(tmpname, opts)
         f.close
       end
-    end
-
-    def create_file_permissions
-      ::Zip::RUNNING_ON_WINDOWS ? 0644 : 0666 - ::File.umask
     end
   end
 end
