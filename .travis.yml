@@ -10,9 +10,9 @@ rvm:
   - rbx-2
 matrix:
   include:
-  - rvm: jruby-1.7.17-19mode
+  - rvm: jruby-9.0.5.0
     jdk: oraclejdk7
-  - rvm: jruby-1.7.17-19mode
+  - rvm: jruby-9.0.5.0
     jdk: openjdk7
   - rvm: jruby-head
     jdk: oraclejdk8
