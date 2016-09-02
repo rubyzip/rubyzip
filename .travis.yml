@@ -10,11 +10,11 @@ rvm:
   - rbx-2
 matrix:
   include:
-  - rvm: jruby-9.0.5.0
+  - rvm: jruby-9.1.4.0
     jdk: oraclejdk7
-  - rvm: jruby-9.0.5.0
+  - rvm: jruby-9.1.4.0
     jdk: oraclejdk8
-  - rvm: jruby-9.0.5.0
+  - rvm: jruby-9.1.4.0
     jdk: openjdk7
   - rvm: jruby-head
     jdk: oraclejdk8
@@ -22,7 +22,7 @@ matrix:
     - rvm: ruby-head
     - rvm: rbx-2
     - rvm: jruby-head
-    - rvm: jruby-9.0.5.0
+    - rvm: jruby-9.1.4.0
 before_install:
   - gem update --system
   - gem install bundler
