@@ -43,7 +43,7 @@ module Zip
   # interface for accessing the filesystem, ie. the File and Dir classes.
 
   class File < CentralDirectory
-    CREATE               = 1
+    CREATE               = true
     SPLIT_SIGNATURE      = 0x08074b50
     ZIP64_EOCD_SIGNATURE = 0x06064b50
     MAX_SEGMENT_SIZE     = 3_221_225_472
@@ -64,19 +64,19 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(file_name, create = nil, buffer = false, options = {})
+    def initialize(file_name, create = false, buffer = false, options = {})
       super()
       @name    = file_name
       @comment = ''
-      @create  = create
+      @create  = create ? true : false # allow any truthy value to mean true
       case
       when !buffer && ::File.size?(file_name)
-        @create = nil
+        @create = false
         @file_permissions = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
           read_from_stream(f)
         end
-      when create
+      when @create
         @entry_set = EntrySet.new
       when ::File.zero?(file_name)
         raise Error, "File #{file_name} has zero size. Did you mean to pass the create flag?"
@@ -94,7 +94,7 @@ module Zip
       # Same as #new. If a block is passed the ZipFile object is passed
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
-      def open(file_name, create = nil)
+      def open(file_name, create = false)
         zf = ::Zip::File.new(file_name, create)
         return zf unless block_given?
         begin
@@ -339,7 +339,7 @@ module Zip
       @entry_set.each do |e|
         return true if e.dirty
       end
-      @comment != @stored_comment || @entry_set != @stored_entries || @create == ::Zip::File::CREATE
+      @comment != @stored_comment || @entry_set != @stored_entries || @create
     end
 
     # Searches for entry with the specified name. Returns nil if
@@ -407,7 +407,7 @@ module Zip
         begin
           if yield tmp_filename
             ::File.rename(tmp_filename, name)
-            ::File.chmod(@file_permissions, name) if @create.nil?
+            ::File.chmod(@file_permissions, name) unless @create
           end
         ensure
           ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
