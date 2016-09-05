@@ -402,23 +402,19 @@ module Zip
     end
 
     def on_success_replace
-      tmp_filename = create_tmpname
-      if yield tmp_filename
-        ::File.rename(tmp_filename, name)
-        ::File.chmod(@file_permissions, name) if @create.nil?
+      dirname, basename = ::File.split(name)
+      ::Dir::Tmpname.create(basename, dirname) do |tmp_filename|
+        begin
+          if yield tmp_filename
+            ::File.rename(tmp_filename, name)
+            ::File.chmod(@file_permissions, name) if @create.nil?
+          end
+        ensure
+          ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
+        end
       end
-    ensure
-      ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
     end
 
-    def create_tmpname
-      dirname, basename = ::File.split(name)
-      ::Dir::Tmpname.create(basename, dirname) do |tmpname|
-        opts = {mode: ::File::CREAT | ::File::WRONLY | ::File::EXCL}
-        f = File.open(tmpname, opts)
-        f.close
-      end
-    end
   end
 end
 
