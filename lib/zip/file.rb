@@ -414,7 +414,6 @@ module Zip
         end
       end
     end
-
   end
 end
 
