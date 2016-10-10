@@ -7,6 +7,7 @@ module Zip
 
     attr_accessor :comment, :compressed_size, :crc, :extra, :compression_method,
                   :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
+                  :internal_file_attributes,
                   :gp_flags, :header_signature, :follow_symlinks,
                   :restore_times, :restore_permissions, :restore_ownership,
                   :unix_uid, :unix_gid, :unix_perms,
