@@ -149,4 +149,15 @@ class ZipEntrySetTest < MiniTest::Test
     # assert_equal(entries.size, res.size)
     # assert_equal(entrySet.map { |e| e.name }, res.map { |e| e.name })
   end
+
+  def test_glob3
+    entries = [
+      ::Zip::Entry.new('zf.zip', 'a/a'),
+      ::Zip::Entry.new('zf.zip', 'a/b'),
+      ::Zip::Entry.new('zf.zip', 'a/c')
+    ]
+    entrySet = ::Zip::EntrySet.new(entries)
+
+    assert_equal(entries[0, 2].sort, entrySet.glob('a/{a,b}').sort)
+  end
 end

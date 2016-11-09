@@ -2,6 +2,7 @@ require 'test_helper'
 
 class ZipFileTest < MiniTest::Test
   include CommonZipFileFixture
+  include ZipEntryData
 
   OK_DELETE_FILE = 'test/data/generated/okToDelete.txt'
   OK_DELETE_MOVED_FILE = 'test/data/generated/okToDeleteMoved.txt'
@@ -56,7 +57,7 @@ class ZipFileTest < MiniTest::Test
       assert_equal(entryCount + 1, zf.size)
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
 
-      custom_entry_args = [ZipEntryTest::TEST_COMMENT, ZipEntryTest::TEST_EXTRA, ZipEntryTest::TEST_COMPRESSED_SIZE, ZipEntryTest::TEST_CRC, ::Zip::Entry::STORED, ZipEntryTest::TEST_SIZE, ZipEntryTest::TEST_TIME]
+      custom_entry_args = [TEST_COMMENT, TEST_EXTRA, TEST_COMPRESSED_SIZE, TEST_CRC, ::Zip::Entry::STORED, TEST_SIZE, TEST_TIME]
       zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) do |os|
         os.write 'Some data'
       end
@@ -531,6 +532,7 @@ class ZipFileTest < MiniTest::Test
     assert_raises(::Zip::Error) do
       ::Zip::File.open(TestFiles::NULL_FILE)
     end
+    File.delete('empty.zip')
   end
 
   def test_odd_extra_field
