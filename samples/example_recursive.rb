@@ -6,7 +6,7 @@ require 'zip'
 # included in the archive, rather just its contents.
 #
 # Usage:
-#   directoryToZip = "/tmp/input"
+#   directory_to_zip = "/tmp/input"
 #   output_file = "/tmp/out.zip"
 #   zf = ZipFileGenerator.new(directory_to_zip, output_file)
 #   zf.write()
