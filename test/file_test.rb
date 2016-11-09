@@ -41,6 +41,20 @@ class ZipFileTest < MiniTest::Test
     assert_equal(2, zfRead.entries.length)
   end
 
+  def test_create_from_scratch_with_old_create_parameter
+    comment = 'a short comment'
+
+    zf = ::Zip::File.new(EMPTY_FILENAME, 1)
+    zf.get_output_stream('myFile') { |os| os.write 'myFile contains just this' }
+    zf.mkdir('dir1')
+    zf.comment = comment
+    zf.close
+
+    zfRead = ::Zip::File.new(EMPTY_FILENAME)
+    assert_equal(comment, zfRead.comment)
+    assert_equal(2, zfRead.entries.length)
+  end
+
   def test_get_output_stream
     entryCount = nil
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|

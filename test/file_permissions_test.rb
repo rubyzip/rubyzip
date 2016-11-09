@@ -2,57 +2,57 @@ require 'test_helper'
 
 class FilePermissionsTest < MiniTest::Test
 
-  FILENAME = File.join(File.dirname(__FILE__), "umask.zip")
+  ZIPNAME = File.join(File.dirname(__FILE__), "umask.zip")
+  FILENAME = File.join(File.dirname(__FILE__), "umask.txt")
 
   def teardown
+    ::File.unlink(ZIPNAME)
     ::File.unlink(FILENAME)
   end
 
-  if ::Zip::RUNNING_ON_WINDOWS
-    # Windows tests
-
-    DEFAULT_PERMS = 0644
-
-    def test_windows_perms
-      create_file
-
-      assert_equal DEFAULT_PERMS, ::File.stat(FILENAME).mode
-    end
-
-  else
-    # Unix tests
-
-    DEFAULT_PERMS = 0100666
-
-    def test_current_umask
-      umask = DEFAULT_PERMS - ::File.umask
-      create_file
-
-      assert_equal umask, ::File.stat(FILENAME).mode
-    end
-
-    def test_umask_000
-      set_umask(0000) do
-        create_file
-      end
-
-      assert_equal DEFAULT_PERMS, ::File.stat(FILENAME).mode
-    end
-
-    def test_umask_066
-      umask = 0066
-      set_umask(umask) do
-        create_file
-      end
-
-      assert_equal((DEFAULT_PERMS - umask), ::File.stat(FILENAME).mode)
-    end
-
+  def test_current_umask
+    create_files
+    assert_matching_permissions FILENAME, ZIPNAME
   end
 
-  def create_file
-    ::Zip::File.open(FILENAME, ::Zip::File::CREATE) do |zip|
+  def test_umask_000
+    set_umask(0000) do
+      create_files
+    end
+
+    assert_matching_permissions FILENAME, ZIPNAME
+  end
+
+  def test_umask_066
+    set_umask(0066) do
+      create_files
+    end
+
+    assert_matching_permissions FILENAME, ZIPNAME
+  end
+
+  def test_umask_027
+    set_umask(0027) do
+      create_files
+    end
+
+    assert_matching_permissions FILENAME, ZIPNAME
+  end
+
+  def assert_matching_permissions(expected_file, actual_file)
+    assert_equal(
+      ::File.stat(expected_file).mode.to_s(8).rjust(4, '0'),
+      ::File.stat(actual_file).mode.to_s(8).rjust(4, '0')
+    )
+  end
+
+  def create_files
+    ::Zip::File.open(ZIPNAME, ::Zip::File::CREATE) do |zip|
       zip.comment = "test"
+    end
+
+    ::File.open(FILENAME, 'w') do |file|
+      file << 'test'
     end
   end
 
