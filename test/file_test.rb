@@ -546,7 +546,6 @@ class ZipFileTest < MiniTest::Test
     assert_raises(::Zip::Error) do
       ::Zip::File.open(TestFiles::NULL_FILE)
     end
-    File.delete('empty.zip')
   end
 
   def test_odd_extra_field
