@@ -358,7 +358,7 @@ module Zip
       unpack_c_dir_entry(static_sized_fields_buf)
       check_c_dir_entry_signature
       set_time(@last_mod_date, @last_mod_time)
-      @name = io.read(@name_length).tr('\\', '/')
+      @name = io.read(@name_length)
       read_c_dir_extra_field(io)
       @comment = io.read(@comment_length)
       check_c_dir_entry_comment_size
