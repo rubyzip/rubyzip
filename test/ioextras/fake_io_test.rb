@@ -12,7 +12,7 @@ class FakeIOTest < MiniTest::Test
     assert(obj.kind_of?(Object))
     assert(obj.kind_of?(FakeIOUsingClass))
     assert(obj.kind_of?(IO))
-    assert(!obj.kind_of?(Fixnum))
+    assert(!obj.kind_of?(Integer))
     assert(!obj.kind_of?(String))
   end
 end

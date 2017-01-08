@@ -20,12 +20,12 @@ module Zip
 
       def putc(an_object)
         self << case an_object
-                when Fixnum
+                when Integer
                   an_object.chr
                 when String
                   an_object
                 else
-                  raise TypeError, 'putc: Only Fixnum and String supported'
+                  raise TypeError, 'putc: Only Integer and String supported'
                 end
         an_object
       end
