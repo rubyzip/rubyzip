@@ -109,8 +109,8 @@ class ZipEntryTest < MiniTest::Test
     entry5 = ::Zip::Entry.new('zf.zip', 'aa/bb/cc')
     entry6 = ::Zip::Entry.new('zf.zip', 'aa/bb/cc/')
 
-    assert_equal(nil, entry1.parent_as_string)
-    assert_equal(nil, entry2.parent_as_string)
+    assert_nil(entry1.parent_as_string)
+    assert_nil(entry2.parent_as_string)
     assert_equal('aa/', entry3.parent_as_string)
     assert_equal('aa/', entry4.parent_as_string)
     assert_equal('aa/bb/', entry5.parent_as_string)

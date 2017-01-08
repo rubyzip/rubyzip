@@ -134,7 +134,7 @@ module AssertEntry
     testZipFile.entry_names.each do |entryName|
       assert_next_entry(entryName, zis)
     end
-    assert_equal(nil, zis.get_next_entry)
+    assert_nil(zis.get_next_entry)
   end
 
   def assert_test_zip_contents(testZipFile)

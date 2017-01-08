@@ -36,7 +36,7 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_read_local_entry_from_non_zip_file
     ::File.open('test/data/file2.txt') do |file|
-      assert_equal(nil, ::Zip::Entry.read_local_entry(file))
+      assert_nil(::Zip::Entry.read_local_entry(file))
     end
   end
 

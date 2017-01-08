@@ -18,7 +18,9 @@ class NullEncrypterTest < MiniTest::Test
   end
 
   def test_encrypt
-    [nil, '', 'a' * 10, 0xffffffff].each do |data|
+    assert_nil @encrypter.encrypt(nil)
+
+    ['', 'a' * 10, 0xffffffff].each do |data|
       assert_equal data, @encrypter.encrypt(data)
     end
   end
@@ -42,7 +44,9 @@ class NullDecrypterTest < MiniTest::Test
   end
 
   def test_decrypt
-    [nil, '', 'a' * 10, 0xffffffff].each do |data|
+    assert_nil @decrypter.decrypt(nil)
+
+    ['', 'a' * 10, 0xffffffff].each do |data|
       assert_equal data, @decrypter.decrypt(data)
     end
   end

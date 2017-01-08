@@ -75,12 +75,12 @@ class ZipInputStreamTest < MiniTest::Test
       entry = zis.get_next_entry # empty.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
       assert_equal(0, entry.size)
-      assert_equal(nil, zis.gets)
+      assert_nil(zis.gets)
       assert_equal(true, zis.eof?)
       entry = zis.get_next_entry # empty_chmod640.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[2], entry.name)
       assert_equal(0, entry.size)
-      assert_equal(nil, zis.gets)
+      assert_nil(zis.gets)
       assert_equal(true, zis.eof?)
       entry = zis.get_next_entry # short.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[3], entry.name)
@@ -102,12 +102,12 @@ class ZipInputStreamTest < MiniTest::Test
       entry = zis.get_next_entry # empty.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
       assert_equal(0, entry.size)
-      assert_equal(nil, zis.gets)
+      assert_nil(zis.gets)
       assert_equal(true, zis.eof?)
       entry = zis.get_next_entry # empty_chmod640.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[2], entry.name)
       assert_equal(0, entry.size)
-      assert_equal(nil, zis.gets)
+      assert_nil(zis.gets)
       assert_equal(true, zis.eof?)
       entry = zis.get_next_entry # short.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[3], entry.name)

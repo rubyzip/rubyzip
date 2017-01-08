@@ -11,7 +11,7 @@ class ZipFsFileStatTest < MiniTest::Test
   end
 
   def test_blocks
-    assert_equal(nil, @zip_file.file.stat('file1').blocks)
+    assert_nil(@zip_file.file.stat('file1').blocks)
   end
 
   def test_ino

@@ -103,12 +103,12 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_size?
-    assert_equal(nil, @zip_file.file.size?('notAFile'))
+    assert_nil(@zip_file.file.size?('notAFile'))
     assert_equal(72, @zip_file.file.size?('file1'))
-    assert_equal(nil, @zip_file.file.size?('dir2/dir21'))
+    assert_nil(@zip_file.file.size?('dir2/dir21'))
 
     assert_equal(72, @zip_file.file.stat('file1').size?)
-    assert_equal(nil, @zip_file.file.stat('dir2/dir21').size?)
+    assert_nil(@zip_file.file.stat('dir2/dir21').size?)
   end
 
   def test_file?
