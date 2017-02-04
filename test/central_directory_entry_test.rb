@@ -37,7 +37,7 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
       assert_equal('', entry.comment)
 
       entry = ::Zip::Entry.read_c_dir_entry(file)
-      assert_equal(nil, entry)
+      assert_nil(entry)
       # Fields that are not check by this test:
       #          version made by                 2 bytes
       #          version needed to extract       2 bytes

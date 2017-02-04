@@ -44,7 +44,7 @@ class AbstractInputStreamTest < MiniTest::Test
     assert_equal(2, @io.lineno)
     assert_equal(TEST_LINES[2], @io.gets)
     assert_equal(3, @io.lineno)
-    assert_equal(nil, @io.gets)
+    assert_nil(@io.gets)
     assert_equal(4, @io.lineno)
   end
 
