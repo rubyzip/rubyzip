@@ -1,3 +1,16 @@
+1.2.1
+=====
+
+* Add accessor to @internal_file_attributes #304
+* Extended globbing #303
+* README updates #283, #289
+* Cleanup after tests #298, #306
+* Fix permissions on new zip files #294, #300
+* Fix examples #297
+* Support cp932 encoding #308
+* Fix Directory traversal vulnerability #315
+* Allow open_buffer to work without a given block #314
+
 1.2.0
 =====
 
