@@ -104,6 +104,12 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
+  def test_open_buffer_without_block
+    string_io = StringIO.new File.read('test/data/rubycode.zip')
+    zf = ::Zip::File.open_buffer string_io
+    assert zf.entries.map { |e| e.name }.include?('zippedruby1.rb')
+  end
+
   def test_cleans_up_tempfiles_after_close
     zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
     zf.get_output_stream('myFile') do |os|

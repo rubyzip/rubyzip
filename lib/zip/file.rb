@@ -129,6 +129,7 @@ module Zip
         end
         zf = ::Zip::File.new(io, true, true, options)
         zf.read_from_stream(io)
+        return zf unless block_given?
         yield zf
         begin
           zf.write_buffer(io)
