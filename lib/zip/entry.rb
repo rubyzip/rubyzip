@@ -150,6 +150,11 @@ module Zip
     def extract(dest_path = @name, &block)
       block ||= proc { ::Zip.on_exists_proc }
 
+      if @name.squeeze('/') =~ /\.{2}(?:\/|\z)/
+        puts "WARNING: skipped \"../\" path component(s) in #{@name}"
+        return self
+      end
+
       if directory? || file? || symlink?
         __send__("create_#{@ftype}", dest_path, &block)
       else
