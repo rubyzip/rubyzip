@@ -103,7 +103,7 @@ module AssertEntry
     File.open(filename, 'rb') do |file|
       expected = file.read
       actual = zis.read
-      if (expected != actual)
+      if expected != actual
         if (expected && actual) && (expected.length > 400 || actual.length > 400)
           zipEntryFilename = entryName + '.zipEntry'
           File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
@@ -118,7 +118,7 @@ module AssertEntry
   def self.assert_contents(filename, aString)
     fileContents = ''
     File.open(filename, 'rb') { |f| fileContents = f.read }
-    if (fileContents != aString)
+    if fileContents != aString
       if fileContents.length > 400 || aString.length > 400
         stringFile = filename + '.other'
         File.open(stringFile, 'wb') { |f| f << aString }

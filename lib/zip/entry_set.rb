@@ -5,7 +5,7 @@ module Zip
 
     def initialize(an_enumerable = [])
       super()
-      @entry_set   = {}
+      @entry_set = {}
       an_enumerable.each { |o| push(o) }
     end
 
@@ -33,9 +33,9 @@ module Zip
       entry if @entry_set.delete(to_key(entry))
     end
 
-    def each(&block)
+    def each
       @entry_set = sorted_entries.dup.each do |_, value|
-        block.call(value)
+        yield(value)
       end
     end
 

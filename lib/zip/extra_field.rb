@@ -8,7 +8,7 @@ module Zip
 
     def extra_field_type_exist(binstr, id, len, i)
       field_name = ID_MAP[id].name
-      if self.member?(field_name)
+      if member?(field_name)
         self[field_name].merge(binstr[i, len + 4])
       else
         field_obj        = ID_MAP[id].new(binstr[i, len + 4])

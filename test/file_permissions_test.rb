@@ -1,9 +1,8 @@
 require 'test_helper'
 
 class FilePermissionsTest < MiniTest::Test
-
-  ZIPNAME = File.join(File.dirname(__FILE__), "umask.zip")
-  FILENAME = File.join(File.dirname(__FILE__), "umask.txt")
+  ZIPNAME = File.join(File.dirname(__FILE__), 'umask.zip')
+  FILENAME = File.join(File.dirname(__FILE__), 'umask.txt')
 
   def teardown
     ::File.unlink(ZIPNAME)
@@ -16,7 +15,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   def test_umask_000
-    set_umask(0000) do
+    set_umask(0o000) do
       create_files
     end
 
@@ -24,7 +23,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   def test_umask_066
-    set_umask(0066) do
+    set_umask(0o066) do
       create_files
     end
 
@@ -32,7 +31,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   def test_umask_027
-    set_umask(0027) do
+    set_umask(0o027) do
       create_files
     end
 
@@ -48,7 +47,7 @@ class FilePermissionsTest < MiniTest::Test
 
   def create_files
     ::Zip::File.open(ZIPNAME, ::Zip::File::CREATE) do |zip|
-      zip.comment = "test"
+      zip.comment = 'test'
     end
 
     ::File.open(FILENAME, 'w') do |file|
@@ -57,13 +56,10 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   # If anything goes wrong, make sure the umask is restored.
-  def set_umask(umask, &block)
-    begin
-      saved_umask = ::File.umask(umask)
-      yield
-    ensure
-      ::File.umask(saved_umask)
-    end
+  def set_umask(umask)
+    saved_umask = ::File.umask(umask)
+    yield
+  ensure
+    ::File.umask(saved_umask)
   end
-
 end

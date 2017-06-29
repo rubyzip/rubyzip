@@ -1,5 +1,5 @@
 module Zip
-  class Decompressor  #:nodoc:all
+  class Decompressor #:nodoc:all
     CHUNK_SIZE = 32_768
     def initialize(input_stream)
       super()

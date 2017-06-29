@@ -6,8 +6,7 @@ module Zip
     HEADER_ID = ['9999'].pack('H*') # this ID is used by other libraries such as .NET's Ionic.zip
     register_map
 
-    def initialize(_binstr = nil)
-    end
+    def initialize(_binstr = nil); end
 
     def pack_for_local
       "\x00" * 16

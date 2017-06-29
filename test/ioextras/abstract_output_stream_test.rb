@@ -92,11 +92,11 @@ class AbstractOutputStreamTest < MiniTest::Test
     assert_equal("hello\nworld\n", @output_stream.buffer)
 
     @output_stream.buffer = ''
-    @output_stream.puts(["hello\n", "world\n"])
+    @output_stream.puts(%W[hello\n world\n])
     assert_equal("hello\nworld\n", @output_stream.buffer)
 
     @output_stream.buffer = ''
-    @output_stream.puts(["hello\n", "world\n"], 'bingo')
+    @output_stream.puts(%W[hello\n world\n], 'bingo')
     assert_equal("hello\nworld\nbingo\n", @output_stream.buffer)
 
     @output_stream.buffer = ''

@@ -99,7 +99,7 @@ module Zip
     end
 
     # Dynamic checkers
-    %w(directory file symlink).each do |k|
+    %w[directory file symlink].each do |k|
       define_method "#{k}?" do
         file_type_is?(k.to_sym)
       end
@@ -239,7 +239,7 @@ module Zip
       @name = io.read(@name_length)
       extra = io.read(@extra_length)
 
-      @name.gsub!('\\', '/')
+      @name.tr!('\\', '/')
 
       if extra && extra.bytesize != @extra_length
         raise ::Zip::Error, 'Truncated local zip entry header'
@@ -263,8 +263,8 @@ module Zip
        @time.to_binary_dos_time, # @last_mod_time              ,
        @time.to_binary_dos_date, # @last_mod_date              ,
        @crc,
-       (zip64 && zip64.compressed_size) ? 0xFFFFFFFF : @compressed_size,
-       (zip64 && zip64.original_size) ? 0xFFFFFFFF : @size,
+       zip64 && zip64.compressed_size ? 0xFFFFFFFF : @compressed_size,
+       zip64 && zip64.original_size ? 0xFFFFFFFF : @size,
        name_size,
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
@@ -308,7 +308,7 @@ module Zip
     def set_ftype_from_c_dir_entry
       @ftype = case @fstype
                when ::Zip::FSTYPE_UNIX
-                 @unix_perms = (@external_file_attributes >> 16) & 07777
+                 @unix_perms = (@external_file_attributes >> 16) & 0o7777
                  case (@external_file_attributes >> 28)
                  when ::Zip::FILE_TYPE_DIR
                    :directory
@@ -384,14 +384,14 @@ module Zip
       stat        = file_stat(path)
       @unix_uid   = stat.uid
       @unix_gid   = stat.gid
-      @unix_perms = stat.mode & 07777
+      @unix_perms = stat.mode & 0o7777
     end
 
     def set_unix_permissions_on_path(dest_path)
       # BUG: does not update timestamps into account
       # ignore setuid/setgid bits by default.  honor if @restore_ownership
-      unix_perms_mask = 01777
-      unix_perms_mask = 07777 if @restore_ownership
+      unix_perms_mask = 0o1777
+      unix_perms_mask = 0o7777 if @restore_ownership
       ::FileUtils.chmod(@unix_perms & unix_perms_mask, dest_path) if @restore_permissions && @unix_perms
       ::FileUtils.chown(@unix_uid, @unix_gid, dest_path) if @restore_ownership && @unix_uid && @unix_gid && ::Process.egid == 0
       # File::utimes()
@@ -418,15 +418,15 @@ module Zip
         @time.to_binary_dos_time, # @last_mod_time                      ,
         @time.to_binary_dos_date, # @last_mod_date                      ,
         @crc,
-        (zip64 && zip64.compressed_size) ? 0xFFFFFFFF : @compressed_size,
-        (zip64 && zip64.original_size) ? 0xFFFFFFFF : @size,
+        zip64 && zip64.compressed_size ? 0xFFFFFFFF : @compressed_size,
+        zip64 && zip64.original_size ? 0xFFFFFFFF : @size,
         name_size,
         @extra ? @extra.c_dir_size : 0,
         comment_size,
-        (zip64 && zip64.disk_start_number) ? 0xFFFF : 0, # disk number start
+        zip64 && zip64.disk_start_number ? 0xFFFF : 0, # disk number start
         @internal_file_attributes, # file type (binary=0, text=1)
         @external_file_attributes, # native filesystem attributes
-        (zip64 && zip64.relative_header_offset) ? 0xFFFFFFFF : @local_header_offset,
+        zip64 && zip64.relative_header_offset ? 0xFFFFFFFF : @local_header_offset,
         @name,
         @extra,
         @comment
@@ -439,18 +439,18 @@ module Zip
       when ::Zip::FSTYPE_UNIX
         ft = case @ftype
              when :file
-               @unix_perms ||= 0644
+               @unix_perms ||= 0o644
                ::Zip::FILE_TYPE_FILE
              when :directory
-               @unix_perms ||= 0755
+               @unix_perms ||= 0o755
                ::Zip::FILE_TYPE_DIR
              when :symlink
-               @unix_perms ||= 0755
+               @unix_perms ||= 0o755
                ::Zip::FILE_TYPE_SYMLINK
              end
 
         unless ft.nil?
-          @external_file_attributes = (ft << 12 | (@unix_perms & 07777)) << 16
+          @external_file_attributes = (ft << 12 | (@unix_perms & 0o7777)) << 16
         end
       end
 
@@ -464,7 +464,7 @@ module Zip
     def ==(other)
       return false unless other.class == self.class
       # Compares contents of local entry and exposed fields
-      keys_equal = %w(compression_method crc compressed_size size name extra filepath).all? do |k|
+      keys_equal = %w[compression_method crc compressed_size size name extra filepath].all? do |k|
         other.__send__(k.to_sym) == __send__(k.to_sym)
       end
       keys_equal && time.dos_equals(other.time)
