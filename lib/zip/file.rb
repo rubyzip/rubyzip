@@ -69,16 +69,15 @@ module Zip
       @name    = file_name
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
-      case
-      when !buffer && ::File.size?(file_name)
+      if !buffer && ::File.size?(file_name)
         @create = false
         @file_permissions = ::File.stat(file_name).mode
         ::File.open(name, 'rb') do |f|
           read_from_stream(f)
         end
-      when @create
+      elsif @create
         @entry_set = EntrySet.new
-      when ::File.zero?(file_name)
+      elsif ::File.zero?(file_name)
         raise Error, "File #{file_name} has zero size. Did you mean to pass the create flag?"
       else
         raise Error, "File #{file_name} not found"
@@ -151,10 +150,9 @@ module Zip
       end
 
       def get_segment_size_for_split(segment_size)
-        case
-        when MIN_SEGMENT_SIZE > segment_size
+        if MIN_SEGMENT_SIZE > segment_size
           MIN_SEGMENT_SIZE
-        when MAX_SEGMENT_SIZE < segment_size
+        elsif MAX_SEGMENT_SIZE < segment_size
           MAX_SEGMENT_SIZE
         else
           segment_size
@@ -162,8 +160,10 @@ module Zip
       end
 
       def get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
-        partial_zip_file_name = zip_file_name.sub(/#{::File.basename(zip_file_name)}\z/,
-                                                  partial_zip_file_name + ::File.extname(zip_file_name)) unless partial_zip_file_name.nil?
+        unless partial_zip_file_name.nil?
+          partial_zip_file_name = zip_file_name.sub(/#{::File.basename(zip_file_name)}\z/,
+                                                    partial_zip_file_name + ::File.extname(zip_file_name))
+        end
         partial_zip_file_name ||= zip_file_name
         partial_zip_file_name
       end
@@ -237,7 +237,7 @@ module Zip
     # specified. If a block is passed the stream object is passed to the block and
     # the stream is automatically closed afterwards just as with ruby's builtin
     # File.open method.
-    def get_output_stream(entry, permission_int = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil,  &aProc)
+    def get_output_stream(entry, permission_int = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil, &aProc)
       new_entry =
         if entry.kind_of?(Entry)
           entry
@@ -366,7 +366,7 @@ module Zip
     end
 
     # Creates a directory
-    def mkdir(entryName, permissionInt = 0755)
+    def mkdir(entryName, permissionInt = 0o755)
       raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')

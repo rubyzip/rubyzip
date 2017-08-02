@@ -1,5 +1,5 @@
 module Zip
-  class PassThruDecompressor < Decompressor  #:nodoc:all
+  class PassThruDecompressor < Decompressor #:nodoc:all
     def initialize(input_stream, chars_to_read)
       super(input_stream)
       @chars_to_read = chars_to_read

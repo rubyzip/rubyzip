@@ -36,7 +36,7 @@ if ENV['FULL_ZIP64_TEST']
       end
 
       ::Zip::File.open(test_filename) do |zf|
-        assert_equal %w(first_file.txt huge_file last_file.txt), zf.entries.map(&:name)
+        assert_equal %w[first_file.txt huge_file last_file.txt], zf.entries.map(&:name)
         assert_equal first_text, zf.read('first_file.txt')
         assert_equal last_text, zf.read('last_file.txt')
       end

@@ -87,11 +87,11 @@ module Zip
     # +entry+ can be a ZipEntry object or a string.
     def put_next_entry(entry_name, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zip.default_compression)
       raise Error, 'zip stream is closed' if @closed
-      if entry_name.kind_of?(Entry)
-        new_entry = entry_name
-      else
-        new_entry = Entry.new(@file_name, entry_name.to_s)
-      end
+      new_entry = if entry_name.kind_of?(Entry)
+                    entry_name
+                  else
+                    Entry.new(@file_name, entry_name.to_s)
+                  end
       new_entry.comment = comment unless comment.nil?
       unless extra.nil?
         new_entry.extra = extra.is_a?(ExtraField) ? extra : ExtraField.new(extra.to_s)

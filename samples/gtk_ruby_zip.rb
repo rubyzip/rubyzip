@@ -31,7 +31,7 @@ class MainApp < Gtk::Window
     sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
     box.pack_start(sw, true, true, 0)
 
-    @clist = Gtk::CList.new(%w(Name Size Compression))
+    @clist = Gtk::CList.new(%w[Name Size Compression])
     @clist.set_selection_mode(Gtk::SELECTION_BROWSE)
     @clist.set_column_width(0, 120)
     @clist.set_column_width(1, 120)

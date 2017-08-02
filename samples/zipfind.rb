@@ -31,7 +31,7 @@ module Zip
   end
 end
 
-if __FILE__ == $0
+if $0 == __FILE__
   module ZipFindConsoleRunner
     PATH_ARG_INDEX = 0
     FILENAME_PATTERN_ARG_INDEX = 1
@@ -47,7 +47,7 @@ if __FILE__ == $0
     end
 
     def self.check_args(args)
-      if (args.size != 3)
+      if args.size != 3
         usage
         exit
       end

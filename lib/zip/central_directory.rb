@@ -96,7 +96,7 @@ module Zip
       @size_in_bytes                                = Entry.read_zip_64_long(buf)
       @cdir_offset                                  = Entry.read_zip_64_long(buf)
       @zip_64_extensible                            = buf.slice!(0, buf.bytesize)
-      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.size == 0
+      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.empty?
     end
 
     def read_e_o_c_d(buf) #:nodoc:
@@ -113,7 +113,7 @@ module Zip
                                                       else
                                                         buf.read(comment_length)
                                                       end
-      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.size == 0
+      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.empty?
     end
 
     def read_central_directory_entries(io) #:nodoc:
@@ -130,7 +130,7 @@ module Zip
 
     def read_from_stream(io) #:nodoc:
       buf = start_buf(io)
-      if self.zip64_file?(buf)
+      if zip64_file?(buf)
         read_64_e_o_c_d(buf)
       else
         read_e_o_c_d(buf)

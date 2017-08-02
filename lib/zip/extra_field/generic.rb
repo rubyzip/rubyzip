@@ -1,7 +1,7 @@
 module Zip
   class ExtraField::Generic
     def self.register_map
-      if self.const_defined?(:HEADER_ID)
+      if const_defined?(:HEADER_ID)
         ::Zip::ExtraField::ID_MAP[const_get(:HEADER_ID)] = self
       end
     end

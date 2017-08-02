@@ -19,7 +19,7 @@ module Zip
     end
 
     def to_binary_dos_date
-      (day) +
+      day +
         (month << 5) +
         ((year - 1980) << 9)
     end

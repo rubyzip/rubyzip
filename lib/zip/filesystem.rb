@@ -142,9 +142,9 @@ module Zip
 
         def ftype
           if file?
-            return 'file'
+            'file'
           elsif directory?
-            return 'directory'
+            'directory'
           else
             raise StandardError, 'Unknown file type'
           end
@@ -198,30 +198,30 @@ module Zip
       alias grpowned? exists?
 
       def readable?(fileName)
-        unix_mode_cmp(fileName, 0444)
+        unix_mode_cmp(fileName, 0o444)
       end
       alias readable_real? readable?
 
       def writable?(fileName)
-        unix_mode_cmp(fileName, 0222)
+        unix_mode_cmp(fileName, 0o222)
       end
       alias writable_real? writable?
 
       def executable?(fileName)
-        unix_mode_cmp(fileName, 0111)
+        unix_mode_cmp(fileName, 0o111)
       end
       alias executable_real? executable?
 
       def setuid?(fileName)
-        unix_mode_cmp(fileName, 04000)
+        unix_mode_cmp(fileName, 0o4000)
       end
 
       def setgid?(fileName)
-        unix_mode_cmp(fileName, 02000)
+        unix_mode_cmp(fileName, 0o2000)
       end
 
       def sticky?(fileName)
-        unix_mode_cmp(fileName, 01000)
+        unix_mode_cmp(fileName, 0o1000)
       end
 
       def umask(*args)
@@ -237,8 +237,8 @@ module Zip
         expand_path(fileName) == '/' || (!entry.nil? && entry.directory?)
       end
 
-      def open(fileName, openMode = 'r', permissionInt = 0644, &block)
-        openMode.gsub!('b', '') # ignore b option
+      def open(fileName, openMode = 'r', permissionInt = 0o644, &block)
+        openMode.delete!('b') # ignore b option
         case openMode
         when 'r'
           @mappedZip.get_input_stream(fileName, &block)
@@ -260,7 +260,7 @@ module Zip
       # Returns nil for not found and nil for directories
       def size?(fileName)
         entry = @mappedZip.find_entry(fileName)
-        (entry.nil? || entry.directory?) ? nil : entry.size
+        entry.nil? || entry.directory? ? nil : entry.size
       end
 
       def chown(ownerInt, groupInt, *filenames)
@@ -498,7 +498,7 @@ module Zip
       alias rmdir delete
       alias unlink delete
 
-      def mkdir(entryName, permissionInt = 0755)
+      def mkdir(entryName, permissionInt = 0o755)
         @mappedZip.mkdir(entryName, permissionInt)
       end
 
@@ -586,7 +586,7 @@ module Zip
                         &continueOnExistsProc)
       end
 
-      def mkdir(fileName, permissionInt = 0755)
+      def mkdir(fileName, permissionInt = 0o755)
         @zipFile.mkdir(expand_to_entry(fileName), permissionInt)
       end
 

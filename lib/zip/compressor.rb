@@ -1,7 +1,6 @@
 module Zip
   class Compressor #:nodoc:all
-    def finish
-    end
+    def finish; end
   end
 end
 
