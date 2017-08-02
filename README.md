@@ -32,6 +32,8 @@ Or in your Gemfile:
 
 ```ruby
 gem 'rubyzip'
+
+bundle install
 ```
 
 ## Usage
