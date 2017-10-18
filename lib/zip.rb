@@ -34,7 +34,15 @@ require 'zip/errors'
 
 module Zip
   extend self
-  attr_accessor :unicode_names, :on_exists_proc, :continue_on_exists_proc, :sort_entries, :default_compression, :write_zip64_support, :warn_invalid_date, :case_insensitive_match
+  attr_accessor :unicode_names,
+                :on_exists_proc,
+                :continue_on_exists_proc,
+                :sort_entries,
+                :default_compression,
+                :write_zip64_support,
+                :warn_invalid_date,
+                :case_insensitive_match,
+                :force_entry_names_encoding
 
   def reset!
     @_ran_once = false

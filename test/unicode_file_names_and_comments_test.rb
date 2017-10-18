@@ -33,6 +33,18 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Test
         assert(filepath == entry_name)
       end
     end
+
+    ::Zip.force_entry_names_encoding = 'UTF-8'
+    ::Zip::File.open(FILENAME) do |zip|
+      file_entrys.each do |filename|
+        refute_nil(zip.find_entry(filename))
+      end
+      directory_entrys.each do |filepath|
+        refute_nil(zip.find_entry(filepath))
+      end
+    end
+    ::Zip.force_entry_names_encoding = nil
+
     ::File.unlink(FILENAME)
   end
 
