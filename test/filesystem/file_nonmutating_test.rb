@@ -14,11 +14,11 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
 
   def test_umask
     assert_equal(::File.umask, @zip_file.file.umask)
-    @zip_file.file.umask(0006)
+    @zip_file.file.umask(0o006)
   end
 
   def test_exists?
-    assert(! @zip_file.file.exists?('notAFile'))
+    assert(!@zip_file.file.exists?('notAFile'))
     assert(@zip_file.file.exists?('file1'))
     assert(@zip_file.file.exists?('dir1'))
     assert(@zip_file.file.exists?('dir1/'))
@@ -114,13 +114,13 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   def test_file?
     assert(@zip_file.file.file?('file1'))
     assert(@zip_file.file.file?('dir2/file21'))
-    assert(! @zip_file.file.file?('dir1'))
-    assert(! @zip_file.file.file?('dir1/dir11'))
+    assert(!@zip_file.file.file?('dir1'))
+    assert(!@zip_file.file.file?('dir1/dir11'))
 
     assert(@zip_file.file.stat('file1').file?)
     assert(@zip_file.file.stat('dir2/file21').file?)
-    assert(! @zip_file.file.stat('dir1').file?)
-    assert(! @zip_file.file.stat('dir1/dir11').file?)
+    assert(!@zip_file.file.stat('dir1').file?)
+    assert(!@zip_file.file.stat('dir1/dir11').file?)
   end
 
   include ExtraAssertions
@@ -160,15 +160,15 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def assert_always_false(operation)
-    assert(! @zip_file.file.send(operation, 'noSuchFile'))
-    assert(! @zip_file.file.send(operation, 'file1'))
-    assert(! @zip_file.file.send(operation, 'dir1'))
-    assert(! @zip_file.file.stat('file1').send(operation))
-    assert(! @zip_file.file.stat('dir1').send(operation))
+    assert(!@zip_file.file.send(operation, 'noSuchFile'))
+    assert(!@zip_file.file.send(operation, 'file1'))
+    assert(!@zip_file.file.send(operation, 'dir1'))
+    assert(!@zip_file.file.stat('file1').send(operation))
+    assert(!@zip_file.file.stat('dir1').send(operation))
   end
 
   def assert_true_if_entry_exists(operation)
-    assert(! @zip_file.file.send(operation, 'noSuchFile'))
+    assert(!@zip_file.file.send(operation, 'noSuchFile'))
     assert(@zip_file.file.send(operation, 'file1'))
     assert(@zip_file.file.send(operation, 'dir1'))
     assert(@zip_file.file.stat('file1').send(operation))
@@ -221,15 +221,15 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_directory?
-    assert(! @zip_file.file.directory?('notAFile'))
-    assert(! @zip_file.file.directory?('file1'))
-    assert(! @zip_file.file.directory?('dir1/file11'))
+    assert(!@zip_file.file.directory?('notAFile'))
+    assert(!@zip_file.file.directory?('file1'))
+    assert(!@zip_file.file.directory?('dir1/file11'))
     assert(@zip_file.file.directory?('dir1'))
     assert(@zip_file.file.directory?('dir1/'))
     assert(@zip_file.file.directory?('dir2/dir21'))
 
-    assert(! @zip_file.file.stat('file1').directory?)
-    assert(! @zip_file.file.stat('dir1/file11').directory?)
+    assert(!@zip_file.file.stat('file1').directory?)
+    assert(!@zip_file.file.stat('dir1/file11').directory?)
     assert(@zip_file.file.stat('dir1').directory?)
     assert(@zip_file.file.stat('dir1/').directory?)
     assert(@zip_file.file.stat('dir2/dir21').directory?)
@@ -243,8 +243,8 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_zero?
-    assert(! @zip_file.file.zero?('notAFile'))
-    assert(! @zip_file.file.zero?('file1'))
+    assert(!@zip_file.file.zero?('notAFile'))
+    assert(!@zip_file.file.zero?('file1'))
     assert(@zip_file.file.zero?('dir1'))
     blockCalled = false
     ::Zip::File.open('test/data/generated/5entry.zip') do |zf|
@@ -253,7 +253,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     end
     assert(blockCalled)
 
-    assert(! @zip_file.file.stat('file1').zero?)
+    assert(!@zip_file.file.stat('file1').zero?)
     assert(@zip_file.file.stat('dir1').zero?)
     blockCalled = false
     ::Zip::File.open('test/data/generated/5entry.zip') do |zf|
@@ -309,7 +309,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_readable?
-    assert(! @zip_file.file.readable?('noSuchFile'))
+    assert(!@zip_file.file.readable?('noSuchFile'))
     assert(@zip_file.file.readable?('file1'))
     assert(@zip_file.file.readable?('dir1'))
     assert(@zip_file.file.stat('file1').readable?)
@@ -317,7 +317,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_readable_real?
-    assert(! @zip_file.file.readable_real?('noSuchFile'))
+    assert(!@zip_file.file.readable_real?('noSuchFile'))
     assert(@zip_file.file.readable_real?('file1'))
     assert(@zip_file.file.readable_real?('dir1'))
     assert(@zip_file.file.stat('file1').readable_real?)
@@ -325,7 +325,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_writable?
-    assert(! @zip_file.file.writable?('noSuchFile'))
+    assert(!@zip_file.file.writable?('noSuchFile'))
     assert(@zip_file.file.writable?('file1'))
     assert(@zip_file.file.writable?('dir1'))
     assert(@zip_file.file.stat('file1').writable?)
@@ -333,7 +333,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_writable_real?
-    assert(! @zip_file.file.writable_real?('noSuchFile'))
+    assert(!@zip_file.file.writable_real?('noSuchFile'))
     assert(@zip_file.file.writable_real?('file1'))
     assert(@zip_file.file.writable_real?('dir1'))
     assert(@zip_file.file.stat('file1').writable_real?)
@@ -341,18 +341,18 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_executable?
-    assert(! @zip_file.file.executable?('noSuchFile'))
-    assert(! @zip_file.file.executable?('file1'))
+    assert(!@zip_file.file.executable?('noSuchFile'))
+    assert(!@zip_file.file.executable?('file1'))
     assert(@zip_file.file.executable?('dir1'))
-    assert(! @zip_file.file.stat('file1').executable?)
+    assert(!@zip_file.file.stat('file1').executable?)
     assert(@zip_file.file.stat('dir1').executable?)
   end
 
   def test_executable_real?
-    assert(! @zip_file.file.executable_real?('noSuchFile'))
-    assert(! @zip_file.file.executable_real?('file1'))
+    assert(!@zip_file.file.executable_real?('noSuchFile'))
+    assert(!@zip_file.file.executable_real?('file1'))
     assert(@zip_file.file.executable_real?('dir1'))
-    assert(! @zip_file.file.stat('file1').executable_real?)
+    assert(!@zip_file.file.stat('file1').executable_real?)
     assert(@zip_file.file.stat('dir1').executable_real?)
   end
 
@@ -455,7 +455,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
       zf.glob('**/foo.txt') do |match|
         results << "<#{match.class.name}: #{match}>"
       end
-      assert((!results.empty?), 'block not run, or run out of context')
+      assert(!results.empty?, 'block not run, or run out of context')
       assert_equal 2, results.size
       assert_operator results, :include?, '<Zip::Entry: globTest/foo.txt>'
       assert_operator results, :include?, '<Zip::Entry: globTest/foo/bar/baz/foo.txt>'

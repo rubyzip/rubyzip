@@ -5,7 +5,7 @@ module Zip
       @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
       @output_buffer           = ''
       @has_returned_empty_string = false
-      @decrypter               = decrypter
+      @decrypter = decrypter
     end
 
     def sysread(number_of_bytes = nil, buf = '')

@@ -7,8 +7,7 @@ class ZipFsFileMutatingTest < MiniTest::Test
     FileUtils.cp('test/data/zipWithDirs.zip', TEST_ZIP)
   end
 
-  def teardown
-  end
+  def teardown; end
 
   def test_delete
     do_test_delete_or_unlink(:delete)
@@ -51,11 +50,11 @@ class ZipFsFileMutatingTest < MiniTest::Test
 
   def test_chmod
     ::Zip::File.open(TEST_ZIP) do |zf|
-      zf.file.chmod(0765, 'file1')
+      zf.file.chmod(0o765, 'file1')
     end
 
     ::Zip::File.open(TEST_ZIP) do |zf|
-      assert_equal(0100765,  zf.file.stat('file1').mode)
+      assert_equal(0o100765, zf.file.stat('file1').mode)
     end
   end
 

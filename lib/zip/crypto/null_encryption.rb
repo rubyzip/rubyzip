@@ -24,8 +24,7 @@ module Zip
       ''
     end
 
-    def reset!
-    end
+    def reset!; end
   end
 
   class NullDecrypter < Decrypter
@@ -35,8 +34,7 @@ module Zip
       data
     end
 
-    def reset!(_header)
-    end
+    def reset!(_header); end
   end
 end
 

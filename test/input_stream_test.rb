@@ -70,7 +70,7 @@ class ZipInputStreamTest < MiniTest::Test
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], entry.name)
-      assert zis.gets.length > 0
+      assert !zis.gets.empty?
       assert_equal(false, zis.eof?)
       entry = zis.get_next_entry # empty.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
@@ -84,10 +84,10 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal(true, zis.eof?)
       entry = zis.get_next_entry # short.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[3], entry.name)
-      assert zis.gets.length > 0
+      assert !zis.gets.empty?
       entry = zis.get_next_entry # longBinary.bin
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[4], entry.name)
-      assert zis.gets.length > 0
+      assert !zis.gets.empty?
     end
   end
 
@@ -97,7 +97,7 @@ class ZipInputStreamTest < MiniTest::Test
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], entry.name)
-      assert zis.gets.length > 0
+      assert !zis.gets.empty?
       assert_equal(false, zis.eof?)
       entry = zis.get_next_entry # empty.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[1], entry.name)
@@ -111,10 +111,10 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal(true, zis.eof?)
       entry = zis.get_next_entry # short.txt
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[3], entry.name)
-      assert zis.gets.length > 0
+      assert !zis.gets.empty?
       entry = zis.get_next_entry # longBinary.bin
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[4], entry.name)
-      assert zis.gets.length > 0
+      assert !zis.gets.empty?
     end
   end
 

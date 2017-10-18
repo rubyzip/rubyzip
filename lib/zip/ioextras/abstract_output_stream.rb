@@ -15,7 +15,7 @@ module Zip
       end
 
       def printf(a_format_string, *params)
-        self << sprintf(a_format_string, *params)
+        self << format(a_format_string, *params)
       end
 
       def putc(an_object)

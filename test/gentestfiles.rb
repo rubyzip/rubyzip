@@ -76,7 +76,7 @@ class TestZipFile
 
     File.open('test/data/generated/empty.txt', 'w') {}
     File.open('test/data/generated/empty_chmod640.txt', 'w') {}
-    ::File.chmod(0640, 'test/data/generated/empty_chmod640.txt')
+    ::File.chmod(0o640, 'test/data/generated/empty_chmod640.txt')
 
     File.open('test/data/generated/short.txt', 'w') { |file| file << 'ABCDEF' }
     ziptestTxt = ''
@@ -112,15 +112,15 @@ class TestZipFile
     # http://stahlworks.com/dev/index.php?tool=zipunzip
     # that works with the above code
     raise $!.to_s +
-      "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" \
-      "to create test data. If you don't have it you can download\n" \
-      'the necessary test files at http://sf.net/projects/rubyzip.'
+          "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" \
+          "to create test data. If you don't have it you can download\n" \
+          'the necessary test files at http://sf.net/projects/rubyzip.'
   end
 
   TEST_ZIP1 = TestZipFile.new('test/data/generated/empty.zip', [])
-  TEST_ZIP2 = TestZipFile.new('test/data/generated/5entry.zip', %w(test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin),
+  TEST_ZIP2 = TestZipFile.new('test/data/generated/5entry.zip', %w[test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin],
                               'my zip comment')
-  TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w(test/data/file1.txt))
+  TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w[test/data/file1.txt])
   TEST_ZIP4 = TestZipFile.new('test/data/generated/zipWithDir.zip', ['test/data/file1.txt',
                                                                      TestFiles::EMPTY_TEST_DIR])
 end

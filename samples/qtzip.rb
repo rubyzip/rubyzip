@@ -65,7 +65,7 @@ class ZipDialog < ZipDialogUI
     end
     puts "selected_items.size = #{selected_items.size}"
     puts "unselected_items.size = #{unselected_items.size}"
-    items = selected_items.size > 0 ? selected_items : unselected_items
+    items = !selected_items.empty? ? selected_items : unselected_items
     puts "items.size = #{items.size}"
 
     d = Qt::FileDialog.get_existing_directory(nil, self)

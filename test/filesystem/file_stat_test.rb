@@ -32,10 +32,10 @@ class ZipFsFileStatTest < MiniTest::Test
   end
 
   def test_mode
-    assert_equal(0600, @zip_file.file.stat('file1').mode & 0777)
-    assert_equal(0600, @zip_file.file.stat('file1').mode & 0777)
-    assert_equal(0755, @zip_file.file.stat('dir1').mode & 0777)
-    assert_equal(0755, @zip_file.file.stat('dir1').mode & 0777)
+    assert_equal(0o600, @zip_file.file.stat('file1').mode & 0o777)
+    assert_equal(0o600, @zip_file.file.stat('file1').mode & 0o777)
+    assert_equal(0o755, @zip_file.file.stat('dir1').mode & 0o777)
+    assert_equal(0o755, @zip_file.file.stat('dir1').mode & 0o777)
   end
 
   def test_dev
