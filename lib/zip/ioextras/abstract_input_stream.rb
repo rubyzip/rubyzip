@@ -105,6 +105,10 @@ module Zip
       rescue EOFError
       end
 
+      def length
+        entry_size
+      end
+
       alias_method :each, :each_line
     end
   end
