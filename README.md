@@ -54,7 +54,7 @@ Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
     # - The original file, including the path to find it
     zipfile.add(filename, File.join(folder, filename))
   end
-  zipfile.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
+  zipfile.get_output_stream("myFile") { |f| f.write "myFile contains just this" }
 end
 ```
 
@@ -85,36 +85,36 @@ class ZipFileGenerator
   def write
     entries = Dir.entries(@input_dir) - %w(. ..)
 
-    ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |io|
-      write_entries entries, '', io
+    ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |zipfile|
+      write_entries entries, '', zipfile
     end
   end
 
   private
 
   # A helper method to make the recursion work.
-  def write_entries(entries, path, io)
+  def write_entries(entries, path, zipfile)
     entries.each do |e|
-      zip_file_path = path == '' ? e : File.join(path, e)
-      disk_file_path = File.join(@input_dir, zip_file_path)
+      zipfile_path = path == '' ? e : File.join(path, e)
+      disk_file_path = File.join(@input_dir, zipfile_path)
       puts "Deflating #{disk_file_path}"
 
       if File.directory? disk_file_path
-        recursively_deflate_directory(disk_file_path, io, zip_file_path)
+        recursively_deflate_directory(disk_file_path, zipfile, zipfile_path)
       else
-        put_into_archive(disk_file_path, io, zip_file_path)
+        put_into_archive(disk_file_path, zipfile, zipfile_path)
       end
     end
   end
 
-  def recursively_deflate_directory(disk_file_path, io, zip_file_path)
-    io.mkdir zip_file_path
+  def recursively_deflate_directory(disk_file_path, zipfile, zipfile_path)
+    zipfile.mkdir zipfile_path
     subdir = Dir.entries(disk_file_path) - %w(. ..)
-    write_entries subdir, zip_file_path, io
+    write_entries subdir, zipfile_path, zipfile
   end
 
-  def put_into_archive(disk_file_path, io, zip_file_path)
-    io.get_output_stream(zip_file_path) do |f|
+  def put_into_archive(disk_file_path, zipfile, zipfile_path)
+    zipfile.get_output_stream(zipfile_path) do |f|
       f.write(File.open(disk_file_path, 'rb').read)
     end
   end
