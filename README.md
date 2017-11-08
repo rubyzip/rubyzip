@@ -254,6 +254,14 @@ Zip.default_compression = Zlib::DEFAULT_COMPRESSION
 ```
 It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
 
+Sometimes file names inside zip contain non-ASCII characters. If you can assume which encoding was used for such names and want to be able to find such entries using `find_entry` then you can force assumed encoding like so:
+
+```ruby
+Zip.force_entry_names_encoding = 'UTF-8'
+```
+
+Allowed encoding names are the same as accepted by `String#force_encoding`
+
 You can set multiple settings at the same time by using a block:
 
 ```ruby
