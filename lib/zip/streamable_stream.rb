@@ -5,7 +5,7 @@ module Zip
       dirname = if zipfile.is_a?(::String)
                   ::File.dirname(zipfile)
                 else
-                  '.'
+                  nil
                 end
       @temp_file = Tempfile.new(::File.basename(name), dirname)
       @temp_file.binmode
