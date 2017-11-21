@@ -48,7 +48,7 @@ module Zip
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param cd_entry [Entry] entry from the central directory
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, cd_entry, offset = 0, decrypter = nil)
+    def initialize(context, cd_entry = nil, offset = 0, decrypter = nil)
       super()
       @archive_io = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
@@ -95,7 +95,7 @@ module Zip
       # stream is passed to the block and closed when the block
       # returns.
       def open(filename_or_io, offset = 0, decrypter = nil)
-        zio = new(filename_or_io, offset, decrypter)
+        zio = new(filename_or_io, nil, offset, decrypter)
         return zio unless block_given?
         begin
           yield zio

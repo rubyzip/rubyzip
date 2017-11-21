@@ -39,6 +39,7 @@ class ZipFileTest < MiniTest::Test
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(comment, zfRead.comment)
     assert_equal(2, zfRead.entries.length)
+    assert_equal(File, zfRead.archive.class)
   end
 
   def test_create_from_scratch_with_old_create_parameter
