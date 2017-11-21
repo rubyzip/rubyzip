@@ -46,13 +46,15 @@ module Zip
     # not a local zip entry header.
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
+    # @param cd_entry [Entry] entry from the central directory
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, offset = 0, decrypter = nil)
+    def initialize(context, cd_entry = nil, offset = 0, decrypter = nil)
       super()
       @archive_io = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
       @decrypter     = decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil
+      @cd_entry = cd_entry
     end
 
     def close
@@ -93,7 +95,7 @@ module Zip
       # stream is passed to the block and closed when the block
       # returns.
       def open(filename_or_io, offset = 0, decrypter = nil)
-        zio = new(filename_or_io, offset, decrypter)
+        zio = new(filename_or_io, nil, offset, decrypter)
         return zio unless block_given?
         begin
           yield zio
@@ -123,10 +125,12 @@ module Zip
     end
 
     def open_entry
-      @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
+      @current_entry = ::Zip::Entry.read_local_entry(@archive_io, @cd_entry)
+
       if @current_entry && @current_entry.gp_flags & 1 == 1 && @decrypter.is_a?(NullEncrypter)
         raise Error, 'password required to decode zip file'
       end
+
       if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
         && @current_entry.empty? && !@internal

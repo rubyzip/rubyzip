@@ -194,9 +194,9 @@ module Zip
         nil
       end
 
-      def read_local_entry(io)
+      def read_local_entry(io, cd_entry = nil)
         entry = new(io)
-        entry.read_local_entry(io)
+        entry.read_local_entry(io, cd_entry)
         entry
       rescue Error
         nil
@@ -220,7 +220,7 @@ module Zip
         @extra_length = buf.unpack('VCCvvvvVVVvv')
     end
 
-    def read_local_entry(io) #:nodoc:all
+    def read_local_entry(io, cd_entry = nil) #:nodoc:all
       @local_header_offset = io.tell
 
       static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
@@ -230,6 +230,14 @@ module Zip
       end
 
       unpack_local_entry(static_sized_fields_buf)
+
+      # overwrite size, compressed_size and crc with those of the file headers of the central directory
+      # when local file headers are not found in the beginning of the file
+      if cd_entry && gp_flags & 8 == 8 && size == 0 && crc == 0 && compressed_size == 0
+        @size             = cd_entry.size
+        @crc              = cd_entry.crc
+        @compressed_size  = cd_entry.compressed_size
+      end
 
       unless @header_signature == ::Zip::LOCAL_ENTRY_SIGNATURE
         raise ::Zip::Error, "Zip local header magic not found at location '#{local_header_offset}'"
@@ -482,7 +490,7 @@ module Zip
 
     # Returns an IO like object for the given ZipEntry.
     # Warning: may behave weird with symlinks.
-    def get_input_stream(&block)
+    def get_input_stream(archive = nil, &block)
       if @ftype == :directory
         yield ::Zip::NullInputStream if block_given?
         ::Zip::NullInputStream
@@ -499,7 +507,8 @@ module Zip
           raise "unknown @file_type #{@ftype}"
         end
       else
-        zis = ::Zip::InputStream.new(@zipfile, local_header_offset)
+        cd_entry = self
+        zis = ::Zip::InputStream.new(archive || @zipfile, cd_entry, local_header_offset)
         zis.instance_variable_set(:@internal, true)
         zis.get_next_entry
         if block_given?
