@@ -12,8 +12,6 @@ rvm:
 matrix:
   include:
   - rvm: jruby-9.1.14.0
-    jdk: oraclejdk7
-  - rvm: jruby-9.1.14.0
     jdk: oraclejdk8
   - rvm: jruby-9.1.14.0
     jdk: openjdk7
