@@ -4,18 +4,18 @@ cache: bundler
 rvm:
   - 2.0.0
   - 2.1.10
-  - 2.2.6
-  - 2.3.3
-  - 2.4.0
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
   - ruby-head
   - rbx-2
 matrix:
   include:
-  - rvm: jruby-9.1.4.0
+  - rvm: jruby-9.1.14.0
     jdk: oraclejdk7
-  - rvm: jruby-9.1.4.0
+  - rvm: jruby-9.1.14.0
     jdk: oraclejdk8
-  - rvm: jruby-9.1.4.0
+  - rvm: jruby-9.1.14.0
     jdk: openjdk7
   - rvm: jruby-head
     jdk: oraclejdk8
@@ -24,7 +24,6 @@ matrix:
     - rvm: rbx-2
     - rvm: jruby-head
 before_install:
-  - gem update --system
   - gem install bundler
   - gem --version
 before_script:
