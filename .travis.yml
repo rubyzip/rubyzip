@@ -29,3 +29,6 @@ before_install:
 before_script:
   - echo `whereis zip`
   - echo `whereis unzip`
+env:
+  global:
+    - JRUBY_OPTS="--debug"
