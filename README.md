@@ -175,9 +175,8 @@ end
 
 But there is one exception when it is not working - General Purpose Flag Bit 3.
 
-```
-If bit 3 (0x08) of the general-purpose flags field is set, then the CRC-32 and file sizes are not known when the header is written. The fields in the local header are filled with zero, and the CRC-32 and size are appended in a 12-byte structure (optionally preceded by a 4-byte signature) immediately after the compressed data
-```
+> If bit 3 (0x08) of the general-purpose flags field is set, then the CRC-32 and file sizes are not known when the header is written. The fields in the local header are filled with zero, and the CRC-32 and size are appended in a 12-byte structure (optionally preceded by a 4-byte signature) immediately after the compressed data
+
 
 If `::Zip::InputStream` finds such entry in the zip archive it will raise an exception.
 
