@@ -18,7 +18,7 @@ matrix:
     jdk: oraclejdk8
   - rvm: rbx-3
     env:
-      - RUBYOPT="-rbundler/deprecate bundle install"
+      - RUBYOPT="-rbundler/deprecate"
   allow_failures:
     - rvm: ruby-head
     - rvm: rbx-3
