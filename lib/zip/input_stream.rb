@@ -129,7 +129,7 @@ module Zip
       end
       if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
-        && @current_entry.empty? && !@internal
+        && @current_entry.size == 0 && !@internal
         raise GPFBit3Error,
               'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
               'Please use ::Zip::File instead of ::Zip::InputStream'
