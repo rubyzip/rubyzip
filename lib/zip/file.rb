@@ -306,7 +306,7 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-      return unless commit_required?
+      return if name.is_a?(StringIO) || !commit_required?
       on_success_replace do |tmp_file|
         ::Zip::OutputStream.open(tmp_file) do |zos|
           @entry_set.each do |e|
