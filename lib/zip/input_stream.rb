@@ -129,7 +129,7 @@ module Zip
       end
       if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
-        && @current_entry.size == 0 && !@internal
+        && @current_entry.size == 0 && !@complete_entry
         raise GPFBit3Error,
               'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
               'Please use ::Zip::File instead of ::Zip::InputStream'
@@ -143,7 +143,11 @@ module Zip
       if @current_entry.nil?
         ::Zip::NullDecompressor
       elsif @current_entry.compression_method == ::Zip::Entry::STORED
-        ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
+        if @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
+          ::Zip::PassThruDecompressor.new(@archive_io, @complete_entry.size)
+        else
+          ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
+        end
       elsif @current_entry.compression_method == ::Zip::Entry::DEFLATED
         header = @archive_io.read(@decrypter.header_bytesize)
         @decrypter.reset!(header)
