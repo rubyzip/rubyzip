@@ -64,9 +64,9 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(file_name, create = false, buffer = false, options = {})
+    def initialize(path_or_io, create = false, buffer = false, options = {})
       super()
-      @name    = file_name
+      @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
       if !buffer && ::File.size?(@name)
