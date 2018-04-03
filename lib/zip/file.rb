@@ -69,18 +69,18 @@ module Zip
       @name    = file_name
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
-      if !buffer && ::File.size?(file_name)
+      if !buffer && ::File.size?(@name)
         @create = false
-        @file_permissions = ::File.stat(file_name).mode
-        ::File.open(name, 'rb') do |f|
+        @file_permissions = ::File.stat(@name).mode
+        ::File.open(@name, 'rb') do |f|
           read_from_stream(f)
         end
       elsif @create
         @entry_set = EntrySet.new
-      elsif ::File.zero?(file_name)
-        raise Error, "File #{file_name} has zero size. Did you mean to pass the create flag?"
+      elsif ::File.zero?(@name)
+        raise Error, "File #{@name} has zero size. Did you mean to pass the create flag?"
       else
-        raise Error, "File #{file_name} not found"
+        raise Error, "File #{@name} not found"
       end
       @stored_entries      = @entry_set.dup
       @stored_comment      = @comment
