@@ -120,7 +120,6 @@ module Zip
           raise "Zip::File.open_buffer expects a String or IO-like argument (responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
         end
         if io.is_a?(::String)
-          require 'stringio'
           io = ::StringIO.new(io)
         elsif io.respond_to?(:binmode)
           # https://github.com/rubyzip/rubyzip/issues/119
