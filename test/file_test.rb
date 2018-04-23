@@ -55,6 +55,12 @@ class ZipFileTest < MiniTest::Test
     assert_equal(2, zfRead.entries.length)
   end
 
+  def test_get_input_stream_stored_with_gpflag_bit3
+    ::Zip::File.open('test/data/gpbit3stored.zip') do |zf|
+      assert_equal("foo\n", zf.read("foo.txt"))
+    end
+  end
+
   def test_get_output_stream
     entryCount = nil
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
