@@ -1,3 +1,8 @@
+2.0.0 (Next Release)
+===================
+
+* Support for Ruby 1.9.2 and 1.9.3 has been dropped.  Ruby 2.0.0 or later is now required.
+
 1.2.1
 =====
 
