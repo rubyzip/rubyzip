@@ -573,6 +573,10 @@ module Zip
         @zipFile.get_output_stream(expand_to_entry(fileName), permissionInt, &aProc)
       end
 
+      def glob(*args, &block)
+        @zipFile.glob(*args, &block)
+      end
+
       def read(fileName)
         @zipFile.read(expand_to_entry(fileName))
       end

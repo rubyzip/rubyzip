@@ -3,6 +3,7 @@ require 'zip/filesystem'
 
 class ZipFsDirectoryTest < MiniTest::Test
   TEST_ZIP = 'test/data/generated/zipWithDirs_copy.zip'
+  GLOB_TEST_ZIP = 'test/data/globTest.zip'
 
   def setup
     FileUtils.cp('test/data/zipWithDirs.zip', TEST_ZIP)
@@ -93,11 +94,23 @@ class ZipFsDirectoryTest < MiniTest::Test
     end
   end
 
-  # Globbing not supported yet
-  # def test_glob
-  #  # test alias []-operator too
-  #  fail "implement test"
-  # end
+  def test_glob
+    globbed_files = [
+      'globTest/foo/bar/baz/foo.txt',
+      'globTest/foo.txt',
+      'globTest/food.txt'
+    ]
+
+    ::Zip::File.open(GLOB_TEST_ZIP) do |zf|
+      zf.dir.glob('**/*.txt') do |f|
+        assert globbed_files.include?(f.name)
+      end
+
+      zf.dir.glob('globTest/foo/**/*.txt') do |f|
+        assert_equal globbed_files[0], f.name
+      end
+    end
+  end
 
   def test_open_new
     ::Zip::File.open(TEST_ZIP) do |zf|
