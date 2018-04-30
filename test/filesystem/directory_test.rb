@@ -109,6 +109,11 @@ class ZipFsDirectoryTest < MiniTest::Test
       zf.dir.glob('globTest/foo/**/*.txt') do |f|
         assert_equal globbed_files[0], f.name
       end
+
+      zf.dir.chdir('globTest/foo')
+      zf.dir.glob('**/*.txt') do |f|
+        assert_equal globbed_files[0], f.name
+      end
     end
   end
 
