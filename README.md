@@ -193,6 +193,22 @@ end.string
 
 This is an experimental feature and the interface for encryption may change in future versions.
 
+### Create reproducible zip files
+
+Reprodicble zip files are archives that have identical content to other archives that are created from identical source files. Using the default entry creation logic used by examples above, rubyzip will create zip file entry with the current time as the timestamp. This can be useful for recording when the zip file was created, but causes zip files created at different times to be different while their content is identical. This behavior can break caches that are useful for build services and similar scenario.
+
+To create a reproducible zip file we can create zip entries with the original file's "modified" time as the entry's time stamp, e.g:
+
+```ruby
+Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
+  input_filenames.each do |filename|
+    diskpath = File.join(folder, filename)
+    entry = ::Zip::Entry.new(nil, filename, nil, nil, nil, nil, nil, nil, ::Zip::DOSTime.at(File.mtime(diskpath).to_i))
+    zipfile.add(entry, diskpath)
+  end
+end
+```
+
 ## Known issues
 
 ### Modify docx file with rubyzip
