@@ -177,4 +177,14 @@ class ZipEntryTest < MiniTest::Test
 
     assert File.exist?("#{path}/tmp/file.txt")
   end
+
+  def test_entry_name_with_relative_symlink
+    assert_raises Errno::ENOENT do
+      Zip::File.open('test/data/symlink.zip') do |zip_file|
+        zip_file.each do |entry|
+          entry.extract
+        end
+      end
+    end
+  end
 end

@@ -154,6 +154,9 @@ module Zip
       elsif @name.squeeze('/') =~ /\.{2}(?:\/|\z)/
         puts "WARNING: skipped \"../\" path component(s) in #{@name}"
         return self
+      elsif symlink? && get_input_stream.read =~ %r{../..}
+        puts "WARNING: skipped \"#{get_input_stream.read}\" symlink path in #{@name}"
+        return self
       end
 
       dest_path ||= @name
