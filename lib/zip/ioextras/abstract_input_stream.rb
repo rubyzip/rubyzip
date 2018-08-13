@@ -11,26 +11,27 @@ module Zip
         super
         @lineno        = 0
         @pos           = 0
-        @output_buffer = ''
+        @output_buffer = ''.dup
       end
 
       attr_accessor :lineno
       attr_reader :pos
 
       def read(number_of_bytes = nil, buf = '')
+        buffer = buf.dup
         tbuf = if @output_buffer.bytesize > 0
                  if number_of_bytes <= @output_buffer.bytesize
                    @output_buffer.slice!(0, number_of_bytes)
                  else
                    number_of_bytes -= @output_buffer.bytesize if number_of_bytes
-                   rbuf = sysread(number_of_bytes, buf)
+                   rbuf = sysread(number_of_bytes, buffer)
                    out  = @output_buffer
                    out << rbuf if rbuf
                    @output_buffer = ''
                    out
                  end
                else
-                 sysread(number_of_bytes, buf)
+                 sysread(number_of_bytes, buffer)
                end
 
         if tbuf.nil? || tbuf.empty?
@@ -40,12 +41,12 @@ module Zip
 
         @pos += tbuf.length
 
-        if buf
-          buf.replace(tbuf)
+        if buffer
+          buffer.replace(tbuf)
         else
-          buf = tbuf
+          buffer = tbuf
         end
-        buf
+        buffer
       end
 
       def readlines(a_sep_string = $/)
