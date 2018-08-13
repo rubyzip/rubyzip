@@ -38,7 +38,7 @@ module Zip
 
     private
 
-    def internal_produce_input(buf = '')
+    def internal_produce_input(buf = String.new)
       retried = 0
       begin
         @zlib_inflater.inflate(@decrypter.decrypt(@input_stream.read(Decompressor::CHUNK_SIZE, buf)))

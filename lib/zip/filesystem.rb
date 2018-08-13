@@ -238,14 +238,15 @@ module Zip
       end
 
       def open(fileName, openMode = 'r', permissionInt = 0o644, &block)
-        openMode.delete!('b') # ignore b option
-        case openMode
+        mode = openMode.dup
+        mode.delete!('b') # ignore b option
+        case mode
         when 'r'
           @mappedZip.get_input_stream(fileName, &block)
         when 'w'
           @mappedZip.get_output_stream(fileName, permissionInt, &block)
         else
-          raise StandardError, "openmode '#{openMode} not supported" unless openMode == 'r'
+          raise StandardError, "openmode '#{mode} not supported" unless mode == 'r'
         end
       end
 
