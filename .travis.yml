@@ -11,9 +11,9 @@ rvm:
   - ruby-head
 matrix:
   include:
-  - rvm: jruby-9.1.14.0
+  - rvm: jruby
     jdk: oraclejdk8
-  - rvm: jruby-9.1.14.0
+  - rvm: jruby
     jdk: openjdk7
   - rvm: jruby-head
     jdk: oraclejdk8
