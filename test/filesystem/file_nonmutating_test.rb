@@ -55,7 +55,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
                    f.readline.chomp)
     end
     assert(blockCalled)
-    @zip_file.dir.chdir String.new('/')
+    @zip_file.dir.chdir '/'
 
     assert_raises(Errno::ENOENT) do
       @zip_file.file.open('noSuchEntry')
