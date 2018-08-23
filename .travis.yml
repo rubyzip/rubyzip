@@ -20,6 +20,9 @@ matrix:
   - rvm: ruby-head
     env:
       - RUBYOPT="--enable-frozen-string-literal"
+  - rvm: ruby-head
+    env:
+      - RUBYOPT=""
   - rvm: rbx-3
     env:
       - RUBYOPT="-rbundler/deprecate"
