@@ -3,7 +3,7 @@ module Zip
     def initialize(input_stream, decrypter = NullDecrypter.new)
       super(input_stream)
       @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      @output_buffer           = ''
+      @output_buffer           = String.new('')
       @has_returned_empty_string = false
       @decrypter = decrypter
     end
@@ -38,7 +38,7 @@ module Zip
 
     private
 
-    def internal_produce_input(buf = String.new)
+    def internal_produce_input(buf = String.new(''))
       retried = 0
       begin
         @zlib_inflater.inflate(@decrypter.decrypt(@input_stream.read(Decompressor::CHUNK_SIZE, buf)))
