@@ -8,11 +8,11 @@ module Zip
       @decrypter = decrypter
     end
 
-    def sysread(number_of_bytes = nil, buf = '')
+    def sysread(number_of_bytes = nil, buf = String.new(''))
       readEverything = number_of_bytes.nil?
       while readEverything || @output_buffer.bytesize < number_of_bytes
         break if internal_input_finished?
-        @output_buffer += internal_produce_input(buf)
+        @output_buffer << internal_produce_input(buf)
       end
       return value_when_finished if @output_buffer.bytesize == 0 && input_finished?
       end_index = number_of_bytes.nil? ? @output_buffer.bytesize : number_of_bytes
