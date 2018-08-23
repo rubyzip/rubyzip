@@ -18,20 +18,19 @@ module Zip
       attr_reader :pos
 
       def read(number_of_bytes = nil, buf = String.new(''))
-        buffer = buf.dup
         tbuf = if @output_buffer.bytesize > 0
                  if number_of_bytes <= @output_buffer.bytesize
                    @output_buffer.slice!(0, number_of_bytes)
                  else
                    number_of_bytes -= @output_buffer.bytesize if number_of_bytes
-                   rbuf = sysread(number_of_bytes, buffer)
+                   rbuf = sysread(number_of_bytes, buf)
                    out  = @output_buffer
                    out << rbuf if rbuf
                    @output_buffer = String.new('')
                    out
                  end
                else
-                 sysread(number_of_bytes, buffer)
+                 sysread(number_of_bytes, buf)
                end
 
         if tbuf.nil? || tbuf.empty?
@@ -41,12 +40,12 @@ module Zip
 
         @pos += tbuf.length
 
-        if buffer
-          buffer.replace(tbuf)
+        if buf
+          buf.replace(tbuf)
         else
-          buffer = tbuf
+          buf = tbuf
         end
-        buffer
+        buf
       end
 
       def readlines(a_sep_string = $/)
