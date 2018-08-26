@@ -151,40 +151,4 @@ class ZipEntryTest < MiniTest::Test
 
     assert_match(/mimetypeapplication\/epub\+zip/, first_100_bytes)
   end
-
-  def test_entry_name_with_absolute_path_does_not_extract
-    path = '/tmp/file.txt'
-    File.delete(path) if File.exist?(path)
-
-    Zip::File.open('test/data/absolutepath.zip') do |zip_file|
-      zip_file.each do |entry|
-        entry.extract
-      end
-    end
-
-    refute File.exist?(path)
-  end
-
-  def test_entry_name_with_absolute_path_extract_when_given_different_path
-    path = '/tmp/CVE-2018-1000544'
-    FileUtils.rm_rf(path) if Dir.exist?(path)
-
-    Zip::File.open('test/data/absolutepath.zip') do |zip_file|
-      zip_file.each do |entry|
-        entry.extract("#{path}/#{entry.name}")
-      end
-    end
-
-    assert File.exist?("#{path}/tmp/file.txt")
-  end
-
-  def test_entry_name_with_relative_symlink
-    assert_raises Errno::ENOENT do
-      Zip::File.open('test/data/symlink.zip') do |zip_file|
-        zip_file.each do |entry|
-          entry.extract
-        end
-      end
-    end
-  end
 end
