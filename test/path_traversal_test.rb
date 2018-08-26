@@ -47,7 +47,15 @@ class PathTraversalTest < MiniTest::Test
     end
   end
 
-  def test_non_leading_dot_dot
+  def test_non_leading_dot_dot_with_existing_folder
+    in_tmpdir do
+      extract_path_traversal_zip 'relative1.zip'
+      assert Dir.exist?('tmp')
+      refute File.exist?('../moo')
+    end
+  end
+
+  def test_non_leading_dot_dot_without_existing_folder
     in_tmpdir do
       extract_path_traversal_zip 'jwilk/relative2.zip'
       refute File.exist?('../moo')
@@ -64,7 +72,10 @@ class PathTraversalTest < MiniTest::Test
 
   def test_directory_symlink
     in_tmpdir do
-      extract_path_traversal_zip 'jwilk/dirsymlink.zip'
+      # Can't create tmp/moo, because the tmp symlink is skipped.
+      assert_raises Errno::ENOENT do
+        extract_path_traversal_zip 'jwilk/dirsymlink.zip'
+      end
       refute File.exist?('/tmp/moo')
     end
   end
@@ -83,9 +94,11 @@ class PathTraversalTest < MiniTest::Test
 
   def test_two_directory_symlinks_b
     in_tmpdir do
-      extract_path_traversal_zip 'jwilk/dirsymlink2b.zip'
-      assert File.exist?('cur')
-      assert_equal '.', File.readlink('cur')
+      # Can't create par/moo, because the symlinks are skipped.
+      assert_raises Errno::ENOENT do
+        extract_path_traversal_zip 'jwilk/dirsymlink2b.zip'
+      end
+      refute File.exist?('cur')
       refute File.exist?('../moo')
     end
   end
