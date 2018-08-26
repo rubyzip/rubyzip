@@ -115,8 +115,9 @@ module Zip
     def name_safe?
       cleanpath = Pathname.new(@name).cleanpath
       return false unless cleanpath.relative?
-      naive_expanded_path = ::File.join(Dir.pwd, cleanpath.to_s)
-      cleanpath.expand_path.to_s == naive_expanded_path
+      root = ::File::SEPARATOR
+      naive_expanded_path = ::File.join(root, cleanpath.to_s)
+      cleanpath.expand_path(root).to_s == naive_expanded_path
     end
 
     def local_entry_offset #:nodoc:all
