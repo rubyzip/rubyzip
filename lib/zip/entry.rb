@@ -109,6 +109,17 @@ module Zip
       @name.end_with?('/')
     end
 
+    # Is the name a relative path, free of `..` patterns that could lead to
+    # path traversal attacks? This does NOT handle symlinks; if the path
+    # contains symlinks, this check is NOT enough to guarantee safety.
+    def name_safe?
+      cleanpath = Pathname.new(@name).cleanpath
+      return false unless cleanpath.relative?
+      root = ::File::SEPARATOR
+      naive_expanded_path = ::File.join(root, cleanpath.to_s)
+      cleanpath.expand_path(root).to_s == naive_expanded_path
+    end
+
     def local_entry_offset #:nodoc:all
       local_header_offset + @local_header_size
     end
@@ -147,13 +158,16 @@ module Zip
     end
 
     # Extracts entry to file dest_path (defaults to @name).
-    def extract(dest_path = @name, &block)
-      block ||= proc { ::Zip.on_exists_proc }
-
-      if @name.squeeze('/') =~ /\.{2}(?:\/|\z)/
-        puts "WARNING: skipped \"../\" path component(s) in #{@name}"
+    # NB: The caller is responsible for making sure dest_path is safe, if it
+    # is passed.
+    def extract(dest_path = nil, &block)
+      if dest_path.nil? && !name_safe?
+        puts "WARNING: skipped #{@name} as unsafe"
         return self
       end
+
+      dest_path ||= @name
+      block ||= proc { ::Zip.on_exists_proc }
 
       if directory? || file? || symlink?
         __send__("create_#{@ftype}", dest_path, &block)
@@ -613,32 +627,9 @@ module Zip
 
     # BUG: create_symlink() does not use &block
     def create_symlink(dest_path)
-      stat = nil
-      begin
-        stat = ::File.lstat(dest_path)
-      rescue Errno::ENOENT
-      end
-
-      io     = get_input_stream
-      linkto = io.read
-
-      if stat
-        if stat.symlink?
-          if ::File.readlink(dest_path) == linkto
-            return
-          else
-            raise ::Zip::DestinationFileExistsError,
-                  "Cannot create symlink '#{dest_path}'. " \
-                      'A symlink already exists with that name'
-          end
-        else
-          raise ::Zip::DestinationFileExistsError,
-                "Cannot create symlink '#{dest_path}'. " \
-                    'A file already exists with that name'
-        end
-      end
-
-      ::File.symlink(linkto, dest_path)
+      # TODO: Symlinks pose security challenges. Symlink support temporarily
+      # removed in view of https://github.com/rubyzip/rubyzip/issues/369 .
+      puts "WARNING: skipped symlink #{dest_path}"
     end
 
     # apply missing data from the zip64 extra information field, if present
