@@ -7,7 +7,7 @@ rvm:
   - 2.2.9
   - 2.3.6
   - 2.4.3
-  - 2.5.0
+  - 2.5.1
   - ruby-head
 matrix:
   include:
@@ -17,6 +17,9 @@ matrix:
     jdk: openjdk7
   - rvm: jruby-head
     jdk: oraclejdk8
+  - rvm: ruby-head
+    env:
+      - RUBYOPT="--enable-frozen-string-literal"
   - rvm: rbx-3
     env:
       - RUBYOPT="-rbundler/deprecate"

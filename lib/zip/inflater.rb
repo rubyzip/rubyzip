@@ -3,12 +3,12 @@ module Zip
     def initialize(input_stream, decrypter = NullDecrypter.new)
       super(input_stream)
       @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      @output_buffer           = ''
+      @output_buffer           = String.new('')
       @has_returned_empty_string = false
       @decrypter = decrypter
     end
 
-    def sysread(number_of_bytes = nil, buf = '')
+    def sysread(number_of_bytes = nil, buf = String.new(''))
       readEverything = number_of_bytes.nil?
       while readEverything || @output_buffer.bytesize < number_of_bytes
         break if internal_input_finished?
@@ -38,7 +38,7 @@ module Zip
 
     private
 
-    def internal_produce_input(buf = '')
+    def internal_produce_input(buf = String.new(''))
       retried = 0
       begin
         @zlib_inflater.inflate(@decrypter.decrypt(@input_stream.read(Decompressor::CHUNK_SIZE, buf)))

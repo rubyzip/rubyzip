@@ -11,13 +11,13 @@ module Zip
         super
         @lineno        = 0
         @pos           = 0
-        @output_buffer = ''
+        @output_buffer = String.new('')
       end
 
       attr_accessor :lineno
       attr_reader :pos
 
-      def read(number_of_bytes = nil, buf = '')
+      def read(number_of_bytes = nil, buf = String.new(''))
         tbuf = if @output_buffer.bytesize > 0
                  if number_of_bytes <= @output_buffer.bytesize
                    @output_buffer.slice!(0, number_of_bytes)
@@ -26,7 +26,7 @@ module Zip
                    rbuf = sysread(number_of_bytes, buf)
                    out  = @output_buffer
                    out << rbuf if rbuf
-                   @output_buffer = ''
+                   @output_buffer = String.new('')
                    out
                  end
                else
@@ -90,7 +90,7 @@ module Zip
 
       def flush
         ret_val        = @output_buffer
-        @output_buffer = ''
+        @output_buffer = String.new('')
         ret_val
       end
 
