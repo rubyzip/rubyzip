@@ -375,7 +375,7 @@ module Zip
     end
 
     def read_c_dir_entry(io) #:nodoc:all
-      static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
+      static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH) || ''
       check_c_dir_entry_static_header_length(static_sized_fields_buf)
       unpack_c_dir_entry(static_sized_fields_buf)
       check_c_dir_entry_signature
