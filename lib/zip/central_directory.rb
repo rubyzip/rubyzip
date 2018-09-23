@@ -117,6 +117,7 @@ module Zip
     end
 
     def read_central_directory_entries(io) #:nodoc:
+      raise Error, 'Zip consistency problem with central directory entry offset' if @cdir_offset.nil?
       begin
         io.seek(@cdir_offset, IO::SEEK_SET)
       rescue Errno::EINVAL
