@@ -380,7 +380,7 @@ module Zip
       unpack_c_dir_entry(static_sized_fields_buf)
       check_c_dir_entry_signature
       set_time(@last_mod_date, @last_mod_time)
-      @name = io.read(@name_length)
+      @name = io.read(@name_length) || ''
       if ::Zip.force_entry_names_encoding
         @name.force_encoding(::Zip.force_entry_names_encoding)
       end
