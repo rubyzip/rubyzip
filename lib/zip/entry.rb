@@ -72,9 +72,9 @@ module Zip
     end
 
     def time
-      if @extra['UniversalTime'] && @extra['UniversalTime'].mtime
+      if @extra['UniversalTime'] && !@extra['UniversalTime'].mtime.nil?
         @extra['UniversalTime'].mtime
-      elsif @extra['NTFS']
+      elsif @extra['NTFS'] && !@extra['NTFS'].mtime.nil?
         @extra['NTFS'].mtime
       else
         # Standard time field in central directory has local time
