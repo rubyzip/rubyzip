@@ -106,7 +106,7 @@ module Zip
     end
 
     def time
-      if @extra['UniversalTime']
+      if @extra['UniversalTime'] && @extra['UniversalTime'].mtime
         @extra['UniversalTime'].mtime
       elsif @extra['NTFS']
         @extra['NTFS'].mtime
