@@ -3,7 +3,7 @@ module Zip
     def initialize(input_stream, decrypter = NullDecrypter.new)
       super(input_stream)
       @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      @output_buffer           = ''
+      @output_buffer           = ''.dup
       @has_returned_empty_string = false
       @decrypter = decrypter
     end
