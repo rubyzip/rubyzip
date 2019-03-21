@@ -26,7 +26,7 @@ module Zip
     end
 
     def create_unknown_item
-      s = ''
+      s = ''.dup
       class << s
         alias_method :to_c_dir_bin, :to_s
         alias_method :to_local_bin, :to_s
