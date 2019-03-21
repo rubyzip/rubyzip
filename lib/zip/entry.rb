@@ -276,10 +276,10 @@ module Zip
       zip64 = @extra['Zip64']
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
-       @gp_flags, # @gp_flags                  ,
+       @gp_flags, # @gp_flags
        @compression_method,
-       @time.to_binary_dos_time, # @last_mod_time              ,
-       @time.to_binary_dos_date, # @last_mod_date              ,
+       @time.to_binary_dos_time, # @last_mod_time
+       @time.to_binary_dos_date, # @last_mod_date
        @crc,
        zip64 && zip64.compressed_size ? 0xFFFFFFFF : @compressed_size,
        zip64 && zip64.original_size ? 0xFFFFFFFF : @size,
@@ -433,11 +433,11 @@ module Zip
         @header_signature,
         @version, # version of encoding software
         @fstype, # filesystem type
-        @version_needed_to_extract, # @versionNeededToExtract           ,
-        @gp_flags, # @gp_flags                          ,
+        @version_needed_to_extract, # @versionNeededToExtract
+        @gp_flags, # @gp_flags
         @compression_method,
-        @time.to_binary_dos_time, # @last_mod_time                      ,
-        @time.to_binary_dos_date, # @last_mod_date                      ,
+        @time.to_binary_dos_time, # @last_mod_time
+        @time.to_binary_dos_date, # @last_mod_date
         @crc,
         zip64 && zip64.compressed_size ? 0xFFFFFFFF : @compressed_size,
         zip64 && zip64.original_size ? 0xFFFFFFFF : @size,
