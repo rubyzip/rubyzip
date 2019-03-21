@@ -1,3 +1,4 @@
+require 'pathname'
 module Zip
   class Entry
     STORED   = 0
