@@ -1,3 +1,40 @@
+1.2.2
+=====
+
+* Expand from root rather than current working directory
+* Disable symlinks and check for path traversal
+* Consolidate path traversal tests
+* Add jwilk's path traversal tests
+* Trigger CI again
+* Move jruby to allow failures matrix till crc uint 32 issues are resolved
+* Fix CVE-2018-1000544 symlink path traversal
+* Fix CVE-2018-1000544 absolute path traversal
+* Fix jruby version
+* When globbing in ZipFSDir, take CWD into account.
+* Pass glob through from ZipFileNameMapper.
+* Turn off all terminal output in all tests.
+* Handle stored files with general purpose bit 3 set
+* Fix regression caused by Rubocop cleanup
+* Added fix for calling 'close' on a StringIO-backed zip file, and specs
+* Bump Ruby versions on Travis CI
+* Travis: Typo
+* Travis: Workaround a rbx-3 autoload issue
+* CI against Ruby 2.2.8, 2.3.5, and 2.4.2
+* Travis: typo
+* Travis: Try using rbx-3
+* Travis: update RubyGems
+* Travis: drop oraclejdk-7
+* Travis: use JRUBY_OPTS="--debug"
+* Travis: use pre-installed Travis rubies
+* README: Use a blockquote to make text readable
+* add option to force entry names encoding
+* Make naming on README more consistent
+* Apply automatic correction by rubocop
+* Disable Style/MutableConstant because existent code relies on it
+* Add rubocop dependency and correct settings
+* Save temporary files to a temporary directory
+* File.join() is our friend for joining paths
+
 1.2.1
 =====
 
