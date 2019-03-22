@@ -1,39 +1,41 @@
+X.X.X (Next)
+=====
+
+
+
+1.2.3
+=====
+
+* Allow tilde in zip entry names [#391](https://github.com/rubyzip/rubyzip/pull/391) (fixes regression in 1.2.2 from [#376](https://github.com/rubyzip/rubyzip/pull/376))
+* Support frozen string literals in more files [#390](https://github.com/rubyzip/rubyzip/pull/390)
+* Require `pathname` explicitly [#388](https://github.com/rubyzip/rubyzip/pull/388) (fixes regression in 1.2.2 from [#376](https://github.com/rubyzip/rubyzip/pull/376))
+
+Tooling / Documentation:
+
+* CI updates [#392](https://github.com/rubyzip/rubyzip/pull/392)
+   * Bump supported ruby versions and add 2.6.0
+   * JRuby failures are no longer ignored (reverts [#375](https://github.com/rubyzip/rubyzip/pull/375) / part of [#371](https://github.com/rubyzip/rubyzip/pull/371))
+* Add changelog entry that was missing for last release [#387](https://github.com/rubyzip/rubyzip/pull/387)
+* Comment cleanup [#385](https://github.com/rubyzip/rubyzip/pull/385)
+
 1.2.2
 =====
 
-* Expand from root rather than current working directory
-* Disable symlinks and check for path traversal
-* Consolidate path traversal tests
-* Add jwilk's path traversal tests
-* Trigger CI again
-* Move jruby to allow failures matrix till crc uint 32 issues are resolved
-* Fix CVE-2018-1000544 symlink path traversal
-* Fix CVE-2018-1000544 absolute path traversal
-* Fix jruby version
-* When globbing in ZipFSDir, take CWD into account.
-* Pass glob through from ZipFileNameMapper.
-* Turn off all terminal output in all tests.
-* Handle stored files with general purpose bit 3 set
-* Fix regression caused by Rubocop cleanup
-* Added fix for calling 'close' on a StringIO-backed zip file, and specs
-* Bump Ruby versions on Travis CI
-* Travis: Typo
-* Travis: Workaround a rbx-3 autoload issue
-* CI against Ruby 2.2.8, 2.3.5, and 2.4.2
-* Travis: typo
-* Travis: Try using rbx-3
-* Travis: update RubyGems
-* Travis: drop oraclejdk-7
-* Travis: use JRUBY_OPTS="--debug"
-* Travis: use pre-installed Travis rubies
-* README: Use a blockquote to make text readable
-* add option to force entry names encoding
-* Make naming on README more consistent
-* Apply automatic correction by rubocop
-* Disable Style/MutableConstant because existent code relies on it
-* Add rubocop dependency and correct settings
-* Save temporary files to a temporary directory
-* File.join() is our friend for joining paths
+NB: This release drops support for extracting symlinks, because there was no clear way to support this securely. See https://github.com/rubyzip/rubyzip/pull/376#issue-210954555 for details.
+
+* Fix CVE-2018-1000544 [#376](https://github.com/rubyzip/rubyzip/pull/376) / [#371](https://github.com/rubyzip/rubyzip/pull/371)
+* Fix NoMethodError: undefined method `glob' [#363](https://github.com/rubyzip/rubyzip/pull/363)
+* Fix handling of stored files (i.e. files not using compression) with general purpose bit 3 set [#358](https://github.com/rubyzip/rubyzip/pull/358)
+* Fix `close` on StringIO-backed zip file [#353](https://github.com/rubyzip/rubyzip/pull/353)
+* Add `Zip.force_entry_names_encoding` option [#340](https://github.com/rubyzip/rubyzip/pull/340)
+* Update rubocop, apply auto-fixes, and fix regressions caused by said auto-fixes [#332](https://github.com/rubyzip/rubyzip/pull/332), [#355](https://github.com/rubyzip/rubyzip/pull/355)
+* Save temporary files to temporary directory (rather than current directory) [#325](https://github.com/rubyzip/rubyzip/pull/325)
+
+Tooling / Documentation:
+
+* Turn off all terminal output in all tests [#361](https://github.com/rubyzip/rubyzip/pull/361)
+* Several CI updates [#346](https://github.com/rubyzip/rubyzip/pull/346), [#347](https://github.com/rubyzip/rubyzip/pull/347), [#350](https://github.com/rubyzip/rubyzip/pull/350), [#352](https://github.com/rubyzip/rubyzip/pull/352)
+* Several README improvements [#345](https://github.com/rubyzip/rubyzip/pull/345), [#326](https://github.com/rubyzip/rubyzip/pull/326), [#321](https://github.com/rubyzip/rubyzip/pull/321)
 
 1.2.1
 =====
@@ -100,7 +102,7 @@
 * Fix compatibility of ::OutputStream::write_buffer (@orien)
 * Clean up tempfiles from output stream (@iangreenleaf)
 
-1.1.2 
+1.1.2
 =====
 
 * Fix compatibility of ::Zip::File.write_buffer
@@ -113,7 +115,7 @@
 * Fix Zip64 writting support (@mrjamesriley)
 * Fix StringIO support (@simonoff)
 * Posibility to change default compression level
-* Make Zip64 write support optional via configuration 
+* Make Zip64 write support optional via configuration
 
 1.1.0
 =====
