@@ -24,11 +24,10 @@ matrix:
     - rvm: ruby-head
     - rvm: rbx-3
     - rvm: jruby-head
-    - rvm: jruby
 before_install:
   - "if $(ruby -e 'exit(RUBY_VERSION >= \"2.3.0\")'); then gem update --system; fi"
   - "if $(ruby -e 'exit(RUBY_VERSION <  \"2.3.0\")'); then gem update --system 2.7.8; fi"
-  - "if $(ruby -e 'exit(RUBY_VERSION >= \"2.3.0\")'); then gem install bundler; fi" 
+  - "if $(ruby -e 'exit(RUBY_VERSION >= \"2.3.0\")'); then gem install bundler; fi"
   - "if $(ruby -e 'exit(RUBY_VERSION <  \"2.3.0\")'); then gem install bundler --version 1.17.3; fi"
   - gem --version
 before_script:
