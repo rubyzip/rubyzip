@@ -12,7 +12,7 @@ X.X.X (Next)
 
 Tooling / Documentation:
 
-* CI updates [#392](https://github.com/rubyzip/rubyzip/pull/392), [#394]((https://github.com/rubyzip/rubyzip/pull/394)
+* CI updates [#392](https://github.com/rubyzip/rubyzip/pull/392), [#394](https://github.com/rubyzip/rubyzip/pull/394)
    * Bump supported ruby versions and add 2.6
    * JRuby failures are no longer ignored (reverts [#375](https://github.com/rubyzip/rubyzip/pull/375) / part of [#371](https://github.com/rubyzip/rubyzip/pull/371))
 * Add changelog entry that was missing for last release [#387](https://github.com/rubyzip/rubyzip/pull/387)
