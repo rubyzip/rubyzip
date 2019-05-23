@@ -131,4 +131,11 @@ class PathTraversalTest < MiniTest::Test
       refute File.exist?('/tmp/file.txt')
     end
   end
+
+  def test_entry_name_with_tilde
+    in_tmpdir do
+      extract_path_traversal_zip 'tilde.zip'
+      assert File.exist?('~tilde~')
+    end
+  end
 end
