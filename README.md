@@ -1,4 +1,5 @@
 # rubyzip
+
 [![Gem Version](https://badge.fury.io/rb/rubyzip.svg)](http://badge.fury.io/rb/rubyzip)
 [![Build Status](https://secure.travis-ci.org/rubyzip/rubyzip.svg)](http://travis-ci.org/rubyzip/rubyzip)
 [![Code Climate](https://codeclimate.com/github/rubyzip/rubyzip.svg)](https://codeclimate.com/github/rubyzip/rubyzip)
@@ -19,9 +20,10 @@ gem 'zip-zip' # will load compatibility for old rubyzip API.
 
 ## Requirements
 
-* Ruby 1.9.2 or greater
+- Ruby 1.9.2 or greater
 
 ## Installation
+
 Rubyzip is available on RubyGems:
 
 ```
@@ -59,7 +61,8 @@ end
 ```
 
 ### Zipping a directory recursively
-Copy from [here](https://github.com/rubyzip/rubyzip/blob/05916bf89181e1955118fd3ea059f18acac28cc8/samples/example_recursive.rb )
+
+Copy from [here](https://github.com/rubyzip/rubyzip/blob/9d891f7353e66052283562d3e252fe380bb4b199/samples/example_recursive.rb)
 
 ```ruby
 require 'zip'
@@ -83,7 +86,7 @@ class ZipFileGenerator
 
   # Zip the input directory.
   def write
-    entries = Dir.entries(@input_dir) - %w(. ..)
+    entries = Dir.entries(@input_dir) - %w[. ..]
 
     ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |zipfile|
       write_entries entries, '', zipfile
@@ -97,7 +100,6 @@ class ZipFileGenerator
     entries.each do |e|
       zipfile_path = path == '' ? e : File.join(path, e)
       disk_file_path = File.join(@input_dir, zipfile_path)
-      puts "Deflating #{disk_file_path}"
 
       if File.directory? disk_file_path
         recursively_deflate_directory(disk_file_path, zipfile, zipfile_path)
@@ -109,14 +111,12 @@ class ZipFileGenerator
 
   def recursively_deflate_directory(disk_file_path, zipfile, zipfile_path)
     zipfile.mkdir zipfile_path
-    subdir = Dir.entries(disk_file_path) - %w(. ..)
+    subdir = Dir.entries(disk_file_path) - %w[. ..]
     write_entries subdir, zipfile_path, zipfile
   end
 
   def put_into_archive(disk_file_path, zipfile, zipfile_path)
-    zipfile.get_output_stream(zipfile_path) do |f|
-      f.write(File.open(disk_file_path, 'rb').read)
-    end
+    zipfile.add(zipfile_path, disk_file_path)
   end
 end
 ```
@@ -177,7 +177,6 @@ But there is one exception when it is not working - General Purpose Flag Bit 3.
 
 > If bit 3 (0x08) of the general-purpose flags field is set, then the CRC-32 and file sizes are not known when the header is written. The fields in the local header are filled with zero, and the CRC-32 and size are appended in a 12-byte structure (optionally preceded by a 4-byte signature) immediately after the compressed data
 
-
 If `::Zip::InputStream` finds such entry in the zip archive it will raise an exception.
 
 ### Password Protection (Experimental)
@@ -220,7 +219,7 @@ File.open(new_path, "wb") {|f| f.write(buffer.string) }
 
 ## Configuration
 
-By default, rubyzip will not overwrite files if they already exist inside of the extracted path.  To change this behavior, you may specify a configuration option like so:
+By default, rubyzip will not overwrite files if they already exist inside of the extracted path. To change this behavior, you may specify a configuration option like so:
 
 ```ruby
 Zip.on_exists_proc = true
@@ -251,6 +250,7 @@ You can set the default compression level like so:
 ```ruby
 Zip.default_compression = Zlib::DEFAULT_COMPRESSION
 ```
+
 It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
 
 Sometimes file names inside zip contain non-ASCII characters. If you can assume which encoding was used for such names and want to be able to find such entries using `find_entry` then you can force assumed encoding like so:
