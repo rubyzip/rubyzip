@@ -1,320 +1,261 @@
-X.X.X (Next)
-=====
+# X.X.X (Next)
 
+-
 
+Tooling / Documentation
 
-1.2.3
-=====
+- Update `example_recursive.rb` in README [#397](https://github.com/rubyzip/rubyzip/pull/397)
 
-* Allow tilde in zip entry names [#391](https://github.com/rubyzip/rubyzip/pull/391) (fixes regression in 1.2.2 from [#376](https://github.com/rubyzip/rubyzip/pull/376))
-* Support frozen string literals in more files [#390](https://github.com/rubyzip/rubyzip/pull/390)
-* Require `pathname` explicitly [#388](https://github.com/rubyzip/rubyzip/pull/388) (fixes regression in 1.2.2 from [#376](https://github.com/rubyzip/rubyzip/pull/376))
+# 1.2.3
+
+- Allow tilde in zip entry names [#391](https://github.com/rubyzip/rubyzip/pull/391) (fixes regression in 1.2.2 from [#376](https://github.com/rubyzip/rubyzip/pull/376))
+- Support frozen string literals in more files [#390](https://github.com/rubyzip/rubyzip/pull/390)
+- Require `pathname` explicitly [#388](https://github.com/rubyzip/rubyzip/pull/388) (fixes regression in 1.2.2 from [#376](https://github.com/rubyzip/rubyzip/pull/376))
 
 Tooling / Documentation:
 
-* CI updates [#392](https://github.com/rubyzip/rubyzip/pull/392), [#394](https://github.com/rubyzip/rubyzip/pull/394)
-   * Bump supported ruby versions and add 2.6
-   * JRuby failures are no longer ignored (reverts [#375](https://github.com/rubyzip/rubyzip/pull/375) / part of [#371](https://github.com/rubyzip/rubyzip/pull/371))
-* Add changelog entry that was missing for last release [#387](https://github.com/rubyzip/rubyzip/pull/387)
-* Comment cleanup [#385](https://github.com/rubyzip/rubyzip/pull/385)
+- CI updates [#392](https://github.com/rubyzip/rubyzip/pull/392), [#394](https://github.com/rubyzip/rubyzip/pull/394)
+  - Bump supported ruby versions and add 2.6
+  - JRuby failures are no longer ignored (reverts [#375](https://github.com/rubyzip/rubyzip/pull/375) / part of [#371](https://github.com/rubyzip/rubyzip/pull/371))
+- Add changelog entry that was missing for last release [#387](https://github.com/rubyzip/rubyzip/pull/387)
+- Comment cleanup [#385](https://github.com/rubyzip/rubyzip/pull/385)
 
-1.2.2
-=====
+# 1.2.2
 
 NB: This release drops support for extracting symlinks, because there was no clear way to support this securely. See https://github.com/rubyzip/rubyzip/pull/376#issue-210954555 for details.
 
-* Fix CVE-2018-1000544 [#376](https://github.com/rubyzip/rubyzip/pull/376) / [#371](https://github.com/rubyzip/rubyzip/pull/371)
-* Fix NoMethodError: undefined method `glob' [#363](https://github.com/rubyzip/rubyzip/pull/363)
-* Fix handling of stored files (i.e. files not using compression) with general purpose bit 3 set [#358](https://github.com/rubyzip/rubyzip/pull/358)
-* Fix `close` on StringIO-backed zip file [#353](https://github.com/rubyzip/rubyzip/pull/353)
-* Add `Zip.force_entry_names_encoding` option [#340](https://github.com/rubyzip/rubyzip/pull/340)
-* Update rubocop, apply auto-fixes, and fix regressions caused by said auto-fixes [#332](https://github.com/rubyzip/rubyzip/pull/332), [#355](https://github.com/rubyzip/rubyzip/pull/355)
-* Save temporary files to temporary directory (rather than current directory) [#325](https://github.com/rubyzip/rubyzip/pull/325)
+- Fix CVE-2018-1000544 [#376](https://github.com/rubyzip/rubyzip/pull/376) / [#371](https://github.com/rubyzip/rubyzip/pull/371)
+- Fix NoMethodError: undefined method `glob' [#363](https://github.com/rubyzip/rubyzip/pull/363)
+- Fix handling of stored files (i.e. files not using compression) with general purpose bit 3 set [#358](https://github.com/rubyzip/rubyzip/pull/358)
+- Fix `close` on StringIO-backed zip file [#353](https://github.com/rubyzip/rubyzip/pull/353)
+- Add `Zip.force_entry_names_encoding` option [#340](https://github.com/rubyzip/rubyzip/pull/340)
+- Update rubocop, apply auto-fixes, and fix regressions caused by said auto-fixes [#332](https://github.com/rubyzip/rubyzip/pull/332), [#355](https://github.com/rubyzip/rubyzip/pull/355)
+- Save temporary files to temporary directory (rather than current directory) [#325](https://github.com/rubyzip/rubyzip/pull/325)
 
 Tooling / Documentation:
 
-* Turn off all terminal output in all tests [#361](https://github.com/rubyzip/rubyzip/pull/361)
-* Several CI updates [#346](https://github.com/rubyzip/rubyzip/pull/346), [#347](https://github.com/rubyzip/rubyzip/pull/347), [#350](https://github.com/rubyzip/rubyzip/pull/350), [#352](https://github.com/rubyzip/rubyzip/pull/352)
-* Several README improvements [#345](https://github.com/rubyzip/rubyzip/pull/345), [#326](https://github.com/rubyzip/rubyzip/pull/326), [#321](https://github.com/rubyzip/rubyzip/pull/321)
+- Turn off all terminal output in all tests [#361](https://github.com/rubyzip/rubyzip/pull/361)
+- Several CI updates [#346](https://github.com/rubyzip/rubyzip/pull/346), [#347](https://github.com/rubyzip/rubyzip/pull/347), [#350](https://github.com/rubyzip/rubyzip/pull/350), [#352](https://github.com/rubyzip/rubyzip/pull/352)
+- Several README improvements [#345](https://github.com/rubyzip/rubyzip/pull/345), [#326](https://github.com/rubyzip/rubyzip/pull/326), [#321](https://github.com/rubyzip/rubyzip/pull/321)
 
-1.2.1
-=====
+# 1.2.1
 
-* Add accessor to @internal_file_attributes #304
-* Extended globbing #303
-* README updates #283, #289
-* Cleanup after tests #298, #306
-* Fix permissions on new zip files #294, #300
-* Fix examples #297
-* Support cp932 encoding #308
-* Fix Directory traversal vulnerability #315
-* Allow open_buffer to work without a given block #314
+- Add accessor to @internal_file_attributes #304
+- Extended globbing #303
+- README updates #283, #289
+- Cleanup after tests #298, #306
+- Fix permissions on new zip files #294, #300
+- Fix examples #297
+- Support cp932 encoding #308
+- Fix Directory traversal vulnerability #315
+- Allow open_buffer to work without a given block #314
 
-1.2.0
-=====
+# 1.2.0
 
-* Don't enable JRuby objectspace #252
-* Fixes an exception thrown when decoding some weird .zip files #248
-* Use duck typing with IO methods #244
-* Added error for empty (zero bit) zip file #242
-* Accept StringIO in Zip.open_buffer #238
-* Do something more expected with new file permissions #237
-* Case insensitivity option for #find_entry #222
-* Fixes in documentation and examples
+- Don't enable JRuby objectspace #252
+- Fixes an exception thrown when decoding some weird .zip files #248
+- Use duck typing with IO methods #244
+- Added error for empty (zero bit) zip file #242
+- Accept StringIO in Zip.open_buffer #238
+- Do something more expected with new file permissions #237
+- Case insensitivity option for #find_entry #222
+- Fixes in documentation and examples
 
-1.1.7
-=====
+# 1.1.7
 
-* Fix UTF-8 support for comments
-* `Zip.sort_entries` working for zip output
-* Prevent tempfile path from being unlinked by garbage collection
-* NTFS Extra Field (0x000a) support
-* Use String#tr instead of String#gsub
-* Ability to not show warning about incorrect date
-* Be smarter about handling buffer file modes.
-* Support for Traditional Encryption (ZipCrypto)
+- Fix UTF-8 support for comments
+- `Zip.sort_entries` working for zip output
+- Prevent tempfile path from being unlinked by garbage collection
+- NTFS Extra Field (0x000a) support
+- Use String#tr instead of String#gsub
+- Ability to not show warning about incorrect date
+- Be smarter about handling buffer file modes.
+- Support for Traditional Encryption (ZipCrypto)
 
-1.1.6
-=====
+# 1.1.6
 
-* Revert "Return created zip file from Zip::File.open when supplied a block"
+- Revert "Return created zip file from Zip::File.open when supplied a block"
 
-1.1.5
-=====
+# 1.1.5
 
-* Treat empty file as non-exists (@layerssss)
-* Revert regression commit
-* Return created zip file from Zip::File.open when supplied a block (@tpickett66)
-* Zip::Entry::DEFLATED is forced on every file (@mehmetc)
-* Add InputStream#ungetc (@zacstewart)
-* Alias for legacy error names (@orien)
+- Treat empty file as non-exists (@layerssss)
+- Revert regression commit
+- Return created zip file from Zip::File.open when supplied a block (@tpickett66)
+- Zip::Entry::DEFLATED is forced on every file (@mehmetc)
+- Add InputStream#ungetc (@zacstewart)
+- Alias for legacy error names (@orien)
 
-1.1.4
-=====
+# 1.1.4
 
-* Don't send empty string to stream (@mrloop)
-* Zip::Entry::DEFLATED was forced on every file (@mehmetc)
-* Alias for legacy error names (@orien)
+- Don't send empty string to stream (@mrloop)
+- Zip::Entry::DEFLATED was forced on every file (@mehmetc)
+- Alias for legacy error names (@orien)
 
-1.1.3
-=====
+# 1.1.3
 
-* Fix compatibility of ::OutputStream::write_buffer (@orien)
-* Clean up tempfiles from output stream (@iangreenleaf)
+- Fix compatibility of ::OutputStream::write_buffer (@orien)
+- Clean up tempfiles from output stream (@iangreenleaf)
 
-1.1.2
-=====
+# 1.1.2
 
-* Fix compatibility of ::Zip::File.write_buffer
+- Fix compatibility of ::Zip::File.write_buffer
 
-1.1.1
-=====
+# 1.1.1
 
-* Speedup deflater (@loadhigh)
-* Less Arrays and Strings allocations (@srawlins)
-* Fix Zip64 writting support (@mrjamesriley)
-* Fix StringIO support (@simonoff)
-* Posibility to change default compression level
-* Make Zip64 write support optional via configuration
+- Speedup deflater (@loadhigh)
+- Less Arrays and Strings allocations (@srawlins)
+- Fix Zip64 writing support (@mrjamesriley)
+- Fix StringIO support (@simonoff)
+- Possibility to change default compression level
+- Make Zip64 write support optional via configuration
 
-1.1.0
-=====
+# 1.1.0
 
-* StringIO Support
-* Zip64 Support
-* Better jRuby Support
-* Order of files in the archive can be sorted
-* Other small fixes
+- StringIO Support
+- Zip64 Support
+- Better jRuby Support
+- Order of files in the archive can be sorted
+- Other small fixes
 
-1.0.0
-=====
+# 1.0.0
 
-* Removed support for Ruby 1.8
-* Changed the API for gem. Now it can be used without require param in Gemfile.
-* Added read-only support for Zip64 files.
-* Added support for setting Unicode file names.
+- Removed support for Ruby 1.8
+- Changed the API for gem. Now it can be used without require param in Gemfile.
+- Added read-only support for Zip64 files.
+- Added support for setting Unicode file names.
 
-0.9.9
-=====
+# 0.9.9
 
-* Added support for backslashes in zip files (generated by the default Windows zip packer for example) and comment sections with the comment length set to zero even though there is actually a comment.
+- Added support for backslashes in zip files (generated by the default Windows zip packer for example) and comment sections with the comment length set to zero even though there is actually a comment.
 
-0.9.8
-=====
+# 0.9.8
 
-* Fixed: "Unitialized constant NullInputStream" error
+- Fixed: "Unitialized constant NullInputStream" error
 
-0.9.5
-=====
+# 0.9.5
 
-* Removed support for loading ruby in zip files (ziprequire.rb).
+- Removed support for loading ruby in zip files (ziprequire.rb).
 
-0.9.4
-=====
+# 0.9.4
 
-* Changed ZipOutputStream.put_next_entry signature (API CHANGE!). Now allows comment, extra field and compression method to be specified.
+- Changed ZipOutputStream.put_next_entry signature (API CHANGE!). Now allows comment, extra field and compression method to be specified.
 
-0.9.3
-=====
+# 0.9.3
 
-* Fixed: Added ZipEntry::name_encoding which retrieves the character
-encoding of the name and comment of the entry.
-* Added convenience methods ZipEntry::name_in(enc) and ZipEntry::comment_in(enc) for
-getting zip entry names and comments in a specified character
-encoding.
+- Fixed: Added ZipEntry::name_encoding which retrieves the character encoding of the name and comment of the entry.
+- Added convenience methods ZipEntry::name_in(enc) and ZipEntry::comment_in(enc) for getting zip entry names and comments in a specified character encoding.
 
-0.9.2
-=====
+# 0.9.2
 
-* Fixed: Renaming an entry failed if the entry's new name was a different length than its old name. (Diego Barros)
+- Fixed: Renaming an entry failed if the entry's new name was a different length than its old name. (Diego Barros)
 
-0.9.1
-=====
+# 0.9.1
 
-* Added symlink support and support for unix file permissions. Reduced memory usage during decompression.
-* New methods ZipFile::[follow_symlinks, restore_times, restore_permissions, restore_ownership].
-* New methods ZipEntry::unix_perms, ZipInputStream::eof?.
-* Added documentation and test for new ZipFile::extract.
-* Added some of the API suggestions from sf.net #1281314.
-* Applied patch for sf.net bug #1446926.
-* Applied patch for sf.net bug #1459902.
-* Rework ZipEntry and delegate classes.
+- Added symlink support and support for unix file permissions. Reduced memory usage during decompression.
+- New methods ZipFile::[follow_symlinks, restore_times, restore_permissions, restore_ownership].
+- New methods ZipEntry::unix_perms, ZipInputStream::eof?.
+- Added documentation and test for new ZipFile::extract.
+- Added some of the API suggestions from sf.net #1281314.
+- Applied patch for sf.net bug #1446926.
+- Applied patch for sf.net bug #1459902.
+- Rework ZipEntry and delegate classes.
 
-0.5.12
-======
+# 0.5.12
 
-* Fixed problem with writing binary content to a ZipFile in MS Windows.
+- Fixed problem with writing binary content to a ZipFile in MS Windows.
 
-0.5.11
-======
+# 0.5.11
 
-* Fixed name clash file method copy_stream from fileutils.rb. Fixed problem with references to constant CHUNK_SIZE.
-* ZipInputStream/AbstractInputStream read is now buffered like ruby IO's read method, which means that read and gets etc can be mixed. The
-  unbuffered read method has been renamed to sysread.
+- Fixed name clash file method copy_stream from fileutils.rb. Fixed problem with references to constant CHUNK_SIZE.
+- ZipInputStream/AbstractInputStream read is now buffered like ruby IO's read method, which means that read and gets etc can be mixed. The unbuffered read method has been renamed to sysread.
 
-0.5.10
-======
+# 0.5.10
 
-* Fixed method name resolution problem with FileUtils::copy_stream and IOExtras::copy_stream.
+- Fixed method name resolution problem with FileUtils::copy_stream and IOExtras::copy_stream.
 
-0.5.9
-=====
+# 0.5.9
 
-* Fixed serious memory consumption issue
+- Fixed serious memory consumption issue
 
-0.5.8
-=====
+# 0.5.8
 
-* Fixed install script.
+- Fixed install script.
 
-0.5.7
-=====
-* install.rb no longer assumes it is being run from the toplevel source
-dir. Directory structure changed to reflect common ruby library
-project structure. Migrated from RubyUnit to Test::Unit format.  Now
-uses Rake to build source packages and gems and run unit tests.
+# 0.5.7
 
-0.5.6
-=====
-* Fix for FreeBSD 4.9 which returns Errno::EFBIG instead of
-Errno::EINVAL for some invalid seeks. Fixed 'version needed to
-extract'-field incorrect in local headers.
+- install.rb no longer assumes it is being run from the toplevel source dir. Directory structure changed to reflect common ruby library project structure. Migrated from RubyUnit to Test::Unit format. Now uses Rake to build source packages and gems and run unit tests.
 
-0.5.5
-=====
+# 0.5.6
 
-* Fix for a problem with writing zip files that concerns only ruby 1.8.1.
+- Fix for FreeBSD 4.9 which returns Errno::EFBIG instead of Errno::EINVAL for some invalid seeks. Fixed 'version needed to extract'-field incorrect in local headers.
 
-0.5.4
-=====
+# 0.5.5
 
-* Significantly reduced memory footprint when modifying zip files.
+- Fix for a problem with writing zip files that concerns only ruby 1.8.1.
 
-0.5.3
-=====
-* Added optimization to avoid decompressing and recompressing individual
-entries when modifying a zip archive.
+# 0.5.4
 
-0.5.2
-=====
-* Fixed ZipFile corruption bug in ZipFile class. Added basic unix
-extra-field support.
+- Significantly reduced memory footprint when modifying zip files.
 
-0.5.1
-=====
+# 0.5.3
 
-* Fixed ZipFile.get_output_stream bug.
+- Added optimization to avoid decompressing and recompressing individual entries when modifying a zip archive.
 
-0.5.0
-=====
+# 0.5.2
 
-* Ruby 1.8.0 and ruby-zlib 0.6.0 compatibility
-* Changed method names from camelCase to rubys underscore style.
-* Installs to zip/ subdir instead of directly to site_ruby
-* Added ZipFile.directory and ZipFile.file - each method return an
-object that can be used like Dir and File only for the contents of the
-zip file.
-* Added sample application zipfind which works like Find.find, only
-Zip::ZipFind.find traverses into zip archives too.
-* FIX: AbstractInputStream.each_line with non-default separator
+- Fixed ZipFile corruption bug in ZipFile class. Added basic unix extra-field support.
 
+# 0.5.1
 
-0.5.0a
-======
-Source reorganized. Added ziprequire, which can be used to load ruby
-modules from a zip file, in a fashion similar to jar files in
-Java. Added gtk_ruby_zip, another sample application. Implemented
-ZipInputStream.lineno and ZipInputStream.rewind
+- Fixed ZipFile.get_output_stream bug.
+
+# 0.5.0
+
+- Ruby 1.8.0 and ruby-zlib 0.6.0 compatibility
+- Changed method names from camelCase to rubys underscore style.
+- Installs to zip/ subdir instead of directly to site_ruby
+- Added ZipFile.directory and ZipFile.file - each method return an
+  object that can be used like Dir and File only for the contents of the
+  zip file.
+- Added sample application zipfind which works like Find.find, only
+  Zip::ZipFind.find traverses into zip archives too.
+- FIX: AbstractInputStream.each_line with non-default separator
+
+# 0.5.0a
+
+Source reorganized. Added ziprequire, which can be used to load ruby modules from a zip file, in a fashion similar to jar files in Java. Added gtk_ruby_zip, another sample application. Implemented ZipInputStream.lineno and ZipInputStream.rewind
 
 Bug fixes:
 
-* Read and write date and time information correctly for zip entries.
-* Fixed read() using separate buffer, causing mix of gets/readline/read to
-cause problems.
+- Read and write date and time information correctly for zip entries.
+- Fixed read() using separate buffer, causing mix of gets/readline/read to cause problems.
 
-0.4.2
-=====
+# 0.4.2
 
-* Performance optimizations. Test suite runs in half the time.
+- Performance optimizations. Test suite runs in half the time.
 
-0.4.1
-=====
+# 0.4.1
 
-* Windows compatibility fixes.
+- Windows compatibility fixes.
 
-0.4.0
-=====
+# 0.4.0
 
-* Zip::ZipFile is now mutable and provides a more convenient way of
-modifying zip archives than Zip::ZipOutputStream. Operations for
-adding, extracting, renaming, replacing and removing entries to zip
-archives are now available.
+- Zip::ZipFile is now mutable and provides a more convenient way of modifying zip archives than Zip::ZipOutputStream. Operations for adding, extracting, renaming, replacing and removing entries to zip archives are now available.
+- Runs without warnings with -w switch.
+- Install script install.rb added.
 
-* Runs without warnings with -w switch.
+# 0.3.1
 
-* Install script install.rb added.
+- Rudimentary support for writing zip archives.
 
-0.3.1
-=====
+# 0.2.2
 
-* Rudimentary support for writing zip archives.
+- Fixed and extended unit test suite. Updated to work with ruby/zlib 0.5. It doesn't work with earlier versions of ruby/zlib.
 
-0.2.2
-=====
+# 0.2.0
 
-* Fixed and extended unit test suite. Updated to work with ruby/zlib
-0.5. It doesn't work with earlier versions of ruby/zlib.
+- Class ZipFile added. Where ZipInputStream is used to read the individual entries in a zip file, ZipFile reads the central directory in the zip archive, so you can get to any entry in the zip archive without having to skipping through all the preceeding entries.
 
-0.2.0
-=====
+# 0.1.0
 
-* Class ZipFile added. Where ZipInputStream is used to read the
-individual entries in a zip file, ZipFile reads the central directory
-in the zip archive, so you can get to any entry in the zip archive
-without having to skipping through all the preceeding entries.
-
-
-0.1.0
-=====
-
-* First working version of ZipInputStream.
+- First working version of ZipInputStream.
