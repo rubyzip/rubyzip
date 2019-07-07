@@ -18,12 +18,10 @@ matrix:
     jdk: openjdk7
   - rvm: jruby-head
     jdk: oraclejdk8
-  - rvm: rbx-3
-    env:
-      - RUBYOPT="-rbundler/deprecate"
+  - rvm: rbx-4
   allow_failures:
     - rvm: ruby-head
-    - rvm: rbx-3
+    - rvm: rbx-4
     - rvm: jruby-head
 before_install:
   - gem --version
