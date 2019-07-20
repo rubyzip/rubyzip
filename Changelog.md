@@ -5,7 +5,7 @@
 Tooling / Documentation
 
 - Update `example_recursive.rb` in README [#397](https://github.com/rubyzip/rubyzip/pull/397)
-- Fix CI on `trusty` for now, and automatically pick the latest ruby patch version [#399](https://github.com/rubyzip/rubyzip/pull/399)
+- Hold CI at `trusty` for now, automatically pick the latest ruby patch version, use rbx-4 and hold jruby at 9.1 [#399](https://github.com/rubyzip/rubyzip/pull/399)
 
 # 1.2.3
 
