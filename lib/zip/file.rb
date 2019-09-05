@@ -64,24 +64,38 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(file_name, create = false, buffer = false, options = {})
+    def initialize(path_or_io, create = false, buffer = false, options = {})
       super()
-      @name    = file_name
+      @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
-      if !buffer && ::File.size?(file_name)
+
+      if ::File.size?(@name.to_s)
+        # There is a file, which exists, that is associated with this zip.
         @create = false
-        @file_permissions = ::File.stat(file_name).mode
-        ::File.open(name, 'rb') do |f|
-          read_from_stream(f)
+        @file_permissions = ::File.stat(@name).mode
+
+        if buffer
+          read_from_stream(path_or_io)
+        else
+          ::File.open(@name, 'rb') do |f|
+            read_from_stream(f)
+          end
         end
+      elsif buffer && path_or_io.size > 0
+        # This zip is probably a non-empty StringIO.
+        read_from_stream(path_or_io)
       elsif @create
+        # This zip is completely new/empty and is to be created.
         @entry_set = EntrySet.new
-      elsif ::File.zero?(file_name)
-        raise Error, "File #{file_name} has zero size. Did you mean to pass the create flag?"
+      elsif ::File.zero?(@name)
+        # A file exists, but it is empty.
+        raise Error, "File #{@name} has zero size. Did you mean to pass the create flag?"
       else
-        raise Error, "File #{file_name} not found"
+        # Everything is wrong.
+        raise Error, "File #{@name} not found"
       end
+
       @stored_entries      = @entry_set.dup
       @stored_comment      = @comment
       @restore_ownership   = options[:restore_ownership]    || false
@@ -119,17 +133,16 @@ module Zip
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.is_a?(String)
           raise "Zip::File.open_buffer expects a String or IO-like argument (responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
         end
-        if io.is_a?(::String)
-          require 'stringio'
-          io = ::StringIO.new(io)
-        elsif io.respond_to?(:binmode)
-          # https://github.com/rubyzip/rubyzip/issues/119
-          io.binmode
-        end
+
+        io = ::StringIO.new(io) if io.is_a?(::String)
+
+        # https://github.com/rubyzip/rubyzip/issues/119
+        io.binmode if io.respond_to?(:binmode)
+
         zf = ::Zip::File.new(io, true, true, options)
-        zf.read_from_stream(io)
         return zf unless block_given?
         yield zf
+
         begin
           zf.write_buffer(io)
         rescue IOError => e

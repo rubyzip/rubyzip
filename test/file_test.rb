@@ -103,6 +103,13 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
+  def test_open_buffer_with_string
+    string = File.read('test/data/rubycode.zip')
+    ::Zip::File.open_buffer string do |zf|
+      assert zf.entries.map { |e| e.name }.include?('zippedruby1.rb')
+    end
+  end
+
   def test_open_buffer_with_stringio
     string_io = StringIO.new File.read('test/data/rubycode.zip')
     ::Zip::File.open_buffer string_io do |zf|
@@ -113,13 +120,14 @@ class ZipFileTest < MiniTest::Test
   def test_close_buffer_with_stringio
     string_io = StringIO.new File.read('test/data/rubycode.zip')
     zf = ::Zip::File.open_buffer string_io
-    assert(zf.close || true) # Poor man's refute_raises
+    assert_nil zf.close
   end
 
   def test_close_buffer_with_io
     f = File.open('test/data/rubycode.zip')
     zf = ::Zip::File.open_buffer f
-    assert zf.close
+    refute zf.commit_required?
+    assert_nil zf.close
     f.close
   end
 
