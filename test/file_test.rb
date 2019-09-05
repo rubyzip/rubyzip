@@ -131,6 +131,15 @@ class ZipFileTest < MiniTest::Test
     f.close
   end
 
+  def test_open_buffer_with_io_and_block
+    File.open('test/data/rubycode.zip') do |io|
+      io.set_encoding(Encoding::BINARY) # not strictly required but can be set
+      Zip::File.open_buffer(io) do |zip_io|
+        # left empty on purpose
+      end
+    end
+  end
+
   def test_open_buffer_without_block
     string_io = StringIO.new File.read('test/data/rubycode.zip')
     zf = ::Zip::File.open_buffer string_io
