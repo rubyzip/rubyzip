@@ -123,12 +123,40 @@ class ZipFileTest < MiniTest::Test
     assert_nil zf.close
   end
 
-  def test_close_buffer_with_io
-    f = File.open('test/data/rubycode.zip')
-    zf = ::Zip::File.open_buffer f
-    refute zf.commit_required?
-    assert_nil zf.close
-    f.close
+  def test_open_buffer_no_op_does_not_change_file
+    Dir.mktmpdir do |tmp|
+      test_zip = File.join(tmp, 'test.zip')
+      FileUtils.cp 'test/data/rubycode.zip', test_zip
+
+      # Note: this may change the file if it is opened with r+b instead of rb.
+      # The 'extra fields' in this particular zip file get reordered.
+      File.open(test_zip, 'rb') do |file|
+        Zip::File.open_buffer(file) do |zf|
+          nil # do nothing
+        end
+      end
+
+      assert_equal \
+        File.binread('test/data/rubycode.zip'),
+        File.binread(test_zip)
+    end
+  end
+
+  def test_open_buffer_close_does_not_change_file
+    Dir.mktmpdir do |tmp|
+      test_zip = File.join(tmp, 'test.zip')
+      FileUtils.cp 'test/data/rubycode.zip', test_zip
+
+      File.open(test_zip, 'rb') do |file|
+        zf = Zip::File.open_buffer(file)
+        refute zf.commit_required?
+        assert_nil zf.close
+      end
+
+      assert_equal \
+        File.binread('test/data/rubycode.zip'),
+        File.binread(test_zip)
+    end
   end
 
   def test_open_buffer_with_io_and_block
