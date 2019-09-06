@@ -2,6 +2,10 @@
 
 -
 
+# 1.2.4 (2019-09-06)
+
+- Do not rewrite zip files opened with `open_buffer` that have not changed [#360](https://github.com/rubyzip/rubyzip/pull/360)
+
 Tooling / Documentation
 
 - Update `example_recursive.rb` in README [#397](https://github.com/rubyzip/rubyzip/pull/397)
