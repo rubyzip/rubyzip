@@ -16,6 +16,13 @@ Gem::Specification.new do |s|
   s.test_files            = Dir.glob('test/**/*')
   s.require_paths         = ['lib']
   s.license               = 'BSD 2-Clause'
+  s.metadata              = {
+    'bug_tracker_uri'   => 'https://github.com/rubyzip/rubyzip/issues',
+    'changelog_uri'     => "https://github.com/rubyzip/rubyzip/blob/v#{s.version}/Changelog.md",
+    'documentation_uri' => "https://www.rubydoc.info/gems/rubyzip/#{s.version}",
+    'source_code_uri'   => "https://github.com/rubyzip/rubyzip/tree/v#{s.version}",
+    'wiki_uri'          => 'https://github.com/rubyzip/rubyzip/wiki'
+  }
   s.required_ruby_version = '>= 1.9.2'
   s.add_development_dependency 'rake', '~> 10.3'
   s.add_development_dependency 'pry', '~> 0.10'
