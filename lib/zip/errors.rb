@@ -4,6 +4,7 @@ module Zip
   class DestinationFileExistsError < Error; end
   class CompressionMethodError < Error; end
   class EntryNameError < Error; end
+  class EntrySizeError < Error; end
   class InternalError < Error; end
   class GPFBit3Error < Error; end
 

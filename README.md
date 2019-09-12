@@ -152,12 +152,15 @@ When modifying a zip archive the file permissions of the archive are preserved.
 ### Reading a Zip file
 
 ```ruby
+MAX_SIZE = 1024**2 # 1MiB (but of course you can increase this)
 Zip::File.open('foo.zip') do |zip_file|
   # Handle entries one by one
   zip_file.each do |entry|
-    # Extract to file/directory/symlink
     puts "Extracting #{entry.name}"
-    entry.extract(dest_file)
+    raise 'File too large when extracted' if entry.size > MAX_SIZE
+
+    # Extract to file or directory based on name in the archive
+    entry.extract
 
     # Read into memory
     content = entry.get_input_stream.read
@@ -165,6 +168,7 @@ Zip::File.open('foo.zip') do |zip_file|
 
   # Find specific entry
   entry = zip_file.glob('*.csv').first
+  raise 'File too large when extracted' if entry.size > MAX_SIZE
   puts entry.get_input_stream.read
 end
 ```
@@ -219,6 +223,8 @@ File.open(new_path, "wb") {|f| f.write(buffer.string) }
 
 ## Configuration
 
+### Existing Files
+
 By default, rubyzip will not overwrite files if they already exist inside of the extracted path. To change this behavior, you may specify a configuration option like so:
 
 ```ruby
@@ -233,17 +239,56 @@ Additionally, if you want to configure rubyzip to overwrite existing files while
 Zip.continue_on_exists_proc = true
 ```
 
+### Non-ASCII Names
+
 If you want to store non-english names and want to open them on Windows(pre 7) you need to set this option:
 
 ```ruby
 Zip.unicode_names = true
 ```
 
+Sometimes file names inside zip contain non-ASCII characters. If you can assume which encoding was used for such names and want to be able to find such entries using `find_entry` then you can force assumed encoding like so:
+
+```ruby
+Zip.force_entry_names_encoding = 'UTF-8'
+```
+
+Allowed encoding names are the same as accepted by `String#force_encoding`
+
+### Date Validation
+
 Some zip files might have an invalid date format, which will raise a warning. You can hide this warning with the following setting:
 
 ```ruby
 Zip.warn_invalid_date = false
 ```
+
+### Size Validation
+
+By default, `rubyzip`'s `extract` method checks that an entry's reported uncompressed size is not (significantly) smaller than its actual size. This is to help you protect your application against [zip bombs](https://en.wikipedia.org/wiki/Zip_bomb). Before `extract`ing an entry, you should check that its size is in the range you expect. For example, if your application supports processing up to 100 files at once, each up to 10MiB, your zip extraction code might look like:
+
+```ruby
+MAX_FILE_SIZE = 10 * 1024**2 # 10MiB
+MAX_FILES = 100
+Zip::File.open('foo.zip') do |zip_file|
+  num_files = 0
+  zip_file.each do |entry|
+    num_files += 1 if entry.file?
+    raise 'Too many extracted files' if num_files > MAX_FILES
+    raise 'File too large when extracted' if entry.size > MAX_FILE_SIZE
+    entry.extract
+  end
+end
+```
+
+If you need to extract zip files that report incorrect uncompressed sizes and you really trust them not too be too large, you can disable this setting with
+```ruby
+Zip.validate_entry_sizes = false
+```
+
+Note that if you use the lower level `Zip::InputStream` interface, `rubyzip` does *not* check the entry `size`s. In this case, the caller is responsible for making sure it does not read more data than expected from the input stream.
+
+### Default Compression
 
 You can set the default compression level like so:
 
@@ -253,13 +298,17 @@ Zip.default_compression = Zlib::DEFAULT_COMPRESSION
 
 It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
 
-Sometimes file names inside zip contain non-ASCII characters. If you can assume which encoding was used for such names and want to be able to find such entries using `find_entry` then you can force assumed encoding like so:
+### Zip64 Support
+
+By default, Zip64 support is disabled for writing. To enable it do this:
 
 ```ruby
-Zip.force_entry_names_encoding = 'UTF-8'
+Zip.write_zip64_support = true
 ```
 
-Allowed encoding names are the same as accepted by `String#force_encoding`
+_NOTE_: If you will enable Zip64 writing then you will need zip extractor with Zip64 support to extract archive.
+
+### Block Form
 
 You can set multiple settings at the same time by using a block:
 
@@ -271,14 +320,6 @@ You can set multiple settings at the same time by using a block:
     c.default_compression = Zlib::BEST_COMPRESSION
   end
 ```
-
-By default, Zip64 support is disabled for writing. To enable it do this:
-
-```ruby
-Zip.write_zip64_support = true
-```
-
-_NOTE_: If you will enable Zip64 writing then you will need zip extractor with Zip64 support to extract archive.
 
 ## Developing
 
