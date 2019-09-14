@@ -22,11 +22,11 @@ class ZipCaseSensitivityTest < MiniTest::Test
 
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(SRC_FILES.size, zfRead.entries.length)
-    SRC_FILES.each_with_index { |a, i|
+    SRC_FILES.each_with_index do |a, i|
       assert_equal(a.last, zfRead.entries[i].name)
       AssertEntry.assert_contents(a.first,
                                   zfRead.get_input_stream(a.last) { |zis| zis.read })
-    }
+    end
   end
 
   # Ensure that names are treated case insensitively when adding files and +case_insensitive_match = false+
