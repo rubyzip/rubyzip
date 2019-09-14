@@ -64,7 +64,7 @@ class PathTraversalTest < MiniTest::Test
     entries = {
       'tmp/' => '',
       'tmp/../../moo' => /WARNING: skipped \'tmp\/\.\.\/\.\.\/moo\'/
-     }
+    }
     in_tmpdir do
       extract_paths('relative1.zip', entries)
       assert Dir.exist?('tmp')
