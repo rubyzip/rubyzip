@@ -250,7 +250,7 @@ module Zip
       end
 
       def new(fileName, openMode = 'r')
-        open(fileName, openMode)
+        self.open(fileName, openMode)
       end
 
       def size(fileName)
@@ -388,7 +388,7 @@ module Zip
       alias lstat stat
 
       def readlines(fileName)
-        open(fileName) { |is| is.readlines }
+        self.open(fileName) { |is| is.readlines }
       end
 
       def read(fileName)
@@ -400,7 +400,7 @@ module Zip
       end
 
       def foreach(fileName, aSep = $/, &aProc)
-        open(fileName) { |is| is.each_line(aSep, &aProc) }
+        self.open(fileName) { |is| is.each_line(aSep, &aProc) }
       end
 
       def delete(*args)

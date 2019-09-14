@@ -167,7 +167,7 @@ module Zip
       # local entry headers (which contain the same information as the
       # central directory).
       def foreach(aZipFileName, &block)
-        open(aZipFileName) do |zipFile|
+        ::Zip::File.open(aZipFileName) do |zipFile|
           zipFile.each(&block)
         end
       end
@@ -234,7 +234,7 @@ module Zip
         return if zip_file_size <= segment_size
         segment_count = get_segment_count_for_split(zip_file_size, segment_size)
         # Checking for correct zip structure
-        open(zip_file_name) {}
+        ::Zip::File.open(zip_file_name) {}
         partial_zip_file_name = get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
         szip_file_index       = 0
         ::File.open(zip_file_name, 'rb') do |zip_file|

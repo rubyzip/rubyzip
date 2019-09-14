@@ -177,15 +177,6 @@ Naming/RescuedExceptionsVariableName:
 Naming/VariableName:
   Enabled: false
 
-# Offense count: 13
-Security/Open:
-  Exclude:
-    - 'lib/zip/file.rb'
-    - 'lib/zip/filesystem.rb'
-    - 'lib/zip/input_stream.rb'
-    - 'test/encryption_test.rb'
-    - 'test/stored_support_test.rb'
-
 # Offense count: 7
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: inline, group

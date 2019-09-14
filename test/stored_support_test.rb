@@ -11,11 +11,11 @@ class StoredSupportTest < MiniTest::Test
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
       assert_equal 1327, entry.size
-      assert_equal open(INPUT_FILE1, 'r').read, zis.read
+      assert_equal ::File.open(INPUT_FILE1, 'r').read, zis.read
       entry = zis.get_next_entry
       assert_equal 'file2.txt', entry.name
       assert_equal 41234, entry.size
-      assert_equal open(INPUT_FILE2, 'r').read, zis.read
+      assert_equal ::File.open(INPUT_FILE2, 'r').read, zis.read
     end
   end
 
@@ -24,11 +24,11 @@ class StoredSupportTest < MiniTest::Test
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
       assert_equal 1327, entry.size
-      assert_equal open(INPUT_FILE1, 'r').read, zis.read
+      assert_equal ::File.open(INPUT_FILE1, 'r').read, zis.read
       entry = zis.get_next_entry
       assert_equal 'file2.txt', entry.name
       assert_equal 41234, entry.size
-      assert_equal open(INPUT_FILE2, 'r').read, zis.read
+      assert_equal ::File.open(INPUT_FILE2, 'r').read, zis.read
     end
   end
 end
