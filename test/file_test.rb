@@ -250,7 +250,10 @@ class ZipFileTest < MiniTest::Test
     replacedEntry = nil
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       replacedEntry = zf.entries.first.name
-      zf.add(replacedEntry, 'test/data/file2.txt') { gotCalled = true; true }
+      zf.add(replacedEntry, 'test/data/file2.txt') do
+        gotCalled = true
+        true
+      end
     end
     assert(gotCalled)
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
@@ -361,7 +364,10 @@ class ZipFileTest < MiniTest::Test
     renamedEntryName = nil
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       renamedEntryName = zf.entries[0].name
-      zf.rename(zf.entries[0], zf.entries[1].name) { gotCalled = true; true }
+      zf.rename(zf.entries[0], zf.entries[1].name) do
+        gotCalled = true
+        true
+      end
     end
 
     assert(gotCalled)
