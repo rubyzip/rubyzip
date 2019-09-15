@@ -1,6 +1,10 @@
 # X.X.X (Next)
 
--
+- Add `add_stored` method to simplify adding entries without compression [#366](https://github.com/rubyzip/rubyzip/pull/366)
+
+Tooling / Documentation
+
+- Add more gem metadata links [#402](https://github.com/rubyzip/rubyzip/pull/402)
 
 # 1.2.4 (2019-09-06)
 
