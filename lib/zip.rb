@@ -55,7 +55,7 @@ module Zip
     @write_zip64_support = false
     @warn_invalid_date = true
     @case_insensitive_match = false
-    @validate_entry_sizes = true
+    @validate_entry_sizes = false
   end
 
   def setup

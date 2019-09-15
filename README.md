@@ -265,7 +265,13 @@ Zip.warn_invalid_date = false
 
 ### Size Validation
 
-By default, `rubyzip`'s `extract` method checks that an entry's reported uncompressed size is not (significantly) smaller than its actual size. This is to help you protect your application against [zip bombs](https://en.wikipedia.org/wiki/Zip_bomb). Before `extract`ing an entry, you should check that its size is in the range you expect. For example, if your application supports processing up to 100 files at once, each up to 10MiB, your zip extraction code might look like:
+**This setting defaults to `false` in rubyzip 1.3 for backward compatibility, but it will default to `true` in rubyzip 2.0.**
+
+If you set
+```
+Zip.validate_entry_sizes = true
+```
+then `rubyzip`'s `extract` method checks that an entry's reported uncompressed size is not (significantly) smaller than its actual size. This is to help you protect your application against [zip bombs](https://en.wikipedia.org/wiki/Zip_bomb). Before `extract`ing an entry, you should check that its size is in the range you expect. For example, if your application supports processing up to 100 files at once, each up to 10MiB, your zip extraction code might look like:
 
 ```ruby
 MAX_FILE_SIZE = 10 * 1024**2 # 10MiB

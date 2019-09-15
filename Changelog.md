@@ -1,5 +1,16 @@
 # X.X.X (Next)
 
+-
+
+# 1.3.0 (Next)
+
+Security
+
+- Add `validate_entry_sizes` option so that callers can trust an entry's reported size when using `extract` [#403](https://github.com/rubyzip/rubyzip/pull/403)
+   - This option defaults to `false` for backward compatibility in this release, but you are strongly encouraged to set it to `true`. It will default to `true` in rubyzip 2.0.
+
+New Feature
+
 - Add `add_stored` method to simplify adding entries without compression [#366](https://github.com/rubyzip/rubyzip/pull/366)
 
 Tooling / Documentation
