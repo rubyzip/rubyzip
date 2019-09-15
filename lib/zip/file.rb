@@ -287,6 +287,13 @@ module Zip
       @entry_set << new_entry
     end
 
+    # Convenience method for adding the contents of a file to the archive
+    # in Stored format (uncompressed)
+    def add_stored(entry, src_path, &continue_on_exists_proc)
+      entry = ::Zip::Entry.new(@name, entry.to_s, nil, nil, nil, nil, ::Zip::Entry::STORED)
+      add(entry, src_path, &continue_on_exists_proc)
+    end
+
     # Removes the specified entry.
     def remove(entry)
       @entry_set.delete(get_entry(entry))

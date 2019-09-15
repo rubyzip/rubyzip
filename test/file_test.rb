@@ -204,6 +204,25 @@ class ZipFileTest < MiniTest::Test
                                 zfRead.get_input_stream(entryName) { |zis| zis.read })
   end
 
+  def test_add_stored
+    srcFile = 'test/data/file2.txt'
+    entryName = 'newEntryName.rb'
+    assert(::File.exist?(srcFile))
+    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf.add_stored(entryName, srcFile)
+    zf.close
+
+    zfRead = ::Zip::File.new(EMPTY_FILENAME)
+    entry = zfRead.entries.first
+    assert_equal('', zfRead.comment)
+    assert_equal(1, zfRead.entries.length)
+    assert_equal(entryName, entry.name)
+    assert_equal(entry.size, entry.compressed_size)
+    assert_equal(::Zip::Entry::STORED, entry.compression_method)
+    AssertEntry.assert_contents(srcFile,
+                                zfRead.get_input_stream(entryName) { |zis| zis.read })
+  end
+
   def test_recover_permissions_after_add_files_to_archive
     srcZip = TEST_ZIP.zip_name
     ::File.chmod(0o664, srcZip)
