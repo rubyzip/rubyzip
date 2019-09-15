@@ -63,7 +63,7 @@ class ZipCaseSensitivityTest < MiniTest::Test
   private
 
   def assert_contains(zf, entryName, filename = entryName)
-    assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
+    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
     assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
   end
 end

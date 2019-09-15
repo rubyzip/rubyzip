@@ -252,15 +252,6 @@ Style/Next:
   Exclude:
     - 'lib/zip/entry.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: IncludeSemanticChanges.
-Style/NonNilCheck:
-  Exclude:
-    - 'test/case_sensitivity_test.rb'
-    - 'test/file_test.rb'
-    - 'test/settings_test.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedOctalStyle.

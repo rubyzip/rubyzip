@@ -432,8 +432,8 @@ class ZipFileTest < MiniTest::Test
     zf.commit
 
     zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
-    assert(zfRead.entries.detect { |e| e.name == newName } != nil)
-    assert(zfRead.entries.detect { |e| e.name == oldName }.nil?)
+    refute_nil(zfRead.entries.detect { |e| e.name == newName })
+    assert_nil(zfRead.entries.detect { |e| e.name == oldName })
     zfRead.close
 
     zf.close
@@ -451,8 +451,8 @@ class ZipFileTest < MiniTest::Test
     zf.commit
     zf.close
     zf2 = ::Zip::File.open(filename)
-    assert(zf2.entries.detect { |e| e.name == 'test1.txt' } != nil)
-    assert(zf2.entries.detect { |e| e.name == 'test2.txt' } != nil)
+    refute_nil(zf2.entries.detect { |e| e.name == 'test1.txt' })
+    refute_nil(zf2.entries.detect { |e| e.name == 'test2.txt' })
     res = system("unzip -tqq #{filename}")
     assert_equal(res, true)
   end
@@ -471,8 +471,8 @@ class ZipFileTest < MiniTest::Test
     buffer = zf.write_buffer(io)
     File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
     zfRead = ::Zip::File.new(TEST_ZIP.zip_name)
-    assert(zfRead.entries.detect { |e| e.name == newName } != nil)
-    assert(zfRead.entries.detect { |e| e.name == oldName }.nil?)
+    refute_nil(zfRead.entries.detect { |e| e.name == newName })
+    assert_nil(zfRead.entries.detect { |e| e.name == oldName })
     zfRead.close
 
     zf.close
@@ -678,11 +678,11 @@ class ZipFileTest < MiniTest::Test
   private
 
   def assert_contains(zf, entryName, filename = entryName)
-    assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
+    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
     assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
   end
 
   def assert_not_contains(zf, entryName)
-    assert(zf.entries.detect { |e| e.name == entryName }.nil?, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
+    assert_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
   end
 end
