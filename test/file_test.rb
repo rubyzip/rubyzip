@@ -217,6 +217,7 @@ class ZipFileTest < MiniTest::Test
     assert_equal('', zfRead.comment)
     assert_equal(1, zfRead.entries.length)
     assert_equal(entryName, entry.name)
+    assert_equal(File.size(srcFile), entry.size)
     assert_equal(entry.size, entry.compressed_size)
     assert_equal(::Zip::Entry::STORED, entry.compression_method)
     AssertEntry.assert_contents(srcFile,
