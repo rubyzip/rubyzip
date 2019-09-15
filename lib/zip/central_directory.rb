@@ -194,9 +194,9 @@ module Zip
     def self.read_from_stream(io) #:nodoc:
       cdir = new
       cdir.read_from_stream(io)
-      return cdir
+      cdir
     rescue Error
-      return nil
+      nil
     end
 
     def ==(other) #:nodoc:
