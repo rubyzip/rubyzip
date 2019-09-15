@@ -312,14 +312,6 @@ Style/RegexpLiteral:
     - 'test/path_traversal_test.rb'
     - 'test/settings_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, explicit
-Style/RescueStandardError:
-  Exclude:
-    - 'test/gentestfiles.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.

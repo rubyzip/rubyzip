@@ -107,7 +107,7 @@ class TestZipFile
     raise "failed to create test zip '#{TEST_ZIP3.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP3.zip_name} #{TEST_ZIP3.entry_names.join(' ')}")
 
     raise "failed to create test zip '#{TEST_ZIP4.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP4.zip_name} #{TEST_ZIP4.entry_names.join(' ')}")
-  rescue
+  rescue StandardError
     # If there are any Windows developers wanting to use a command line zip.exe
     # to help create the following files, there's a free one available from
     # http://stahlworks.com/dev/index.php?tool=zipunzip
