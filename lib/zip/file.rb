@@ -59,12 +59,15 @@ module Zip
 
     attr_reader :name
 
-    # default -> false
+    # default -> false.
     attr_accessor :restore_ownership
-    # default -> false
+
+    # default -> false, but will be set to true in a future version.
     attr_accessor :restore_permissions
-    # default -> true
+
+    # default -> false, but will be set to true in a future version.
     attr_accessor :restore_times
+
     # Returns the zip files comment, if it has one
     attr_accessor :comment
 
