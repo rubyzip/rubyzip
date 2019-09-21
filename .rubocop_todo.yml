@@ -91,13 +91,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/MethodParameterName:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredName.
-Naming/RescuedExceptionsVariableName:
-  Exclude:
-    - 'samples/zipfind.rb'
-
 # Offense count: 721
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: snake_case, camelCase

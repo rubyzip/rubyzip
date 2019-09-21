@@ -18,8 +18,8 @@ module Zip
           Zip::File.foreach(fileName) do |zipEntry|
             yield(fileName + File::SEPARATOR + zipEntry.to_s)
           end
-        rescue Errno::EACCES => ex
-          puts ex
+        rescue Errno::EACCES => e
+          puts e
         end
       end
     end
