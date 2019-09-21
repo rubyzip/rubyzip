@@ -189,12 +189,6 @@ Style/GuardClause:
     - 'samples/zipfind.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 1
-# Configuration parameters: AllowIfModifier.
-Style/IfInsideElse:
-  Exclude:
-    - 'lib/zip/entry.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:

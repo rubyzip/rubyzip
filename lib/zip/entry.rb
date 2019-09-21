@@ -272,12 +272,12 @@ module Zip
 
       if extra && extra.bytesize != @extra_length
         raise ::Zip::Error, 'Truncated local zip entry header'
+      end
+
+      if @extra.is_a?(::Zip::ExtraField)
+        @extra.merge(extra) if extra
       else
-        if @extra.is_a?(::Zip::ExtraField)
-          @extra.merge(extra) if extra
-        else
-          @extra = ::Zip::ExtraField.new(extra)
-        end
+        @extra = ::Zip::ExtraField.new(extra)
       end
 
       parse_zip64_extra(true)
