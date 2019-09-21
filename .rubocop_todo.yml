@@ -185,11 +185,6 @@ Style/IfUnlessModifier:
     - 'lib/zip/streamable_stream.rb'
 
 # Offense count: 1
-Style/MixinUsage:
-  Exclude:
-    - 'samples/write_simple.rb'
-
-# Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, Autocorrect.
 # SupportedStyles: module_function, extend_self
