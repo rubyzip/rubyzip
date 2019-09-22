@@ -150,9 +150,9 @@ module Zip
 
     def get_compressor(entry, level)
       case entry.compression_method
-      when Entry::DEFLATED then
+      when Entry::DEFLATED
         ::Zip::Deflater.new(@output_stream, level, @encrypter)
-      when Entry::STORED then
+      when Entry::STORED
         ::Zip::PassThruCompressor.new(@output_stream)
       else
         raise ::Zip::CompressionMethodError,

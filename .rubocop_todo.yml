@@ -176,12 +176,6 @@ Style/ModuleFunction:
   Exclude:
     - 'lib/zip.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/MultilineWhenThen:
-  Exclude:
-    - 'lib/zip/output_stream.rb'
-
 # Offense count: 56
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
