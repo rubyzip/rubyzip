@@ -40,7 +40,7 @@ module Zip
       i = 0
       while i < binstr.bytesize
         id  = binstr[i, 2]
-        len = binstr[i + 2, 2].to_s.unpack('v').first
+        len = binstr[i + 2, 2].to_s.unpack1('v')
         if id && ID_MAP.member?(id)
           extra_field_type_exist(binstr, id, len, i)
         elsif id

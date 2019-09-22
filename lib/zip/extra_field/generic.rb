@@ -19,7 +19,7 @@ module Zip
         return false
       end
 
-      [binstr[2, 2].unpack('v')[0], binstr[4..-1]]
+      [binstr[2, 2].unpack1('v'), binstr[4..-1]]
     end
 
     def ==(other)

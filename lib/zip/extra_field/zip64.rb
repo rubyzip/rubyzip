@@ -46,7 +46,7 @@ module Zip
     end
 
     def extract(size, format)
-      @content.slice!(0, size).unpack(format)[0]
+      @content.slice!(0, size).unpack1(format)
     end
     private :extract
 

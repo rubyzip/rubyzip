@@ -335,15 +335,6 @@ Style/TrailingCommaInHashLiteral:
   Exclude:
     - 'lib/zip/constants.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/UnpackFirst:
-  Exclude:
-    - 'lib/zip/entry.rb'
-    - 'lib/zip/extra_field.rb'
-    - 'lib/zip/extra_field/generic.rb'
-    - 'lib/zip/extra_field/zip64.rb'
-
 # Offense count: 247
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
