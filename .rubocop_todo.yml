@@ -138,11 +138,6 @@ Style/ClassCheck:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 2
-Style/EvalWithLocation:
-  Exclude:
-    - 'test/test_helper.rb'
-
 # Offense count: 3
 # Configuration parameters: .
 # SupportedStyles: annotated, template, unannotated

@@ -193,18 +193,21 @@ module ExtraAssertions
   def assert_forwarded(anObject, method, retVal, *expectedArgs)
     callArgs = nil
     setCallArgsProc = proc { |args| callArgs = args }
-    anObject.instance_eval <<-"end_eval"
+    anObject.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
       alias #{method}_org #{method}
       def #{method}(*args)
         ObjectSpace._id2ref(#{setCallArgsProc.object_id}).call(args)
         ObjectSpace._id2ref(#{retVal.object_id})
         end
-    end_eval
+    END_EVAL
 
     assert_equal(retVal, yield) # Invoke test
     assert_equal(expectedArgs, callArgs)
   ensure
-    anObject.instance_eval "undef #{method}; alias #{method} #{method}_org"
+    anObject.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
+      undef #{method}
+      alias #{method} #{method}_org
+    END_EVAL
   end
 end
 
