@@ -16,6 +16,12 @@ Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
 
+# Rubocop confuses these as instances of "memoization".
+Naming/MemoizedInstanceVariableName:
+  Exclude:
+    - 'lib/zip/extra_field/old_unix.rb'
+    - 'lib/zip/extra_field/unix.rb'
+
 # Allow this multi-line block chain as it actually reads better
 # than the alternatives.
 Style/MultilineBlockChain:

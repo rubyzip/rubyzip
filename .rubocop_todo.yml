@@ -69,14 +69,6 @@ Naming/BlockParameterName:
     - 'test/output_stream_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 2
-# Configuration parameters: EnforcedStyleForLeadingUnderscores.
-# SupportedStylesForLeadingUnderscores: disallowed, required, optional
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/zip/extra_field/old_unix.rb'
-    - 'lib/zip/extra_field/unix.rb'
-
 # Offense count: 140
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db, os
