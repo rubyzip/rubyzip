@@ -143,13 +143,6 @@ Style/EvalWithLocation:
   Exclude:
     - 'test/test_helper.rb'
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: left_coerce, right_coerce, single_coerce, fdiv
-Style/FloatDivision:
-  Exclude:
-    - 'samples/example.rb'
-
 # Offense count: 3
 # Configuration parameters: .
 # SupportedStyles: annotated, template, unannotated
