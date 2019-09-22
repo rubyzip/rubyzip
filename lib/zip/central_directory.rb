@@ -65,7 +65,7 @@ module Zip
         @entry_set ? @entry_set.size : 0, # number of entries on this disk
         @entry_set ? @entry_set.size : 0, # number of entries total
         cdir_size, # size of central directory
-        offset, # offset of start of central directory in its disk
+        offset # offset of start of central directory in its disk
       ]
       io << tmp.pack('VQ<vvVVQ<Q<Q<Q<')
     end
