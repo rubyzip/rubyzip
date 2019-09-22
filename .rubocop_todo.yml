@@ -70,14 +70,6 @@ Naming/BlockParameterName:
     - 'test/test_helper.rb'
 
 # Offense count: 2
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: lowercase, uppercase
-Naming/HeredocDelimiterCase:
-  Exclude:
-    - 'lib/zip/filesystem.rb'
-    - 'test/test_helper.rb'
-
-# Offense count: 2
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.
 # SupportedStylesForLeadingUnderscores: disallowed, required, optional
 Naming/MemoizedInstanceVariableName:
