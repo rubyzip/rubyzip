@@ -2,22 +2,16 @@ language: ruby
 dist: trusty
 cache: bundler
 rvm:
-  - 2.0
-  - 2.1
-  - 2.2
-  - 2.3
   - 2.4
   - 2.5
   - 2.6
   - ruby-head
 matrix:
   include:
-  - rvm: jruby
-    jdk: oraclejdk8
-  - rvm: jruby-9.1
-    jdk: openjdk7
+  - rvm: jruby-9.2
+    jdk: openjdk8
   - rvm: jruby-head
-    jdk: oraclejdk8
+    jdk: openjdk8
   - rvm: rbx-4
   allow_failures:
     - rvm: ruby-head

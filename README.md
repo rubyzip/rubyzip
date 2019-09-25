@@ -20,7 +20,7 @@ gem 'zip-zip' # will load compatibility for old rubyzip API.
 
 ## Requirements
 
-- Ruby 1.9.2 or greater
+- Ruby 2.4 or greater (for rubyzip 2.0; use 1.x for older rubies)
 
 ## Installation
 
