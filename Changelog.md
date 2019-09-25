@@ -2,6 +2,18 @@
 
 -
 
+# 2.0.0 (2019-09-25)
+
+Security
+
+- Default the `validate_entry_sizes` option to `true`, so that callers can trust an entry's reported size when using `extract` [#403](https://github.com/rubyzip/rubyzip/pull/403)
+   - This option defaulted to `false` in 1.3.0 for backward compatibility, but it now defaults to `true`. If you are using an older version of ruby and can't yet upgrade to 2.x, you can still use 1.3.0 and set the option to `true`.
+
+Tooling / Documentation
+
+- Remove test files from the gem to avoid problems with antivirus detections on the test files [#405](https://github.com/rubyzip/rubyzip/pull/405) / [#384](https://github.com/rubyzip/rubyzip/issues/384)
+- Drop support for unsupported ruby versions [#406](https://github.com/rubyzip/rubyzip/pull/406)
+
 # 1.3.0 (2019-09-25)
 
 Security
