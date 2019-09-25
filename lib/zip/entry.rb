@@ -603,9 +603,21 @@ module Zip
         get_input_stream do |is|
           set_extra_attributes_on_path(dest_path)
 
+          bytes_written = 0
+          warned = false
           buf = ''.dup
           while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
             os << buf
+            bytes_written += buf.bytesize
+            if bytes_written > size && !warned
+              message = "Entry #{name} should be #{size}B but is larger when inflated"
+              if ::Zip.validate_entry_sizes
+                raise ::Zip::EntrySizeError, message
+              else
+                puts "WARNING: #{message}"
+                warned = true
+              end
+            end
           end
         end
       end
