@@ -625,13 +625,13 @@ module Zip
           while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
             os << buf
             bytes_written += buf.bytesize
-            if bytes_written > size && !warned
-              message = "entry '#{name}' should be #{size}B, but is larger when inflated."
-              raise ::Zip::EntrySizeError, message if ::Zip.validate_entry_sizes
+            next unless bytes_written > size && !warned
 
-              warn "WARNING: #{message}"
-              warned = true
-            end
+            message = "entry '#{name}' should be #{size}B, but is larger when inflated."
+            raise ::Zip::EntrySizeError, message if ::Zip.validate_entry_sizes
+
+            warn "WARNING: #{message}"
+            warned = true
           end
         end
       end
