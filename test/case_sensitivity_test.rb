@@ -25,7 +25,7 @@ class ZipCaseSensitivityTest < MiniTest::Test
     SRC_FILES.each_with_index do |a, i|
       assert_equal(a.last, zfRead.entries[i].name)
       AssertEntry.assert_contents(a.first,
-                                  zfRead.get_input_stream(a.last) { |zis| zis.read })
+                                  zfRead.get_input_stream(a.last, &:read))
     end
   end
 
@@ -56,8 +56,9 @@ class ZipCaseSensitivityTest < MiniTest::Test
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(SRC_FILES.collect { |_fn, en| en.downcase }.uniq.size, zfRead.entries.length)
     assert_equal(SRC_FILES.last.last.downcase, zfRead.entries.first.name.downcase)
-    AssertEntry.assert_contents(SRC_FILES.last.first,
-                                zfRead.get_input_stream(SRC_FILES.last.last) { |zis| zis.read })
+    AssertEntry.assert_contents(
+      SRC_FILES.last.first, zfRead.get_input_stream(SRC_FILES.last.last, &:read)
+    )
   end
 
   private

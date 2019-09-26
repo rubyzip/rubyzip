@@ -288,7 +288,7 @@ module Zip
 
     # Returns a string containing the contents of the specified entry
     def read(entry)
-      get_input_stream(entry) { |is| is.read }
+      get_input_stream(entry, &:read)
     end
 
     # Convenience method for adding the contents of a file to the archive

@@ -209,22 +209,6 @@ Style/SafeNavigation:
     - 'test/filesystem/file_stat_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 42
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'lib/zip/file.rb'
-    - 'lib/zip/filesystem.rb'
-    - 'test/basic_zip_file_test.rb'
-    - 'test/case_sensitivity_test.rb'
-    - 'test/deflater_test.rb'
-    - 'test/file_extract_test.rb'
-    - 'test/file_split_test.rb'
-    - 'test/file_test.rb'
-    - 'test/filesystem/file_nonmutating_test.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, AllowSafeAssignment.

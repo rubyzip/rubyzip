@@ -10,7 +10,7 @@ class BasicZipFileTest < MiniTest::Test
 
   def test_entries
     assert_equal(TestZipFile::TEST_ZIP2.entry_names.sort,
-                 @zip_file.entries.entries.sort.map { |e| e.name })
+                 @zip_file.entries.entries.sort.map(&:name))
   end
 
   def test_each

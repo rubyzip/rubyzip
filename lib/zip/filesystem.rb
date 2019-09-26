@@ -390,7 +390,7 @@ module Zip
       alias lstat stat
 
       def readlines(fileName)
-        self.open(fileName) { |is| is.readlines }
+        self.open(fileName, &:readlines)
       end
 
       def read(fileName)
