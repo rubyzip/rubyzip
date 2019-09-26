@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$: << '../lib'
+$LOAD_PATH << '../lib'
 system('zip example.zip example.rb gtk_ruby_zip.rb')
 
 require 'zip'

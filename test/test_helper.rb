@@ -61,7 +61,7 @@ module DecompressorTests
   def setup
     @refText = ''
     File.open(TEST_FILE) { |f| @refText = f.read }
-    @refLines = @refText.split($/)
+    @refLines = @refText.split($INPUT_RECORD_SEPARATOR)
   end
 
   def test_read_everything

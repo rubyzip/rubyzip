@@ -112,7 +112,7 @@ class TestZipFile
     # to help create the following files, there's a free one available from
     # http://stahlworks.com/dev/index.php?tool=zipunzip
     # that works with the above code
-    raise $!.to_s +
+    raise $ERROR_INFO.to_s +
           "\n\nziptest.rb requires the Info-ZIP program 'zip' in the path\n" \
           "to create test data. If you don't have it you can download\n" \
           'the necessary test files at http://sf.net/projects/rubyzip.'

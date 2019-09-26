@@ -401,7 +401,7 @@ module Zip
         ::File.popen(*args, &aProc)
       end
 
-      def foreach(fileName, aSep = $/, &aProc)
+      def foreach(fileName, aSep = $INPUT_RECORD_SEPARATOR, &aProc)
         self.open(fileName) { |is| is.each_line(aSep, &aProc) }
       end
 

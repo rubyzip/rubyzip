@@ -209,27 +209,6 @@ Style/SafeNavigation:
     - 'test/filesystem/file_stat_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 30
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: use_perl_names, use_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'lib/zip/filesystem.rb'
-    - 'lib/zip/ioextras/abstract_input_stream.rb'
-    - 'lib/zip/ioextras/abstract_output_stream.rb'
-    - 'samples/example.rb'
-    - 'samples/example_filesystem.rb'
-    - 'samples/gtk_ruby_zip.rb'
-    - 'samples/qtzip.rb'
-    - 'samples/write_simple.rb'
-    - 'samples/zipfind.rb'
-    - 'test/gentestfiles.rb'
-    - 'test/ioextras/abstract_input_stream_test.rb'
-    - 'test/ioextras/abstract_output_stream_test.rb'
-    - 'test/output_stream_test.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 42
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.

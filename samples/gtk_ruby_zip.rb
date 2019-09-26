@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$: << '../lib'
+$LOAD_PATH << '../lib'
 
 $VERBOSE = true
 

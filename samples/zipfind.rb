@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-$: << '../lib'
+$LOAD_PATH << '../lib'
 
 require 'zip'
 require 'find'
@@ -32,7 +32,7 @@ module Zip
   end
 end
 
-if $0 == __FILE__
+if $PROGRAM_NAME == __FILE__
   module ZipFindConsoleRunner
     PATH_ARG_INDEX = 0
     FILENAME_PATTERN_ARG_INDEX = 1
@@ -55,7 +55,7 @@ if $0 == __FILE__
     end
 
     def self.usage
-      puts "Usage: #{$0} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
+      puts "Usage: #{$PROGRAM_NAME} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
     end
 
     def self.report_entry_found(fileName)
