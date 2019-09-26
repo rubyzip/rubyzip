@@ -72,8 +72,12 @@ class TestZipFile
   end
 
   def self.create_test_zips
-    raise "failed to create test zip '#{TEST_ZIP1.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP1.zip_name} test/data/file2.txt")
-    raise "failed to remove entry from '#{TEST_ZIP1.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP1.zip_name} -d test/data/file2.txt")
+    raise "failed to create test zip '#{TEST_ZIP1.zip_name}'" \
+      unless system("/usr/bin/zip -q #{TEST_ZIP1.zip_name} test/data/file2.txt")
+    raise "failed to remove entry from '#{TEST_ZIP1.zip_name}'" \
+      unless system(
+        "/usr/bin/zip -q #{TEST_ZIP1.zip_name} -d test/data/file2.txt"
+      )
 
     File.open('test/data/generated/empty.txt', 'w') {}
     File.open('test/data/generated/empty_chmod640.txt', 'w') {}
@@ -94,19 +98,34 @@ class TestZipFile
       file << testBinaryPattern << rand << "\0" while file.tell < 6E5
     end
 
-    raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}")
+    raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" \
+      unless system(
+        "/usr/bin/zip -q #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}"
+      )
 
     if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-      raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" unless system("echo #{TEST_ZIP2.comment}| /usr/bin/zip -zq #{TEST_ZIP2.zip_name}\"")
+      raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" \
+        unless system(
+          "echo #{TEST_ZIP2.comment}| /usr/bin/zip -zq #{TEST_ZIP2.zip_name}\""
+        )
     else
       # without bash system interprets everything after echo as parameters to
       # echo including | zip -z ...
-      raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" unless system("bash -c \"echo #{TEST_ZIP2.comment} | /usr/bin/zip -zq #{TEST_ZIP2.zip_name}\"")
+      raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" \
+        unless system(
+          "bash -c \"echo #{TEST_ZIP2.comment} | /usr/bin/zip -zq #{TEST_ZIP2.zip_name}\""
+        )
     end
 
-    raise "failed to create test zip '#{TEST_ZIP3.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP3.zip_name} #{TEST_ZIP3.entry_names.join(' ')}")
+    raise "failed to create test zip '#{TEST_ZIP3.zip_name}'" \
+      unless system(
+        "/usr/bin/zip -q #{TEST_ZIP3.zip_name} #{TEST_ZIP3.entry_names.join(' ')}"
+      )
 
-    raise "failed to create test zip '#{TEST_ZIP4.zip_name}'" unless system("/usr/bin/zip -q #{TEST_ZIP4.zip_name} #{TEST_ZIP4.entry_names.join(' ')}")
+    raise "failed to create test zip '#{TEST_ZIP4.zip_name}'" \
+      unless system(
+        "/usr/bin/zip -q #{TEST_ZIP4.zip_name} #{TEST_ZIP4.entry_names.join(' ')}"
+      )
   rescue StandardError
     # If there are any Windows developers wanting to use a command line zip.exe
     # to help create the following files, there's a free one available from
@@ -119,8 +138,17 @@ class TestZipFile
   end
 
   TEST_ZIP1 = TestZipFile.new('test/data/generated/empty.zip', [])
-  TEST_ZIP2 = TestZipFile.new('test/data/generated/5entry.zip', %w[test/data/generated/longAscii.txt test/data/generated/empty.txt test/data/generated/empty_chmod640.txt test/data/generated/short.txt test/data/generated/longBinary.bin],
-                              'my zip comment')
+  TEST_ZIP2 = TestZipFile.new(
+    'test/data/generated/5entry.zip',
+    %w[
+      test/data/generated/longAscii.txt
+      test/data/generated/empty.txt
+      test/data/generated/empty_chmod640.txt
+      test/data/generated/short.txt
+      test/data/generated/longBinary.bin
+    ],
+    'my zip comment'
+  )
   TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w[test/data/file1.txt])
   TEST_ZIP4 = TestZipFile.new('test/data/generated/zipWithDir.zip', ['test/data/file1.txt',
                                                                      TestFiles::EMPTY_TEST_DIR])

@@ -37,6 +37,8 @@ Metrics/CyclomaticComplexity:
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
   Max: 45
+  Exclude:
+    - 'test/**/*.rb'
 
 # Offense count: 2
 # Configuration parameters: CountKeywordArgs.
@@ -226,10 +228,3 @@ Style/TernaryParentheses:
 Style/TrailingCommaInHashLiteral:
   Exclude:
     - 'lib/zip/constants.rb'
-
-# Offense count: 247
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Layout/LineLength:
-  Max: 236

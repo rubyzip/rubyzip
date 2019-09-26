@@ -264,7 +264,11 @@ module Zip
     # specified. If a block is passed the stream object is passed to the block and
     # the stream is automatically closed afterwards just as with ruby's builtin
     # File.open method.
-    def get_output_stream(entry, permission_int = nil, comment = nil, extra = nil, compressed_size = nil, crc = nil, compression_method = nil, size = nil, time = nil, &aProc)
+    def get_output_stream(entry, permission_int = nil, comment = nil,
+                          extra = nil, compressed_size = nil, crc = nil,
+                          compression_method = nil, size = nil, time = nil,
+                          &aProc)
+
       new_entry =
         if entry.kind_of?(Entry)
           entry

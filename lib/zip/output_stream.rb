@@ -130,7 +130,9 @@ module Zip
       return unless @current_entry
 
       finish
-      @current_entry.compressed_size = @output_stream.tell - @current_entry.local_header_offset - @current_entry.calculate_local_header_size
+      @current_entry.compressed_size = @output_stream.tell - \
+                                       @current_entry.local_header_offset - \
+                                       @current_entry.calculate_local_header_size
       @current_entry.size = @compressor.size
       @current_entry.crc = @compressor.crc
       @output_stream << @encrypter.data_descriptor(@current_entry.crc, @current_entry.compressed_size, @current_entry.size)
