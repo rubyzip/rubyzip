@@ -95,7 +95,7 @@ class AbstractInputStreamTest < MiniTest::Test
     test_gets
     begin
       @io.readline
-      fail 'EOFError expected'
+      raise 'EOFError expected'
     rescue EOFError
     end
   end

@@ -209,19 +209,6 @@ Style/SafeNavigation:
     - 'test/filesystem/file_stat_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: only_raise, only_fail, semantic
-Style/SignalException:
-  Exclude:
-    - 'test/central_directory_entry_test.rb'
-    - 'test/central_directory_test.rb'
-    - 'test/filesystem/file_nonmutating_test.rb'
-    - 'test/ioextras/abstract_input_stream_test.rb'
-    - 'test/local_entry_test.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

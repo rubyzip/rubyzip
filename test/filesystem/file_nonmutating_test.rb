@@ -80,7 +80,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     end
     begin
       is = @zip_file.file.new('file1') do
-        fail 'should not call block'
+        raise 'should not call block'
       end
     ensure
       is.close if is

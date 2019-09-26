@@ -46,7 +46,7 @@ class ZipLocalEntryTest < MiniTest::Test
     zipFragment.extend(IOizeString).reset
     entry = ::Zip::Entry.new
     entry.read_local_entry(zipFragment)
-    fail 'ZipError expected'
+    raise 'ZipError expected'
   rescue ::Zip::Error
   end
 

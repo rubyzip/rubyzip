@@ -95,7 +95,7 @@ module AssertEntry
         if (expected && actual) && (expected.length > 400 || actual.length > 400)
           zipEntryFilename = entryName + '.zipEntry'
           File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
-          fail("File '#{filename}' is different from '#{zipEntryFilename}'")
+          raise("File '#{filename}' is different from '#{zipEntryFilename}'")
         else
           assert_equal(expected, actual)
         end
@@ -111,7 +111,7 @@ module AssertEntry
     if fileContents.length > 400 || aString.length > 400
       stringFile = filename + '.other'
       File.open(stringFile, 'wb') { |f| f << aString }
-      fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
+      raise("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
     else
       assert_equal(fileContents, aString)
     end
