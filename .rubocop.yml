@@ -23,6 +23,11 @@ Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
 
+# Turn block length metrics off for the tests.
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*.rb'
+
 # Rubocop confuses these as instances of "memoization".
 Naming/MemoizedInstanceVariableName:
   Exclude:
