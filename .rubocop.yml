@@ -23,6 +23,13 @@ Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
 
+# Turn off ABC metrics for the tests and set a workable max given
+# the current state of the code.
+Metrics/AbcSize:
+  Max: 37
+  Exclude:
+    - 'test/**/*.rb'
+
 # Turn block length metrics off for the tests.
 Metrics/BlockLength:
   Exclude:

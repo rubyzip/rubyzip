@@ -14,10 +14,6 @@ Layout/EmptyLinesAroundClassBody:
   Exclude:
     - 'test/extra_field_ut_test.rb'
 
-# Offense count: 120
-Metrics/AbcSize:
-  Max: 60
-
 # Offense count: 15
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
