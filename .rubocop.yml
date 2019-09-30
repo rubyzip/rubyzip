@@ -41,6 +41,10 @@ Naming/MemoizedInstanceVariableName:
     - 'lib/zip/extra_field/old_unix.rb'
     - 'lib/zip/extra_field/unix.rb'
 
+# Set a consistent way of checking types.
+Style/ClassCheck:
+  EnforcedStyle: kind_of?
+
 # Allow this multi-line block chain as it actually reads better
 # than the alternatives.
 Style/MultilineBlockChain:

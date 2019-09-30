@@ -98,7 +98,7 @@ module Zip
                   end
       new_entry.comment = comment unless comment.nil?
       unless extra.nil?
-        new_entry.extra = extra.is_a?(ExtraField) ? extra : ExtraField.new(extra.to_s)
+        new_entry.extra = extra.kind_of?(ExtraField) ? extra : ExtraField.new(extra.to_s)
       end
       new_entry.compression_method = compression_method unless compression_method.nil?
       init_next_entry(new_entry, level)
@@ -108,7 +108,7 @@ module Zip
     def copy_raw_entry(entry)
       entry = entry.dup
       raise Error, 'zip stream is closed' if @closed
-      raise Error, 'entry is not a ZipEntry' unless entry.is_a?(Entry)
+      raise Error, 'entry is not a ZipEntry' unless entry.kind_of?(Entry)
 
       finalize_current_entry
       @entry_set << entry

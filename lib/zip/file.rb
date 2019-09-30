@@ -141,11 +141,11 @@ module Zip
       # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io, options = {})
-        unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.is_a?(String)
+        unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise "Zip::File.open_buffer expects a String or IO-like argument (responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
         end
 
-        io = ::StringIO.new(io) if io.is_a?(::String)
+        io = ::StringIO.new(io) if io.kind_of?(::String)
 
         # https://github.com/rubyzip/rubyzip/issues/119
         io.binmode if io.respond_to?(:binmode)
@@ -344,7 +344,7 @@ module Zip
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit
-      return if name.is_a?(StringIO) || !commit_required?
+      return if name.kind_of?(StringIO) || !commit_required?
 
       on_success_replace do |tmp_file|
         ::Zip::OutputStream.open(tmp_file) do |zos|

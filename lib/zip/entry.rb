@@ -70,7 +70,7 @@ module Zip
       @time               = args[8] || ::Zip::DOSTime.now
 
       @ftype = name_is_directory? ? :directory : :file
-      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.is_a?(::Zip::ExtraField)
+      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
     end
 
     def encrypted?
@@ -271,7 +271,7 @@ module Zip
         raise ::Zip::Error, 'Truncated local zip entry header'
       end
 
-      if @extra.is_a?(::Zip::ExtraField)
+      if @extra.kind_of?(::Zip::ExtraField)
         @extra.merge(extra) if extra
       else
         @extra = ::Zip::ExtraField.new(extra)
@@ -380,7 +380,7 @@ module Zip
     end
 
     def read_c_dir_extra_field(io)
-      if @extra.is_a?(::Zip::ExtraField)
+      if @extra.kind_of?(::Zip::ExtraField)
         @extra.merge(io.read(@extra_length))
       else
         @extra = ::Zip::ExtraField.new(io.read(@extra_length))

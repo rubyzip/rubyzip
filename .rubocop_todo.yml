@@ -96,20 +96,6 @@ Style/ClassAndModuleChildren:
     - 'lib/zip/extra_field/zip64.rb'
     - 'lib/zip/extra_field/zip64_placeholder.rb'
 
-# Offense count: 15
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
-  Exclude:
-    - 'lib/zip/central_directory.rb'
-    - 'lib/zip/entry_set.rb'
-    - 'lib/zip/file.rb'
-    - 'lib/zip/output_stream.rb'
-    - 'test/filesystem/file_nonmutating_test.rb'
-    - 'test/ioextras/fake_io_test.rb'
-    - 'test/output_stream_test.rb'
-
 # Offense count: 26
 Style/Documentation:
   Enabled: false
