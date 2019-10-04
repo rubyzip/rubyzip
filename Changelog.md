@@ -1,6 +1,7 @@
 # X.X.X (Next)
 
--
+- Create temporary files in the system temporary directory instead of the directory of the zip file [#411](https://github.com/rubyzip/rubyzip/pull/411)
+- Drop unused `tmpdir` requirement [#411](https://github.com/rubyzip/rubyzip/pull/411)
 
 # 2.0.0 (2019-09-25)
 
