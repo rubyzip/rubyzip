@@ -406,9 +406,7 @@ module Zip
       @unix_uid   = stat.uid
       @unix_gid   = stat.gid
       @unix_perms = stat.mode & 0o7777
-
-      mtime = stat.mtime
-      @time = ::Zip::DOSTime.local(mtime.year, mtime.month, mtime.day, mtime.hour, mtime.min, mtime.sec)
+      @time = ::Zip::DOSTime.from_time(stat.mtime)
     end
 
     def set_unix_attributes_on_path(dest_path)

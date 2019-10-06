@@ -29,6 +29,11 @@ module Zip
       to_i / 2 == other.to_i / 2
     end
 
+    # Create a DOSTime instance from a vanilla Time instance.
+    def self.from_time(time)
+      local(time.year, time.month, time.day, time.hour, time.min, time.sec)
+    end
+
     def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)
       second = 2 * (0b11111 & binaryDosTime)
       minute = (0b11111100000 & binaryDosTime) >> 5
