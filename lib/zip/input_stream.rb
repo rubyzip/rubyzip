@@ -103,7 +103,7 @@ module Zip
       end
 
       def open_buffer(filename_or_io, offset = 0)
-        puts 'open_buffer is deprecated!!! Use open instead!'
+        warn 'open_buffer is deprecated!!! Use open instead!'
         open(filename_or_io, offset)
       end
     end

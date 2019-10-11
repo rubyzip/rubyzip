@@ -163,7 +163,7 @@ module Zip
     # is passed.
     def extract(dest_path = nil, &block)
       if dest_path.nil? && !name_safe?
-        puts "WARNING: skipped #{@name} as unsafe"
+        warn "WARNING: skipped #{@name} as unsafe"
         return self
       end
 
@@ -614,7 +614,7 @@ module Zip
               if ::Zip.validate_entry_sizes
                 raise ::Zip::EntrySizeError, message
               else
-                puts "WARNING: #{message}"
+                warn "WARNING: #{message}"
                 warned = true
               end
             end
@@ -642,7 +642,7 @@ module Zip
     def create_symlink(dest_path)
       # TODO: Symlinks pose security challenges. Symlink support temporarily
       # removed in view of https://github.com/rubyzip/rubyzip/issues/369 .
-      puts "WARNING: skipped symlink #{dest_path}"
+      warn "WARNING: skipped symlink #{dest_path}"
     end
 
     # apply missing data from the zip64 extra information field, if present
