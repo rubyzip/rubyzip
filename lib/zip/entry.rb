@@ -163,7 +163,7 @@ module Zip
     # is passed.
     def extract(dest_path = nil, &block)
       if dest_path.nil? && !name_safe?
-        warn "WARNING: skipped #{@name} as unsafe"
+        warn "WARNING: skipped '#{@name}' as unsafe."
         return self
       end
 
@@ -591,7 +591,7 @@ module Zip
     def set_time(binary_dos_date, binary_dos_time)
       @time = ::Zip::DOSTime.parse_binary_dos_format(binary_dos_date, binary_dos_time)
     rescue ArgumentError
-      warn 'Invalid date/time in zip entry' if ::Zip.warn_invalid_date
+      warn 'WARNING: invalid date/time in zip entry.' if ::Zip.warn_invalid_date
     end
 
     def create_file(dest_path, _continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
@@ -610,7 +610,7 @@ module Zip
             os << buf
             bytes_written += buf.bytesize
             if bytes_written > size && !warned
-              message = "Entry #{name} should be #{size}B but is larger when inflated"
+              message = "entry '#{name}' should be #{size}B, but is larger when inflated."
               if ::Zip.validate_entry_sizes
                 raise ::Zip::EntrySizeError, message
               else
@@ -642,7 +642,7 @@ module Zip
     def create_symlink(dest_path)
       # TODO: Symlinks pose security challenges. Symlink support temporarily
       # removed in view of https://github.com/rubyzip/rubyzip/issues/369 .
-      warn "WARNING: skipped symlink #{dest_path}"
+      warn "WARNING: skipped symlink '#{dest_path}'."
     end
 
     # apply missing data from the zip64 extra information field, if present

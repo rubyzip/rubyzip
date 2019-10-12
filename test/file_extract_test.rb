@@ -136,7 +136,7 @@ class ZipFileExtractTest < MiniTest::Test
             a_entry.extract
           end
           assert_equal \
-            'Entry a should be 1B but is larger when inflated',
+            "entry 'a' should be 1B, but is larger when inflated.",
             error.message
         end
       end
