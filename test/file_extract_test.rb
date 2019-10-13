@@ -127,7 +127,9 @@ class ZipFileExtractTest < MiniTest::Test
           assert_equal fake_size, a_entry.size
 
           ::Zip.validate_entry_sizes = false
-          a_entry.extract
+          assert_output('', /.+\'a\'.+1B.+/) do
+            a_entry.extract
+          end
           assert_equal true_size, File.size(file_name)
           FileUtils.rm file_name
 
