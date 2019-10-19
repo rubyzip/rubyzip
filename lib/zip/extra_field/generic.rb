@@ -16,7 +16,7 @@ module Zip
         # If nil, start with empty.
         return false
       elsif binstr[0, 2] != self.class.const_get(:HEADER_ID)
-        $stderr.puts 'Warning: weired extra feild header ID. skip parsing'
+        warn 'WARNING: weird extra field header ID. Skip parsing it.'
         return false
       end
       [binstr[2, 2].unpack('v')[0], binstr[4..-1]]
