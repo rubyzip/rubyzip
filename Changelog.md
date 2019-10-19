@@ -1,5 +1,7 @@
 # X.X.X (Next)
 
+- Allow `Zip::File.open` to take an options hash like `Zip::File.new` [#418](https://github.com/rubyzip/rubyzip/pull/418)
+- Always print warnings with `warn`, instead of a mix of `puts` and `warn` [#416](https://github.com/rubyzip/rubyzip/pull/416)
 - Create temporary files in the system temporary directory instead of the directory of the zip file [#411](https://github.com/rubyzip/rubyzip/pull/411)
 - Drop unused `tmpdir` requirement [#411](https://github.com/rubyzip/rubyzip/pull/411)
 
