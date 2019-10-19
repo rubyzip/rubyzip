@@ -107,8 +107,8 @@ module Zip
       # Same as #new. If a block is passed the ZipFile object is passed
       # to the block and is automatically closed afterwards just as with
       # ruby's builtin File.open method.
-      def open(file_name, create = false)
-        zf = ::Zip::File.new(file_name, create)
+      def open(file_name, create = false, options = {})
+        zf = ::Zip::File.new(file_name, create, false, options)
         return zf unless block_given?
         begin
           yield zf
