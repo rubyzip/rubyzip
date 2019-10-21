@@ -7,6 +7,7 @@ rvm:
   - 2.6
   - ruby-head
 matrix:
+  fast_finish: true
   include:
   - rvm: jruby-9.2
     jdk: openjdk8
