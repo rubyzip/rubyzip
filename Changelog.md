@@ -1,9 +1,16 @@
 # X.X.X (Next)
 
+- Fix (at least partially) the `restore_times` and `restore_permissions` options to `Zip::File.new` [#413](https://github.com/rubyzip/rubyzip/pull/413)
+   - Previously, neither option did anything, regardless of what it was set to. We have therefore defaulted them to `false` to preserve the current behavior, for the time being. If you have explicitly set either to `true`, it will now have an effect.
+   - Note that `restore_times` in this release does nothing on Windows and only restores `mtime`, not `atime` or `ctime`.
 - Allow `Zip::File.open` to take an options hash like `Zip::File.new` [#418](https://github.com/rubyzip/rubyzip/pull/418)
 - Always print warnings with `warn`, instead of a mix of `puts` and `warn` [#416](https://github.com/rubyzip/rubyzip/pull/416)
 - Create temporary files in the system temporary directory instead of the directory of the zip file [#411](https://github.com/rubyzip/rubyzip/pull/411)
 - Drop unused `tmpdir` requirement [#411](https://github.com/rubyzip/rubyzip/pull/411)
+
+Tooling
+
+- Move CI to xenial and include jruby on JDK11 [#419](https://github.com/rubyzip/rubyzip/pull/419/files)
 
 # 2.0.0 (2019-09-25)
 
