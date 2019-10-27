@@ -35,8 +35,10 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
+
       size, content = initial_parse(binstr)
-      size || return
+      return if !size || size <= 0
+
       @flag, mt, at, ct = content.unpack('Cl<l<l<')
       mt && @mtime ||= ::Zip::DOSTime.at(mt)
       at && @atime ||= ::Zip::DOSTime.at(at)
