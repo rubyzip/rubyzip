@@ -1,5 +1,5 @@
 language: ruby
-dist: trusty
+dist: xenial
 cache: bundler
 rvm:
   - 2.4
@@ -7,11 +7,14 @@ rvm:
   - 2.6
   - ruby-head
 matrix:
+  fast_finish: true
   include:
   - rvm: jruby-9.2
     jdk: openjdk8
+  - rvm: jruby-9.2
+    jdk: openjdk11
   - rvm: jruby-head
-    jdk: openjdk8
+    jdk: openjdk11
   - rvm: rbx-4
   allow_failures:
     - rvm: ruby-head
