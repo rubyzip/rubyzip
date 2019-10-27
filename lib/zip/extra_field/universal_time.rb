@@ -39,10 +39,15 @@ module Zip
       size, content = initial_parse(binstr)
       return if !size || size <= 0
 
-      @flag, mt, at, ct = content.unpack('Cl<l<l<')
-      mt && @mtime ||= ::Zip::DOSTime.at(mt)
-      at && @atime ||= ::Zip::DOSTime.at(at)
-      ct && @ctime ||= ::Zip::DOSTime.at(ct)
+      @flag, *times = content.unpack('Cl<l<l<')
+
+      # Parse the timestamps, in order, based on which flags are set.
+      return if times[0].nil?
+      @mtime ||= ::Zip::DOSTime.at(times.shift) unless @flag & MTIME_MASK == 0
+      return if times[0].nil?
+      @atime ||= ::Zip::DOSTime.at(times.shift) unless @flag & ATIME_MASK == 0
+      return if times[0].nil?
+      @ctime ||= ::Zip::DOSTime.at(times.shift) unless @flag & CTIME_MASK == 0
     end
 
     def ==(other)
