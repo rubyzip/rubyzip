@@ -51,14 +51,23 @@ module Zip
     DATA_BUFFER_SIZE     = 8192
     IO_METHODS           = [:tell, :seek, :read, :close]
 
+    DEFAULT_OPTIONS = {
+      restore_ownership:   false,
+      restore_permissions: false,
+      restore_times:       false
+    }.freeze
+
     attr_reader :name
 
-    # default -> false
+    # default -> false.
     attr_accessor :restore_ownership
-    # default -> false
+
+    # default -> false, but will be set to true in a future version.
     attr_accessor :restore_permissions
-    # default -> true
+
+    # default -> false, but will be set to true in a future version.
     attr_accessor :restore_times
+
     # Returns the zip files comment, if it has one
     attr_accessor :comment
 
@@ -66,6 +75,7 @@ module Zip
     # a new archive if it doesn't exist already.
     def initialize(path_or_io, create = false, buffer = false, options = {})
       super()
+      options = DEFAULT_OPTIONS.merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
@@ -98,9 +108,9 @@ module Zip
 
       @stored_entries      = @entry_set.dup
       @stored_comment      = @comment
-      @restore_ownership   = options[:restore_ownership]    || false
-      @restore_permissions = options[:restore_permissions]  || true
-      @restore_times       = options[:restore_times]        || true
+      @restore_ownership   = options[:restore_ownership]
+      @restore_permissions = options[:restore_permissions]
+      @restore_times       = options[:restore_times]
     end
 
     class << self
