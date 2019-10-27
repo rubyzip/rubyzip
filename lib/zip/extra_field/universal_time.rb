@@ -37,7 +37,7 @@ module Zip
       return if binstr.empty?
       size, content = initial_parse(binstr)
       size || return
-      @flag, mt, at, ct = content.unpack('CVVV')
+      @flag, mt, at, ct = content.unpack('Cl<l<l<')
       mt && @mtime ||= ::Zip::DOSTime.at(mt)
       at && @atime ||= ::Zip::DOSTime.at(at)
       ct && @ctime ||= ::Zip::DOSTime.at(ct)
@@ -51,15 +51,15 @@ module Zip
 
     def pack_for_local
       s = [@flag].pack('C')
-      @flag & 1 != 0 && s << [@mtime.to_i].pack('V')
-      @flag & 2 != 0 && s << [@atime.to_i].pack('V')
-      @flag & 4 != 0 && s << [@ctime.to_i].pack('V')
+      @flag & 1 != 0 && s << [@mtime.to_i].pack('l<')
+      @flag & 2 != 0 && s << [@atime.to_i].pack('l<')
+      @flag & 4 != 0 && s << [@ctime.to_i].pack('l<')
       s
     end
 
     def pack_for_c_dir
       s = [@flag].pack('C')
-      @flag & 1 == 1 && s << [@mtime.to_i].pack('V')
+      @flag & 1 == 1 && s << [@mtime.to_i].pack('l<')
       s
     end
   end
