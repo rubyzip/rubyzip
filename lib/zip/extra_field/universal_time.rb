@@ -13,7 +13,8 @@ module Zip
       @mtime = nil
       @atime = nil
       @flag  = 0
-      binstr && merge(binstr)
+
+      merge(binstr) unless binstr.nil?
     end
 
     attr_reader :atime, :ctime, :mtime, :flag
@@ -58,15 +59,15 @@ module Zip
 
     def pack_for_local
       s = [@flag].pack('C')
-      @flag & 1 != 0 && s << [@mtime.to_i].pack('l<')
-      @flag & 2 != 0 && s << [@atime.to_i].pack('l<')
-      @flag & 4 != 0 && s << [@ctime.to_i].pack('l<')
+      s << [@mtime.to_i].pack('l<') unless @flag & MTIME_MASK == 0
+      s << [@atime.to_i].pack('l<') unless @flag & ATIME_MASK == 0
+      s << [@ctime.to_i].pack('l<') unless @flag & CTIME_MASK == 0
       s
     end
 
     def pack_for_c_dir
       s = [@flag].pack('C')
-      @flag & 1 == 1 && s << [@mtime.to_i].pack('l<')
+      s << [@mtime.to_i].pack('l<') unless @flag & MTIME_MASK == 0
       s
     end
   end
