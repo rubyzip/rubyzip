@@ -34,7 +34,7 @@ module Zip
       end
       @follow_symlinks = false
 
-      @restore_times       = true
+      @restore_times       = false
       @restore_permissions = false
       @restore_ownership   = false
       # BUG: need an extra field to support uid/gid's
