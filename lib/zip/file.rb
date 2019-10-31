@@ -376,7 +376,13 @@ module Zip
     # Searches for entry with the specified name. Returns nil if
     # no entry is found. See also get_entry
     def find_entry(entry_name)
-      @entry_set.find_entry(entry_name)
+      selected_entry = @entry_set.find_entry(entry_name)
+      return if selected_entry.nil?
+
+      selected_entry.restore_ownership   = @restore_ownership
+      selected_entry.restore_permissions = @restore_permissions
+      selected_entry.restore_times       = @restore_times
+      selected_entry
     end
 
     # Searches for entries given a glob
@@ -388,10 +394,8 @@ module Zip
     # if no entry is found.
     def get_entry(entry)
       selected_entry = find_entry(entry)
-      raise Errno::ENOENT, entry unless selected_entry
-      selected_entry.restore_ownership   = @restore_ownership
-      selected_entry.restore_permissions = @restore_permissions
-      selected_entry.restore_times       = @restore_times
+      raise Errno::ENOENT, entry if selected_entry.nil?
+
       selected_entry
     end
 
