@@ -75,6 +75,24 @@ class FileOptionsTest < MiniTest::Test
     assert_time_equal(::Time.now, ::File.mtime(EXTPATH_2))
   end
 
+  def test_get_find_consistency
+    testzip = ::File.expand_path(::File.join('data', 'globTest.zip'), __dir__)
+    file_f = ::File.expand_path('f_test.txt', Dir.tmpdir)
+    file_g = ::File.expand_path('g_test.txt', Dir.tmpdir)
+
+    ::Zip::File.open(testzip) do |zip|
+      e1 = zip.find_entry('globTest/food.txt')
+      e1.extract(file_f)
+      e2 = zip.get_entry('globTest/food.txt')
+      e2.extract(file_g)
+    end
+
+    assert_time_equal(::File.mtime(file_f), ::File.mtime(file_g))
+  ensure
+    ::File.unlink(file_f)
+    ::File.unlink(file_g)
+  end
+
   private
 
   # Method to compare file times. DOS times only have 2 second accuracy.
