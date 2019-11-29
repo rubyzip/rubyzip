@@ -26,6 +26,10 @@ require 'zip/crypto/null_encryption'
 require 'zip/crypto/traditional_encryption'
 require 'zip/inflater'
 require 'zip/deflater'
+begin
+  require 'zip/bzip2_decompressor'
+rescue LoadError
+end
 require 'zip/streamable_stream'
 require 'zip/streamable_directory'
 require 'zip/constants'

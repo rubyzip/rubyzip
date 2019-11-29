@@ -36,6 +36,13 @@ Or in your Gemfile:
 gem 'rubyzip'
 ```
 
+If you want to read zip files that use the bzip2 compression method,
+you must also install the optional dependency `bzip2-ffi`:
+
+```ruby
+gem 'bzip2-ffi'
+```
+
 ## Usage
 
 ### Basic zip archive creation

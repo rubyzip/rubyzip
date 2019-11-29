@@ -3,6 +3,7 @@ module Zip
   class Entry
     STORED   = 0
     DEFLATED = 8
+    BZIP2ED = 12
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 

@@ -152,6 +152,10 @@ module Zip
         header = @archive_io.read(@decrypter.header_bytesize)
         @decrypter.reset!(header)
         ::Zip::Inflater.new(@archive_io, @decrypter)
+      elsif @current_entry.compression_method == ::Zip::Entry::BZIP2ED && defined?(::Zip::Bzip2Decompressor)
+        header = @archive_io.read(@decrypter.header_bytesize)
+        @decrypter.reset!(header)
+        ::Zip::Bzip2Decompressor.new(@archive_io, @decrypter)
       else
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"
