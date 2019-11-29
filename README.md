@@ -37,10 +37,10 @@ gem 'rubyzip'
 ```
 
 If you want to read zip files that use the bzip2 compression method,
-you must also install the optional dependency `bzip2-ffi`:
+you must also install the optional dependency `ffi`:
 
 ```ruby
-gem 'bzip2-ffi'
+gem 'ffi'
 ```
 
 ## Usage
