@@ -42,6 +42,8 @@ module Zip
 
     def internal_produce_input(buf = '')
       @bzip2_ffi_decompressor.decompress(@decrypter.decrypt(@input_stream.read(1024, buf)))
+    rescue Bzip2::Error => e
+      raise DecompressionError, e.message
     end
 
     def internal_input_finished?
