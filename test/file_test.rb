@@ -653,6 +653,21 @@ class ZipFileTest < MiniTest::Test
     ::Zip::File.open('test/data/test.xls')
   end
 
+  def test_find_get_entry
+    ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
+      assert_nil zf.find_entry('not_in_here.txt')
+
+      refute_nil zf.find_entry('test/data/generated/empty.txt')
+
+      assert_raises(Errno::ENOENT) do
+        zf.get_entry('not_in_here.txt')
+      end
+
+      # Should not raise anything.
+      zf.get_entry('test/data/generated/empty.txt')
+    end
+  end
+
   private
 
   def assert_contains(zf, entryName, filename = entryName)
