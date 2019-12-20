@@ -146,18 +146,20 @@ module Zip
     def get_decompressor
       return ::Zip::NullDecompressor if @current_entry.nil?
 
-      if @current_entry.compression_method == ::Zip::Entry::STORED
+      decompressed_size =
         if @current_entry.incomplete? && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
-          ::Zip::PassThruDecompressor.new(@decrypted_io, @complete_entry.size)
+          @complete_entry.size
         else
-          ::Zip::PassThruDecompressor.new(@decrypted_io, @current_entry.size)
+          @current_entry.size
         end
-      elsif @current_entry.compression_method == ::Zip::Entry::DEFLATED
-        ::Zip::Inflater.new(@decrypted_io)
-      else
+
+      decompressor_class = ::Zip::Decompressor.find_by_compression_method(@current_entry.compression_method)
+      if decompressor_class.nil?
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"
       end
+
+      decompressor_class.new(@decrypted_io, decompressed_size)
     end
 
     def produce_input

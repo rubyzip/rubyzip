@@ -2,6 +2,18 @@ module Zip
   class Decompressor #:nodoc:all
     CHUNK_SIZE = 32_768
 
+    def self.decompressor_classes
+      @decompressor_classes ||= {}
+    end
+
+    def self.register(compression_method, decompressor_class)
+      decompressor_classes[compression_method] = decompressor_class
+    end
+
+    def self.find_by_compression_method(compression_method)
+      decompressor_classes[compression_method]
+    end
+
     attr_reader :input_stream
     attr_reader :decompressed_size
 

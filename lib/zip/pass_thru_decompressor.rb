@@ -22,6 +22,8 @@ module Zip
 
     alias_method :eof?, :eof
   end
+
+  ::Zip::Decompressor.register(::Zip::COMPRESSION_METHOD_STORE, ::Zip::PassThruDecompressor)
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard

@@ -43,6 +43,8 @@ module Zip
       @zlib_inflater.finished?
     end
   end
+
+  ::Zip::Decompressor.register(::Zip::COMPRESSION_METHOD_DEFLATE, ::Zip::Inflater)
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
