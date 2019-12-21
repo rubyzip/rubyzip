@@ -130,25 +130,30 @@ module Zip
               'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
               'Please use ::Zip::File instead of ::Zip::InputStream'
       end
+      @decrypted_io = get_decrypted_io
       @decompressor = get_decompressor
       flush
       @current_entry
     end
 
+    def get_decrypted_io
+      header = @archive_io.read(@decrypter.header_bytesize)
+      @decrypter.reset!(header)
+
+      ::Zip::DecryptedIo.new(@archive_io, @decrypter)
+    end
+
     def get_decompressor
-      if @current_entry.nil?
-        ::Zip::NullDecompressor
-      elsif @current_entry.compression_method == ::Zip::Entry::STORED
+      return ::Zip::NullDecompressor if @current_entry.nil?
+
+      if @current_entry.compression_method == ::Zip::Entry::STORED
         if @current_entry.incomplete? && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
-          ::Zip::PassThruDecompressor.new(@archive_io, @complete_entry.size)
+          ::Zip::PassThruDecompressor.new(@decrypted_io, @complete_entry.size)
         else
-          ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
+          ::Zip::PassThruDecompressor.new(@decrypted_io, @current_entry.size)
         end
       elsif @current_entry.compression_method == ::Zip::Entry::DEFLATED
-        header = @archive_io.read(@decrypter.header_bytesize)
-        @decrypter.reset!(header)
-        decrypted_io = ::Zip::DecryptedIo.new(@archive_io, @decrypter)
-        ::Zip::Inflater.new(decrypted_io)
+        ::Zip::Inflater.new(@decrypted_io)
       else
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"
