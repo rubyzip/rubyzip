@@ -76,6 +76,10 @@ module Zip
       gp_flags & 1 == 1
     end
 
+    def incomplete?
+      gp_flags & 8 == 8
+    end
+
     def time
       if @extra['UniversalTime']
         @extra['UniversalTime'].mtime

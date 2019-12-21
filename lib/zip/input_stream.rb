@@ -127,7 +127,7 @@ module Zip
       if @current_entry && @current_entry.encrypted? && @decrypter.is_a?(NullEncrypter)
         raise Error, 'password required to decode zip file'
       end
-      if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
+      if @current_entry && @current_entry.incomplete? && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0 && !@complete_entry
         raise GPFBit3Error,
@@ -143,7 +143,7 @@ module Zip
       if @current_entry.nil?
         ::Zip::NullDecompressor
       elsif @current_entry.compression_method == ::Zip::Entry::STORED
-        if @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
+        if @current_entry.incomplete? && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
           ::Zip::PassThruDecompressor.new(@archive_io, @complete_entry.size)
         else
           ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
