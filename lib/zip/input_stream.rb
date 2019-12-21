@@ -124,7 +124,7 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
-      if @current_entry && @current_entry.gp_flags & 1 == 1 && @decrypter.is_a?(NullEncrypter)
+      if @current_entry && @current_entry.encrypted? && @decrypter.is_a?(NullEncrypter)
         raise Error, 'password required to decode zip file'
       end
       if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
