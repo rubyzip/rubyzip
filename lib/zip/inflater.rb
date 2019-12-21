@@ -1,11 +1,10 @@
 module Zip
   class Inflater < Decompressor #:nodoc:all
-    def initialize(input_stream, decrypter = NullDecrypter.new)
+    def initialize(input_stream)
       super(input_stream)
       @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
       @output_buffer           = ''.dup
       @has_returned_empty_string = false
-      @decrypter = decrypter
     end
 
     def sysread(number_of_bytes = nil, buf = '')
@@ -30,7 +29,7 @@ module Zip
     def internal_produce_input(buf = '')
       retried = 0
       begin
-        @zlib_inflater.inflate(@decrypter.decrypt(@input_stream.read(Decompressor::CHUNK_SIZE, buf)))
+        @zlib_inflater.inflate(@input_stream.read(Decompressor::CHUNK_SIZE, buf))
       rescue Zlib::BufError
         raise if retried >= 5 # how many times should we retry?
         retried += 1

@@ -147,7 +147,8 @@ module Zip
       elsif @current_entry.compression_method == ::Zip::Entry::DEFLATED
         header = @archive_io.read(@decrypter.header_bytesize)
         @decrypter.reset!(header)
-        ::Zip::Inflater.new(@archive_io, @decrypter)
+        decrypted_io = ::Zip::DecryptedIo.new(@archive_io, @decrypter)
+        ::Zip::Inflater.new(decrypted_io)
       else
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"
