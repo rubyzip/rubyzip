@@ -20,11 +20,7 @@ module Zip
     end
 
     def produce_input
-      if @output_buffer.empty?
-        internal_produce_input
-      else
-        @output_buffer.slice!(0...(@output_buffer.length))
-      end
+      sysread(::Zip::Decompressor::CHUNK_SIZE)
     end
 
     def eof
