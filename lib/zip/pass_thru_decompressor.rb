@@ -8,7 +8,7 @@ module Zip
     end
 
     def sysread(number_of_bytes = nil, buf = '')
-      if input_finished?
+      if eof?
         has_returned_empty_string_val = @has_returned_empty_string
         @has_returned_empty_string = true
         return '' unless has_returned_empty_string_val
@@ -26,12 +26,11 @@ module Zip
       sysread(::Zip::Decompressor::CHUNK_SIZE)
     end
 
-    def input_finished?
+    def eof
       @read_so_far >= @chars_to_read
     end
 
-    alias eof input_finished?
-    alias eof? input_finished?
+    alias_method :eof?, :eof
   end
 end
 

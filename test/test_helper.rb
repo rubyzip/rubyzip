@@ -84,7 +84,7 @@ module DecompressorTests
 
     assert_equal(@refText[0...100], @decompressor.sysread(100))
 
-    assert(!@decompressor.input_finished?)
+    assert(!@decompressor.eof?)
     buf = @decompressor.produce_input
     assert_equal(@refText[100...(100 + buf.length)], buf)
   end

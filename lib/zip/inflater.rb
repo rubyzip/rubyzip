@@ -14,7 +14,7 @@ module Zip
         break if internal_input_finished?
         @output_buffer << internal_produce_input(buf)
       end
-      return value_when_finished if @output_buffer.bytesize == 0 && input_finished?
+      return value_when_finished if @output_buffer.bytesize == 0 && eof?
       end_index = number_of_bytes.nil? ? @output_buffer.bytesize : number_of_bytes
       @output_buffer.slice!(0...end_index)
     end
@@ -27,14 +27,11 @@ module Zip
       end
     end
 
-    # to be used with produce_input, not read (as read may still have more data cached)
-    # is data cached anywhere other than @outputBuffer?  the comment above may be wrong
-    def input_finished?
+    def eof
       @output_buffer.empty? && internal_input_finished?
     end
 
-    alias :eof input_finished?
-    alias :eof? input_finished?
+    alias_method :eof?, :eof
 
     private
 

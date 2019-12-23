@@ -10,10 +10,6 @@ module Zip
       nil
     end
 
-    def input_finished?
-      true
-    end
-
     def eof
       true
     end

@@ -157,7 +157,7 @@ module Zip
     end
 
     def input_finished?
-      @decompressor.input_finished?
+      @decompressor.eof
     end
   end
 end
