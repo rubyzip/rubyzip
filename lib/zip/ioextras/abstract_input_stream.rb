@@ -106,6 +106,12 @@ module Zip
       end
 
       alias_method :each, :each_line
+
+      def eof
+        @output_buffer.empty? && input_finished?
+      end
+
+      alias_method :eof?, :eof
     end
   end
 end

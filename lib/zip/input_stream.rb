@@ -82,12 +82,6 @@ module Zip
       @decompressor.sysread(number_of_bytes, buf)
     end
 
-    def eof
-      @output_buffer.empty? && @decompressor.eof
-    end
-
-    alias :eof? eof
-
     class << self
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
