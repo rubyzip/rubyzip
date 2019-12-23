@@ -22,10 +22,6 @@ module Zip
       @input_stream.read(number_of_bytes, buf)
     end
 
-    def produce_input
-      sysread(::Zip::Decompressor::CHUNK_SIZE)
-    end
-
     def eof
       @read_so_far >= @chars_to_read
     end

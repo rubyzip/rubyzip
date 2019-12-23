@@ -6,10 +6,6 @@ module Zip
       nil
     end
 
-    def produce_input
-      nil
-    end
-
     def eof
       true
     end

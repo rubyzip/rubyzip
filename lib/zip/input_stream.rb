@@ -39,6 +39,8 @@ module Zip
   # class.
 
   class InputStream
+    CHUNK_SIZE = 32_768
+
     include ::Zip::IOExtras::AbstractInputStream
 
     # Opens the indicated zip file. An exception is thrown
@@ -153,7 +155,7 @@ module Zip
     end
 
     def produce_input
-      @decompressor.produce_input
+      @decompressor.sysread(CHUNK_SIZE)
     end
 
     def input_finished?

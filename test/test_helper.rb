@@ -76,18 +76,6 @@ module DecompressorTests
     end
     assert_equal(0, @refText.size)
   end
-
-  def test_mixing_reads_and_produce_input
-    # Just some preconditions to make sure we have enough data for this test
-    assert(@refText.length > 1000)
-    assert(@refLines.length > 40)
-
-    assert_equal(@refText[0...100], @decompressor.sysread(100))
-
-    assert(!@decompressor.eof?)
-    buf = @decompressor.produce_input
-    assert_equal(@refText[100...(100 + buf.length)], buf)
-  end
 end
 
 module AssertEntry
