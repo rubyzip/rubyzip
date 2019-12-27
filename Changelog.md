@@ -2,6 +2,7 @@
 
 - Fix (at least partially) the `restore_times` and `restore_permissions` options to `Zip::File.new` [#413](https://github.com/rubyzip/rubyzip/pull/413)
    - Previously, neither option did anything, regardless of what it was set to. We have therefore defaulted them to `false` to preserve the current behavior, for the time being. If you have explicitly set either to `true`, it will now have an effect.
+   - Fix handling of UniversalTime (`mtime`, `atime`, `ctime`) fields [#421](https://github.com/rubyzip/rubyzip/pull/421)
    - Previously, `Zip::File` did not pass the options to `Zip::Entry` in some cases. [#423](https://github.com/rubyzip/rubyzip/pull/423)
    - Note that `restore_times` in this release does nothing on Windows and only restores `mtime`, not `atime` or `ctime`.
 - Allow `Zip::File.open` to take an options hash like `Zip::File.new` [#418](https://github.com/rubyzip/rubyzip/pull/418)
