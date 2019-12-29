@@ -37,8 +37,7 @@ class DeflaterTest < MiniTest::Test
   private
 
   def load_file(fileName)
-    txt = nil
-    File.open(fileName, 'rb') { |f| txt = f.read }
+    File.open(fileName, 'rb') { |f| f.read }
   end
 
   def deflate(data, fileName)
@@ -52,10 +51,9 @@ class DeflaterTest < MiniTest::Test
   end
 
   def inflate(fileName)
-    txt = nil
     File.open(fileName, 'rb') do |file|
       inflater = ::Zip::Inflater.new(file)
-      txt = inflater.sysread
+      inflater.sysread
     end
   end
 
