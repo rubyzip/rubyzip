@@ -1,13 +1,15 @@
 module Zip
   class PassThruDecompressor < Decompressor #:nodoc:all
-    def initialize(input_stream, chars_to_read)
+    attr_reader :decompressed_size
+
+    def initialize(input_stream, decompressed_size)
       super(input_stream)
-      @chars_to_read = chars_to_read
+      @decompressed_size = decompressed_size
       @read_so_far = 0
       @has_returned_empty_string = false
     end
 
-    def sysread(number_of_bytes = nil, buf = '')
+    def sysread(length = nil, outbuf = '')
       if eof?
         has_returned_empty_string_val = @has_returned_empty_string
         @has_returned_empty_string = true
@@ -15,15 +17,16 @@ module Zip
         return
       end
 
-      if number_of_bytes.nil? || @read_so_far + number_of_bytes > @chars_to_read
-        number_of_bytes = @chars_to_read - @read_so_far
+      if length.nil? || (@read_so_far + length) > decompressed_size
+        length = decompressed_size - @read_so_far
       end
-      @read_so_far += number_of_bytes
-      @input_stream.read(number_of_bytes, buf)
+
+      @read_so_far += length
+      @input_stream.read(length, outbuf)
     end
 
     def eof
-      @read_so_far >= @chars_to_read
+      @read_so_far >= decompressed_size
     end
 
     alias_method :eof?, :eof
