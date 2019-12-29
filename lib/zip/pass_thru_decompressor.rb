@@ -1,10 +1,7 @@
 module Zip
   class PassThruDecompressor < Decompressor #:nodoc:all
-    attr_reader :decompressed_size
-
-    def initialize(input_stream, decompressed_size)
-      super(input_stream)
-      @decompressed_size = decompressed_size
+    def initialize(*args)
+      super
       @read_so_far = 0
       @has_returned_empty_string = false
     end
