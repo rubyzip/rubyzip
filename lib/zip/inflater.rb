@@ -47,6 +47,8 @@ module Zip
         retried += 1
         retry
       end
+    rescue Zlib::Error => e
+      raise(::Zip::DecompressionError, 'zlib error while inflating')
     end
 
     def internal_input_finished?

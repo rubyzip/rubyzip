@@ -34,6 +34,12 @@ class DeflaterTest < MiniTest::Test
     assert(default < no)
   end
 
+  def test_data_error
+    assert_raises(::Zip::DecompressionError) do
+      inflate('test/data/file1.txt.corrupt.deflatedData')
+    end
+  end
+
   private
 
   def load_file(fileName)
