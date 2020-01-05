@@ -2,7 +2,7 @@ module Zip
   module NullDecompressor #:nodoc:all
     module_function
 
-    def sysread(_numberOfBytes = nil, _buf = nil)
+    def sysread(_length = nil, _outbuf = nil)
       nil
     end
 
