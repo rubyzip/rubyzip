@@ -8,15 +8,15 @@ module Zip
       @has_returned_empty_string = false
     end
 
-    def sysread(length = nil, buf = '')
+    def sysread(length = nil, outbuf = '')
       while length.nil? || (@buffer.bytesize < length)
         break if input_finished?
-        @buffer << produce_input(buf)
+        @buffer << produce_input
       end
 
       return value_when_finished if eof?
 
-      @buffer.slice!(0...(length || @buffer.bytesize))
+      outbuf.replace(@buffer.slice!(0...(length || @buffer.bytesize)))
     end
 
     def eof
@@ -27,10 +27,10 @@ module Zip
 
     private
 
-    def produce_input(buf = '')
+    def produce_input
       retried = 0
       begin
-        @zlib_inflater.inflate(input_stream.read(Decompressor::CHUNK_SIZE, buf))
+        @zlib_inflater.inflate(input_stream.read(Decompressor::CHUNK_SIZE))
       rescue Zlib::BufError
         raise if retried >= 5 # how many times should we retry?
         retried += 1
