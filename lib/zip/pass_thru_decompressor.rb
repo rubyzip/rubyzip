@@ -3,16 +3,10 @@ module Zip
     def initialize(*args)
       super
       @read_so_far = 0
-      @has_returned_empty_string = false
     end
 
     def read(length = nil, outbuf = '')
-      if eof?
-        has_returned_empty_string_val = @has_returned_empty_string
-        @has_returned_empty_string = true
-        return '' unless has_returned_empty_string_val
-        return
-      end
+      return ((length.nil? || length.zero?) ? "" : nil) if eof
 
       if length.nil? || (@read_so_far + length) > decompressed_size
         length = decompressed_size - @read_so_far

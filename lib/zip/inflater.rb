@@ -5,16 +5,15 @@ module Zip
 
       @buffer = ''.dup
       @zlib_inflater = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      @has_returned_empty_string = false
     end
 
     def read(length = nil, outbuf = '')
+      return ((length.nil? || length.zero?) ? "" : nil) if eof
+
       while length.nil? || (@buffer.bytesize < length)
         break if input_finished?
         @buffer << produce_input
       end
-
-      return value_when_finished if eof?
 
       outbuf.replace(@buffer.slice!(0...(length || @buffer.bytesize)))
     end
@@ -42,12 +41,6 @@ module Zip
 
     def input_finished?
       @zlib_inflater.finished?
-    end
-
-    def value_when_finished # mimic behaviour of ruby File object.
-      return if @has_returned_empty_string
-      @has_returned_empty_string = true
-      ''
     end
   end
 end
