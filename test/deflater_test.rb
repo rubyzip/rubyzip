@@ -59,7 +59,7 @@ class DeflaterTest < MiniTest::Test
   def inflate(fileName)
     File.open(fileName, 'rb') do |file|
       inflater = ::Zip::Inflater.new(file)
-      inflater.sysread
+      inflater.read
     end
   end
 

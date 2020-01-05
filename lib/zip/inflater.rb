@@ -8,7 +8,7 @@ module Zip
       @has_returned_empty_string = false
     end
 
-    def sysread(length = nil, outbuf = '')
+    def read(length = nil, outbuf = '')
       while length.nil? || (@buffer.bytesize < length)
         break if input_finished?
         @buffer << produce_input

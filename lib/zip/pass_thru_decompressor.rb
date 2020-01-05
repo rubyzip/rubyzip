@@ -6,7 +6,7 @@ module Zip
       @has_returned_empty_string = false
     end
 
-    def sysread(length = nil, outbuf = '')
+    def read(length = nil, outbuf = '')
       if eof?
         has_returned_empty_string_val = @has_returned_empty_string
         @has_returned_empty_string = true

@@ -80,8 +80,8 @@ module Zip
     end
 
     # Modeled after IO.sysread
-    def sysread(number_of_bytes = nil, buf = nil)
-      @decompressor.sysread(number_of_bytes, buf)
+    def sysread(length = nil, outbuf = '')
+      @decompressor.read(length, outbuf)
     end
 
     class << self
@@ -161,7 +161,7 @@ module Zip
     end
 
     def produce_input
-      @decompressor.sysread(CHUNK_SIZE)
+      @decompressor.read(CHUNK_SIZE)
     end
 
     def input_finished?

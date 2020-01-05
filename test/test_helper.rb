@@ -66,12 +66,12 @@ module DecompressorTests
   end
 
   def test_read_everything
-    assert_equal(@refText, @decompressor.sysread)
+    assert_equal(@refText, @decompressor.read)
   end
 
   def test_read_in_chunks
     chunkSize = 5
-    while (decompressedChunk = @decompressor.sysread(chunkSize))
+    while (decompressedChunk = @decompressor.read(chunkSize))
       assert_equal(@refText.slice!(0, chunkSize), decompressedChunk)
     end
     assert_equal(0, @refText.size)
