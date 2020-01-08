@@ -30,7 +30,7 @@ module Zip
     def produce_input(buf = '')
       retried = 0
       begin
-        @zlib_inflater.inflate(@input_stream.read(Decompressor::CHUNK_SIZE, buf))
+        @zlib_inflater.inflate(input_stream.read(Decompressor::CHUNK_SIZE, buf))
       rescue Zlib::BufError
         raise if retried >= 5 # how many times should we retry?
         retried += 1

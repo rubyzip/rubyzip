@@ -2,6 +2,7 @@ module Zip
   class Decompressor #:nodoc:all
     CHUNK_SIZE = 32_768
 
+    attr_reader :input_stream
     attr_reader :decompressed_size
 
     def initialize(input_stream, decompressed_size = nil)

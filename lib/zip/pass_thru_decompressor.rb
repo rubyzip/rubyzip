@@ -19,7 +19,7 @@ module Zip
       end
 
       @read_so_far += length
-      @input_stream.read(length, outbuf)
+      input_stream.read(length, outbuf)
     end
 
     def eof
