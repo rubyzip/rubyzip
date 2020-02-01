@@ -1,38 +1,29 @@
 module Zip
   class PassThruDecompressor < Decompressor #:nodoc:all
-    def initialize(input_stream, chars_to_read)
-      super(input_stream)
-      @chars_to_read = chars_to_read
+    def initialize(*args)
+      super
       @read_so_far = 0
-      @has_returned_empty_string = false
     end
 
-    def sysread(number_of_bytes = nil, buf = '')
-      if input_finished?
-        has_returned_empty_string_val = @has_returned_empty_string
-        @has_returned_empty_string = true
-        return '' unless has_returned_empty_string_val
-        return
+    def read(length = nil, outbuf = '')
+      return ((length.nil? || length.zero?) ? "" : nil) if eof
+
+      if length.nil? || (@read_so_far + length) > decompressed_size
+        length = decompressed_size - @read_so_far
       end
 
-      if number_of_bytes.nil? || @read_so_far + number_of_bytes > @chars_to_read
-        number_of_bytes = @chars_to_read - @read_so_far
-      end
-      @read_so_far += number_of_bytes
-      @input_stream.read(number_of_bytes, buf)
+      @read_so_far += length
+      input_stream.read(length, outbuf)
     end
 
-    def produce_input
-      sysread(::Zip::Decompressor::CHUNK_SIZE)
+    def eof
+      @read_so_far >= decompressed_size
     end
 
-    def input_finished?
-      @read_so_far >= @chars_to_read
-    end
-
-    alias eof input_finished?
-    alias eof? input_finished?
+    alias_method :eof?, :eof
   end
+
+  ::Zip::Decompressor.register(::Zip::COMPRESSION_METHOD_STORE, ::Zip::PassThruDecompressor)
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard

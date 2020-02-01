@@ -39,6 +39,8 @@ module Zip
   # class.
 
   class InputStream
+    CHUNK_SIZE = 32_768
+
     include ::Zip::IOExtras::AbstractInputStream
 
     # Opens the indicated zip file. An exception is thrown
@@ -78,15 +80,9 @@ module Zip
     end
 
     # Modeled after IO.sysread
-    def sysread(number_of_bytes = nil, buf = nil)
-      @decompressor.sysread(number_of_bytes, buf)
+    def sysread(length = nil, outbuf = '')
+      @decompressor.read(length, outbuf)
     end
-
-    def eof
-      @output_buffer.empty? && @decompressor.eof
-    end
-
-    alias :eof? eof
 
     class << self
       # Same as #initialize but if a block is passed the opened
@@ -124,46 +120,54 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
-      if @current_entry && @current_entry.gp_flags & 1 == 1 && @decrypter.is_a?(NullEncrypter)
+      if @current_entry && @current_entry.encrypted? && @decrypter.is_a?(NullEncrypter)
         raise Error, 'password required to decode zip file'
       end
-      if @current_entry && @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 \
+      if @current_entry && @current_entry.incomplete? && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0 && !@complete_entry
         raise GPFBit3Error,
               'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
               'Please use ::Zip::File instead of ::Zip::InputStream'
       end
+      @decrypted_io = get_decrypted_io
       @decompressor = get_decompressor
       flush
       @current_entry
     end
 
+    def get_decrypted_io
+      header = @archive_io.read(@decrypter.header_bytesize)
+      @decrypter.reset!(header)
+
+      ::Zip::DecryptedIo.new(@archive_io, @decrypter)
+    end
+
     def get_decompressor
-      if @current_entry.nil?
-        ::Zip::NullDecompressor
-      elsif @current_entry.compression_method == ::Zip::Entry::STORED
-        if @current_entry.gp_flags & 8 == 8 && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
-          ::Zip::PassThruDecompressor.new(@archive_io, @complete_entry.size)
+      return ::Zip::NullDecompressor if @current_entry.nil?
+
+      decompressed_size =
+        if @current_entry.incomplete? && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
+          @complete_entry.size
         else
-          ::Zip::PassThruDecompressor.new(@archive_io, @current_entry.size)
+          @current_entry.size
         end
-      elsif @current_entry.compression_method == ::Zip::Entry::DEFLATED
-        header = @archive_io.read(@decrypter.header_bytesize)
-        @decrypter.reset!(header)
-        ::Zip::Inflater.new(@archive_io, @decrypter)
-      else
+
+      decompressor_class = ::Zip::Decompressor.find_by_compression_method(@current_entry.compression_method)
+      if decompressor_class.nil?
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"
       end
+
+      decompressor_class.new(@decrypted_io, decompressed_size)
     end
 
     def produce_input
-      @decompressor.produce_input
+      @decompressor.read(CHUNK_SIZE)
     end
 
     def input_finished?
-      @decompressor.input_finished?
+      @decompressor.eof
     end
   end
 end

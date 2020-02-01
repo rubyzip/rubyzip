@@ -66,27 +66,15 @@ module DecompressorTests
   end
 
   def test_read_everything
-    assert_equal(@refText, @decompressor.sysread)
+    assert_equal(@refText, @decompressor.read)
   end
 
   def test_read_in_chunks
     chunkSize = 5
-    while (decompressedChunk = @decompressor.sysread(chunkSize))
+    while (decompressedChunk = @decompressor.read(chunkSize))
       assert_equal(@refText.slice!(0, chunkSize), decompressedChunk)
     end
     assert_equal(0, @refText.size)
-  end
-
-  def test_mixing_reads_and_produce_input
-    # Just some preconditions to make sure we have enough data for this test
-    assert(@refText.length > 1000)
-    assert(@refLines.length > 40)
-
-    assert_equal(@refText[0...100], @decompressor.sysread(100))
-
-    assert(!@decompressor.input_finished?)
-    buf = @decompressor.produce_input
-    assert_equal(@refText[100...(100 + buf.length)], buf)
   end
 end
 

@@ -151,4 +151,22 @@ class ZipEntryTest < MiniTest::Test
 
     assert_match(/mimetypeapplication\/epub\+zip/, first_100_bytes)
   end
+
+  def test_encrypted?
+    entry = Zip::Entry.new
+    entry.gp_flags = 1
+    assert_equal(true, entry.encrypted?)
+
+    entry.gp_flags = 0
+    assert_equal(false, entry.encrypted?)
+  end
+
+  def test_incomplete?
+    entry = Zip::Entry.new
+    entry.gp_flags = 8
+    assert_equal(true, entry.incomplete?)
+
+    entry.gp_flags = 0
+    assert_equal(false, entry.incomplete?)
+  end
 end

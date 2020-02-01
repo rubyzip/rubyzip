@@ -1,64 +1,50 @@
 module Zip
   class Inflater < Decompressor #:nodoc:all
-    def initialize(input_stream, decrypter = NullDecrypter.new)
-      super(input_stream)
-      @zlib_inflater           = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      @output_buffer           = ''.dup
-      @has_returned_empty_string = false
-      @decrypter = decrypter
+    def initialize(*args)
+      super
+
+      @buffer = ''.dup
+      @zlib_inflater = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
     end
 
-    def sysread(number_of_bytes = nil, buf = '')
-      readEverything = number_of_bytes.nil?
-      while readEverything || @output_buffer.bytesize < number_of_bytes
-        break if internal_input_finished?
-        @output_buffer << internal_produce_input(buf)
+    def read(length = nil, outbuf = '')
+      return ((length.nil? || length.zero?) ? "" : nil) if eof
+
+      while length.nil? || (@buffer.bytesize < length)
+        break if input_finished?
+        @buffer << produce_input
       end
-      return value_when_finished if @output_buffer.bytesize == 0 && input_finished?
-      end_index = number_of_bytes.nil? ? @output_buffer.bytesize : number_of_bytes
-      @output_buffer.slice!(0...end_index)
+
+      outbuf.replace(@buffer.slice!(0...(length || @buffer.bytesize)))
     end
 
-    def produce_input
-      if @output_buffer.empty?
-        internal_produce_input
-      else
-        @output_buffer.slice!(0...(@output_buffer.length))
-      end
+    def eof
+      @buffer.empty? && input_finished?
     end
 
-    # to be used with produce_input, not read (as read may still have more data cached)
-    # is data cached anywhere other than @outputBuffer?  the comment above may be wrong
-    def input_finished?
-      @output_buffer.empty? && internal_input_finished?
-    end
-
-    alias :eof input_finished?
-    alias :eof? input_finished?
+    alias_method :eof?, :eof
 
     private
 
-    def internal_produce_input(buf = '')
+    def produce_input
       retried = 0
       begin
-        @zlib_inflater.inflate(@decrypter.decrypt(@input_stream.read(Decompressor::CHUNK_SIZE, buf)))
+        @zlib_inflater.inflate(input_stream.read(Decompressor::CHUNK_SIZE))
       rescue Zlib::BufError
         raise if retried >= 5 # how many times should we retry?
         retried += 1
         retry
       end
+    rescue Zlib::Error => e
+      raise(::Zip::DecompressionError, 'zlib error while inflating')
     end
 
-    def internal_input_finished?
+    def input_finished?
       @zlib_inflater.finished?
     end
-
-    def value_when_finished # mimic behaviour of ruby File object.
-      return if @has_returned_empty_string
-      @has_returned_empty_string = true
-      ''
-    end
   end
+
+  ::Zip::Decompressor.register(::Zip::COMPRESSION_METHOD_DEFLATE, ::Zip::Inflater)
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
