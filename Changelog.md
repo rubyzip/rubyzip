@@ -1,5 +1,9 @@
 # X.X.X (Next)
 
+# 2.2.0 (2020-02-01)
+
+- Add support for decompression plugin gems [#427](https://github.com/rubyzip/rubyzip/pull/427)
+
 # 2.1.0 (2020-01-25)
 
 - Fix (at least partially) the `restore_times` and `restore_permissions` options to `Zip::File.new` [#413](https://github.com/rubyzip/rubyzip/pull/413)
