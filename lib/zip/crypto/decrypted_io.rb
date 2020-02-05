@@ -25,7 +25,7 @@ module Zip
     end
 
     def buffer
-      @buffer ||= ''.dup
+      @buffer ||= +''
     end
 
     def input_finished?
