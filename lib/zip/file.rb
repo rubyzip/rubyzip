@@ -54,7 +54,8 @@ module Zip
     DEFAULT_OPTIONS = {
       restore_ownership:   false,
       restore_permissions: false,
-      restore_times:       false
+      restore_times:       false,
+      use_system_temp_dir: true
     }.freeze
 
     attr_reader :name
@@ -111,6 +112,7 @@ module Zip
       @restore_ownership   = options[:restore_ownership]
       @restore_permissions = options[:restore_permissions]
       @restore_times       = options[:restore_times]
+      @use_system_temp_dir = options[:use_system_temp_dir]
     end
 
     class << self
@@ -272,7 +274,7 @@ module Zip
               "cannot open stream to directory entry - '#{new_entry}'"
       end
       new_entry.unix_perms = permission_int
-      zip_streamable_entry = StreamableStream.new(new_entry)
+      zip_streamable_entry = StreamableStream.new(new_entry, @use_system_temp_dir)
       @entry_set << zip_streamable_entry
       zip_streamable_entry.get_output_stream(&aProc)
     end
