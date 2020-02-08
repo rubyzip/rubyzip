@@ -23,9 +23,9 @@ Gem::Specification.new do |s|
     'wiki_uri'          => 'https://github.com/rubyzip/rubyzip/wiki'
   }
   s.required_ruby_version = '>= 2.4'
-  s.add_development_dependency 'rake', '~> 10.3'
-  s.add_development_dependency 'pry', '~> 0.10'
-  s.add_development_dependency 'minitest', '~> 5.4'
   s.add_development_dependency 'coveralls', '~> 0.7'
+  s.add_development_dependency 'minitest', '~> 5.4'
+  s.add_development_dependency 'pry', '~> 0.10'
+  s.add_development_dependency 'rake', '~> 10.3'
   s.add_development_dependency 'rubocop', '~> 0.79'
 end
