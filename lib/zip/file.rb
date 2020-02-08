@@ -402,7 +402,7 @@ module Zip
     # Creates a directory
     def mkdir(entryName, permissionInt = 0o755)
       raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
-      entryName = +entryName.to_s
+      entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
       @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
     end
