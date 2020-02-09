@@ -1,1 +1,6 @@
 inherit_from: .rubocop_todo.yml
+
+# Allow this "useless" test, as we are testing <=> here.
+Lint/UselessComparison:
+  Exclude:
+    - 'test/entry_test.rb'
