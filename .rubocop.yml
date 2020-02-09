@@ -16,6 +16,13 @@ Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
 
+# Allow inner slashes when using // for regex literals. Allow the
+# Guardfile to use a syntax that is more consistent with its own style.
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+  Exclude:
+    - 'Guardfile'
+
 Style/SymbolArray:
   EnforcedStyle: brackets
 

@@ -242,17 +242,6 @@ Style/NumericPredicate:
     - 'test/file_split_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerSlashes.
-# SupportedStyles: slashes, percent_r, mixed
-Style/RegexpLiteral:
-  Exclude:
-    - 'lib/zip/filesystem.rb'
-    - 'test/entry_test.rb'
-    - 'test/path_traversal_test.rb'
-    - 'test/settings_test.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.
