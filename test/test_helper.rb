@@ -24,7 +24,7 @@ module IOizeString
 
   def read(count = nil)
     @tell ||= 0
-    count = size unless count
+    count ||= size
     retVal = slice(@tell, count)
     @tell += count
     retVal
