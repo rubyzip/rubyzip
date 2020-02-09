@@ -1,5 +1,5 @@
 module Zip
-  class StreamableStream < DelegateClass(Entry) # nodoc:all
+  class StreamableStream < DelegateClass(Entry) # :nodoc:all
     def initialize(entry)
       super(entry)
       @temp_file = Tempfile.new(::File.basename(name))

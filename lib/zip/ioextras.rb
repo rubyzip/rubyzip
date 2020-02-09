@@ -25,7 +25,7 @@ module Zip
         object == IO || super
       end
     end
-  end # IOExtras namespace module
+  end
 end
 
 require 'zip/ioextras/abstract_input_stream'

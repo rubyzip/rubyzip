@@ -151,12 +151,6 @@ Style/ClassCheck:
     - 'test/ioextras/fake_io_test.rb'
     - 'test/output_stream_test.rb'
 
-# Offense count: 2
-Style/CommentedKeyword:
-  Exclude:
-    - 'lib/zip/ioextras.rb'
-    - 'lib/zip/streamable_stream.rb'
-
 # Offense count: 26
 Style/Documentation:
   Enabled: false
