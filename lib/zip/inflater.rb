@@ -3,7 +3,7 @@ module Zip
     def initialize(*args)
       super
 
-      @buffer = ''.dup
+      @buffer = +''
       @zlib_inflater = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
     end
 

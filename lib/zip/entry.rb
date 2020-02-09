@@ -615,7 +615,7 @@ module Zip
         get_input_stream do |is|
           bytes_written = 0
           warned = false
-          buf = ''.dup
+          buf = +''
           while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
             os << buf
             bytes_written += buf.bytesize

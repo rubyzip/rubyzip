@@ -7,7 +7,7 @@ module Zip
       @decrypter = decrypter
     end
 
-    def read(length = nil, outbuf = '')
+    def read(length = nil, outbuf = +'')
       return ((length.nil? || length.zero?) ? "" : nil) if eof
 
       while length.nil? || (buffer.bytesize < length)
@@ -25,7 +25,7 @@ module Zip
     end
 
     def buffer
-      @buffer ||= ''.dup
+      @buffer ||= +''
     end
 
     def input_finished?
