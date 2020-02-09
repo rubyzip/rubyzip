@@ -10,11 +10,11 @@ class StoredSupportTest < MiniTest::Test
     Zip::InputStream.open(STORED_ZIP_TEST_FILE) do |zis|
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
-      assert_equal 1327, entry.size
+      assert_equal 1_327, entry.size
       assert_equal ::File.open(INPUT_FILE1, 'r').read, zis.read
       entry = zis.get_next_entry
       assert_equal 'file2.txt', entry.name
-      assert_equal 41234, entry.size
+      assert_equal 41_234, entry.size
       assert_equal ::File.open(INPUT_FILE2, 'r').read, zis.read
     end
   end
@@ -23,11 +23,11 @@ class StoredSupportTest < MiniTest::Test
     Zip::InputStream.open(ENCRYPTED_STORED_ZIP_TEST_FILE, 0, Zip::TraditionalDecrypter.new('password')) do |zis|
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
-      assert_equal 1327, entry.size
+      assert_equal 1_327, entry.size
       assert_equal ::File.open(INPUT_FILE1, 'r').read, zis.read
       entry = zis.get_next_entry
       assert_equal 'file2.txt', entry.name
-      assert_equal 41234, entry.size
+      assert_equal 41_234, entry.size
       assert_equal ::File.open(INPUT_FILE2, 'r').read, zis.read
     end
   end
