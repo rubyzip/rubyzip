@@ -42,11 +42,10 @@ module IOizeString
     else
       raise 'Error in test method IOizeString::seek'
     end
-    if newPos < 0 || newPos >= size
-      raise Errno::EINVAL
-    else
-      @tell = newPos
-    end
+
+    raise Errno::EINVAL if newPos < 0 || newPos >= size
+
+    @tell = newPos
   end
 
   def reset
@@ -107,14 +106,14 @@ module AssertEntry
   def self.assert_contents(filename, aString)
     fileContents = ''
     File.open(filename, 'rb') { |f| fileContents = f.read }
-    if fileContents != aString
-      if fileContents.length > 400 || aString.length > 400
-        stringFile = filename + '.other'
-        File.open(stringFile, 'wb') { |f| f << aString }
-        fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
-      else
-        assert_equal(fileContents, aString)
-      end
+    return unless fileContents != aString
+
+    if fileContents.length > 400 || aString.length > 400
+      stringFile = filename + '.other'
+      File.open(stringFile, 'wb') { |f| f << aString }
+      fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
+    else
+      assert_equal(fileContents, aString)
     end
   end
 

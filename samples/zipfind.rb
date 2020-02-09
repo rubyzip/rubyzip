@@ -48,10 +48,10 @@ if $0 == __FILE__
     end
 
     def self.check_args(args)
-      if args.size != 3
-        usage
-        exit
-      end
+      return if args.size == 3
+
+      usage
+      exit
     end
 
     def self.usage

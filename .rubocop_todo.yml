@@ -163,15 +163,6 @@ Style/FormatStringToken:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 8
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'lib/zip/entry.rb'
-    - 'lib/zip/extra_field/generic.rb'
-    - 'samples/zipfind.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:

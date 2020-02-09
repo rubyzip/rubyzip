@@ -182,12 +182,9 @@ module Zip
       dest_path ||= @name
       block ||= proc { ::Zip.on_exists_proc }
 
-      if directory? || file? || symlink?
-        __send__("create_#{@ftype}", dest_path, &block)
-      else
-        raise "unknown file type #{inspect}"
-      end
+      raise "unknown file type #{inspect}" unless directory? || file? || symlink?
 
+      __send__("create_#{@ftype}", dest_path, &block)
       self
     end
 
@@ -630,12 +627,10 @@ module Zip
             bytes_written += buf.bytesize
             if bytes_written > size && !warned
               message = "entry '#{name}' should be #{size}B, but is larger when inflated."
-              if ::Zip.validate_entry_sizes
-                raise ::Zip::EntrySizeError, message
-              else
-                warn "WARNING: #{message}"
-                warned = true
-              end
+              raise ::Zip::EntrySizeError, message if ::Zip.validate_entry_sizes
+
+              warn "WARNING: #{message}"
+              warned = true
             end
           end
         end
