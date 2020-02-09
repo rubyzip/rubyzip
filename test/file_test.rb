@@ -431,7 +431,7 @@ class ZipFileTest < MiniTest::Test
     zfRead.close
 
     zf.close
-    res = system("unzip -tqq #{TEST_ZIP.zip_name}")
+    res = system("unzip -t #{TEST_ZIP.zip_name}")
     assert_equal(res, true)
   end
 
@@ -447,7 +447,7 @@ class ZipFileTest < MiniTest::Test
     zf2 = ::Zip::File.open(filename)
     assert(zf2.entries.detect { |e| e.name == 'test1.txt' } != nil)
     assert(zf2.entries.detect { |e| e.name == 'test2.txt' } != nil)
-    res = system("unzip -tqq #{filename}")
+    res = system("unzip -t #{filename}")
     assert_equal(res, true)
   end
 
