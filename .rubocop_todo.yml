@@ -161,14 +161,6 @@ Style/CommentedKeyword:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/Encoding:
-  Exclude:
-    - 'rubyzip.gemspec'
-    - 'test/errors_test.rb'
-    - 'test/unicode_file_names_and_comments_test.rb'
-
 # Offense count: 2
 Style/EvalWithLocation:
   Exclude:
