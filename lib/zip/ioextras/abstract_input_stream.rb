@@ -103,6 +103,7 @@ module Zip
       def each_line(a_sep_string = $/)
         loop { yield readline(a_sep_string) }
       rescue EOFError
+        # We just need to catch this; we don't need to handle it.
       end
 
       alias_method :each, :each_line
