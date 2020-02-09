@@ -23,7 +23,7 @@ module Zip
       @buffer.empty? && input_finished?
     end
 
-    alias_method :eof?, :eof
+    alias eof? eof
 
     private
 

@@ -113,16 +113,6 @@ Style/AccessModifierDeclarations:
     - 'lib/zip/extra_field/zip64.rb'
     - 'lib/zip/filesystem.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'lib/zip/inflater.rb'
-    - 'lib/zip/ioextras/abstract_input_stream.rb'
-    - 'lib/zip/pass_thru_decompressor.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle.

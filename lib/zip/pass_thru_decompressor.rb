@@ -20,7 +20,7 @@ module Zip
       @read_so_far >= decompressed_size
     end
 
-    alias_method :eof?, :eof
+    alias eof? eof
   end
 
   ::Zip::Decompressor.register(::Zip::COMPRESSION_METHOD_STORE, ::Zip::PassThruDecompressor)

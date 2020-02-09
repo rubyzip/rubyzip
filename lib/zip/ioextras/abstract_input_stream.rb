@@ -110,13 +110,13 @@ module Zip
         # We just need to catch this; we don't need to handle it.
       end
 
-      alias_method :each, :each_line
+      alias each each_line
 
       def eof
         @output_buffer.empty? && input_finished?
       end
 
-      alias_method :eof?, :eof
+      alias eof? eof
     end
   end
 end
