@@ -132,14 +132,6 @@ Style/MutableConstant:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedOctalStyle.
-# SupportedOctalStyles: zero_with_o, zero_only
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'test/file_options_test.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 # Configuration parameters: Strict.
 Style/NumericLiterals:
   MinDigits: 6

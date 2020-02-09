@@ -24,9 +24,9 @@ class FileOptionsTest < MiniTest::Test
   def test_restore_permissions
     # Copy and set up files with different permissions.
     ::FileUtils.cp(TXTPATH, TXTPATH_600)
-    ::File.chmod(0600, TXTPATH_600)
+    ::File.chmod(0o600, TXTPATH_600)
     ::FileUtils.cp(TXTPATH, TXTPATH_755)
-    ::File.chmod(0755, TXTPATH_755)
+    ::File.chmod(0o755, TXTPATH_755)
 
     ::Zip::File.open(ZIPPATH, true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
