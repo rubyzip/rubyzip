@@ -1,5 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
 # In some cases we just need to catch an exception, rather than
 # actually handle it. Allow the tests to make use of this shortcut.
 Lint/SuppressedException:

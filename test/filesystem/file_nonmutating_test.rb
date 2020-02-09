@@ -434,9 +434,11 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     ::Zip::File.open('test/data/globTest.zip') do |zf|
       {
         'globTest/foo.txt' => ['globTest/foo.txt'],
-        '*/foo.txt' => ['globTest/foo.txt'],
-        '**/foo.txt' => ['globTest/foo.txt', 'globTest/foo/bar/baz/foo.txt'],
-        '*/foo/**/*.txt' => ['globTest/foo/bar/baz/foo.txt']
+        '*/foo.txt'        => ['globTest/foo.txt'],
+        '**/foo.txt'       => [
+          'globTest/foo.txt', 'globTest/foo/bar/baz/foo.txt'
+        ],
+        '*/foo/**/*.txt'   => ['globTest/foo/bar/baz/foo.txt']
       }.each do |spec, expected_results|
         results = zf.glob(spec)
         assert(results.all? { |entry| entry.is_a? ::Zip::Entry })

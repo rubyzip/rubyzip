@@ -62,7 +62,7 @@ class PathTraversalTest < MiniTest::Test
 
   def test_non_leading_dot_dot_with_existing_folder
     entries = {
-      'tmp/' => '',
+      'tmp/'          => '',
       'tmp/../../moo' => /WARNING: skipped \'tmp\/\.\.\/\.\.\/moo\'/
     }
     in_tmpdir do
@@ -92,7 +92,7 @@ class PathTraversalTest < MiniTest::Test
   def test_directory_symlink
     # Can't create tmp/moo, because the tmp symlink is skipped.
     entries = {
-      'tmp' => /WARNING: skipped symlink \'tmp\'/,
+      'tmp'     => /WARNING: skipped symlink \'tmp\'/,
       'tmp/moo' => :error
     }
     in_tmpdir do
@@ -104,8 +104,8 @@ class PathTraversalTest < MiniTest::Test
   def test_two_directory_symlinks_a
     # Can't create par/moo because the symlinks are skipped.
     entries = {
-      'cur' => /WARNING: skipped symlink \'cur\'/,
-      'par' => /WARNING: skipped symlink \'par\'/,
+      'cur'     => /WARNING: skipped symlink \'cur\'/,
+      'par'     => /WARNING: skipped symlink \'par\'/,
       'par/moo' => :error
     }
     in_tmpdir do
@@ -119,7 +119,7 @@ class PathTraversalTest < MiniTest::Test
   def test_two_directory_symlinks_b
     # Can't create par/moo, because the symlinks are skipped.
     entries = {
-      'cur' => /WARNING: skipped symlink \'cur\'/,
+      'cur'     => /WARNING: skipped symlink \'cur\'/,
       'cur/par' => /WARNING: skipped symlink \'cur\/par\'/,
       'par/moo' => :error
     }
@@ -132,7 +132,7 @@ class PathTraversalTest < MiniTest::Test
 
   def test_entry_name_with_absolute_path_does_not_extract
     entries = {
-      '/tmp/' => /WARNING: skipped \'\/tmp\/\'/,
+      '/tmp/'         => /WARNING: skipped \'\/tmp\/\'/,
       '/tmp/file.txt' => /WARNING: skipped \'\/tmp\/file.txt\'/
     }
     in_tmpdir do
@@ -156,7 +156,7 @@ class PathTraversalTest < MiniTest::Test
   def test_entry_name_with_relative_symlink
     # Doesn't create the symlink path, so can't create path/file.txt.
     entries = {
-      'path' => /WARNING: skipped symlink \'path\'/,
+      'path'          => /WARNING: skipped symlink \'path\'/,
       'path/file.txt' => :error
     }
     in_tmpdir do
