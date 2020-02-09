@@ -1,5 +1,7 @@
 # X.X.X (Next)
 
+- Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
+
 # 2.2.0 (2020-02-01)
 
 - Add support for decompression plugin gems [#427](https://github.com/rubyzip/rubyzip/pull/427)
