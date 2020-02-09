@@ -6,7 +6,7 @@ module Zip
     end
 
     def read(length = nil, outbuf = '')
-      return ((length.nil? || length.zero?) ? "" : nil) if eof
+      return ((length.nil? || length.zero?) ? '' : nil) if eof
 
       if length.nil? || (@read_so_far + length) > decompressed_size
         length = decompressed_size - @read_so_far

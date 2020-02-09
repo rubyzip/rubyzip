@@ -301,17 +301,6 @@ Style/SpecialGlobalVars:
     - 'test/output_stream_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'lib/zip/crypto/decrypted_io.rb'
-    - 'lib/zip/inflater.rb'
-    - 'lib/zip/pass_thru_decompressor.rb'
-    - 'test/file_test.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: MinSize.
