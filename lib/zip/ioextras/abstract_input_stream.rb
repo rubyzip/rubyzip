@@ -35,6 +35,7 @@ module Zip
 
         if tbuf.nil? || tbuf.empty?
           return nil if number_of_bytes
+
           return ''
         end
 
@@ -69,6 +70,7 @@ module Zip
         end
 
         return read(number_of_bytes) if a_sep_string.nil?
+
         a_sep_string = "#{$/}#{$/}" if a_sep_string.empty?
 
         buffer_index = 0
@@ -76,6 +78,7 @@ module Zip
         while (match_index = @output_buffer.index(a_sep_string, buffer_index)).nil? && !over_limit
           buffer_index = [buffer_index, @output_buffer.bytesize - a_sep_string.bytesize].max
           return @output_buffer.empty? ? nil : flush if input_finished?
+
           @output_buffer << produce_input
           over_limit = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         end
@@ -97,6 +100,7 @@ module Zip
       def readline(a_sep_string = $/)
         ret_val = gets(a_sep_string)
         raise EOFError unless ret_val
+
         ret_val
       end
 

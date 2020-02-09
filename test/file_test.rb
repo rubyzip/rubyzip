@@ -623,6 +623,7 @@ class ZipFileTest < MiniTest::Test
       Zip::File.open_buffer(f) do |zipfile|
         zipfile.each do |entry|
           next unless entry.name =~ /README.md/
+
           data = zipfile.read(entry)
         end
       end

@@ -73,6 +73,7 @@ module Zip
     # Rewinds the stream to the beginning of the current entry
     def rewind
       return if @current_entry.nil?
+
       @lineno = 0
       @pos    = 0
       @archive_io.seek(@current_entry.local_header_offset, IO::SEEK_SET)
@@ -91,6 +92,7 @@ module Zip
       def open(filename_or_io, offset = 0, decrypter = nil)
         zio = new(filename_or_io, offset, decrypter)
         return zio unless block_given?
+
         begin
           yield zio
         ensure
@@ -123,6 +125,7 @@ module Zip
       if @current_entry && @current_entry.encrypted? && @decrypter.is_a?(NullEncrypter)
         raise Error, 'password required to decode zip file'
       end
+
       if @current_entry && @current_entry.incomplete? && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0 && !@complete_entry

@@ -50,6 +50,7 @@ module Zip
 
     def ==(other)
       return false unless other.kind_of?(EntrySet)
+
       @entry_set.values == other.entry_set.values
     end
 
@@ -60,6 +61,7 @@ module Zip
     def glob(pattern, flags = ::File::FNM_PATHNAME | ::File::FNM_DOTMATCH | ::File::FNM_EXTGLOB)
       entries.map do |entry|
         next nil unless ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
+
         yield(entry) if block_given?
         entry
       end.compact

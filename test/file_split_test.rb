@@ -28,6 +28,7 @@ class ZipFileSplitTest < MiniTest::Test
     result = ::Zip::File.split(TEST_ZIP.zip_name, 65_536, false)
 
     return if result.nil?
+
     Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
       File.open(zip_file_name, 'rb') do |zip_file|
         zip_file.read([::Zip::File::SPLIT_SIGNATURE].pack('V').size) if index == 0

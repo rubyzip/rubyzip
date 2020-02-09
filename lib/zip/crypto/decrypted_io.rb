@@ -12,6 +12,7 @@ module Zip
 
       while length.nil? || (buffer.bytesize < length)
         break if input_finished?
+
         buffer << produce_input
       end
 

@@ -176,6 +176,7 @@ module Zip
         unless exists?(fileName)
           raise Errno::ENOENT, "No such file or directory - #{fileName}"
         end
+
         @mappedZip.find_entry(fileName)
       end
       private :get_entry
@@ -382,6 +383,7 @@ module Zip
 
       def stat(fileName)
         raise Errno::ENOENT, fileName unless exists?(fileName)
+
         ZipFsStat.new(self, fileName)
       end
 
@@ -408,6 +410,7 @@ module Zip
           if directory?(fileName)
             raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
           end
+
           @mappedZip.remove(fileName)
         end
       end
@@ -462,6 +465,7 @@ module Zip
         unless @file.stat(aDirectoryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
         end
+
         @mappedZip.pwd = @file.expand_path(aDirectoryName)
       end
 
@@ -479,6 +483,7 @@ module Zip
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
         end
+
         path = @file.expand_path(aDirectoryName)
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
@@ -493,6 +498,7 @@ module Zip
         unless @file.stat(entryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{entryName}"
         end
+
         @mappedZip.remove(entryName)
       end
       alias rmdir delete
@@ -521,26 +527,31 @@ module Zip
 
       def each(&aProc)
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @fileNames.each(&aProc)
       end
 
       def read
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @fileNames[(@index += 1) - 1]
       end
 
       def rewind
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @index = 0
       end
 
       def seek(anIntegerPosition)
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @index = anIntegerPosition
       end
 
       def tell
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @index
       end
     end

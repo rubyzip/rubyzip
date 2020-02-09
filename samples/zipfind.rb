@@ -13,6 +13,7 @@ module Zip
       Find.find(path) do |fileName|
         yield(fileName)
         next unless zipFilePattern.match(fileName) && File.file?(fileName)
+
         begin
           Zip::File.foreach(fileName) do |zipEntry|
             yield(fileName + File::SEPARATOR + zipEntry.to_s)

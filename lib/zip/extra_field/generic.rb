@@ -19,11 +19,13 @@ module Zip
         warn 'WARNING: weird extra field header ID. Skip parsing it.'
         return false
       end
+
       [binstr[2, 2].unpack('v')[0], binstr[4..-1]]
     end
 
     def ==(other)
       return false if self.class != other.class
+
       each do |k, v|
         return false if v != other[k]
       end

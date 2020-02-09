@@ -12,6 +12,7 @@ module Zip
 
       while length.nil? || (@buffer.bytesize < length)
         break if input_finished?
+
         @buffer << produce_input
       end
 
@@ -32,6 +33,7 @@ module Zip
         @zlib_inflater.inflate(input_stream.read(Decompressor::CHUNK_SIZE))
       rescue Zlib::BufError
         raise if retried >= 5 # how many times should we retry?
+
         retried += 1
         retry
       end

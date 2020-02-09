@@ -14,9 +14,11 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
+
       size, content = initial_parse(binstr)
       # size: 0 for central directory. 4 for local header
       return if !size || size == 0
+
       uid, gid = content.unpack('vv')
       @uid ||= uid
       @gid ||= gid

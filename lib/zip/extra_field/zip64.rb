@@ -26,6 +26,7 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
+
       _, @content = initial_parse(binstr)
     end
 
@@ -52,6 +53,7 @@ module Zip
     def pack_for_local
       # local header entries must contain original size and compressed size; other fields do not apply
       return '' unless @original_size && @compressed_size
+
       [@original_size, @compressed_size].pack('Q<Q<')
     end
 

@@ -49,6 +49,7 @@ module Zip
     class << self
       def open(file_name, encrypter = nil)
         return new(file_name) unless block_given?
+
         zos = new(file_name, false, encrypter)
         yield zos
       ensure
@@ -66,6 +67,7 @@ module Zip
     # Closes the stream and writes the central directory to the zip file
     def close
       return if @closed
+
       finalize_current_entry
       update_local_headers
       write_central_directory
@@ -76,6 +78,7 @@ module Zip
     # Closes the stream and writes the central directory to the zip file
     def close_buffer
       return @output_stream if @closed
+
       finalize_current_entry
       update_local_headers
       write_central_directory
@@ -87,6 +90,7 @@ module Zip
     # +entry+ can be a ZipEntry object or a string.
     def put_next_entry(entry_name, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zip.default_compression)
       raise Error, 'zip stream is closed' if @closed
+
       new_entry = if entry_name.kind_of?(Entry)
                     entry_name
                   else
@@ -105,6 +109,7 @@ module Zip
       entry = entry.dup
       raise Error, 'zip stream is closed' if @closed
       raise Error, 'entry is not a ZipEntry' unless entry.is_a?(Entry)
+
       finalize_current_entry
       @entry_set << entry
       src_pos = entry.local_header_offset
@@ -123,6 +128,7 @@ module Zip
 
     def finalize_current_entry
       return unless @current_entry
+
       finish
       @current_entry.compressed_size = @output_stream.tell - @current_entry.local_header_offset - @current_entry.calculate_local_header_size
       @current_entry.size = @compressor.size

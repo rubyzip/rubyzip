@@ -120,6 +120,7 @@ module Zip
       def open(file_name, create = false, options = {})
         zf = ::Zip::File.new(file_name, create, false, options)
         return zf unless block_given?
+
         begin
           yield zf
         ensure
@@ -151,6 +152,7 @@ module Zip
 
         zf = ::Zip::File.new(io, true, true, options)
         return zf unless block_given?
+
         yield zf
 
         begin
@@ -229,9 +231,11 @@ module Zip
       def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
         raise Error, "File #{zip_file_name} not found" unless ::File.exist?(zip_file_name)
         raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
+
         zip_file_size = ::File.size(zip_file_name)
         segment_size  = get_segment_size_for_split(segment_size)
         return if zip_file_size <= segment_size
+
         segment_count = get_segment_count_for_split(zip_file_size, segment_size)
         # Checking for correct zip structure
         ::Zip::File.open(zip_file_name) {}
@@ -337,6 +341,7 @@ module Zip
     # the zip archive.
     def commit
       return if name.is_a?(StringIO) || !commit_required?
+
       on_success_replace do |tmp_file|
         ::Zip::OutputStream.open(tmp_file) do |zos|
           @entry_set.each do |e|
@@ -402,6 +407,7 @@ module Zip
     # Creates a directory
     def mkdir(entryName, permissionInt = 0o755)
       raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
+
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
       @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
@@ -424,6 +430,7 @@ module Zip
     def check_entry_exists(entryName, continue_on_exists_proc, procedureName)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
       return unless @entry_set.include?(entryName)
+
       if continue_on_exists_proc.call
         remove get_entry(entryName)
       else
