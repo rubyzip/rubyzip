@@ -110,6 +110,6 @@ module Zip
     COMPRESSION_METHOD_JPEG        => 'JPEG variant',
     COMPRESSION_METHOD_WAVPACK     => 'WavPack compressed data',
     COMPRESSION_METHOD_PPMD        => 'PPMd version I, Rev 1',
-    COMPRESSION_METHOD_AES         => 'AES encryption',
+    COMPRESSION_METHOD_AES         => 'AES encryption'
   }.freeze
 end
