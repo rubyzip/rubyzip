@@ -35,6 +35,11 @@ Metrics/BlockLength:
   Exclude:
     - 'test/**/*.rb'
 
+# Turn class length metrics off for the tests.
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*.rb'
+
 # Rubocop confuses these as instances of "memoization".
 Naming/MemoizedInstanceVariableName:
   Exclude:

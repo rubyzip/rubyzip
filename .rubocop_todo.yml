@@ -17,7 +17,7 @@ Layout/EmptyLinesAroundClassBody:
 # Offense count: 15
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
-  Max: 579
+  Max: 580
 
 # Offense count: 26
 Metrics/CyclomaticComplexity:
