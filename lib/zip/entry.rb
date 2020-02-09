@@ -226,8 +226,6 @@ module Zip
       end
     end
 
-    public
-
     def unpack_local_entry(buf)
       @header_signature,
         @version,
