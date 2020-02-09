@@ -9,7 +9,7 @@ module Zip
       # unparsed binary; we don't actually know what this contains
       # without looking for FFs in the associated file header
       # call parse after initializing with a binary string
-      @content = nil
+      @content                = nil
       @original_size          = nil
       @compressed_size        = nil
       @relative_header_offset = nil

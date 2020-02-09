@@ -31,18 +31,6 @@ Layout/HashAlignment:
     - 'lib/zip/file.rb'
     - 'rubyzip.gemspec'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator.
-# SupportedStylesForExponentOperator: space, no_space
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'lib/zip/entry.rb'
-    - 'lib/zip/extra_field/zip64.rb'
-    - 'lib/zip/file.rb'
-    - 'lib/zip/filesystem.rb'
-    - 'lib/zip/input_stream.rb'
-
 # Offense count: 1
 Lint/AmbiguousBlockAssociation:
   Exclude:

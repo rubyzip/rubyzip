@@ -75,7 +75,7 @@ module Zip
     # a new archive if it doesn't exist already.
     def initialize(path_or_io, create = false, buffer = false, options = {})
       super()
-      options = DEFAULT_OPTIONS.merge(options)
+      options  = DEFAULT_OPTIONS.merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true

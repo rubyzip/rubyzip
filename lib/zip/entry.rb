@@ -99,7 +99,7 @@ module Zip
         @extra.create('UniversalTime')
       end
       (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
-      @time                         = value
+      @time = value
     end
 
     def file_type_is?(type)

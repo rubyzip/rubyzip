@@ -51,7 +51,7 @@ module Zip
     # @param offset [Integer] offset in the IO/StringIO
     def initialize(context, offset = 0, decrypter = nil)
       super()
-      @archive_io = get_io(context, offset)
+      @archive_io    = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
       @decrypter     = decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil

@@ -35,9 +35,9 @@ module Zip
 
   module FileSystem
     def initialize # :nodoc:
-      mappedZip = ZipFileNameMapper.new(self)
-      @zipFsDir  = ZipFsDir.new(mappedZip)
-      @zipFsFile = ZipFsFile.new(mappedZip)
+      mappedZip      = ZipFileNameMapper.new(self)
+      @zipFsDir      = ZipFsDir.new(mappedZip)
+      @zipFsFile     = ZipFsFile.new(mappedZip)
       @zipFsDir.file = @zipFsFile
       @zipFsFile.dir = @zipFsDir
     end
