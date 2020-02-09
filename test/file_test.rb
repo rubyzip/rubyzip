@@ -131,7 +131,7 @@ class ZipFileTest < MiniTest::Test
       # Note: this may change the file if it is opened with r+b instead of rb.
       # The 'extra fields' in this particular zip file get reordered.
       File.open(test_zip, 'rb') do |file|
-        Zip::File.open_buffer(file) do |zf|
+        Zip::File.open_buffer(file) do
           nil # do nothing
         end
       end
