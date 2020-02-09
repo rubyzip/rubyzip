@@ -15,3 +15,10 @@ Lint/SuppressedException:
 Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
+
+# Turn this cop off for these files as it fires for objects without
+# an empty? method.
+Style/ZeroLengthPredicate:
+  Exclude:
+    - 'lib/zip/file.rb'
+    - 'lib/zip/input_stream.rb'

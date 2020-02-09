@@ -437,13 +437,6 @@ Style/UnpackFirst:
     - 'lib/zip/extra_field/generic.rb'
     - 'lib/zip/extra_field/zip64.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'lib/zip/file.rb'
-    - 'lib/zip/input_stream.rb'
-
 # Offense count: 247
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
