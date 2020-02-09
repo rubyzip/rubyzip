@@ -16,6 +16,12 @@ Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
 
+# Allow this multi-line block chain as it actually reads better
+# than the alternatives.
+Style/MultilineBlockChain:
+  Exclude:
+    - 'lib/zip/crypto/traditional_encryption.rb'
+
 # Allow inner slashes when using // for regex literals. Allow the
 # Guardfile to use a syntax that is more consistent with its own style.
 Style/RegexpLiteral:
