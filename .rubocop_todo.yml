@@ -32,11 +32,6 @@ Layout/HashAlignment:
     - 'rubyzip.gemspec'
 
 # Offense count: 1
-Lint/LiteralAsCondition:
-  Exclude:
-    - 'lib/zip/ioextras/abstract_input_stream.rb'
-
-# Offense count: 1
 Lint/RescueException:
   Exclude:
     - 'test/output_stream_test.rb'
@@ -282,12 +277,6 @@ Style/IfUnlessModifier:
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/pass_thru_decompressor.rb'
     - 'lib/zip/streamable_stream.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/InfiniteLoop:
-  Exclude:
-    - 'lib/zip/ioextras/abstract_input_stream.rb'
 
 # Offense count: 1
 Style/MixinUsage:
