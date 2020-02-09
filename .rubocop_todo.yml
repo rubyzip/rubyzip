@@ -32,11 +32,6 @@ Layout/HashAlignment:
     - 'rubyzip.gemspec'
 
 # Offense count: 1
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'test/filesystem/file_nonmutating_test.rb'
-
-# Offense count: 1
 Lint/LiteralAsCondition:
   Exclude:
     - 'lib/zip/ioextras/abstract_input_stream.rb'
