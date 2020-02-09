@@ -26,9 +26,7 @@ Metrics/CyclomaticComplexity:
 # Offense count: 120
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
-  Max: 45
-  Exclude:
-    - 'test/**/*.rb'
+  Max: 30
 
 # Offense count: 2
 # Configuration parameters: CountKeywordArgs.
