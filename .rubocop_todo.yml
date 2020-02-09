@@ -168,15 +168,6 @@ Style/SafeNavigation:
     - 'test/filesystem/file_nonmutating_test.rb'
     - 'test/filesystem/file_stat_test.rb'
     - 'test/test_helper.rb'
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowSafeAssignment.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_parentheses_when_complex
-Style/TernaryParentheses:
-  Exclude:
-    - 'lib/zip/crypto/decrypted_io.rb'
-    - 'lib/zip/inflater.rb'
-    - 'lib/zip/pass_thru_decompressor.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
