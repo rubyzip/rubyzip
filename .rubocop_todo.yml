@@ -301,13 +301,6 @@ Style/SpecialGlobalVars:
     - 'test/output_stream_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: MinSize.
-# SupportedStyles: percent, brackets
-Style/SymbolArray:
-  EnforcedStyle: brackets
-
 # Offense count: 42
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.

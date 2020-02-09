@@ -16,6 +16,9 @@ Lint/UselessComparison:
   Exclude:
     - 'test/entry_test.rb'
 
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
 # Turn this cop off for these files as it fires for objects without
 # an empty? method.
 Style/ZeroLengthPredicate:
