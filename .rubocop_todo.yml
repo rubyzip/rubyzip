@@ -31,11 +31,6 @@ Layout/HashAlignment:
     - 'lib/zip/file.rb'
     - 'rubyzip.gemspec'
 
-# Offense count: 1
-Lint/RescueException:
-  Exclude:
-    - 'test/output_stream_test.rb'
-
 # Offense count: 12
 # Configuration parameters: AllowComments.
 Lint/SuppressedException:

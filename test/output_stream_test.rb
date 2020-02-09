@@ -57,7 +57,7 @@ class ZipOutputStreamTest < MiniTest::Test
     name = TestFiles::EMPTY_TEST_DIR
     begin
       ::Zip::OutputStream.open(name)
-    rescue Exception
+    rescue SystemCallError
       assert($!.kind_of?(Errno::EISDIR) || # Linux
                  $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
                  $!.kind_of?(Errno::EACCES), # Windows
