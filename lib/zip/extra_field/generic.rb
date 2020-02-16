@@ -1,9 +1,9 @@
 module Zip
   class ExtraField::Generic
     def self.register_map
-      if const_defined?(:HEADER_ID)
-        ::Zip::ExtraField::ID_MAP[const_get(:HEADER_ID)] = self
-      end
+      return unless const_defined?(:HEADER_ID)
+
+      ::Zip::ExtraField::ID_MAP[const_get(:HEADER_ID)] = self
     end
 
     def self.name
@@ -12,18 +12,19 @@ module Zip
 
     # return field [size, content] or false
     def initial_parse(binstr)
-      if !binstr
-        # If nil, start with empty.
-        return false
-      elsif binstr[0, 2] != self.class.const_get(:HEADER_ID)
+      return false unless binstr
+
+      if binstr[0, 2] != self.class.const_get(:HEADER_ID)
         warn 'WARNING: weird extra field header ID. Skip parsing it.'
         return false
       end
-      [binstr[2, 2].unpack('v')[0], binstr[4..-1]]
+
+      [binstr[2, 2].unpack1('v'), binstr[4..-1]]
     end
 
     def ==(other)
       return false if self.class != other.class
+
       each do |k, v|
         return false if v != other[k]
       end

@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-$: << '../lib'
+$LOAD_PATH << '../lib'
 
 require 'Qt'
 system('rbuic -o zipdialogui.rb zipdialogui.ui')
@@ -80,7 +80,7 @@ class ZipDialog < ZipDialogUI
 end
 
 unless ARGV[0]
-  puts "usage: #{$0} zipname"
+  puts "usage: #{$PROGRAM_NAME} zipname"
   exit
 end
 

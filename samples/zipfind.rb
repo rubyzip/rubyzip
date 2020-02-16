@@ -2,7 +2,7 @@
 
 $VERBOSE = true
 
-$: << '../lib'
+$LOAD_PATH << '../lib'
 
 require 'zip'
 require 'find'
@@ -13,12 +13,13 @@ module Zip
       Find.find(path) do |fileName|
         yield(fileName)
         next unless zipFilePattern.match(fileName) && File.file?(fileName)
+
         begin
           Zip::File.foreach(fileName) do |zipEntry|
             yield(fileName + File::SEPARATOR + zipEntry.to_s)
           end
-        rescue Errno::EACCES => ex
-          puts ex
+        rescue Errno::EACCES => e
+          puts e
         end
       end
     end
@@ -31,7 +32,7 @@ module Zip
   end
 end
 
-if $0 == __FILE__
+if $PROGRAM_NAME == __FILE__
   module ZipFindConsoleRunner
     PATH_ARG_INDEX = 0
     FILENAME_PATTERN_ARG_INDEX = 1
@@ -47,14 +48,14 @@ if $0 == __FILE__
     end
 
     def self.check_args(args)
-      if args.size != 3
-        usage
-        exit
-      end
+      return if args.size == 3
+
+      usage
+      exit
     end
 
     def self.usage
-      puts "Usage: #{$0} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
+      puts "Usage: #{$PROGRAM_NAME} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
     end
 
     def self.report_entry_found(fileName)

@@ -1,3 +1,4 @@
+require 'English'
 require 'delegate'
 require 'singleton'
 require 'tempfile'

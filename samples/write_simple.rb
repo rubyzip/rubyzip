@@ -1,12 +1,10 @@
 #!/usr/bin/env ruby
 
-$: << '../lib'
+$LOAD_PATH << '../lib'
 
 require 'zip'
 
-include Zip
-
-OutputStream.open('simple.zip') do |zos|
+::Zip::OutputStream.open('simple.zip') do |zos|
   zos.put_next_entry 'entry.txt'
   zos.puts 'Hello world'
 end

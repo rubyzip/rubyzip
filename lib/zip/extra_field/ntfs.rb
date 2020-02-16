@@ -19,6 +19,7 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
+
       size, content = initial_parse(binstr)
       (size && content) || return
 
@@ -27,6 +28,7 @@ module Zip
 
       tag1 = tags[1]
       return unless tag1
+
       ntfs_mtime, ntfs_atime, ntfs_ctime = tag1.unpack('Q<Q<Q<')
       ntfs_mtime && @mtime ||= from_ntfs_time(ntfs_mtime)
       ntfs_atime && @atime ||= from_ntfs_time(ntfs_atime)
@@ -65,12 +67,14 @@ module Zip
 
     def parse_tags(content)
       return {} if content.nil?
+
       tags = {}
       i = 0
       while i < content.bytesize
         tag, size = content[i, 4].unpack('vv')
         i += 4
         break unless tag && size
+
         value = content[i, size]
         i += size
         tags[tag] = value

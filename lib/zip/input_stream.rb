@@ -51,7 +51,7 @@ module Zip
     # @param offset [Integer] offset in the IO/StringIO
     def initialize(context, offset = 0, decrypter = nil)
       super()
-      @archive_io = get_io(context, offset)
+      @archive_io    = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
       @decrypter     = decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil
@@ -73,6 +73,7 @@ module Zip
     # Rewinds the stream to the beginning of the current entry
     def rewind
       return if @current_entry.nil?
+
       @lineno = 0
       @pos    = 0
       @archive_io.seek(@current_entry.local_header_offset, IO::SEEK_SET)
@@ -91,6 +92,7 @@ module Zip
       def open(filename_or_io, offset = 0, decrypter = nil)
         zio = new(filename_or_io, offset, decrypter)
         return zio unless block_given?
+
         begin
           yield zio
         ensure
@@ -100,7 +102,7 @@ module Zip
 
       def open_buffer(filename_or_io, offset = 0)
         warn 'open_buffer is deprecated!!! Use open instead!'
-        open(filename_or_io, offset)
+        ::Zip::InputStream.open(filename_or_io, offset)
       end
     end
 
@@ -120,9 +122,10 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
-      if @current_entry && @current_entry.encrypted? && @decrypter.is_a?(NullEncrypter)
+      if @current_entry && @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
         raise Error, 'password required to decode zip file'
       end
+
       if @current_entry && @current_entry.incomplete? && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0 && !@complete_entry

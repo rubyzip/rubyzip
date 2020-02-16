@@ -6,7 +6,7 @@ module Zip
     end
 
     def read(length = nil, outbuf = '')
-      return ((length.nil? || length.zero?) ? "" : nil) if eof
+      return (length.nil? || length.zero? ? '' : nil) if eof
 
       if length.nil? || (@read_so_far + length) > decompressed_size
         length = decompressed_size - @read_so_far
@@ -20,7 +20,7 @@ module Zip
       @read_so_far >= decompressed_size
     end
 
-    alias_method :eof?, :eof
+    alias eof? eof
   end
 
   ::Zip::Decompressor.register(::Zip::COMPRESSION_METHOD_STORE, ::Zip::PassThruDecompressor)

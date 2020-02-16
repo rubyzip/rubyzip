@@ -35,9 +35,9 @@ module Zip
 
   module FileSystem
     def initialize # :nodoc:
-      mappedZip = ZipFileNameMapper.new(self)
-      @zipFsDir  = ZipFsDir.new(mappedZip)
-      @zipFsFile = ZipFsFile.new(mappedZip)
+      mappedZip      = ZipFileNameMapper.new(self)
+      @zipFsDir      = ZipFsDir.new(mappedZip)
+      @zipFsFile     = ZipFsFile.new(mappedZip)
       @zipFsDir.file = @zipFsFile
       @zipFsFile.dir = @zipFsDir
     end
@@ -70,11 +70,11 @@ module Zip
         class << self
           def delegate_to_fs_file(*methods)
             methods.each do |method|
-              class_eval <<-end_eval, __FILE__, __LINE__ + 1
+              class_eval <<-END_EVAL, __FILE__, __LINE__ + 1
                 def #{method}                      # def file?
                   @zipFsFile.#{method}(@entryName) #   @zipFsFile.file?(@entryName)
                 end                                # end
-              end_eval
+              END_EVAL
             end
           end
         end
@@ -176,6 +176,7 @@ module Zip
         unless exists?(fileName)
           raise Errno::ENOENT, "No such file or directory - #{fileName}"
         end
+
         @mappedZip.find_entry(fileName)
       end
       private :get_entry
@@ -250,7 +251,7 @@ module Zip
       end
 
       def new(fileName, openMode = 'r')
-        open(fileName, openMode)
+        self.open(fileName, openMode)
       end
 
       def size(fileName)
@@ -382,13 +383,14 @@ module Zip
 
       def stat(fileName)
         raise Errno::ENOENT, fileName unless exists?(fileName)
+
         ZipFsStat.new(self, fileName)
       end
 
       alias lstat stat
 
       def readlines(fileName)
-        open(fileName) { |is| is.readlines }
+        self.open(fileName, &:readlines)
       end
 
       def read(fileName)
@@ -399,8 +401,8 @@ module Zip
         ::File.popen(*args, &aProc)
       end
 
-      def foreach(fileName, aSep = $/, &aProc)
-        open(fileName) { |is| is.each_line(aSep, &aProc) }
+      def foreach(fileName, aSep = $INPUT_RECORD_SEPARATOR, &aProc)
+        self.open(fileName) { |is| is.each_line(aSep, &aProc) }
       end
 
       def delete(*args)
@@ -408,6 +410,7 @@ module Zip
           if directory?(fileName)
             raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
           end
+
           @mappedZip.remove(fileName)
         end
       end
@@ -462,6 +465,7 @@ module Zip
         unless @file.stat(aDirectoryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
         end
+
         @mappedZip.pwd = @file.expand_path(aDirectoryName)
       end
 
@@ -479,6 +483,7 @@ module Zip
         unless @file.stat(aDirectoryName).directory?
           raise Errno::ENOTDIR, aDirectoryName
         end
+
         path = @file.expand_path(aDirectoryName)
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
@@ -493,6 +498,7 @@ module Zip
         unless @file.stat(entryName).directory?
           raise Errno::EINVAL, "Invalid argument - #{entryName}"
         end
+
         @mappedZip.remove(entryName)
       end
       alias rmdir delete
@@ -521,26 +527,31 @@ module Zip
 
       def each(&aProc)
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @fileNames.each(&aProc)
       end
 
       def read
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @fileNames[(@index += 1) - 1]
       end
 
       def rewind
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @index = 0
       end
 
       def seek(anIntegerPosition)
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @index = anIntegerPosition
       end
 
       def tell
         raise IOError, 'closed directory' if @fileNames.nil?
+
         @index
       end
     end

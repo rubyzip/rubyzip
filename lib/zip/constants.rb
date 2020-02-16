@@ -87,29 +87,29 @@ module Zip
   COMPRESSION_METHOD_AES = 99
 
   COMPRESSION_METHODS = {
-    COMPRESSION_METHOD_STORE => 'Store (no compression)',
-    COMPRESSION_METHOD_SHRINK => 'Shrink',
-    COMPRESSION_METHOD_REDUCE_1 => 'Reduce with compression factor 1',
-    COMPRESSION_METHOD_REDUCE_2 => 'Reduce with compression factor 2',
-    COMPRESSION_METHOD_REDUCE_3 => 'Reduce with compression factor 3',
-    COMPRESSION_METHOD_REDUCE_4 => 'Reduce with compression factor 4',
-    COMPRESSION_METHOD_IMPLODE => 'Implode',
+    COMPRESSION_METHOD_STORE       => 'Store (no compression)',
+    COMPRESSION_METHOD_SHRINK      => 'Shrink',
+    COMPRESSION_METHOD_REDUCE_1    => 'Reduce with compression factor 1',
+    COMPRESSION_METHOD_REDUCE_2    => 'Reduce with compression factor 2',
+    COMPRESSION_METHOD_REDUCE_3    => 'Reduce with compression factor 3',
+    COMPRESSION_METHOD_REDUCE_4    => 'Reduce with compression factor 4',
+    COMPRESSION_METHOD_IMPLODE     => 'Implode',
     # RESERVED = 7
-    COMPRESSION_METHOD_DEFLATE => 'Deflate',
-    COMPRESSION_METHOD_DEFLATE_64 => 'Deflate64(tm)',
+    COMPRESSION_METHOD_DEFLATE     => 'Deflate',
+    COMPRESSION_METHOD_DEFLATE_64  => 'Deflate64(tm)',
     COMPRESSION_METHOD_PKWARE_DCLI => 'PKWARE Data Compression Library Imploding (old IBM TERSE)',
     # RESERVED = 11
-    COMPRESSION_METHOD_BZIP2 => 'BZIP2',
+    COMPRESSION_METHOD_BZIP2       => 'BZIP2',
     # RESERVED = 13
-    COMPRESSION_METHOD_LZMA => 'LZMA',
+    COMPRESSION_METHOD_LZMA        => 'LZMA',
     # RESERVED = 15
-    COMPRESSION_METHOD_IBM_CMPSC => 'IBM z/OS CMPSC Compression',
+    COMPRESSION_METHOD_IBM_CMPSC   => 'IBM z/OS CMPSC Compression',
     # RESERVED = 17
-    COMPRESSION_METHOD_IBM_TERSE => 'IBM TERSE (new)',
-    COMPRESSION_METHOD_IBM_LZ77 => 'IBM LZ77 z Architecture (PFS)',
-    COMPRESSION_METHOD_JPEG => 'JPEG variant',
-    COMPRESSION_METHOD_WAVPACK => 'WavPack compressed data',
-    COMPRESSION_METHOD_PPMD => 'PPMd version I, Rev 1',
-    COMPRESSION_METHOD_AES => 'AES encryption',
+    COMPRESSION_METHOD_IBM_TERSE   => 'IBM TERSE (new)',
+    COMPRESSION_METHOD_IBM_LZ77    => 'IBM LZ77 z Architecture (PFS)',
+    COMPRESSION_METHOD_JPEG        => 'JPEG variant',
+    COMPRESSION_METHOD_WAVPACK     => 'WavPack compressed data',
+    COMPRESSION_METHOD_PPMD        => 'PPMd version I, Rev 1',
+    COMPRESSION_METHOD_AES         => 'AES encryption'
   }.freeze
 end

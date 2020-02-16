@@ -80,7 +80,7 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     end
     begin
       is = @zip_file.file.new('file1') do
-        fail 'should not call block'
+        raise 'should not call block'
       end
     ensure
       is.close if is
@@ -434,12 +434,14 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     ::Zip::File.open('test/data/globTest.zip') do |zf|
       {
         'globTest/foo.txt' => ['globTest/foo.txt'],
-        '*/foo.txt' => ['globTest/foo.txt'],
-        '**/foo.txt' => ['globTest/foo.txt', 'globTest/foo/bar/baz/foo.txt'],
-        '*/foo/**/*.txt' => ['globTest/foo/bar/baz/foo.txt']
+        '*/foo.txt'        => ['globTest/foo.txt'],
+        '**/foo.txt'       => [
+          'globTest/foo.txt', 'globTest/foo/bar/baz/foo.txt'
+        ],
+        '*/foo/**/*.txt'   => ['globTest/foo/bar/baz/foo.txt']
       }.each do |spec, expected_results|
         results = zf.glob(spec)
-        assert results.all? { |entry| entry.is_a? ::Zip::Entry }
+        assert(results.all? { |entry| entry.kind_of? ::Zip::Entry })
 
         result_strings = results.map(&:to_s)
         missing_matches = expected_results - result_strings
@@ -466,12 +468,12 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     if Zip::RUNNING_ON_WINDOWS
       # This is pretty much projectile vomit but it allows the test to be
       # run on windows also
-      system_dir = ::File.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
-      zipfile_dir = @zip_file.file.popen('dir') { |f| f.read }.gsub(/Dir\(s\).*$/, '')
+      system_dir = ::File.popen('dir', &:read).gsub(/Dir\(s\).*$/, '')
+      zipfile_dir = @zip_file.file.popen('dir', &:read).gsub(/Dir\(s\).*$/, '')
       assert_equal(system_dir, zipfile_dir)
     else
-      assert_equal(::File.popen('ls') { |f| f.read },
-                   @zip_file.file.popen('ls') { |f| f.read })
+      assert_equal(::File.popen('ls', &:read),
+                   @zip_file.file.popen('ls', &:read))
     end
   end
 

@@ -1,5 +1,6 @@
 require 'bundler/gem_tasks'
 require 'rake/testtask'
+require 'rubocop/rake_task'
 
 task default: :test
 
@@ -9,6 +10,8 @@ Rake::TestTask.new(:test) do |test|
   test.pattern = 'test/**/*_test.rb'
   test.verbose = true
 end
+
+RuboCop::RakeTask.new
 
 # Rake::TestTask.new(:zip64_full_test) do |test|
 #  test.libs << File.join(File.dirname(__FILE__), 'lib')

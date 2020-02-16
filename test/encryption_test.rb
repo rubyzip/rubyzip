@@ -14,14 +14,14 @@ class EncryptionTest < MiniTest::Test
   end
 
   def test_encrypt
-    test_file = open(ENCRYPT_ZIP_TEST_FILE, 'rb').read
+    test_file = ::File.open(ENCRYPT_ZIP_TEST_FILE, 'rb').read
 
     @rand = [250, 143, 107, 13, 143, 22, 155, 75, 228, 150, 12]
     @output = ::Zip::DOSTime.stub(:now, ::Zip::DOSTime.new(2014, 12, 17, 15, 56, 24)) do
       Random.stub(:rand, ->(_range) { @rand.shift }) do
         Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new('password')) do |zos|
           zos.put_next_entry('file1.txt')
-          zos.write open(INPUT_FILE1).read
+          zos.write ::File.open(INPUT_FILE1).read
         end.string
       end
     end
@@ -36,7 +36,7 @@ class EncryptionTest < MiniTest::Test
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
       assert_equal 1327, entry.size
-      assert_equal open(INPUT_FILE1, 'r').read, zis.read
+      assert_equal ::File.open(INPUT_FILE1, 'r').read, zis.read
     end
   end
 end

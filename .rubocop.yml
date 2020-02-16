@@ -1,6 +1,84 @@
-inherit_from:
-  - .rubocop_rubyzip.yml
+inherit_from: .rubocop_todo.yml
+
+# Set this to the minimum supported ruby in the gemspec. Otherwise
+# we get errors if our ruby version doesn't match.
 AllCops:
-  TargetRubyVersion: 1.9
-Style/MutableConstant:
-  Enabled: false # Because some existent code relies on mutable constant
+  TargetRubyVersion: 2.4
+
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
+# Set a workable line length, given the current state of the code,
+# and turn off for the tests.
+Layout/LineLength:
+  Max: 135
+  Exclude:
+    - 'test/**/*.rb'
+
+# In some cases we just need to catch an exception, rather than
+# actually handle it. Allow the tests to make use of this shortcut.
+Lint/SuppressedException:
+  AllowComments: true
+  Exclude:
+    - 'test/**/*.rb'
+
+# Allow this "useless" test, as we are testing <=> here.
+Lint/UselessComparison:
+  Exclude:
+    - 'test/entry_test.rb'
+
+# Turn off ABC metrics for the tests and set a workable max given
+# the current state of the code.
+Metrics/AbcSize:
+  Max: 37
+  Exclude:
+    - 'test/**/*.rb'
+
+# Turn block length metrics off for the tests.
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*.rb'
+
+# Turn class length metrics off for the tests.
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*.rb'
+
+# Turn method length metrics off for the tests.
+Metrics/MethodLength:
+  Exclude:
+    - 'test/**/*.rb'
+
+# Rubocop confuses these as instances of "memoization".
+Naming/MemoizedInstanceVariableName:
+  Exclude:
+    - 'lib/zip/extra_field/old_unix.rb'
+    - 'lib/zip/extra_field/unix.rb'
+
+# Set a consistent way of checking types.
+Style/ClassCheck:
+  EnforcedStyle: kind_of?
+
+# Allow this multi-line block chain as it actually reads better
+# than the alternatives.
+Style/MultilineBlockChain:
+  Exclude:
+    - 'lib/zip/crypto/traditional_encryption.rb'
+
+# Allow inner slashes when using // for regex literals. Allow the
+# Guardfile to use a syntax that is more consistent with its own style.
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+  Exclude:
+    - 'Guardfile'
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+# Turn this cop off for these files as it fires for objects without
+# an empty? method.
+Style/ZeroLengthPredicate:
+  Exclude:
+    - 'lib/zip/file.rb'
+    - 'lib/zip/input_stream.rb'

@@ -8,10 +8,11 @@ module Zip
     end
 
     def read(length = nil, outbuf = +'')
-      return ((length.nil? || length.zero?) ? "" : nil) if eof
+      return (length.nil? || length.zero? ? '' : nil) if eof
 
       while length.nil? || (buffer.bytesize < length)
         break if input_finished?
+
         buffer << produce_input
       end
 

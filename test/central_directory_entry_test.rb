@@ -63,7 +63,7 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
     fragment.extend(IOizeString)
     entry = ::Zip::Entry.new
     entry.read_c_dir_entry(fragment)
-    fail 'ZipError expected'
+    raise 'ZipError expected'
   rescue ::Zip::Error
   end
 end

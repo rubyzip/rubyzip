@@ -35,6 +35,7 @@ module Zip
 
         if tbuf.nil? || tbuf.empty?
           return nil if number_of_bytes
+
           return ''
         end
 
@@ -48,13 +49,13 @@ module Zip
         buf
       end
 
-      def readlines(a_sep_string = $/)
+      def readlines(a_sep_string = $INPUT_RECORD_SEPARATOR)
         ret_val = []
         each_line(a_sep_string) { |line| ret_val << line }
         ret_val
       end
 
-      def gets(a_sep_string = $/, number_of_bytes = nil)
+      def gets(a_sep_string = $INPUT_RECORD_SEPARATOR, number_of_bytes = nil)
         @lineno = @lineno.next
 
         if number_of_bytes.respond_to?(:to_int)
@@ -62,20 +63,22 @@ module Zip
           a_sep_string = a_sep_string.to_str if a_sep_string
         elsif a_sep_string.respond_to?(:to_int)
           number_of_bytes = a_sep_string.to_int
-          a_sep_string    = $/
+          a_sep_string    = $INPUT_RECORD_SEPARATOR
         else
           number_of_bytes = nil
           a_sep_string = a_sep_string.to_str if a_sep_string
         end
 
         return read(number_of_bytes) if a_sep_string.nil?
-        a_sep_string = "#{$/}#{$/}" if a_sep_string.empty?
+
+        a_sep_string = "#{$INPUT_RECORD_SEPARATOR}#{$INPUT_RECORD_SEPARATOR}" if a_sep_string.empty?
 
         buffer_index = 0
         over_limit   = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         while (match_index = @output_buffer.index(a_sep_string, buffer_index)).nil? && !over_limit
           buffer_index = [buffer_index, @output_buffer.bytesize - a_sep_string.bytesize].max
           return @output_buffer.empty? ? nil : flush if input_finished?
+
           @output_buffer << produce_input
           over_limit = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         end
@@ -94,24 +97,26 @@ module Zip
         ret_val
       end
 
-      def readline(a_sep_string = $/)
+      def readline(a_sep_string = $INPUT_RECORD_SEPARATOR)
         ret_val = gets(a_sep_string)
         raise EOFError unless ret_val
+
         ret_val
       end
 
-      def each_line(a_sep_string = $/)
-        yield readline(a_sep_string) while true
+      def each_line(a_sep_string = $INPUT_RECORD_SEPARATOR)
+        loop { yield readline(a_sep_string) }
       rescue EOFError
+        # We just need to catch this; we don't need to handle it.
       end
 
-      alias_method :each, :each_line
+      alias each each_line
 
       def eof
         @output_buffer.empty? && input_finished?
       end
 
-      alias_method :eof?, :eof
+      alias eof? eof
     end
   end
 end

@@ -65,7 +65,7 @@ module Zip
         @entry_set ? @entry_set.size : 0, # number of entries on this disk
         @entry_set ? @entry_set.size : 0, # number of entries total
         cdir_size, # size of central directory
-        offset, # offset of start of central directory in its disk
+        offset # offset of start of central directory in its disk
       ]
       io << tmp.pack('VQ<vvVVQ<Q<Q<Q<')
     end
@@ -141,6 +141,7 @@ module Zip
     def get_e_o_c_d(buf) #:nodoc:
       sig_index = buf.rindex([END_OF_CDS].pack('V'))
       raise Error, 'Zip end of central directory signature not found' unless sig_index
+
       buf = buf.slice!((sig_index + 4)..(buf.bytesize))
 
       def buf.read(count)
@@ -166,8 +167,10 @@ module Zip
     def get_64_e_o_c_d(buf) #:nodoc:
       zip_64_start = buf.rindex([ZIP64_END_OF_CDS].pack('V'))
       raise Error, 'Zip64 end of central directory signature not found' unless zip_64_start
+
       zip_64_locator = buf.rindex([ZIP64_EOCD_LOCATOR].pack('V'))
       raise Error, 'Zip64 end of central directory signature locator not found' unless zip_64_locator
+
       buf = buf.slice!((zip_64_start + 4)..zip_64_locator)
 
       def buf.read(count)
@@ -191,13 +194,14 @@ module Zip
     def self.read_from_stream(io) #:nodoc:
       cdir = new
       cdir.read_from_stream(io)
-      return cdir
+      cdir
     rescue Error
-      return nil
+      nil
     end
 
     def ==(other) #:nodoc:
       return false unless other.kind_of?(CentralDirectory)
+
       @entry_set.entries.sort == other.entries.sort && comment == other.comment
     end
   end

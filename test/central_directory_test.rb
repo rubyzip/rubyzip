@@ -22,7 +22,7 @@ class ZipCentralDirectoryTest < MiniTest::Test
       cdir = ::Zip::CentralDirectory.new
       cdir.read_from_stream(zipFile)
     end
-    fail 'ZipError expected!'
+    raise 'ZipError expected!'
   rescue ::Zip::Error
   end
 
@@ -33,7 +33,7 @@ class ZipCentralDirectoryTest < MiniTest::Test
     fragment.extend(IOizeString)
     entry = ::Zip::CentralDirectory.new
     entry.read_from_stream(fragment)
-    fail 'ZipError expected'
+    raise 'ZipError expected'
   rescue ::Zip::Error
   end
 

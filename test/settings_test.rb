@@ -18,7 +18,7 @@ class ZipSettingsTest < MiniTest::Test
   end
 
   def open_zip(&aProc)
-    assert(!aProc.nil?)
+    refute_nil(aProc)
     ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)
   end
 
@@ -89,7 +89,7 @@ class ZipSettingsTest < MiniTest::Test
   private
 
   def assert_contains(zf, entryName, filename = entryName)
-    assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
+    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
     assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
   end
 end

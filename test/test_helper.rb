@@ -24,7 +24,7 @@ module IOizeString
 
   def read(count = nil)
     @tell ||= 0
-    count = size unless count
+    count ||= size
     retVal = slice(@tell, count)
     @tell += count
     retVal
@@ -42,11 +42,10 @@ module IOizeString
     else
       raise 'Error in test method IOizeString::seek'
     end
-    if newPos < 0 || newPos >= size
-      raise Errno::EINVAL
-    else
-      @tell = newPos
-    end
+
+    raise Errno::EINVAL if newPos < 0 || newPos >= size
+
+    @tell = newPos
   end
 
   def reset
@@ -62,7 +61,7 @@ module DecompressorTests
   def setup
     @refText = ''
     File.open(TEST_FILE) { |f| @refText = f.read }
-    @refLines = @refText.split($/)
+    @refLines = @refText.split($INPUT_RECORD_SEPARATOR)
   end
 
   def test_read_everything
@@ -96,7 +95,7 @@ module AssertEntry
         if (expected && actual) && (expected.length > 400 || actual.length > 400)
           zipEntryFilename = entryName + '.zipEntry'
           File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
-          fail("File '#{filename}' is different from '#{zipEntryFilename}'")
+          raise("File '#{filename}' is different from '#{zipEntryFilename}'")
         else
           assert_equal(expected, actual)
         end
@@ -107,14 +106,14 @@ module AssertEntry
   def self.assert_contents(filename, aString)
     fileContents = ''
     File.open(filename, 'rb') { |f| fileContents = f.read }
-    if fileContents != aString
-      if fileContents.length > 400 || aString.length > 400
-        stringFile = filename + '.other'
-        File.open(stringFile, 'wb') { |f| f << aString }
-        fail("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
-      else
-        assert_equal(fileContents, aString)
-      end
+    return unless fileContents != aString
+
+    if fileContents.length > 400 || aString.length > 400
+      stringFile = filename + '.other'
+      File.open(stringFile, 'wb') { |f| f << aString }
+      raise("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
+    else
+      assert_equal(fileContents, aString)
     end
   end
 
@@ -194,18 +193,21 @@ module ExtraAssertions
   def assert_forwarded(anObject, method, retVal, *expectedArgs)
     callArgs = nil
     setCallArgsProc = proc { |args| callArgs = args }
-    anObject.instance_eval <<-"end_eval"
+    anObject.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
       alias #{method}_org #{method}
       def #{method}(*args)
         ObjectSpace._id2ref(#{setCallArgsProc.object_id}).call(args)
         ObjectSpace._id2ref(#{retVal.object_id})
         end
-    end_eval
+    END_EVAL
 
     assert_equal(retVal, yield) # Invoke test
     assert_equal(expectedArgs, callArgs)
   ensure
-    anObject.instance_eval "undef #{method}; alias #{method} #{method}_org"
+    anObject.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
+      undef #{method}
+      alias #{method} #{method}_org
+    END_EVAL
   end
 end
 

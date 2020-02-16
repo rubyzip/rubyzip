@@ -36,10 +36,11 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
+
       i = 0
       while i < binstr.bytesize
         id  = binstr[i, 2]
-        len = binstr[i + 2, 2].to_s.unpack('v').first
+        len = binstr[i + 2, 2].to_s.unpack1('v')
         if id && ID_MAP.member?(id)
           extra_field_type_exist(binstr, id, len, i)
         elsif id
@@ -54,6 +55,7 @@ module Zip
       unless (field_class = ID_MAP.values.find { |k| k.name == name })
         raise Error, "Unknown extra field '#{name}'"
       end
+
       self[name] = field_class.new
     end
 

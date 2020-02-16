@@ -1,5 +1,5 @@
 module Zip
-  class StreamableStream < DelegateClass(Entry) # nodoc:all
+  class StreamableStream < DelegateClass(Entry) # :nodoc:all
     def initialize(entry)
       super(entry)
       @temp_file = Tempfile.new(::File.basename(name))
@@ -22,6 +22,7 @@ module Zip
       unless @temp_file.closed?
         raise StandardError, "cannot open entry for reading while its open for writing - #{name}"
       end
+
       @temp_file.open # reopens tempfile from top
       @temp_file.binmode
       if block_given?

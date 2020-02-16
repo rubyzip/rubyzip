@@ -4,8 +4,8 @@ require 'zip/ioextras'
 class AbstractInputStreamTest < MiniTest::Test
   # AbstractInputStream subclass that provides a read method
 
-  TEST_LINES = ["Hello world#{$/}",
-                "this is the second line#{$/}",
+  TEST_LINES = ["Hello world#{$INPUT_RECORD_SEPARATOR}",
+                "this is the second line#{$INPUT_RECORD_SEPARATOR}",
                 'this is the last line']
   TEST_STRING = TEST_LINES.join
   class TestAbstractInputStream
@@ -50,7 +50,7 @@ class AbstractInputStreamTest < MiniTest::Test
 
   def test_gets_multi_char_seperator
     assert_equal('Hell', @io.gets('ll'))
-    assert_equal("o world#{$/}this is the second l", @io.gets('d l'))
+    assert_equal("o world#{$INPUT_RECORD_SEPARATOR}this is the second l", @io.gets('d l'))
   end
 
   LONG_LINES = [
@@ -95,7 +95,7 @@ class AbstractInputStreamTest < MiniTest::Test
     test_gets
     begin
       @io.readline
-      fail 'EOFError expected'
+      raise 'EOFError expected'
     rescue EOFError
     end
   end

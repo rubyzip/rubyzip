@@ -57,11 +57,11 @@ class ZipOutputStreamTest < MiniTest::Test
     name = TestFiles::EMPTY_TEST_DIR
     begin
       ::Zip::OutputStream.open(name)
-    rescue Exception
-      assert($!.kind_of?(Errno::EISDIR) || # Linux
-                 $!.kind_of?(Errno::EEXIST) || # Windows/cygwin
-                 $!.kind_of?(Errno::EACCES), # Windows
-             "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$!.class}")
+    rescue SystemCallError
+      assert($ERROR_INFO.kind_of?(Errno::EISDIR) || # Linux
+                 $ERROR_INFO.kind_of?(Errno::EEXIST) || # Windows/cygwin
+                 $ERROR_INFO.kind_of?(Errno::EACCES), # Windows
+             "Expected Errno::EISDIR (or on win/cygwin: Errno::EEXIST), but was: #{$ERROR_INFO.class}")
     end
   end
 
@@ -90,7 +90,8 @@ class ZipOutputStreamTest < MiniTest::Test
 
     ::Zip::InputStream.open(TEST_ZIP.zip_name) do |io|
       while (entry = io.get_next_entry)
-        assert(::Zip::DOSTime.at(file.mtime).dos_equals(::Zip::DOSTime.at(entry.mtime))) # Compare DOS Times, since they are stored with two seconds accuracy
+        # Compare DOS Times, since they are stored with two seconds accuracy
+        assert(::Zip::DOSTime.at(file.mtime).dos_equals(::Zip::DOSTime.at(entry.mtime)))
       end
     end
   end

@@ -22,11 +22,11 @@ class ZipCaseSensitivityTest < MiniTest::Test
 
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(SRC_FILES.size, zfRead.entries.length)
-    SRC_FILES.each_with_index { |a, i|
+    SRC_FILES.each_with_index do |a, i|
       assert_equal(a.last, zfRead.entries[i].name)
       AssertEntry.assert_contents(a.first,
-                                  zfRead.get_input_stream(a.last) { |zis| zis.read })
-    }
+                                  zfRead.get_input_stream(a.last, &:read))
+    end
   end
 
   # Ensure that names are treated case insensitively when adding files and +case_insensitive_match = false+
@@ -56,14 +56,15 @@ class ZipCaseSensitivityTest < MiniTest::Test
     zfRead = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(SRC_FILES.collect { |_fn, en| en.downcase }.uniq.size, zfRead.entries.length)
     assert_equal(SRC_FILES.last.last.downcase, zfRead.entries.first.name.downcase)
-    AssertEntry.assert_contents(SRC_FILES.last.first,
-                                zfRead.get_input_stream(SRC_FILES.last.last) { |zis| zis.read })
+    AssertEntry.assert_contents(
+      SRC_FILES.last.first, zfRead.get_input_stream(SRC_FILES.last.last, &:read)
+    )
   end
 
   private
 
   def assert_contains(zf, entryName, filename = entryName)
-    assert(zf.entries.detect { |e| e.name == entryName } != nil, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
+    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
     assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
   end
 end

@@ -48,6 +48,7 @@ module Zip
 
     def check_name(name)
       return unless name.start_with?('/')
+
       raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
@@ -69,7 +70,7 @@ module Zip
       @time               = args[8] || ::Zip::DOSTime.now
 
       @ftype = name_is_directory? ? :directory : :file
-      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.is_a?(::Zip::ExtraField)
+      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
     end
 
     def encrypted?
@@ -99,11 +100,12 @@ module Zip
         @extra.create('UniversalTime')
       end
       (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
-      @time                         = value
+      @time = value
     end
 
     def file_type_is?(type)
       raise InternalError, "current filetype is unknown: #{inspect}" unless @ftype
+
       @ftype == type
     end
 
@@ -124,6 +126,7 @@ module Zip
     def name_safe?
       cleanpath = Pathname.new(@name).cleanpath
       return false unless cleanpath.relative?
+
       root = ::File::SEPARATOR
       naive_expanded_path = ::File.join(root, cleanpath.to_s)
       ::File.absolute_path(cleanpath.to_s, root) == naive_expanded_path
@@ -153,6 +156,7 @@ module Zip
     # that we didn't change the header size (and thus clobber file data or something)
     def verify_local_header_size!
       return if @local_header_size.nil?
+
       new_size = calculate_local_header_size
       raise Error, "local header size changed (#{@local_header_size} -> #{new_size})" if @local_header_size != new_size
     end
@@ -178,12 +182,9 @@ module Zip
       dest_path ||= @name
       block ||= proc { ::Zip.on_exists_proc }
 
-      if directory? || file? || symlink?
-        __send__("create_#{@ftype}", dest_path, &block)
-      else
-        raise "unknown file type #{inspect}"
-      end
+      raise "unknown file type #{inspect}" unless directory? || file? || symlink?
 
+      __send__("create_#{@ftype}", dest_path, &block)
       self
     end
 
@@ -193,15 +194,15 @@ module Zip
 
     class << self
       def read_zip_short(io) # :nodoc:
-        io.read(2).unpack('v')[0]
+        io.read(2).unpack1('v')
       end
 
       def read_zip_long(io) # :nodoc:
-        io.read(4).unpack('V')[0]
+        io.read(4).unpack1('V')
       end
 
       def read_zip_64_long(io) # :nodoc:
-        io.read(8).unpack('Q<')[0]
+        io.read(8).unpack1('Q<')
       end
 
       def read_c_dir_entry(io) #:nodoc:all
@@ -225,8 +226,6 @@ module Zip
         nil
       end
     end
-
-    public
 
     def unpack_local_entry(buf)
       @header_signature,
@@ -257,6 +256,7 @@ module Zip
       unless @header_signature == ::Zip::LOCAL_ENTRY_SIGNATURE
         raise ::Zip::Error, "Zip local header magic not found at location '#{local_header_offset}'"
       end
+
       set_time(@last_mod_date, @last_mod_time)
 
       @name = io.read(@name_length)
@@ -269,13 +269,14 @@ module Zip
 
       if extra && extra.bytesize != @extra_length
         raise ::Zip::Error, 'Truncated local zip entry header'
-      else
-        if @extra.is_a?(::Zip::ExtraField)
-          @extra.merge(extra) if extra
-        else
-          @extra = ::Zip::ExtraField.new(extra)
-        end
       end
+
+      if @extra.kind_of?(::Zip::ExtraField)
+        @extra.merge(extra) if extra
+      else
+        @extra = ::Zip::ExtraField.new(extra)
+      end
+
       parse_zip64_extra(true)
       @local_header_size = calculate_local_header_size
     end
@@ -362,21 +363,24 @@ module Zip
 
     def check_c_dir_entry_static_header_length(buf)
       return if buf.bytesize == ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
+
       raise Error, 'Premature end of file. Not enough data for zip cdir entry header'
     end
 
     def check_c_dir_entry_signature
       return if header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+
       raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
     end
 
     def check_c_dir_entry_comment_size
       return if @comment && @comment.bytesize == @comment_length
+
       raise ::Zip::Error, 'Truncated cdir zip entry header'
     end
 
     def read_c_dir_extra_field(io)
-      if @extra.is_a?(::Zip::ExtraField)
+      if @extra.kind_of?(::Zip::ExtraField)
         @extra.merge(io.read(@extra_length))
       else
         @extra = ::Zip::ExtraField.new(io.read(@extra_length))
@@ -410,6 +414,7 @@ module Zip
 
     def get_extra_attributes_from_path(path) # :nodoc:
       return if Zip::RUNNING_ON_WINDOWS
+
       stat        = file_stat(path)
       @unix_uid   = stat.uid
       @unix_gid   = stat.gid
@@ -496,6 +501,7 @@ module Zip
 
     def ==(other)
       return false unless other.class == self.class
+
       # Compares contents of local entry and exposed fields
       keys_equal = %w[compression_method crc compressed_size size name extra filepath].all? do |k|
         other.__send__(k.to_sym) == __send__(k.to_sym)
@@ -619,15 +625,13 @@ module Zip
           while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
             os << buf
             bytes_written += buf.bytesize
-            if bytes_written > size && !warned
-              message = "entry '#{name}' should be #{size}B, but is larger when inflated."
-              if ::Zip.validate_entry_sizes
-                raise ::Zip::EntrySizeError, message
-              else
-                warn "WARNING: #{message}"
-                warned = true
-              end
-            end
+            next unless bytes_written > size && !warned
+
+            message = "entry '#{name}' should be #{size}B, but is larger when inflated."
+            raise ::Zip::EntrySizeError, message if ::Zip.validate_entry_sizes
+
+            warn "WARNING: #{message}"
+            warned = true
           end
         end
       end
@@ -637,6 +641,7 @@ module Zip
 
     def create_directory(dest_path)
       return if ::File.directory?(dest_path)
+
       if ::File.exist?(dest_path)
         if block_given? && yield(self, dest_path)
           ::FileUtils.rm_f dest_path
@@ -661,6 +666,7 @@ module Zip
     # (required when file sizes exceed 2**32, but can be used for all files)
     def parse_zip64_extra(for_local_header) #:nodoc:all
       return if @extra['Zip64'].nil?
+
       if for_local_header
         @size, @compressed_size = @extra['Zip64'].parse(@size, @compressed_size)
       else
@@ -675,6 +681,7 @@ module Zip
     # create a zip64 extra information field if we need one
     def prep_zip64_extra(for_local_header) #:nodoc:all
       return unless ::Zip.write_zip64_support
+
       need_zip64 = @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
       need_zip64 ||= @local_header_offset >= 0xFFFFFFFF unless for_local_header
       if need_zip64

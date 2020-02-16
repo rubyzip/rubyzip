@@ -9,7 +9,7 @@ module Zip
       # unparsed binary; we don't actually know what this contains
       # without looking for FFs in the associated file header
       # call parse after initializing with a binary string
-      @content = nil
+      @content                = nil
       @original_size          = nil
       @compressed_size        = nil
       @relative_header_offset = nil
@@ -26,6 +26,7 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
+
       _, @content = initial_parse(binstr)
     end
 
@@ -45,13 +46,14 @@ module Zip
     end
 
     def extract(size, format)
-      @content.slice!(0, size).unpack(format)[0]
+      @content.slice!(0, size).unpack1(format)
     end
     private :extract
 
     def pack_for_local
       # local header entries must contain original size and compressed size; other fields do not apply
       return '' unless @original_size && @compressed_size
+
       [@original_size, @compressed_size].pack('Q<Q<')
     end
 
