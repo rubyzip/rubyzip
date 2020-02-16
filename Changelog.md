@@ -1,6 +1,10 @@
 # X.X.X (Next)
 
 - Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
+- Upgrade rubocop and fix various linting complaints [#437](https://github.com/rubyzip/rubyzip/pull/437)
+
+Tooling:
+- Add a `bin/console` script for development [#420](https://github.com/rubyzip/rubyzip/pull/420)
 
 # 2.2.0 (2020-02-01)
 
