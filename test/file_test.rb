@@ -680,12 +680,18 @@ class ZipFileTest < MiniTest::Test
 
   private
 
-  def assert_contains(zf, entryName, filename = entryName)
-    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
+  def assert_contains(zip_file, entry_name, filename = entry_name)
+    refute_nil(
+      zip_file.entries.detect { |e| e.name == entry_name },
+      "entry #{entry_name} not in #{zip_file.entries.join(', ')} in zip file #{zip_file}"
+    )
+    assert_entry_contents(zip_file, entry_name, filename) if File.exist?(filename)
   end
 
-  def assert_not_contains(zf, entryName)
-    assert_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} in #{zf.entries.join(', ')} in zip file #{zf}")
+  def assert_not_contains(zip_file, entry_name)
+    assert_nil(
+      zip_file.entries.detect { |e| e.name == entry_name },
+      "entry #{entry_name} in #{zip_file.entries.join(', ')} in zip file #{zip_file}"
+    )
   end
 end

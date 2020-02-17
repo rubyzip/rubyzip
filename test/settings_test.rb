@@ -17,14 +17,14 @@ class ZipSettingsTest < MiniTest::Test
     ::Zip.reset!
   end
 
-  def open_zip(&aProc)
-    refute_nil(aProc)
-    ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &aProc)
+  def open_zip(&a_proc)
+    refute_nil(a_proc)
+    ::Zip::File.open(TestZipFile::TEST_ZIP4.zip_name, &a_proc)
   end
 
-  def extract_test_dir(&aProc)
+  def extract_test_dir(&a_proc)
     open_zip do |zf|
-      zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME, &aProc)
+      zf.extract(TestFiles::EMPTY_TEST_DIR, TEST_OUT_NAME, &a_proc)
     end
   end
 
@@ -88,8 +88,11 @@ class ZipSettingsTest < MiniTest::Test
 
   private
 
-  def assert_contains(zf, entryName, filename = entryName)
-    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
+  def assert_contains(zip_file, entry_name, filename = entry_name)
+    refute_nil(
+      zip_file.entries.detect { |e| e.name == entry_name },
+      "entry #{entry_name} not in #{zip_file.entries.join(', ')} in zip file #{zip_file}"
+    )
+    assert_entry_contents(zip_file, entry_name, filename) if File.exist?(filename)
   end
 end

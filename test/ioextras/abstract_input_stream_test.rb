@@ -11,15 +11,15 @@ class AbstractInputStreamTest < MiniTest::Test
   class TestAbstractInputStream
     include ::Zip::IOExtras::AbstractInputStream
 
-    def initialize(aString)
+    def initialize(string)
       super()
-      @contents = aString
+      @contents = string
       @readPointer = 0
     end
 
-    def sysread(charsToRead, _buf = nil)
-      retVal = @contents[@readPointer, charsToRead]
-      @readPointer += charsToRead
+    def sysread(chars_to_read, _buf = nil)
+      retVal = @contents[@readPointer, chars_to_read]
+      @readPointer += chars_to_read
       retVal
     end
 

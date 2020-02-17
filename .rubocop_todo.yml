@@ -44,7 +44,6 @@ Naming/AccessorMethodName:
 Naming/MethodParameterName:
   Exclude:
     - 'lib/**/*.rb'
-    - 'test/**/*.rb'
 
 # Offense count: 721
 # Configuration parameters: EnforcedStyle.

@@ -139,16 +139,16 @@ class ZipLocalEntryTest < MiniTest::Test
     assert_equal(entry1.comment, entry2.comment)
   end
 
-  def write_to_file(localFileName, centralFileName, entry)
-    ::File.open(localFileName, 'wb') { |f| entry.write_local_entry(f) }
-    ::File.open(centralFileName, 'wb') { |f| entry.write_c_dir_entry(f) }
+  def write_to_file(local_filename, central_filename, entry)
+    ::File.open(local_filename, 'wb') { |f| entry.write_local_entry(f) }
+    ::File.open(central_filename, 'wb') { |f| entry.write_c_dir_entry(f) }
   end
 
-  def read_from_file(localFileName, centralFileName)
+  def read_from_file(local_filename, central_filename)
     localEntry = nil
     cdirEntry = nil
-    ::File.open(localFileName, 'rb') { |f| localEntry = ::Zip::Entry.read_local_entry(f) }
-    ::File.open(centralFileName, 'rb') { |f| cdirEntry = ::Zip::Entry.read_c_dir_entry(f) }
+    ::File.open(local_filename, 'rb') { |f| localEntry = ::Zip::Entry.read_local_entry(f) }
+    ::File.open(central_filename, 'rb') { |f| cdirEntry = ::Zip::Entry.read_c_dir_entry(f) }
     [localEntry, cdirEntry]
   end
 end
