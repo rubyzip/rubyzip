@@ -42,9 +42,9 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
   def test_extract_directory_exists_as_file_overwrite
     File.open(TEST_OUT_NAME, 'w') { |f| f.puts 'something' }
     gotCalled = false
-    extract_test_dir do |entry, destPath|
+    extract_test_dir do |entry, dest_path|
       gotCalled = true
-      assert_equal(TEST_OUT_NAME, destPath)
+      assert_equal(TEST_OUT_NAME, dest_path)
       assert(entry.directory?)
       true
     end

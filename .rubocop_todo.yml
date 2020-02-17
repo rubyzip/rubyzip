@@ -38,19 +38,6 @@ Naming/AccessorMethodName:
     - 'lib/zip/streamable_stream.rb'
     - 'test/file_permissions_test.rb'
 
-# Offense count: 18
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-Naming/BlockParameterName:
-  Exclude:
-    - 'lib/zip/file.rb'
-    - 'lib/zip/filesystem.rb'
-    - 'samples/zipfind.rb'
-    - 'test/central_directory_test.rb'
-    - 'test/file_extract_directory_test.rb'
-    - 'test/file_extract_test.rb'
-    - 'test/output_stream_test.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 140
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db, os

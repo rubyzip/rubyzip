@@ -169,8 +169,8 @@ module Zip
       # local entry headers (which contain the same information as the
       # central directory).
       def foreach(aZipFileName, &block)
-        ::Zip::File.open(aZipFileName) do |zipFile|
-          zipFile.each(&block)
+        ::Zip::File.open(aZipFileName) do |zip_file|
+          zip_file.each(&block)
         end
       end
 

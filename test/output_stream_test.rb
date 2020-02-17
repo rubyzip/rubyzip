@@ -121,9 +121,9 @@ class ZipOutputStreamTest < MiniTest::Test
   end
 
   def write_test_zip(zos)
-    TEST_ZIP.entry_names.each do |entryName|
-      zos.put_next_entry(entryName)
-      File.open(entryName, 'rb') { |f| zos.write(f.read) }
+    TEST_ZIP.entry_names.each do |entry_name|
+      zos.put_next_entry(entry_name)
+      File.open(entry_name, 'rb') { |f| zos.write(f.read) }
     end
   end
 end

@@ -6,21 +6,21 @@ class ZipCentralDirectoryTest < MiniTest::Test
   end
 
   def test_read_from_stream
-    ::File.open(TestZipFile::TEST_ZIP2.zip_name, 'rb') do |zipFile|
-      cdir = ::Zip::CentralDirectory.read_from_stream(zipFile)
+    ::File.open(TestZipFile::TEST_ZIP2.zip_name, 'rb') do |zip_file|
+      cdir = ::Zip::CentralDirectory.read_from_stream(zip_file)
 
       assert_equal(TestZipFile::TEST_ZIP2.entry_names.size, cdir.size)
-      assert(cdir.entries.sort.compare_enumerables(TestZipFile::TEST_ZIP2.entry_names.sort) do |cdirEntry, testEntryName|
-        cdirEntry.name == testEntryName
+      assert(cdir.entries.sort.compare_enumerables(TestZipFile::TEST_ZIP2.entry_names.sort) do |cdir_entry, test_entry_name|
+        cdir_entry.name == test_entry_name
       end)
       assert_equal(TestZipFile::TEST_ZIP2.comment, cdir.comment)
     end
   end
 
   def test_read_from_invalid_stream
-    File.open('test/data/file2.txt', 'rb') do |zipFile|
+    File.open('test/data/file2.txt', 'rb') do |zip_file|
       cdir = ::Zip::CentralDirectory.new
-      cdir.read_from_stream(zipFile)
+      cdir.read_from_stream(zip_file)
     end
     raise 'ZipError expected!'
   rescue ::Zip::Error

@@ -53,9 +53,9 @@ class ZipFileExtractTest < MiniTest::Test
 
     gotCalledCorrectly = false
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      zf.extract(zf.entries.first, EXTRACTED_FILENAME) do |entry, extractLoc|
+      zf.extract(zf.entries.first, EXTRACTED_FILENAME) do |entry, extract_loc|
         gotCalledCorrectly = zf.entries.first == entry &&
-                             extractLoc == EXTRACTED_FILENAME
+                             extract_loc == EXTRACTED_FILENAME
         true
       end
     end

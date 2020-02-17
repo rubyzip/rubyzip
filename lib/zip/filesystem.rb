@@ -265,8 +265,8 @@ module Zip
       end
 
       def chown(ownerInt, groupInt, *filenames)
-        filenames.each do |fileName|
-          e = get_entry(fileName)
+        filenames.each do |filename|
+          e = get_entry(filename)
           e.extra.create('IUnix') unless e.extra.member?('IUnix')
           e.extra['IUnix'].uid = ownerInt
           e.extra['IUnix'].gid = groupInt
@@ -275,8 +275,8 @@ module Zip
       end
 
       def chmod(modeInt, *filenames)
-        filenames.each do |fileName|
-          e = get_entry(fileName)
+        filenames.each do |filename|
+          e = get_entry(filename)
           e.fstype = 3 # force convertion filesystem type to unix
           e.unix_perms = modeInt
           e.external_file_attributes = modeInt << 16
@@ -314,8 +314,8 @@ module Zip
       end
 
       def utime(modifiedTime, *fileNames)
-        fileNames.each do |fileName|
-          get_entry(fileName).time = modifiedTime
+        fileNames.each do |filename|
+          get_entry(filename).time = modifiedTime
         end
       end
 
@@ -406,12 +406,12 @@ module Zip
       end
 
       def delete(*args)
-        args.each do |fileName|
-          if directory?(fileName)
-            raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
+        args.each do |filename|
+          if directory?(filename)
+            raise Errno::EISDIR, "Is a directory - \"#{filename}\""
           end
 
-          @mappedZip.remove(fileName)
+          @mappedZip.remove(filename)
         end
       end
 
@@ -488,8 +488,8 @@ module Zip
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
         subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
-        @mappedZip.each do |fileName|
-          match = subDirEntriesRegex.match(fileName)
+        @mappedZip.each do |filename|
+          match = subDirEntriesRegex.match(filename)
           yield(match[1]) unless match.nil?
         end
       end

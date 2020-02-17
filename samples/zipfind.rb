@@ -10,13 +10,13 @@ require 'find'
 module Zip
   module ZipFind
     def self.find(path, zipFilePattern = /\.zip$/i)
-      Find.find(path) do |fileName|
-        yield(fileName)
-        next unless zipFilePattern.match(fileName) && File.file?(fileName)
+      Find.find(path) do |filename|
+        yield(filename)
+        next unless zipFilePattern.match(filename) && File.file?(filename)
 
         begin
-          Zip::File.foreach(fileName) do |zipEntry|
-            yield(fileName + File::SEPARATOR + zipEntry.to_s)
+          Zip::File.foreach(filename) do |entry|
+            yield(filename + File::SEPARATOR + entry.to_s)
           end
         rescue Errno::EACCES => e
           puts e
@@ -25,8 +25,8 @@ module Zip
     end
 
     def self.find_file(path, fileNamePattern, zipFilePattern = /\.zip$/i)
-      find(path, zipFilePattern) do |fileName|
-        yield(fileName) if fileNamePattern.match(fileName)
+      find(path, zipFilePattern) do |filename|
+        yield(filename) if fileNamePattern.match(filename)
       end
     end
   end
@@ -42,8 +42,8 @@ if $PROGRAM_NAME == __FILE__
       check_args(args)
       Zip::ZipFind.find_file(args[PATH_ARG_INDEX],
                              args[FILENAME_PATTERN_ARG_INDEX],
-                             args[ZIPFILE_PATTERN_ARG_INDEX]) do |fileName|
-        report_entry_found fileName
+                             args[ZIPFILE_PATTERN_ARG_INDEX]) do |filename|
+        report_entry_found filename
       end
     end
 
