@@ -9,10 +9,10 @@ require 'find'
 
 module Zip
   module ZipFind
-    def self.find(path, zipFilePattern = /\.zip$/i)
+    def self.find(path, zip_file_pattern = /\.zip$/i)
       Find.find(path) do |filename|
         yield(filename)
-        next unless zipFilePattern.match(filename) && File.file?(filename)
+        next unless zip_file_pattern.match(filename) && File.file?(filename)
 
         begin
           Zip::File.foreach(filename) do |entry|
@@ -24,9 +24,9 @@ module Zip
       end
     end
 
-    def self.find_file(path, fileNamePattern, zipFilePattern = /\.zip$/i)
-      find(path, zipFilePattern) do |filename|
-        yield(filename) if fileNamePattern.match(filename)
+    def self.find_file(path, filename_pattern, zip_file_pattern = /\.zip$/i)
+      find(path, zip_file_pattern) do |filename|
+        yield(filename) if filename_pattern.match(filename)
       end
     end
   end
@@ -58,8 +58,8 @@ if $PROGRAM_NAME == __FILE__
       puts "Usage: #{$PROGRAM_NAME} PATH ZIPFILENAME_PATTERN FILNAME_PATTERN"
     end
 
-    def self.report_entry_found(fileName)
-      puts fileName
+    def self.report_entry_found(filename)
+      puts filename
     end
   end
 

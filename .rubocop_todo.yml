@@ -42,7 +42,9 @@ Naming/AccessorMethodName:
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db, os
 Naming/MethodParameterName:
-  Enabled: false
+  Exclude:
+    - 'lib/**/*.rb'
+    - 'test/**/*.rb'
 
 # Offense count: 721
 # Configuration parameters: EnforcedStyle.
