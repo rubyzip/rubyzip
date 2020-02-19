@@ -58,6 +58,7 @@ module Zip
 
       # Same as #open but writes to a filestream instead
       def write_buffer(io = ::StringIO.new(''), encrypter = nil)
+        io.binmode if io.respond_to?(:binmode)
         zos = new(io, true, encrypter)
         yield zos
         zos.close_buffer
