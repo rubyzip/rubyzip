@@ -11,8 +11,8 @@ class DeflaterTest < MiniTest::Test
   def test_output_operator
     txt = load_file('test/data/file2.txt')
     deflate(txt, DEFLATER_TEST_FILE)
-    inflatedTxt = inflate(DEFLATER_TEST_FILE)
-    assert_equal(txt, inflatedTxt)
+    inflated_txt = inflate(DEFLATER_TEST_FILE)
+    assert_equal(txt, inflated_txt)
   end
 
   def test_default_compression

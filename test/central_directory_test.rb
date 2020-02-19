@@ -41,12 +41,18 @@ class ZipCentralDirectoryTest < MiniTest::Test
     entries = [::Zip::Entry.new('file.zip', 'flimse', 'myComment', 'somethingExtra'),
                ::Zip::Entry.new('file.zip', 'secondEntryName'),
                ::Zip::Entry.new('file.zip', 'lastEntry.txt', 'Has a comment too')]
-    cdir = ::Zip::CentralDirectory.new(entries, 'my zip comment')
-    File.open('test/data/generated/cdirtest.bin', 'wb') { |f| cdir.write_to_stream(f) }
-    cdirReadback = ::Zip::CentralDirectory.new
-    File.open('test/data/generated/cdirtest.bin', 'rb') { |f| cdirReadback.read_from_stream(f) }
 
-    assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
+    cdir = ::Zip::CentralDirectory.new(entries, 'my zip comment')
+    File.open('test/data/generated/cdirtest.bin', 'wb') do |f|
+      cdir.write_to_stream(f)
+    end
+
+    cdir_readback = ::Zip::CentralDirectory.new
+    File.open('test/data/generated/cdirtest.bin', 'rb') do |f|
+      cdir_readback.read_from_stream(f)
+    end
+
+    assert_equal(cdir.entries.sort, cdir_readback.entries.sort)
   end
 
   def test_write64_to_stream
@@ -58,13 +64,19 @@ class ZipCentralDirectoryTest < MiniTest::Test
     [0, 250, 18_000_000_300, 33_000_000_350].each_with_index do |offset, index|
       entries[index].local_header_offset = offset
     end
-    cdir = ::Zip::CentralDirectory.new(entries, 'zip comment')
-    File.open('test/data/generated/cdir64test.bin', 'wb') { |f| cdir.write_to_stream(f) }
-    cdirReadback = ::Zip::CentralDirectory.new
-    File.open('test/data/generated/cdir64test.bin', 'rb') { |f| cdirReadback.read_from_stream(f) }
 
-    assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
-    assert_equal(::Zip::VERSION_NEEDED_TO_EXTRACT_ZIP64, cdirReadback.instance_variable_get(:@version_needed_for_extract))
+    cdir = ::Zip::CentralDirectory.new(entries, 'zip comment')
+    File.open('test/data/generated/cdir64test.bin', 'wb') do |f|
+      cdir.write_to_stream(f)
+    end
+
+    cdir_readback = ::Zip::CentralDirectory.new
+    File.open('test/data/generated/cdir64test.bin', 'rb') do |f|
+      cdir_readback.read_from_stream(f)
+    end
+
+    assert_equal(cdir.entries.sort, cdir_readback.entries.sort)
+    assert_equal(::Zip::VERSION_NEEDED_TO_EXTRACT_ZIP64, cdir_readback.instance_variable_get(:@version_needed_for_extract))
   end
 
   def test_equality

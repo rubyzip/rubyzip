@@ -54,15 +54,15 @@ class ZipSettingsTest < MiniTest::Test
   def test_true_continue_on_exists_proc
     Zip.continue_on_exists_proc = true
 
-    replacedEntry = nil
+    replaced_entry = nil
 
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      replacedEntry = zf.entries.first.name
-      zf.add(replacedEntry, 'test/data/file2.txt')
+      replaced_entry = zf.entries.first.name
+      zf.add(replaced_entry, 'test/data/file2.txt')
     end
 
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      assert_contains(zf, replacedEntry, 'test/data/file2.txt')
+      assert_contains(zf, replaced_entry, 'test/data/file2.txt')
     end
   end
 

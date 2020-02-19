@@ -14,13 +14,13 @@ class AbstractInputStreamTest < MiniTest::Test
     def initialize(string)
       super()
       @contents = string
-      @readPointer = 0
+      @read_ptr = 0
     end
 
     def sysread(chars_to_read, _buf = nil)
-      retVal = @contents[@readPointer, chars_to_read]
-      @readPointer += chars_to_read
-      retVal
+      ret_val = @contents[@read_ptr, chars_to_read]
+      @read_ptr += chars_to_read
+      ret_val
     end
 
     def produce_input
@@ -28,7 +28,7 @@ class AbstractInputStreamTest < MiniTest::Test
     end
 
     def input_finished?
-      @contents[@readPointer].nil?
+      @contents[@read_ptr].nil?
     end
   end
 
@@ -80,10 +80,10 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   def test_each_line
-    lineNumber = 0
+    line_num = 0
     @io.each_line do |line|
-      assert_equal(TEST_LINES[lineNumber], line)
-      lineNumber += 1
+      assert_equal(TEST_LINES[line_num], line)
+      line_num += 1
     end
   end
 

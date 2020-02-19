@@ -5,7 +5,6 @@ class BasicZipFileTest < MiniTest::Test
 
   def setup
     @zip_file = ::Zip::File.new(TestZipFile::TEST_ZIP2.zip_name)
-    @testEntryNameIndex = 0
   end
 
   def test_entries
@@ -50,11 +49,9 @@ class BasicZipFileTest < MiniTest::Test
   end
 
   def test_get_input_stream_block
-    fileAndEntryName = @zip_file.entries.first.name
-    @zip_file.get_input_stream(fileAndEntryName) do |zis|
-      assert_entry_contents_for_stream(fileAndEntryName,
-                                       zis,
-                                       fileAndEntryName)
+    name = @zip_file.entries.first.name
+    @zip_file.get_input_stream(name) do |zis|
+      assert_entry_contents_for_stream(name, zis, name)
     end
   end
 end

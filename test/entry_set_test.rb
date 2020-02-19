@@ -11,7 +11,7 @@ class ZipEntrySetTest < MiniTest::Test
   ]
 
   def setup
-    @zipEntrySet = ::Zip::EntrySet.new(ZIP_ENTRIES)
+    @zip_entry_set = ::Zip::EntrySet.new(ZIP_ENTRIES)
   end
 
   def teardown
@@ -19,15 +19,15 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_include
-    assert(@zipEntrySet.include?(ZIP_ENTRIES.first))
-    assert(!@zipEntrySet.include?(::Zip::Entry.new('different.zip', 'different', 'aComment')))
+    assert(@zip_entry_set.include?(ZIP_ENTRIES.first))
+    assert(!@zip_entry_set.include?(::Zip::Entry.new('different.zip', 'different', 'aComment')))
   end
 
   def test_size
-    assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
-    assert_equal(ZIP_ENTRIES.size, @zipEntrySet.length)
-    @zipEntrySet << ::Zip::Entry.new('a', 'b', 'c')
-    assert_equal(ZIP_ENTRIES.size + 1, @zipEntrySet.length)
+    assert_equal(ZIP_ENTRIES.size, @zip_entry_set.size)
+    assert_equal(ZIP_ENTRIES.size, @zip_entry_set.length)
+    @zip_entry_set << ::Zip::Entry.new('a', 'b', 'c')
+    assert_equal(ZIP_ENTRIES.size + 1, @zip_entry_set.length)
   end
 
   def test_add
@@ -41,20 +41,20 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_delete
-    assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
-    entry = @zipEntrySet.delete(ZIP_ENTRIES.first)
-    assert_equal(ZIP_ENTRIES.size - 1, @zipEntrySet.size)
+    assert_equal(ZIP_ENTRIES.size, @zip_entry_set.size)
+    entry = @zip_entry_set.delete(ZIP_ENTRIES.first)
+    assert_equal(ZIP_ENTRIES.size - 1, @zip_entry_set.size)
     assert_equal(ZIP_ENTRIES.first, entry)
 
-    entry = @zipEntrySet.delete(ZIP_ENTRIES.first)
-    assert_equal(ZIP_ENTRIES.size - 1, @zipEntrySet.size)
+    entry = @zip_entry_set.delete(ZIP_ENTRIES.first)
+    assert_equal(ZIP_ENTRIES.size - 1, @zip_entry_set.size)
     assert_nil(entry)
   end
 
   def test_each
     # Used each instead each_with_index due the bug in jRuby
     count = 0
-    @zipEntrySet.each do |entry|
+    @zip_entry_set.each do |entry|
       assert(ZIP_ENTRIES.include?(entry))
       count += 1
     end
@@ -62,57 +62,57 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_entries
-    assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
+    assert_equal(ZIP_ENTRIES, @zip_entry_set.entries)
   end
 
   def test_find_entry
     entries = [::Zip::Entry.new('zipfile.zip', 'MiXeDcAsEnAmE', 'comment1')]
 
     ::Zip.case_insensitive_match = true
-    zipEntrySet = ::Zip::EntrySet.new(entries)
-    assert_equal(entries[0], zipEntrySet.find_entry('MiXeDcAsEnAmE'))
-    assert_equal(entries[0], zipEntrySet.find_entry('mixedcasename'))
+    zip_entry_set = ::Zip::EntrySet.new(entries)
+    assert_equal(entries[0], zip_entry_set.find_entry('MiXeDcAsEnAmE'))
+    assert_equal(entries[0], zip_entry_set.find_entry('mixedcasename'))
 
     ::Zip.case_insensitive_match = false
-    zipEntrySet = ::Zip::EntrySet.new(entries)
-    assert_equal(entries[0], zipEntrySet.find_entry('MiXeDcAsEnAmE'))
-    assert_nil(zipEntrySet.find_entry('mixedcasename'))
+    zip_entry_set = ::Zip::EntrySet.new(entries)
+    assert_equal(entries[0], zip_entry_set.find_entry('MiXeDcAsEnAmE'))
+    assert_nil(zip_entry_set.find_entry('mixedcasename'))
   end
 
   def test_entries_with_sort
     ::Zip.sort_entries = true
-    assert_equal(ZIP_ENTRIES.sort, @zipEntrySet.entries)
+    assert_equal(ZIP_ENTRIES.sort, @zip_entry_set.entries)
     ::Zip.sort_entries = false
-    assert_equal(ZIP_ENTRIES, @zipEntrySet.entries)
+    assert_equal(ZIP_ENTRIES, @zip_entry_set.entries)
   end
 
   def test_entries_sorted_in_each
     ::Zip.sort_entries = true
     arr = []
-    @zipEntrySet.each do |entry|
+    @zip_entry_set.each do |entry|
       arr << entry
     end
     assert_equal(ZIP_ENTRIES.sort, arr)
   end
 
   def test_compound
-    newEntry = ::Zip::Entry.new('zf.zip', 'new entry', "new entry's comment")
-    assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
-    @zipEntrySet << newEntry
-    assert_equal(ZIP_ENTRIES.size + 1, @zipEntrySet.size)
-    assert(@zipEntrySet.include?(newEntry))
+    new_entry = ::Zip::Entry.new('zf.zip', 'new entry', "new entry's comment")
+    assert_equal(ZIP_ENTRIES.size, @zip_entry_set.size)
+    @zip_entry_set << new_entry
+    assert_equal(ZIP_ENTRIES.size + 1, @zip_entry_set.size)
+    assert(@zip_entry_set.include?(new_entry))
 
-    @zipEntrySet.delete(newEntry)
-    assert_equal(ZIP_ENTRIES.size, @zipEntrySet.size)
+    @zip_entry_set.delete(new_entry)
+    assert_equal(ZIP_ENTRIES.size, @zip_entry_set.size)
   end
 
   def test_dup
-    copy = @zipEntrySet.dup
-    assert_equal(@zipEntrySet, copy)
+    copy = @zip_entry_set.dup
+    assert_equal(@zip_entry_set, copy)
 
     # demonstrate that this is a deep copy
     copy.entries[0].name = 'a totally different name'
-    assert(@zipEntrySet != copy)
+    assert(@zip_entry_set != copy)
   end
 
   def test_parent
@@ -121,15 +121,15 @@ class ZipEntrySetTest < MiniTest::Test
       ::Zip::Entry.new('zf.zip', 'a/b/'),
       ::Zip::Entry.new('zf.zip', 'a/b/c/')
     ]
-    entrySet = ::Zip::EntrySet.new(entries)
+    entry_set = ::Zip::EntrySet.new(entries)
 
-    assert_nil(entrySet.parent(entries[0]))
-    assert_equal(entries[0], entrySet.parent(entries[1]))
-    assert_equal(entries[1], entrySet.parent(entries[2]))
+    assert_nil(entry_set.parent(entries[0]))
+    assert_equal(entries[0], entry_set.parent(entries[1]))
+    assert_equal(entries[1], entry_set.parent(entries[2]))
   end
 
   def test_glob
-    res = @zipEntrySet.glob('name[2-4]')
+    res = @zip_entry_set.glob('name[2-4]')
     assert_equal(3, res.size)
     assert_equal(ZIP_ENTRIES[1, 3].sort, res.sort)
   end
@@ -141,13 +141,13 @@ class ZipEntrySetTest < MiniTest::Test
       ::Zip::Entry.new('zf.zip', 'a/b/c/'),
       ::Zip::Entry.new('zf.zip', 'a/b/c/c1')
     ]
-    entrySet = ::Zip::EntrySet.new(entries)
+    entry_set = ::Zip::EntrySet.new(entries)
 
-    assert_equal(entries[0, 1], entrySet.glob('*'))
-    # assert_equal(entries[FIXME], entrySet.glob("**"))
-    # res = entrySet.glob('a*')
+    assert_equal(entries[0, 1], entry_set.glob('*'))
+    # assert_equal(entries[FIXME], entry_set.glob("**"))
+    # res = entry_set.glob('a*')
     # assert_equal(entries.size, res.size)
-    # assert_equal(entrySet.map { |e| e.name }, res.map { |e| e.name })
+    # assert_equal(entry_set.map { |e| e.name }, res.map { |e| e.name })
   end
 
   def test_glob3
@@ -156,8 +156,8 @@ class ZipEntrySetTest < MiniTest::Test
       ::Zip::Entry.new('zf.zip', 'a/b'),
       ::Zip::Entry.new('zf.zip', 'a/c')
     ]
-    entrySet = ::Zip::EntrySet.new(entries)
+    entry_set = ::Zip::EntrySet.new(entries)
 
-    assert_equal(entries[0, 2].sort, entrySet.glob('a/{a,b}').sort)
+    assert_equal(entries[0, 2].sort, entry_set.glob('a/{a,b}').sort)
   end
 end

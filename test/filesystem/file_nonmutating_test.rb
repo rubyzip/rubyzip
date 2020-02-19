@@ -31,30 +31,30 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_open_read
-    blockCalled = false
+    block_called = false
     @zip_file.file.open('file1', 'r') do |f|
-      blockCalled = true
+      block_called = true
       assert_equal("this is the entry 'file1' in my test archive!",
                    f.readline.chomp)
     end
-    assert(blockCalled)
+    assert(block_called)
 
-    blockCalled = false
+    block_called = false
     @zip_file.file.open('file1', 'rb') do |f| # test binary flag is ignored
-      blockCalled = true
+      block_called = true
       assert_equal("this is the entry 'file1' in my test archive!",
                    f.readline.chomp)
     end
-    assert(blockCalled)
+    assert(block_called)
 
-    blockCalled = false
+    block_called = false
     @zip_file.dir.chdir 'dir2'
     @zip_file.file.open('file21', 'r') do |f|
-      blockCalled = true
+      block_called = true
       assert_equal("this is the entry 'dir2/file21' in my test archive!",
                    f.readline.chomp)
     end
-    assert(blockCalled)
+    assert(block_called)
     @zip_file.dir.chdir '/'
 
     assert_raises(Errno::ENOENT) do
@@ -126,19 +126,19 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   include ExtraAssertions
 
   def test_dirname
-    assert_forwarded(File, :dirname, 'retVal', 'a/b/c/d') do
+    assert_forwarded(File, :dirname, 'ret_val', 'a/b/c/d') do
       @zip_file.file.dirname('a/b/c/d')
     end
   end
 
   def test_basename
-    assert_forwarded(File, :basename, 'retVal', 'a/b/c/d') do
+    assert_forwarded(File, :basename, 'ret_val', 'a/b/c/d') do
       @zip_file.file.basename('a/b/c/d')
     end
   end
 
   def test_split
-    assert_forwarded(File, :split, 'retVal', 'a/b/c/d') do
+    assert_forwarded(File, :split, 'ret_val', 'a/b/c/d') do
       @zip_file.file.split('a/b/c/d')
     end
   end
@@ -246,21 +246,21 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
     assert(!@zip_file.file.zero?('notAFile'))
     assert(!@zip_file.file.zero?('file1'))
     assert(@zip_file.file.zero?('dir1'))
-    blockCalled = false
+    block_called = false
     ::Zip::File.open('test/data/generated/5entry.zip') do |zf|
-      blockCalled = true
+      block_called = true
       assert(zf.file.zero?('test/data/generated/empty.txt'))
     end
-    assert(blockCalled)
+    assert(block_called)
 
     assert(!@zip_file.file.stat('file1').zero?)
     assert(@zip_file.file.stat('dir1').zero?)
-    blockCalled = false
+    block_called = false
     ::Zip::File.open('test/data/generated/5entry.zip') do |zf|
-      blockCalled = true
+      block_called = true
       assert(zf.file.stat('test/data/generated/empty.txt').zero?)
     end
-    assert(blockCalled)
+    assert(block_called)
   end
 
   def test_expand_path
