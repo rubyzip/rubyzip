@@ -42,7 +42,9 @@ Naming/AccessorMethodName:
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: snake_case, camelCase
 Naming/VariableName:
-  Enabled: false
+  Exclude:
+    - 'lib/**/*.rb'
+    - 'test/**/*.rb'
 
 # Offense count: 7
 # Configuration parameters: EnforcedStyle.
