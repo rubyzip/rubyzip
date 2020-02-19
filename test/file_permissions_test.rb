@@ -15,7 +15,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   def test_umask_000
-    set_umask(0o000) do
+    apply_umask(0o000) do
       create_files
     end
 
@@ -23,7 +23,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   def test_umask_066
-    set_umask(0o066) do
+    apply_umask(0o066) do
       create_files
     end
 
@@ -31,7 +31,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   def test_umask_027
-    set_umask(0o027) do
+    apply_umask(0o027) do
       create_files
     end
 
@@ -56,7 +56,7 @@ class FilePermissionsTest < MiniTest::Test
   end
 
   # If anything goes wrong, make sure the umask is restored.
-  def set_umask(umask)
+  def apply_umask(umask)
     saved_umask = ::File.umask(umask)
     yield
   ensure

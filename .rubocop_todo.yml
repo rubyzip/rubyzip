@@ -36,7 +36,6 @@ Naming/AccessorMethodName:
     - 'lib/zip/filesystem.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/streamable_stream.rb'
-    - 'test/file_permissions_test.rb'
 
 # Offense count: 7
 # Configuration parameters: EnforcedStyle.
