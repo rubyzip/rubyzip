@@ -444,16 +444,16 @@ module Zip
       end
 
       def open(directory_name)
-        dirIt = new(directory_name)
+        dir_iter = new(directory_name)
         if block_given?
           begin
-            yield(dirIt)
+            yield(dir_iter)
             return nil
           ensure
-            dirIt.close
+            dir_iter.close
           end
         end
-        dirIt
+        dir_iter
       end
 
       def pwd
@@ -487,9 +487,9 @@ module Zip
         path = @file.expand_path(directory_name)
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
-        subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
+        subdir_entry_regex = Regexp.new("^#{path}([^/]+)$")
         @mapped_zip.each do |filename|
-          match = subDirEntriesRegex.match(filename)
+          match = subdir_entry_regex.match(filename)
           yield(match[1]) unless match.nil?
         end
       end

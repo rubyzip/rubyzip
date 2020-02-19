@@ -38,13 +38,6 @@ Naming/AccessorMethodName:
     - 'lib/zip/streamable_stream.rb'
     - 'test/file_permissions_test.rb'
 
-# Offense count: 721
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: snake_case, camelCase
-Naming/VariableName:
-  Exclude:
-    - 'lib/**/*.rb'
-
 # Offense count: 7
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: inline, group

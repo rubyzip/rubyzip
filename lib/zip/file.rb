@@ -319,11 +319,11 @@ module Zip
 
     # Renames the specified entry.
     def rename(entry, new_name, &continue_on_exists_proc)
-      foundEntry = get_entry(entry)
+      found_entry = get_entry(entry)
       check_entry_exists(new_name, continue_on_exists_proc, 'rename')
-      @entry_set.delete(foundEntry)
-      foundEntry.name = new_name
-      @entry_set << foundEntry
+      @entry_set.delete(found_entry)
+      found_entry.name = new_name
+      @entry_set << found_entry
     end
 
     # Replaces the specified entry with the contents of src_path (from
@@ -420,15 +420,15 @@ module Zip
     private
 
     def directory?(new_entry, src_path)
-      srcPathIsDirectory = ::File.directory?(src_path)
-      if new_entry.directory? && !srcPathIsDirectory
+      path_is_directory = ::File.directory?(src_path)
+      if new_entry.directory? && !path_is_directory
         raise ArgumentError,
               "entry name '#{new_entry}' indicates directory entry, but " \
                   "'#{src_path}' is not a directory"
-      elsif !new_entry.directory? && srcPathIsDirectory
+      elsif !new_entry.directory? && path_is_directory
         new_entry.name += '/'
       end
-      new_entry.directory? && srcPathIsDirectory
+      new_entry.directory? && path_is_directory
     end
 
     def check_entry_exists(entry_name, continue_on_exists_proc, proc_name)
