@@ -1,8 +1,8 @@
 module Zip
   class PassThruCompressor < Compressor #:nodoc:all
-    def initialize(outputStream)
+    def initialize(output_stream)
       super()
-      @output_stream = outputStream
+      @output_stream = output_stream
       @crc = Zlib.crc32
       @size = 0
     end
