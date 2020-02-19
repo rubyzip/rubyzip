@@ -50,12 +50,6 @@ Metrics/MethodLength:
   Exclude:
     - 'test/**/*.rb'
 
-# Rubocop confuses these as instances of "memoization".
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/zip/extra_field/old_unix.rb'
-    - 'lib/zip/extra_field/unix.rb'
-
 # Set a consistent way of checking types.
 Style/ClassCheck:
   EnforcedStyle: kind_of?
