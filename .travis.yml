@@ -18,6 +18,7 @@ matrix:
     jdk: openjdk11
   - rvm: rbx-4
   - name: Rubocop
+    rvm: 2.4
     script:
     - bundle info rubocop
     - bundle exec rubocop
