@@ -77,6 +77,10 @@ Style/FormatStringToken:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+# This one has to be off until our base ruby is at least 2.5.
+Style/HashTransformKeys:
+  Enabled: false
+
 # Offense count: 17
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
