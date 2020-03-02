@@ -40,7 +40,7 @@ class ZipOutputStreamTest < MiniTest::Test
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
-    assert buffer.external_encoding.name === ASCII8BIT
+    assert_equal Encoding::ASCII_8BIT, buffer.external_encoding
   end
 
   def test_write_buffer_with_temp_file
