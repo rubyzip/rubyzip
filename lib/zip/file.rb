@@ -362,7 +362,6 @@ module Zip
 
     # Write buffer write changes to buffer and return
     def write_buffer(io = ::StringIO.new(''))
-      io.binmode if io.respond_to?(:binmode)
       ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
