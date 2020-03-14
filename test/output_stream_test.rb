@@ -6,6 +6,8 @@ class ZipOutputStreamTest < MiniTest::Test
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
   TEST_ZIP.zip_name = 'test/data/generated/output.zip'
 
+  ASCII8BIT = 'ASCII-8BIT'
+
   def test_new
     zos = ::Zip::OutputStream.new(TEST_ZIP.zip_name)
     zos.comment = TEST_ZIP.comment
@@ -30,6 +32,15 @@ class ZipOutputStreamTest < MiniTest::Test
     end
     File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
     assert_test_zip_contents(TEST_ZIP)
+  end
+
+  def test_write_buffer_binmode
+    io = ::StringIO.new('')
+    buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
+      zos.comment = TEST_ZIP.comment
+      write_test_zip(zos)
+    end
+    assert_equal Encoding::ASCII_8BIT, buffer.external_encoding
   end
 
   def test_write_buffer_with_temp_file
