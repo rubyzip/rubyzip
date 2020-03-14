@@ -1,5 +1,7 @@
 # X.X.X (Next)
 
+# 2.3.0 (2020-03-14)
+
 - Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
 - Set `OutputStream.write_buffer`'s buffer to binmode [#439](https://github.com/rubyzip/rubyzip/pull/439)
 - Upgrade rubocop and fix various linting complaints [#437](https://github.com/rubyzip/rubyzip/pull/437) [#440](https://github.com/rubyzip/rubyzip/pull/440)
