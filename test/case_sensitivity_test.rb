@@ -20,12 +20,12 @@ class ZipCaseSensitivityTest < MiniTest::Test
     SRC_FILES.each { |fn, en| zf.add(en, fn) }
     zf.close
 
-    zfRead = ::Zip::File.new(EMPTY_FILENAME)
-    assert_equal(SRC_FILES.size, zfRead.entries.length)
+    zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    assert_equal(SRC_FILES.size, zf_read.entries.length)
     SRC_FILES.each_with_index do |a, i|
-      assert_equal(a.last, zfRead.entries[i].name)
+      assert_equal(a.last, zf_read.entries[i].name)
       AssertEntry.assert_contents(a.first,
-                                  zfRead.get_input_stream(a.last, &:read))
+                                  zf_read.get_input_stream(a.last, &:read))
     end
   end
 
@@ -53,18 +53,21 @@ class ZipCaseSensitivityTest < MiniTest::Test
 
     ::Zip.case_insensitive_match = true
 
-    zfRead = ::Zip::File.new(EMPTY_FILENAME)
-    assert_equal(SRC_FILES.collect { |_fn, en| en.downcase }.uniq.size, zfRead.entries.length)
-    assert_equal(SRC_FILES.last.last.downcase, zfRead.entries.first.name.downcase)
+    zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    assert_equal(SRC_FILES.collect { |_fn, en| en.downcase }.uniq.size, zf_read.entries.length)
+    assert_equal(SRC_FILES.last.last.downcase, zf_read.entries.first.name.downcase)
     AssertEntry.assert_contents(
-      SRC_FILES.last.first, zfRead.get_input_stream(SRC_FILES.last.last, &:read)
+      SRC_FILES.last.first, zf_read.get_input_stream(SRC_FILES.last.last, &:read)
     )
   end
 
   private
 
-  def assert_contains(zf, entryName, filename = entryName)
-    refute_nil(zf.entries.detect { |e| e.name == entryName }, "entry #{entryName} not in #{zf.entries.join(', ')} in zip file #{zf}")
-    assert_entry_contents(zf, entryName, filename) if File.exist?(filename)
+  def assert_contains(zip_file, entry_name, filename = entry_name)
+    refute_nil(
+      zip_file.entries.detect { |e| e.name == entry_name },
+      "entry #{entry_name} not in #{zip_file.entries.join(', ')} in zip file #{zip_file}"
+    )
+    assert_entry_contents(zip_file, entry_name, filename) if File.exist?(filename)
   end
 end

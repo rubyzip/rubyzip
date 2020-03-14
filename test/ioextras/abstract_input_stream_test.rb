@@ -11,16 +11,16 @@ class AbstractInputStreamTest < MiniTest::Test
   class TestAbstractInputStream
     include ::Zip::IOExtras::AbstractInputStream
 
-    def initialize(aString)
+    def initialize(string)
       super()
-      @contents = aString
-      @readPointer = 0
+      @contents = string
+      @read_ptr = 0
     end
 
-    def sysread(charsToRead, _buf = nil)
-      retVal = @contents[@readPointer, charsToRead]
-      @readPointer += charsToRead
-      retVal
+    def sysread(chars_to_read, _buf = nil)
+      ret_val = @contents[@read_ptr, chars_to_read]
+      @read_ptr += chars_to_read
+      ret_val
     end
 
     def produce_input
@@ -28,7 +28,7 @@ class AbstractInputStreamTest < MiniTest::Test
     end
 
     def input_finished?
-      @contents[@readPointer].nil?
+      @contents[@read_ptr].nil?
     end
   end
 
@@ -80,10 +80,10 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   def test_each_line
-    lineNumber = 0
+    line_num = 0
     @io.each_line do |line|
-      assert_equal(TEST_LINES[lineNumber], line)
-      lineNumber += 1
+      assert_equal(TEST_LINES[line_num], line)
+      line_num += 1
     end
   end
 

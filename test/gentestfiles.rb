@@ -84,18 +84,20 @@ class TestZipFile
     ::File.chmod(0o640, 'test/data/generated/empty_chmod640.txt')
 
     File.open('test/data/generated/short.txt', 'w') { |file| file << 'ABCDEF' }
-    ziptestTxt = ''
-    File.open('test/data/file2.txt') { |file| ziptestTxt = file.read }
+    test_text = ''
+    File.open('test/data/file2.txt') { |file| test_text = file.read }
     File.open('test/data/generated/longAscii.txt', 'w') do |file|
-      file << ziptestTxt while file.tell < 1E5
+      file << test_text while file.tell < 1E5
     end
 
-    testBinaryPattern = ''
-    File.open('test/data/generated/empty.zip') { |file| testBinaryPattern = file.read }
-    testBinaryPattern *= 4
+    binary_pattern = ''
+    File.open('test/data/generated/empty.zip') do |file|
+      binary_pattern = file.read
+    end
+    binary_pattern *= 4
 
     File.open('test/data/generated/longBinary.bin', 'wb') do |file|
-      file << testBinaryPattern << rand << "\0" while file.tell < 6E5
+      file << binary_pattern << rand << "\0" while file.tell < 6E5
     end
 
     raise "failed to create test zip '#{TEST_ZIP2.zip_name}'" \

@@ -11,8 +11,8 @@ class DeflaterTest < MiniTest::Test
   def test_output_operator
     txt = load_file('test/data/file2.txt')
     deflate(txt, DEFLATER_TEST_FILE)
-    inflatedTxt = inflate(DEFLATER_TEST_FILE)
-    assert_equal(txt, inflatedTxt)
+    inflated_txt = inflate(DEFLATER_TEST_FILE)
+    assert_equal(txt, inflated_txt)
   end
 
   def test_default_compression
@@ -42,12 +42,12 @@ class DeflaterTest < MiniTest::Test
 
   private
 
-  def load_file(fileName)
-    File.open(fileName, 'rb', &:read)
+  def load_file(filename)
+    File.open(filename, 'rb', &:read)
   end
 
-  def deflate(data, fileName)
-    File.open(fileName, 'wb') do |file|
+  def deflate(data, filename)
+    File.open(filename, 'wb') do |file|
       deflater = ::Zip::Deflater.new(file)
       deflater << data
       deflater.finish
@@ -56,8 +56,8 @@ class DeflaterTest < MiniTest::Test
     end
   end
 
-  def inflate(fileName)
-    File.open(fileName, 'rb') do |file|
+  def inflate(filename)
+    File.open(filename, 'rb') do |file|
       inflater = ::Zip::Inflater.new(file)
       inflater.read
     end

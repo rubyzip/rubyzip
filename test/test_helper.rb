@@ -25,27 +25,27 @@ module IOizeString
   def read(count = nil)
     @tell ||= 0
     count ||= size
-    retVal = slice(@tell, count)
+    ret_val = slice(@tell, count)
     @tell += count
-    retVal
+    ret_val
   end
 
   def seek(index, offset)
     @tell ||= 0
     case offset
     when IO::SEEK_END
-      newPos = size + index
+      pos = size + index
     when IO::SEEK_SET
-      newPos = index
+      pos = index
     when IO::SEEK_CUR
-      newPos = @tell + index
+      pos = @tell + index
     else
       raise 'Error in test method IOizeString::seek'
     end
 
-    raise Errno::EINVAL if newPos < 0 || newPos >= size
+    raise Errno::EINVAL if pos < 0 || pos >= size
 
-    @tell = newPos
+    @tell = pos
   end
 
   def reset
@@ -54,26 +54,26 @@ module IOizeString
 end
 
 module DecompressorTests
-  # expects @refText, @refLines and @decompressor
+  # expects @ref_text, @ref_lines and @decompressor
 
   TEST_FILE = 'test/data/file1.txt'
 
   def setup
-    @refText = ''
-    File.open(TEST_FILE) { |f| @refText = f.read }
-    @refLines = @refText.split($INPUT_RECORD_SEPARATOR)
+    @ref_text = ''
+    File.open(TEST_FILE) { |f| @ref_text = f.read }
+    @ref_lines = @ref_text.split($INPUT_RECORD_SEPARATOR)
   end
 
   def test_read_everything
-    assert_equal(@refText, @decompressor.read)
+    assert_equal(@ref_text, @decompressor.read)
   end
 
   def test_read_in_chunks
-    chunkSize = 5
-    while (decompressedChunk = @decompressor.read(chunkSize))
-      assert_equal(@refText.slice!(0, chunkSize), decompressedChunk)
+    size = 5
+    while (chunk = @decompressor.read(size))
+      assert_equal(@ref_text.slice!(0, size), chunk)
     end
-    assert_equal(0, @refText.size)
+    assert_equal(0, @ref_text.size)
   end
 end
 
@@ -82,20 +82,20 @@ module AssertEntry
     assert_entry(filename, zis, zis.get_next_entry.name)
   end
 
-  def assert_entry(filename, zis, entryName)
-    assert_equal(filename, entryName)
-    assert_entry_contents_for_stream(filename, zis, entryName)
+  def assert_entry(filename, zis, entry_name)
+    assert_equal(filename, entry_name)
+    assert_entry_contents_for_stream(filename, zis, entry_name)
   end
 
-  def assert_entry_contents_for_stream(filename, zis, entryName)
+  def assert_entry_contents_for_stream(filename, zis, entry_name)
     File.open(filename, 'rb') do |file|
       expected = file.read
       actual = zis.read
       if expected != actual
         if (expected && actual) && (expected.length > 400 || actual.length > 400)
-          zipEntryFilename = entryName + '.zipEntry'
-          File.open(zipEntryFilename, 'wb') { |entryfile| entryfile << actual }
-          raise("File '#{filename}' is different from '#{zipEntryFilename}'")
+          entry_filename = entry_name + '.zipEntry'
+          File.open(entry_filename, 'wb') { |entryfile| entryfile << actual }
+          raise("File '#{filename}' is different from '#{entry_filename}'")
         else
           assert_equal(expected, actual)
         end
@@ -103,37 +103,37 @@ module AssertEntry
     end
   end
 
-  def self.assert_contents(filename, aString)
-    fileContents = ''
-    File.open(filename, 'rb') { |f| fileContents = f.read }
-    return unless fileContents != aString
+  def self.assert_contents(filename, string)
+    contents = ''
+    File.open(filename, 'rb') { |f| contents = f.read }
+    return unless contents != string
 
-    if fileContents.length > 400 || aString.length > 400
-      stringFile = filename + '.other'
-      File.open(stringFile, 'wb') { |f| f << aString }
-      raise("File '#{filename}' is different from contents of string stored in '#{stringFile}'")
+    if contents.length > 400 || string.length > 400
+      string_file = filename + '.other'
+      File.open(string_file, 'wb') { |f| f << string }
+      raise("File '#{filename}' is different from contents of string stored in '#{string_file}'")
     else
-      assert_equal(fileContents, aString)
+      assert_equal(contents, string)
     end
   end
 
-  def assert_stream_contents(zis, testZipFile)
+  def assert_stream_contents(zis, zip_file)
     assert(!zis.nil?)
-    testZipFile.entry_names.each do |entryName|
-      assert_next_entry(entryName, zis)
+    zip_file.entry_names.each do |entry_name|
+      assert_next_entry(entry_name, zis)
     end
     assert_nil(zis.get_next_entry)
   end
 
-  def assert_test_zip_contents(testZipFile)
-    ::Zip::InputStream.open(testZipFile.zip_name) do |zis|
-      assert_stream_contents(zis, testZipFile)
+  def assert_test_zip_contents(zip_file)
+    ::Zip::InputStream.open(zip_file.zip_name) do |zis|
+      assert_stream_contents(zis, zip_file)
     end
   end
 
-  def assert_entry_contents(zipFile, entryName, filename = entryName.to_s)
-    zis = zipFile.get_input_stream(entryName)
-    assert_entry_contents_for_stream(filename, zis, entryName)
+  def assert_entry_contents(zip_file, entry_name, filename = entry_name.to_s)
+    zis = zip_file.get_input_stream(entry_name)
+    assert_entry_contents_for_stream(filename, zis, entry_name)
   ensure
     zis.close if zis
   end
@@ -155,23 +155,23 @@ module CrcTest
     end
   end
 
-  def run_crc_test(compressorClass)
+  def run_crc_test(compressor_class)
     str = "Here's a nice little text to compute the crc for! Ho hum, it is nice nice nice nice indeed."
-    fakeOut = TestOutputStream.new
+    fake_out = TestOutputStream.new
 
-    deflater = compressorClass.new(fakeOut)
+    deflater = compressor_class.new(fake_out)
     deflater << str
     assert_equal(0x919920fc, deflater.crc)
   end
 end
 
 module Enumerable
-  def compare_enumerables(otherEnumerable)
-    otherAsArray = otherEnumerable.to_a
+  def compare_enumerables(enumerable)
+    array = enumerable.to_a
     each_with_index do |element, index|
-      return false unless yield(element, otherAsArray[index])
+      return false unless yield(element, array[index])
     end
-    size == otherAsArray.size
+    size == array.size
   end
 end
 
@@ -190,21 +190,21 @@ module CommonZipFileFixture
 end
 
 module ExtraAssertions
-  def assert_forwarded(anObject, method, retVal, *expectedArgs)
-    callArgs = nil
-    setCallArgsProc = proc { |args| callArgs = args }
-    anObject.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
+  def assert_forwarded(object, method, ret_val, *expected_args)
+    call_args = nil
+    call_args_proc = proc { |args| call_args = args }
+    object.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
       alias #{method}_org #{method}
       def #{method}(*args)
-        ObjectSpace._id2ref(#{setCallArgsProc.object_id}).call(args)
-        ObjectSpace._id2ref(#{retVal.object_id})
+        ObjectSpace._id2ref(#{call_args_proc.object_id}).call(args)
+        ObjectSpace._id2ref(#{ret_val.object_id})
         end
     END_EVAL
 
-    assert_equal(retVal, yield) # Invoke test
-    assert_equal(expectedArgs, callArgs)
+    assert_equal(ret_val, yield) # Invoke test
+    assert_equal(expected_args, call_args)
   ensure
-    anObject.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
+    object.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
       undef #{method}
       alias #{method} #{method}_org
     END_EVAL

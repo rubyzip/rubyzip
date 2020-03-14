@@ -6,23 +6,23 @@ module Zip
       merge(binstr) if binstr
     end
 
-    def extra_field_type_exist(binstr, id, len, i)
+    def extra_field_type_exist(binstr, id, len, index)
       field_name = ID_MAP[id].name
       if member?(field_name)
-        self[field_name].merge(binstr[i, len + 4])
+        self[field_name].merge(binstr[index, len + 4])
       else
-        field_obj        = ID_MAP[id].new(binstr[i, len + 4])
+        field_obj        = ID_MAP[id].new(binstr[index, len + 4])
         self[field_name] = field_obj
       end
     end
 
-    def extra_field_type_unknown(binstr, len, i)
+    def extra_field_type_unknown(binstr, len, index)
       create_unknown_item unless self['Unknown']
-      if !len || len + 4 > binstr[i..-1].bytesize
-        self['Unknown'] << binstr[i..-1]
+      if !len || len + 4 > binstr[index..-1].bytesize
+        self['Unknown'] << binstr[index..-1]
         return
       end
-      self['Unknown'] << binstr[i, len + 4]
+      self['Unknown'] << binstr[index, len + 4]
     end
 
     def create_unknown_item

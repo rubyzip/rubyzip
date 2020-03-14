@@ -20,12 +20,12 @@ class ZipDialog < ZipDialogUI
             self, SLOT('extract_files()'))
   end
 
-  def zipfile(&proc)
-    Zip::File.open(@zip_filename, &proc)
+  def zipfile(&a_proc)
+    Zip::File.open(@zip_filename, &a_proc)
   end
 
-  def each(&proc)
-    Zip::File.foreach(@zip_filename, &proc)
+  def each(&a_proc)
+    Zip::File.foreach(@zip_filename, &a_proc)
   end
 
   def refresh

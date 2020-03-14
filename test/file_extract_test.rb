@@ -34,8 +34,8 @@ class ZipFileExtractTest < MiniTest::Test
   end
 
   def test_extract_exists
-    writtenText = 'written text'
-    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(writtenText) }
+    text = 'written text'
+    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(text) }
 
     assert_raises(::Zip::DestinationFileExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
@@ -43,26 +43,26 @@ class ZipFileExtractTest < MiniTest::Test
       end
     end
     File.open(EXTRACTED_FILENAME, 'r') do |f|
-      assert_equal(writtenText, f.read)
+      assert_equal(text, f.read)
     end
   end
 
   def test_extract_exists_overwrite
-    writtenText = 'written text'
-    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(writtenText) }
+    text = 'written text'
+    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(text) }
 
-    gotCalledCorrectly = false
+    called_correctly = false
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
-      zf.extract(zf.entries.first, EXTRACTED_FILENAME) do |entry, extractLoc|
-        gotCalledCorrectly = zf.entries.first == entry &&
-                             extractLoc == EXTRACTED_FILENAME
+      zf.extract(zf.entries.first, EXTRACTED_FILENAME) do |entry, extract_loc|
+        called_correctly = zf.entries.first == entry &&
+                           extract_loc == EXTRACTED_FILENAME
         true
       end
     end
 
-    assert(gotCalledCorrectly)
+    assert(called_correctly)
     ::File.open(EXTRACTED_FILENAME, 'r') do |f|
-      assert(writtenText != f.read)
+      assert(text != f.read)
     end
   end
 
@@ -74,15 +74,15 @@ class ZipFileExtractTest < MiniTest::Test
   end
 
   def test_extract_non_entry_2
-    outFile = 'outfile'
+    out_file = 'outfile'
     assert_raises(Errno::ENOENT) do
       zf = ::Zip::File.new(TEST_ZIP.zip_name)
-      nonEntry = 'hotdog-diddelidoo'
-      assert(!zf.entries.include?(nonEntry))
-      zf.extract(nonEntry, outFile)
+      non_entry = 'hotdog-diddelidoo'
+      assert(!zf.entries.include?(non_entry))
+      zf.extract(non_entry, out_file)
       zf.close
     end
-    assert(!File.exist?(outFile))
+    assert(!File.exist?(out_file))
   end
 
   def test_extract_incorrect_size

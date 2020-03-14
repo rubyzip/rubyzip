@@ -181,8 +181,8 @@ module Zip
     end
 
     # For iterating over the entries.
-    def each(&proc)
-      @entry_set.each(&proc)
+    def each(&a_proc)
+      @entry_set.each(&a_proc)
     end
 
     # Returns the number of entries in the central directory (and

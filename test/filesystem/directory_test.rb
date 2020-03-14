@@ -65,16 +65,16 @@ class ZipFsDirectoryTest < MiniTest::Test
 
   def test_foreach
     ::Zip::File.open(TEST_ZIP) do |zf|
-      blockCalled = false
+      block_called = false
       assert_raises(Errno::ENOENT, 'No such file or directory - noSuchDir') do
-        zf.dir.foreach('noSuchDir') { |_e| blockCalled = true }
+        zf.dir.foreach('noSuchDir') { |_e| block_called = true }
       end
-      assert(!blockCalled)
+      assert(!block_called)
 
       assert_raises(Errno::ENOTDIR, 'Not a directory - file1') do
-        zf.dir.foreach('file1') { |_e| blockCalled = true }
+        zf.dir.foreach('file1') { |_e| block_called = true }
       end
-      assert(!blockCalled)
+      assert(!block_called)
 
       entries = []
       zf.dir.foreach('.') { |e| entries << e }

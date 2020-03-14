@@ -168,9 +168,9 @@ module Zip
       # whereas ZipInputStream jumps through the entire archive accessing the
       # local entry headers (which contain the same information as the
       # central directory).
-      def foreach(aZipFileName, &block)
-        ::Zip::File.open(aZipFileName) do |zipFile|
-          zipFile.each(&block)
+      def foreach(zip_file_name, &block)
+        ::Zip::File.open(zip_file_name) do |zip_file|
+          zip_file.each(&block)
         end
       end
 
@@ -255,8 +255,8 @@ module Zip
     # Returns an input stream to the specified entry. If a block is passed
     # the stream object is passed to the block and the stream is automatically
     # closed afterwards just as with ruby's builtin File.open method.
-    def get_input_stream(entry, &aProc)
-      get_entry(entry).get_input_stream(&aProc)
+    def get_input_stream(entry, &a_proc)
+      get_entry(entry).get_input_stream(&a_proc)
     end
 
     # Returns an output stream to the specified entry. If entry is not an instance
@@ -267,7 +267,7 @@ module Zip
     def get_output_stream(entry, permission_int = nil, comment = nil,
                           extra = nil, compressed_size = nil, crc = nil,
                           compression_method = nil, size = nil, time = nil,
-                          &aProc)
+                          &a_proc)
 
       new_entry =
         if entry.kind_of?(Entry)
@@ -282,7 +282,7 @@ module Zip
       new_entry.unix_perms = permission_int
       zip_streamable_entry = StreamableStream.new(new_entry)
       @entry_set << zip_streamable_entry
-      zip_streamable_entry.get_output_stream(&aProc)
+      zip_streamable_entry.get_output_stream(&a_proc)
     end
 
     # Returns the name of the zip archive
@@ -319,19 +319,19 @@ module Zip
 
     # Renames the specified entry.
     def rename(entry, new_name, &continue_on_exists_proc)
-      foundEntry = get_entry(entry)
+      found_entry = get_entry(entry)
       check_entry_exists(new_name, continue_on_exists_proc, 'rename')
-      @entry_set.delete(foundEntry)
-      foundEntry.name = new_name
-      @entry_set << foundEntry
+      @entry_set.delete(found_entry)
+      found_entry.name = new_name
+      @entry_set << found_entry
     end
 
-    # Replaces the specified entry with the contents of srcPath (from
+    # Replaces the specified entry with the contents of src_path (from
     # the file system).
-    def replace(entry, srcPath)
-      check_file(srcPath)
+    def replace(entry, src_path)
+      check_file(src_path)
       remove(entry)
-      add(entry, srcPath)
+      add(entry, src_path)
     end
 
     # Extracts entry to file dest_path.
@@ -409,37 +409,37 @@ module Zip
     end
 
     # Creates a directory
-    def mkdir(entryName, permissionInt = 0o755)
-      raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
+    def mkdir(entry_name, permission = 0o755)
+      raise Errno::EEXIST, "File exists - #{entry_name}" if find_entry(entry_name)
 
-      entryName = entryName.dup.to_s
-      entryName << '/' unless entryName.end_with?('/')
-      @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
+      entry_name = entry_name.dup.to_s
+      entry_name << '/' unless entry_name.end_with?('/')
+      @entry_set << ::Zip::StreamableDirectory.new(@name, entry_name, nil, permission)
     end
 
     private
 
-    def directory?(newEntry, srcPath)
-      srcPathIsDirectory = ::File.directory?(srcPath)
-      if newEntry.directory? && !srcPathIsDirectory
+    def directory?(new_entry, src_path)
+      path_is_directory = ::File.directory?(src_path)
+      if new_entry.directory? && !path_is_directory
         raise ArgumentError,
-              "entry name '#{newEntry}' indicates directory entry, but " \
-                  "'#{srcPath}' is not a directory"
-      elsif !newEntry.directory? && srcPathIsDirectory
-        newEntry.name += '/'
+              "entry name '#{new_entry}' indicates directory entry, but " \
+                  "'#{src_path}' is not a directory"
+      elsif !new_entry.directory? && path_is_directory
+        new_entry.name += '/'
       end
-      newEntry.directory? && srcPathIsDirectory
+      new_entry.directory? && path_is_directory
     end
 
-    def check_entry_exists(entryName, continue_on_exists_proc, procedureName)
+    def check_entry_exists(entry_name, continue_on_exists_proc, proc_name)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
-      return unless @entry_set.include?(entryName)
+      return unless @entry_set.include?(entry_name)
 
       if continue_on_exists_proc.call
-        remove get_entry(entryName)
+        remove get_entry(entry_name)
       else
         raise ::Zip::EntryExistsError,
-              procedureName + " failed. Entry #{entryName} already exists"
+              proc_name + " failed. Entry #{entry_name} already exists"
       end
     end
 

@@ -36,9 +36,9 @@ module Zip
       end
     end
 
-    def write_to_zip_output_stream(aZipOutputStream)
-      aZipOutputStream.put_next_entry(self)
-      get_input_stream { |is| ::Zip::IOExtras.copy_stream(aZipOutputStream, is) }
+    def write_to_zip_output_stream(output_stream)
+      output_stream.put_next_entry(self)
+      get_input_stream { |is| ::Zip::IOExtras.copy_stream(output_stream, is) }
     end
 
     def clean_up

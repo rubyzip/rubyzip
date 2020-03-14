@@ -25,7 +25,7 @@ module Zip
       @uid ||= uid
       @gid ||= gid
       @atime ||= atime
-      @mtime ||= mtime
+      @mtime ||= mtime # rubocop:disable Naming/MemoizedInstanceVariableName
     end
 
     def ==(other)

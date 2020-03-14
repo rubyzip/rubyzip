@@ -34,13 +34,13 @@ module Zip
       local(time.year, time.month, time.day, time.hour, time.min, time.sec)
     end
 
-    def self.parse_binary_dos_format(binaryDosDate, binaryDosTime)
-      second = 2 * (0b11111 & binaryDosTime)
-      minute = (0b11111100000 & binaryDosTime) >> 5
-      hour   = (0b1111100000000000 & binaryDosTime) >> 11
-      day    = (0b11111 & binaryDosDate)
-      month  = (0b111100000 & binaryDosDate) >> 5
-      year   = ((0b1111111000000000 & binaryDosDate) >> 9) + 1980
+    def self.parse_binary_dos_format(bin_dos_date, bin_dos_time)
+      second = 2 * (0b11111 & bin_dos_time)
+      minute = (0b11111100000 & bin_dos_time) >> 5
+      hour   = (0b1111100000000000 & bin_dos_time) >> 11
+      day    = (0b11111 & bin_dos_date)
+      month  = (0b111100000 & bin_dos_date) >> 5
+      year   = ((0b1111111000000000 & bin_dos_date) >> 9) + 1980
       begin
         local(year, month, day, hour, minute, second)
       end

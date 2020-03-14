@@ -35,25 +35,25 @@ module Zip
 
   module FileSystem
     def initialize # :nodoc:
-      mappedZip      = ZipFileNameMapper.new(self)
-      @zipFsDir      = ZipFsDir.new(mappedZip)
-      @zipFsFile     = ZipFsFile.new(mappedZip)
-      @zipFsDir.file = @zipFsFile
-      @zipFsFile.dir = @zipFsDir
+      mapped_zip       = ZipFileNameMapper.new(self)
+      @zip_fs_dir      = ZipFsDir.new(mapped_zip)
+      @zip_fs_file     = ZipFsFile.new(mapped_zip)
+      @zip_fs_dir.file = @zip_fs_file
+      @zip_fs_file.dir = @zip_fs_dir
     end
 
     # Returns a ZipFsDir which is much like ruby's builtin Dir (class)
     # object, except it works on the Zip::File on which this method is
     # invoked
     def dir
-      @zipFsDir
+      @zip_fs_dir
     end
 
     # Returns a ZipFsFile which is much like ruby's builtin File (class)
     # object, except it works on the Zip::File on which this method is
     # invoked
     def file
-      @zipFsFile
+      @zip_fs_file
     end
 
     # Instances of this class are normally accessed via the accessor
@@ -72,20 +72,20 @@ module Zip
             methods.each do |method|
               class_eval <<-END_EVAL, __FILE__, __LINE__ + 1
                 def #{method}                      # def file?
-                  @zipFsFile.#{method}(@entryName) #   @zipFsFile.file?(@entryName)
+                  @zip_fs_file.#{method}(@entry_name) #   @zip_fs_file.file?(@entry_name)
                 end                                # end
               END_EVAL
             end
           end
         end
 
-        def initialize(zipFsFile, entryName)
-          @zipFsFile = zipFsFile
-          @entryName = entryName
+        def initialize(zip_fs_file, entry_name)
+          @zip_fs_file = zip_fs_file
+          @entry_name = entry_name
         end
 
-        def kind_of?(t)
-          super || t == ::File::Stat
+        def kind_of?(type)
+          super || type == ::File::Stat
         end
 
         delegate_to_fs_file :file?, :directory?, :pipe?, :chardev?, :symlink?,
@@ -98,7 +98,7 @@ module Zip
         end
 
         def get_entry
-          @zipFsFile.__send__(:get_entry, @entryName)
+          @zip_fs_file.__send__(:get_entry, @entry_name)
         end
         private :get_entry
 
@@ -168,29 +168,29 @@ module Zip
         end
       end
 
-      def initialize(mappedZip)
-        @mappedZip = mappedZip
+      def initialize(mapped_zip)
+        @mapped_zip = mapped_zip
       end
 
-      def get_entry(fileName)
-        unless exists?(fileName)
-          raise Errno::ENOENT, "No such file or directory - #{fileName}"
+      def get_entry(filename)
+        unless exists?(filename)
+          raise Errno::ENOENT, "No such file or directory - #{filename}"
         end
 
-        @mappedZip.find_entry(fileName)
+        @mapped_zip.find_entry(filename)
       end
       private :get_entry
 
-      def unix_mode_cmp(fileName, mode)
-        e = get_entry(fileName)
+      def unix_mode_cmp(filename, mode)
+        e = get_entry(filename)
         e.fstype == 3 && ((e.external_file_attributes >> 16) & mode) != 0
       rescue Errno::ENOENT
         false
       end
       private :unix_mode_cmp
 
-      def exists?(fileName)
-        expand_path(fileName) == '/' || !@mappedZip.find_entry(fileName).nil?
+      def exists?(filename)
+        expand_path(filename) == '/' || !@mapped_zip.find_entry(filename).nil?
       end
       alias exist? exists?
 
@@ -198,133 +198,133 @@ module Zip
       alias owned? exists?
       alias grpowned? exists?
 
-      def readable?(fileName)
-        unix_mode_cmp(fileName, 0o444)
+      def readable?(filename)
+        unix_mode_cmp(filename, 0o444)
       end
       alias readable_real? readable?
 
-      def writable?(fileName)
-        unix_mode_cmp(fileName, 0o222)
+      def writable?(filename)
+        unix_mode_cmp(filename, 0o222)
       end
       alias writable_real? writable?
 
-      def executable?(fileName)
-        unix_mode_cmp(fileName, 0o111)
+      def executable?(filename)
+        unix_mode_cmp(filename, 0o111)
       end
       alias executable_real? executable?
 
-      def setuid?(fileName)
-        unix_mode_cmp(fileName, 0o4000)
+      def setuid?(filename)
+        unix_mode_cmp(filename, 0o4000)
       end
 
-      def setgid?(fileName)
-        unix_mode_cmp(fileName, 0o2000)
+      def setgid?(filename)
+        unix_mode_cmp(filename, 0o2000)
       end
 
-      def sticky?(fileName)
-        unix_mode_cmp(fileName, 0o1000)
+      def sticky?(filename)
+        unix_mode_cmp(filename, 0o1000)
       end
 
       def umask(*args)
         ::File.umask(*args)
       end
 
-      def truncate(_fileName, _len)
+      def truncate(_filename, _len)
         raise StandardError, 'truncate not supported'
       end
 
-      def directory?(fileName)
-        entry = @mappedZip.find_entry(fileName)
-        expand_path(fileName) == '/' || (!entry.nil? && entry.directory?)
+      def directory?(filename)
+        entry = @mapped_zip.find_entry(filename)
+        expand_path(filename) == '/' || (!entry.nil? && entry.directory?)
       end
 
-      def open(fileName, openMode = 'r', permissionInt = 0o644, &block)
-        openMode.delete!('b') # ignore b option
-        case openMode
+      def open(filename, mode = 'r', permissions = 0o644, &block)
+        mode.delete!('b') # ignore b option
+        case mode
         when 'r'
-          @mappedZip.get_input_stream(fileName, &block)
+          @mapped_zip.get_input_stream(filename, &block)
         when 'w'
-          @mappedZip.get_output_stream(fileName, permissionInt, &block)
+          @mapped_zip.get_output_stream(filename, permissions, &block)
         else
-          raise StandardError, "openmode '#{openMode} not supported" unless openMode == 'r'
+          raise StandardError, "openmode '#{mode} not supported" unless mode == 'r'
         end
       end
 
-      def new(fileName, openMode = 'r')
-        self.open(fileName, openMode)
+      def new(filename, mode = 'r')
+        self.open(filename, mode)
       end
 
-      def size(fileName)
-        @mappedZip.get_entry(fileName).size
+      def size(filename)
+        @mapped_zip.get_entry(filename).size
       end
 
       # Returns nil for not found and nil for directories
-      def size?(fileName)
-        entry = @mappedZip.find_entry(fileName)
+      def size?(filename)
+        entry = @mapped_zip.find_entry(filename)
         entry.nil? || entry.directory? ? nil : entry.size
       end
 
-      def chown(ownerInt, groupInt, *filenames)
-        filenames.each do |fileName|
-          e = get_entry(fileName)
+      def chown(owner, group, *filenames)
+        filenames.each do |filename|
+          e = get_entry(filename)
           e.extra.create('IUnix') unless e.extra.member?('IUnix')
-          e.extra['IUnix'].uid = ownerInt
-          e.extra['IUnix'].gid = groupInt
+          e.extra['IUnix'].uid = owner
+          e.extra['IUnix'].gid = group
         end
         filenames.size
       end
 
-      def chmod(modeInt, *filenames)
-        filenames.each do |fileName|
-          e = get_entry(fileName)
+      def chmod(mode, *filenames)
+        filenames.each do |filename|
+          e = get_entry(filename)
           e.fstype = 3 # force convertion filesystem type to unix
-          e.unix_perms = modeInt
-          e.external_file_attributes = modeInt << 16
+          e.unix_perms = mode
+          e.external_file_attributes = mode << 16
           e.dirty = true
         end
         filenames.size
       end
 
-      def zero?(fileName)
-        sz = size(fileName)
+      def zero?(filename)
+        sz = size(filename)
         sz.nil? || sz == 0
       rescue Errno::ENOENT
         false
       end
 
-      def file?(fileName)
-        entry = @mappedZip.find_entry(fileName)
+      def file?(filename)
+        entry = @mapped_zip.find_entry(filename)
         !entry.nil? && entry.file?
       end
 
-      def dirname(fileName)
-        ::File.dirname(fileName)
+      def dirname(filename)
+        ::File.dirname(filename)
       end
 
-      def basename(fileName)
-        ::File.basename(fileName)
+      def basename(filename)
+        ::File.basename(filename)
       end
 
-      def split(fileName)
-        ::File.split(fileName)
+      def split(filename)
+        ::File.split(filename)
       end
 
       def join(*fragments)
         ::File.join(*fragments)
       end
 
-      def utime(modifiedTime, *fileNames)
-        fileNames.each do |fileName|
-          get_entry(fileName).time = modifiedTime
+      def utime(modified_time, *filenames)
+        filenames.each do |filename|
+          get_entry(filename).time = modified_time
         end
       end
 
-      def mtime(fileName)
-        @mappedZip.get_entry(fileName).mtime
+      def mtime(filename)
+        @mapped_zip.get_entry(filename).mtime
       end
 
-      def atime(fileName)
-        e = get_entry(fileName)
+      def atime(filename)
+        e = get_entry(filename)
         if e.extra.member? 'UniversalTime'
           e.extra['UniversalTime'].atime
         elsif e.extra.member? 'NTFS'
@@ -332,8 +332,8 @@ module Zip
         end
       end
 
-      def ctime(fileName)
-        e = get_entry(fileName)
+      def ctime(filename)
+        e = get_entry(filename)
         if e.extra.member? 'UniversalTime'
           e.extra['UniversalTime'].ctime
         elsif e.extra.member? 'NTFS'
@@ -353,27 +353,27 @@ module Zip
         false
       end
 
-      def symlink?(_fileName)
+      def symlink?(_filename)
         false
       end
 
-      def socket?(_fileName)
+      def socket?(_filename)
         false
       end
 
-      def ftype(fileName)
-        @mappedZip.get_entry(fileName).directory? ? 'directory' : 'file'
+      def ftype(filename)
+        @mapped_zip.get_entry(filename).directory? ? 'directory' : 'file'
       end
 
-      def readlink(_fileName)
+      def readlink(_filename)
         raise NotImplementedError, 'The readlink() function is not implemented'
       end
 
-      def symlink(_fileName, _symlinkName)
+      def symlink(_filename, _symlink_name)
         raise NotImplementedError, 'The symlink() function is not implemented'
       end
 
-      def link(_fileName, _symlinkName)
+      def link(_filename, _symlink_name)
         raise NotImplementedError, 'The link() function is not implemented'
       end
 
@@ -381,48 +381,48 @@ module Zip
         raise NotImplementedError, 'The pipe() function is not implemented'
       end
 
-      def stat(fileName)
-        raise Errno::ENOENT, fileName unless exists?(fileName)
+      def stat(filename)
+        raise Errno::ENOENT, filename unless exists?(filename)
 
-        ZipFsStat.new(self, fileName)
+        ZipFsStat.new(self, filename)
       end
 
       alias lstat stat
 
-      def readlines(fileName)
-        self.open(fileName, &:readlines)
+      def readlines(filename)
+        self.open(filename, &:readlines)
       end
 
-      def read(fileName)
-        @mappedZip.read(fileName)
+      def read(filename)
+        @mapped_zip.read(filename)
       end
 
-      def popen(*args, &aProc)
-        ::File.popen(*args, &aProc)
+      def popen(*args, &a_proc)
+        ::File.popen(*args, &a_proc)
       end
 
-      def foreach(fileName, aSep = $INPUT_RECORD_SEPARATOR, &aProc)
-        self.open(fileName) { |is| is.each_line(aSep, &aProc) }
+      def foreach(filename, sep = $INPUT_RECORD_SEPARATOR, &a_proc)
+        self.open(filename) { |is| is.each_line(sep, &a_proc) }
       end
 
       def delete(*args)
-        args.each do |fileName|
-          if directory?(fileName)
-            raise Errno::EISDIR, "Is a directory - \"#{fileName}\""
+        args.each do |filename|
+          if directory?(filename)
+            raise Errno::EISDIR, "Is a directory - \"#{filename}\""
           end
 
-          @mappedZip.remove(fileName)
+          @mapped_zip.remove(filename)
         end
       end
 
-      def rename(fileToRename, newName)
-        @mappedZip.rename(fileToRename, newName) { true }
+      def rename(file_to_rename, new_name)
+        @mapped_zip.rename(file_to_rename, new_name) { true }
       end
 
       alias unlink delete
 
-      def expand_path(aPath)
-        @mappedZip.expand_path(aPath)
+      def expand_path(path)
+        @mapped_zip.expand_path(path)
       end
     end
 
@@ -433,79 +433,79 @@ module Zip
     # The individual methods are not documented due to their
     # similarity with the methods in Dir
     class ZipFsDir
-      def initialize(mappedZip)
-        @mappedZip = mappedZip
+      def initialize(mapped_zip)
+        @mapped_zip = mapped_zip
       end
 
       attr_writer :file
 
-      def new(aDirectoryName)
-        ZipFsDirIterator.new(entries(aDirectoryName))
+      def new(directory_name)
+        ZipFsDirIterator.new(entries(directory_name))
       end
 
-      def open(aDirectoryName)
-        dirIt = new(aDirectoryName)
+      def open(directory_name)
+        dir_iter = new(directory_name)
         if block_given?
           begin
-            yield(dirIt)
+            yield(dir_iter)
             return nil
           ensure
-            dirIt.close
+            dir_iter.close
           end
         end
-        dirIt
+        dir_iter
       end
 
       def pwd
-        @mappedZip.pwd
+        @mapped_zip.pwd
       end
       alias getwd pwd
 
-      def chdir(aDirectoryName)
-        unless @file.stat(aDirectoryName).directory?
-          raise Errno::EINVAL, "Invalid argument - #{aDirectoryName}"
+      def chdir(directory_name)
+        unless @file.stat(directory_name).directory?
+          raise Errno::EINVAL, "Invalid argument - #{directory_name}"
         end
 
-        @mappedZip.pwd = @file.expand_path(aDirectoryName)
+        @mapped_zip.pwd = @file.expand_path(directory_name)
       end
 
-      def entries(aDirectoryName)
+      def entries(directory_name)
         entries = []
-        foreach(aDirectoryName) { |e| entries << e }
+        foreach(directory_name) { |e| entries << e }
         entries
       end
 
       def glob(*args, &block)
-        @mappedZip.glob(*args, &block)
+        @mapped_zip.glob(*args, &block)
       end
 
-      def foreach(aDirectoryName)
-        unless @file.stat(aDirectoryName).directory?
-          raise Errno::ENOTDIR, aDirectoryName
+      def foreach(directory_name)
+        unless @file.stat(directory_name).directory?
+          raise Errno::ENOTDIR, directory_name
         end
 
-        path = @file.expand_path(aDirectoryName)
+        path = @file.expand_path(directory_name)
         path << '/' unless path.end_with?('/')
         path = Regexp.escape(path)
-        subDirEntriesRegex = Regexp.new("^#{path}([^/]+)$")
-        @mappedZip.each do |fileName|
-          match = subDirEntriesRegex.match(fileName)
+        subdir_entry_regex = Regexp.new("^#{path}([^/]+)$")
+        @mapped_zip.each do |filename|
+          match = subdir_entry_regex.match(filename)
           yield(match[1]) unless match.nil?
         end
       end
 
-      def delete(entryName)
-        unless @file.stat(entryName).directory?
-          raise Errno::EINVAL, "Invalid argument - #{entryName}"
+      def delete(entry_name)
+        unless @file.stat(entry_name).directory?
+          raise Errno::EINVAL, "Invalid argument - #{entry_name}"
         end
 
-        @mappedZip.remove(entryName)
+        @mapped_zip.remove(entry_name)
       end
       alias rmdir delete
       alias unlink delete
 
-      def mkdir(entryName, permissionInt = 0o755)
-        @mappedZip.mkdir(entryName, permissionInt)
+      def mkdir(entry_name, permissions = 0o755)
+        @mapped_zip.mkdir(entry_name, permissions)
       end
 
       def chroot(*_args)
@@ -516,41 +516,41 @@ module Zip
     class ZipFsDirIterator # :nodoc:all
       include Enumerable
 
-      def initialize(arrayOfFileNames)
-        @fileNames = arrayOfFileNames
+      def initialize(filenames)
+        @filenames = filenames
         @index = 0
       end
 
       def close
-        @fileNames = nil
+        @filenames = nil
       end
 
-      def each(&aProc)
-        raise IOError, 'closed directory' if @fileNames.nil?
+      def each(&a_proc)
+        raise IOError, 'closed directory' if @filenames.nil?
 
-        @fileNames.each(&aProc)
+        @filenames.each(&a_proc)
       end
 
       def read
-        raise IOError, 'closed directory' if @fileNames.nil?
+        raise IOError, 'closed directory' if @filenames.nil?
 
-        @fileNames[(@index += 1) - 1]
+        @filenames[(@index += 1) - 1]
       end
 
       def rewind
-        raise IOError, 'closed directory' if @fileNames.nil?
+        raise IOError, 'closed directory' if @filenames.nil?
 
         @index = 0
       end
 
-      def seek(anIntegerPosition)
-        raise IOError, 'closed directory' if @fileNames.nil?
+      def seek(position)
+        raise IOError, 'closed directory' if @filenames.nil?
 
-        @index = anIntegerPosition
+        @index = position
       end
 
       def tell
-        raise IOError, 'closed directory' if @fileNames.nil?
+        raise IOError, 'closed directory' if @filenames.nil?
 
         @index
       end
@@ -561,60 +561,65 @@ module Zip
     class ZipFileNameMapper # :nodoc:all
       include Enumerable
 
-      def initialize(zipFile)
-        @zipFile = zipFile
+      def initialize(zip_file)
+        @zip_file = zip_file
         @pwd = '/'
       end
 
       attr_accessor :pwd
 
-      def find_entry(fileName)
-        @zipFile.find_entry(expand_to_entry(fileName))
+      def find_entry(filename)
+        @zip_file.find_entry(expand_to_entry(filename))
       end
 
-      def get_entry(fileName)
-        @zipFile.get_entry(expand_to_entry(fileName))
+      def get_entry(filename)
+        @zip_file.get_entry(expand_to_entry(filename))
       end
 
-      def get_input_stream(fileName, &aProc)
-        @zipFile.get_input_stream(expand_to_entry(fileName), &aProc)
+      def get_input_stream(filename, &a_proc)
+        @zip_file.get_input_stream(expand_to_entry(filename), &a_proc)
       end
 
-      def get_output_stream(fileName, permissionInt = nil, &aProc)
-        @zipFile.get_output_stream(expand_to_entry(fileName), permissionInt, &aProc)
+      def get_output_stream(filename, permissions = nil, &a_proc)
+        @zip_file.get_output_stream(
+          expand_to_entry(filename), permissions, &a_proc
+        )
       end
 
       def glob(pattern, *flags, &block)
-        @zipFile.glob(expand_to_entry(pattern), *flags, &block)
+        @zip_file.glob(expand_to_entry(pattern), *flags, &block)
       end
 
-      def read(fileName)
-        @zipFile.read(expand_to_entry(fileName))
+      def read(filename)
+        @zip_file.read(expand_to_entry(filename))
       end
 
-      def remove(fileName)
-        @zipFile.remove(expand_to_entry(fileName))
+      def remove(filename)
+        @zip_file.remove(expand_to_entry(filename))
       end
 
-      def rename(fileName, newName, &continueOnExistsProc)
-        @zipFile.rename(expand_to_entry(fileName), expand_to_entry(newName),
-                        &continueOnExistsProc)
+      def rename(filename, new_name, &continue_on_exists_proc)
+        @zip_file.rename(
+          expand_to_entry(filename),
+          expand_to_entry(new_name),
+          &continue_on_exists_proc
+        )
       end
 
-      def mkdir(fileName, permissionInt = 0o755)
-        @zipFile.mkdir(expand_to_entry(fileName), permissionInt)
+      def mkdir(filename, permissions = 0o755)
+        @zip_file.mkdir(expand_to_entry(filename), permissions)
       end
 
       # Turns entries into strings and adds leading /
       # and removes trailing slash on directories
       def each
-        @zipFile.each do |e|
+        @zip_file.each do |e|
           yield('/' + e.to_s.chomp('/'))
         end
       end
 
-      def expand_path(aPath)
-        expanded = aPath.start_with?('/') ? aPath : ::File.join(@pwd, aPath)
+      def expand_path(path)
+        expanded = path.start_with?('/') ? path : ::File.join(@pwd, path)
         expanded.gsub!(/\/\.(\/|$)/, '')
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, '')
         expanded.empty? ? '/' : expanded
@@ -622,8 +627,8 @@ module Zip
 
       private
 
-      def expand_to_entry(aPath)
-        expand_path(aPath)[1..-1]
+      def expand_to_entry(path)
+        expand_path(path)[1..-1]
       end
     end
   end

@@ -41,56 +41,71 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_read_local_entry_from_truncated_zip_file
-    zipFragment = ''
-    ::File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| zipFragment = f.read(12) } # local header is at least 30 bytes
-    zipFragment.extend(IOizeString).reset
+    fragment = ''
+    # local header is at least 30 bytes
+    ::File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| fragment = f.read(12) }
+
+    fragment.extend(IOizeString).reset
     entry = ::Zip::Entry.new
-    entry.read_local_entry(zipFragment)
+    entry.read_local_entry(fragment)
     raise 'ZipError expected'
   rescue ::Zip::Error
   end
 
   def test_write_entry
-    entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
+    entry = ::Zip::Entry.new('file.zip', 'entry_name', 'my little comment',
                              'thisIsSomeExtraInformation', 100, 987_654,
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file(LEH_FILE, CEH_FILE, entry)
-    entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
-    assert(entryReadCentral.extra['Zip64Placeholder'].nil?, 'zip64 placeholder should not be used in central directory')
-    compare_local_entry_headers(entry, entryReadLocal)
-    compare_c_dir_entry_headers(entry, entryReadCentral)
+    local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
+    assert(
+      central_entry.extra['Zip64Placeholder'].nil?,
+      'zip64 placeholder should not be used in central directory'
+    )
+    compare_local_entry_headers(entry, local_entry)
+    compare_c_dir_entry_headers(entry, central_entry)
   end
 
   def test_write_entry_with_zip64
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new('file.zip', 'entryName', 'my little comment',
+    entry = ::Zip::Entry.new('file.zip', 'entry_name', 'my little comment',
                              'thisIsSomeExtraInformation', 100, 987_654,
                              ::Zip::Entry::DEFLATED, 400)
+
     write_to_file(LEH_FILE, CEH_FILE, entry)
-    entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
-    assert(entryReadLocal.extra['Zip64Placeholder'], 'zip64 placeholder should be used in local file header')
-    entryReadLocal.extra.delete('Zip64Placeholder') # it was removed when writing the c_dir_entry, so remove from compare
-    assert(entryReadCentral.extra['Zip64Placeholder'].nil?, 'zip64 placeholder should not be used in central directory')
-    compare_local_entry_headers(entry, entryReadLocal)
-    compare_c_dir_entry_headers(entry, entryReadCentral)
+    local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
+    assert(
+      local_entry.extra['Zip64Placeholder'],
+      'zip64 placeholder should be used in local file header'
+    )
+
+    # This was removed when writing the c_dir_entry, so remove from compare.
+    local_entry.extra.delete('Zip64Placeholder')
+    assert(
+      central_entry.extra['Zip64Placeholder'].nil?,
+      'zip64 placeholder should not be used in central directory'
+    )
+
+    compare_local_entry_headers(entry, local_entry)
+    compare_c_dir_entry_headers(entry, central_entry)
   end
 
   def test_write_64entry
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new('bigfile.zip', 'entryName', 'my little equine',
+    entry = ::Zip::Entry.new('bigfile.zip', 'entry_name', 'my little equine',
                              'malformed extra field because why not',
                              0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
                              0x9988776655443322)
     write_to_file(LEH_FILE, CEH_FILE, entry)
-    entryReadLocal, entryReadCentral = read_from_file(LEH_FILE, CEH_FILE)
-    compare_local_entry_headers(entry, entryReadLocal)
-    compare_c_dir_entry_headers(entry, entryReadCentral)
+    local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
+    compare_local_entry_headers(entry, local_entry)
+    compare_c_dir_entry_headers(entry, central_entry)
   end
 
   def test_rewrite_local_header64
     ::Zip.write_zip64_support = true
     buf1 = StringIO.new
-    entry = ::Zip::Entry.new('file.zip', 'entryName')
+    entry = ::Zip::Entry.new('file.zip', 'entry_name')
     entry.write_local_entry(buf1)
     assert(entry.extra['Zip64'].nil?, 'zip64 extra is unnecessarily present')
 
@@ -104,7 +119,7 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_read_local_offset
-    entry = ::Zip::Entry.new('file.zip', 'entryName')
+    entry = ::Zip::Entry.new('file.zip', 'entry_name')
     entry.local_header_offset = 12_345
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
@@ -114,7 +129,7 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_read64_local_offset
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new('file.zip', 'entryName')
+    entry = ::Zip::Entry.new('file.zip', 'entry_name')
     entry.local_header_offset = 0x0123456789ABCDEF
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }
     read_entry = nil
@@ -139,16 +154,23 @@ class ZipLocalEntryTest < MiniTest::Test
     assert_equal(entry1.comment, entry2.comment)
   end
 
-  def write_to_file(localFileName, centralFileName, entry)
-    ::File.open(localFileName, 'wb') { |f| entry.write_local_entry(f) }
-    ::File.open(centralFileName, 'wb') { |f| entry.write_c_dir_entry(f) }
+  def write_to_file(local_filename, central_filename, entry)
+    ::File.open(local_filename, 'wb') { |f| entry.write_local_entry(f) }
+    ::File.open(central_filename, 'wb') { |f| entry.write_c_dir_entry(f) }
   end
 
-  def read_from_file(localFileName, centralFileName)
-    localEntry = nil
-    cdirEntry = nil
-    ::File.open(localFileName, 'rb') { |f| localEntry = ::Zip::Entry.read_local_entry(f) }
-    ::File.open(centralFileName, 'rb') { |f| cdirEntry = ::Zip::Entry.read_c_dir_entry(f) }
-    [localEntry, cdirEntry]
+  def read_from_file(local_filename, central_filename)
+    local_entry = nil
+    cdir_entry = nil
+
+    ::File.open(local_filename, 'rb') do |f|
+      local_entry = ::Zip::Entry.read_local_entry(f)
+    end
+
+    ::File.open(central_filename, 'rb') do |f|
+      cdir_entry = ::Zip::Entry.read_c_dir_entry(f)
+    end
+
+    [local_entry, cdir_entry]
   end
 end

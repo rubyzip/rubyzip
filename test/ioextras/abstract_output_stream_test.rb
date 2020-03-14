@@ -20,13 +20,13 @@ class AbstractOutputStreamTest < MiniTest::Test
   def setup
     @output_stream = TestOutputStream.new
 
-    @origCommaSep = $OUTPUT_FIELD_SEPARATOR
-    @origOutputSep = $OUTPUT_RECORD_SEPARATOR
+    @save_comma_sep = $OUTPUT_FIELD_SEPARATOR
+    @save_output_sep = $OUTPUT_RECORD_SEPARATOR
   end
 
   def teardown
-    $, = @origCommaSep
-    $\ = @origOutputSep
+    $, = @save_comma_sep
+    $\ = @save_output_sep
   end
 
   def test_write

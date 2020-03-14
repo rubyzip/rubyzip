@@ -18,14 +18,14 @@ class MainApp < Gtk::Window
     add(box)
 
     @zipfile = nil
-    @buttonPanel = ButtonPanel.new
-    @buttonPanel.openButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
+    @button_panel = ButtonPanel.new
+    @button_panel.open_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       show_file_selector
     end
-    @buttonPanel.extractButton.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
+    @button_panel.extract_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
       puts 'Not implemented!'
     end
-    box.pack_start(@buttonPanel, false, false, 0)
+    box.pack_start(@button_panel, false, false, 0)
 
     sw = Gtk::ScrolledWindow.new
     sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
@@ -42,27 +42,27 @@ class MainApp < Gtk::Window
   end
 
   class ButtonPanel < Gtk::HButtonBox
-    attr_reader :openButton, :extractButton
+    attr_reader :open_button, :extract_button
     def initialize
       super
       set_layout(Gtk::BUTTONBOX_START)
       set_spacing(0)
-      @openButton = Gtk::Button.new('Open archive')
-      @extractButton = Gtk::Button.new('Extract entry')
-      pack_start(@openButton)
-      pack_start(@extractButton)
+      @open_button = Gtk::Button.new('Open archive')
+      @extract_button = Gtk::Button.new('Extract entry')
+      pack_start(@open_button)
+      pack_start(@extract_button)
     end
   end
 
   def show_file_selector
-    @fileSelector = Gtk::FileSelection.new('Open zip file')
-    @fileSelector.show
-    @fileSelector.ok_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
-      open_zip(@fileSelector.filename)
-      @fileSelector.destroy
+    @file_selector = Gtk::FileSelection.new('Open zip file')
+    @file_selector.show
+    @file_selector.ok_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
+      open_zip(@file_selector.filename)
+      @file_selector.destroy
     end
-    @fileSelector.cancel_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
-      @fileSelector.destroy
+    @file_selector.cancel_button.signal_connect(Gtk::Button::SIGNAL_CLICKED) do
+      @file_selector.destroy
     end
   end
 
@@ -77,8 +77,8 @@ class MainApp < Gtk::Window
   end
 end
 
-mainApp = MainApp.new
+main_app = MainApp.new
 
-mainApp.show_all
+main_app.show_all
 
 Gtk.main
