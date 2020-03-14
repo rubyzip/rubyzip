@@ -1,10 +1,13 @@
 # X.X.X (Next)
 
 - Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
-- Upgrade rubocop and fix various linting complaints [#437](https://github.com/rubyzip/rubyzip/pull/437)
+- Set `OutputStream.write_buffer`'s buffer to binmode [#439](https://github.com/rubyzip/rubyzip/pull/439)
+- Upgrade rubocop and fix various linting complaints [#437](https://github.com/rubyzip/rubyzip/pull/437) [#440](https://github.com/rubyzip/rubyzip/pull/440)
 
 Tooling:
+
 - Add a `bin/console` script for development [#420](https://github.com/rubyzip/rubyzip/pull/420)
+- Update rake requirement (development dependency only) to fix a security alert.
 
 # 2.2.0 (2020-02-01)
 
@@ -13,10 +16,10 @@ Tooling:
 # 2.1.0 (2020-01-25)
 
 - Fix (at least partially) the `restore_times` and `restore_permissions` options to `Zip::File.new` [#413](https://github.com/rubyzip/rubyzip/pull/413)
-   - Previously, neither option did anything, regardless of what it was set to. We have therefore defaulted them to `false` to preserve the current behavior, for the time being. If you have explicitly set either to `true`, it will now have an effect.
-   - Fix handling of UniversalTime (`mtime`, `atime`, `ctime`) fields. [#421](https://github.com/rubyzip/rubyzip/pull/421)
-   - Previously, `Zip::File` did not pass the options to `Zip::Entry` in some cases. [#423](https://github.com/rubyzip/rubyzip/pull/423)
-   - Note that `restore_times` in this release does nothing on Windows and only restores `mtime`, not `atime` or `ctime`.
+  - Previously, neither option did anything, regardless of what it was set to. We have therefore defaulted them to `false` to preserve the current behavior, for the time being. If you have explicitly set either to `true`, it will now have an effect.
+  - Fix handling of UniversalTime (`mtime`, `atime`, `ctime`) fields. [#421](https://github.com/rubyzip/rubyzip/pull/421)
+  - Previously, `Zip::File` did not pass the options to `Zip::Entry` in some cases. [#423](https://github.com/rubyzip/rubyzip/pull/423)
+  - Note that `restore_times` in this release does nothing on Windows and only restores `mtime`, not `atime` or `ctime`.
 - Allow `Zip::File.open` to take an options hash like `Zip::File.new` [#418](https://github.com/rubyzip/rubyzip/pull/418)
 - Always print warnings with `warn`, instead of a mix of `puts` and `warn` [#416](https://github.com/rubyzip/rubyzip/pull/416)
 - Create temporary files in the system temporary directory instead of the directory of the zip file [#411](https://github.com/rubyzip/rubyzip/pull/411)
@@ -31,7 +34,7 @@ Tooling
 Security
 
 - Default the `validate_entry_sizes` option to `true`, so that callers can trust an entry's reported size when using `extract` [#403](https://github.com/rubyzip/rubyzip/pull/403)
-   - This option defaulted to `false` in 1.3.0 for backward compatibility, but it now defaults to `true`. If you are using an older version of ruby and can't yet upgrade to 2.x, you can still use 1.3.0 and set the option to `true`.
+  - This option defaulted to `false` in 1.3.0 for backward compatibility, but it now defaults to `true`. If you are using an older version of ruby and can't yet upgrade to 2.x, you can still use 1.3.0 and set the option to `true`.
 
 Tooling / Documentation
 
@@ -43,7 +46,7 @@ Tooling / Documentation
 Security
 
 - Add `validate_entry_sizes` option so that callers can trust an entry's reported size when using `extract` [#403](https://github.com/rubyzip/rubyzip/pull/403)
-   - This option defaults to `false` for backward compatibility in this release, but you are strongly encouraged to set it to `true`. It will default to `true` in rubyzip 2.0.
+  - This option defaults to `false` for backward compatibility in this release, but you are strongly encouraged to set it to `true`. It will default to `true` in rubyzip 2.0.
 
 New Feature
 
