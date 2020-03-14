@@ -6,8 +6,6 @@ class ZipOutputStreamTest < MiniTest::Test
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
   TEST_ZIP.zip_name = 'test/data/generated/output.zip'
 
-  ASCII8BIT = 'ASCII-8BIT'
-
   def test_new
     zos = ::Zip::OutputStream.new(TEST_ZIP.zip_name)
     zos.comment = TEST_ZIP.comment
