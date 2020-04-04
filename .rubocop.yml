@@ -54,6 +54,12 @@ Metrics/MethodLength:
 Style/ClassCheck:
   EnforcedStyle: kind_of?
 
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
 # Allow this multi-line block chain as it actually reads better
 # than the alternatives.
 Style/MultilineBlockChain:
