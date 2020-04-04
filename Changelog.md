@@ -1,5 +1,9 @@
 # X.X.X (Next)
 
+Tooling:
+
+- Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
+
 # 2.3.0 (2020-03-14)
 
 - Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
