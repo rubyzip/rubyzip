@@ -110,8 +110,8 @@ class ZipFileExtractTest < MiniTest::Test
         assert_equal true_size, a_entry.size
       end
 
-      true_size_bytes = [compressed_size, true_size, file_name.size].pack('LLS')
-      fake_size_bytes = [compressed_size, fake_size, file_name.size].pack('LLS')
+      true_size_bytes = [compressed_size, true_size, file_name.size].pack('VVv')
+      fake_size_bytes = [compressed_size, fake_size, file_name.size].pack('VVv')
 
       data = File.binread(real_zip)
       assert data.include?(true_size_bytes)
