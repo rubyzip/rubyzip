@@ -3,6 +3,7 @@
 Tooling:
 
 - Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
+- Fix a test that was incorrect on big-endian architectures. [#445](https://github.com/rubyzip/rubyzip/pull/445)
 
 # 2.3.0 (2020-03-14)
 
