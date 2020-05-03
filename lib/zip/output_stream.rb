@@ -142,7 +142,7 @@ module Zip
       @compressor = ::Zip::NullCompressor.instance
     end
 
-    def init_next_entry(entry, level = Zip.default_compression)
+    def init_next_entry(entry, level)
       finalize_current_entry
       @entry_set << entry
       entry.write_local_entry(@output_stream)
