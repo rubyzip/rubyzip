@@ -218,6 +218,7 @@ module ZipEntryData
   TEST_CRC = 325_324
   TEST_EXTRA = 'Some data here'
   TEST_COMPRESSIONMETHOD = ::Zip::Entry::DEFLATED
+  TEST_COMPRESSIONLEVEL = ::Zip.default_compression
   TEST_NAME = 'entry name'
   TEST_SIZE = 8432
   TEST_ISDIRECTORY = false

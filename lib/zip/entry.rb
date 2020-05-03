@@ -14,6 +14,7 @@ module Zip
                   :unix_uid, :unix_gid, :unix_perms,
                   :dirty
     attr_reader :ftype, :filepath # :nodoc:
+    attr_writer :compression_level # :nodoc:
 
     def set_default_vars_values
       @local_header_offset      = 0
@@ -66,8 +67,9 @@ module Zip
       @compressed_size    = args[4] || 0
       @crc                = args[5] || 0
       @compression_method = args[6] || ::Zip::Entry::DEFLATED
-      @size               = args[7] || 0
-      @time               = args[8] || ::Zip::DOSTime.now
+      @compression_level  = args[7] || ::Zip.default_compression
+      @size               = args[8] || 0
+      @time               = args[9] || ::Zip::DOSTime.now
 
       @ftype = name_is_directory? ? :directory : :file
       @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
@@ -579,7 +581,11 @@ module Zip
       if @ftype == :directory
         zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::STORED)
       elsif @filepath
-        zip_output_stream.put_next_entry(self, nil, nil, compression_method || ::Zip::Entry::DEFLATED)
+        zip_output_stream.put_next_entry(
+          self, nil, nil,
+          compression_method || ::Zip::Entry::DEFLATED,
+          @compression_level || ::Zip.default_compression
+        )
         get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
       else
         zip_output_stream.copy_raw_entry(self)

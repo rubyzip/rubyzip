@@ -102,6 +102,7 @@ module Zip
         new_entry.extra = extra.kind_of?(ExtraField) ? extra : ExtraField.new(extra.to_s)
       end
       new_entry.compression_method = compression_method unless compression_method.nil?
+      new_entry.compression_level = level unless level.nil?
       init_next_entry(new_entry, level)
       @current_entry = new_entry
     end

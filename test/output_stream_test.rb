@@ -92,7 +92,7 @@ class ZipOutputStreamTest < MiniTest::Test
   def test_put_next_entry_using_zip_entry_creates_entries_with_correct_timestamps
     file = ::File.open('test/data/file2.txt', 'rb')
     ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
-      zip_entry = ::Zip::Entry.new(zos, file.path, '', '', 0, 0, ::Zip::Entry::DEFLATED, 0, ::Zip::DOSTime.at(file.mtime))
+      zip_entry = ::Zip::Entry.new(zos, file.path, '', '', 0, 0, ::Zip::Entry::DEFLATED, ::Zip.default_compression, 0, ::Zip::DOSTime.at(file.mtime))
       zos.put_next_entry(zip_entry)
       zos << file.read
     end

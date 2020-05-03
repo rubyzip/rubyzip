@@ -273,7 +273,7 @@ module Zip
         if entry.kind_of?(Entry)
           entry
         else
-          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
+          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, ::Zip.default_compression, size, time)
         end
       if new_entry.directory?
         raise ArgumentError,

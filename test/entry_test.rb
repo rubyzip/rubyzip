@@ -11,6 +11,7 @@ class ZipEntryTest < MiniTest::Test
                              TEST_COMPRESSED_SIZE,
                              TEST_CRC,
                              TEST_COMPRESSIONMETHOD,
+                             TEST_COMPRESSIONLEVEL,
                              TEST_SIZE,
                              TEST_TIME)
 
@@ -41,28 +42,28 @@ class ZipEntryTest < MiniTest::Test
   def test_equality
     entry1 = ::Zip::Entry.new('file.zip', 'name', 'isNotCompared',
                               'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
+                              ::Zip::Entry::DEFLATED, ::Zip.default_compression, 10_000)
     entry2 = ::Zip::Entry.new('file.zip', 'name', 'isNotComparedXXX',
                               'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
+                              ::Zip::Entry::DEFLATED, ::Zip.default_compression, 10_000)
     entry3 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
+                              ::Zip::Entry::DEFLATED, ::Zip.default_compression, 10_000)
     entry4 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
+                              ::Zip::Entry::DEFLATED, ::Zip.default_compression, 10_000)
     entry5 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
+                              ::Zip::Entry::DEFLATED, ::Zip.default_compression, 10_000)
     entry6 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 123,
-                              ::Zip::Entry::DEFLATED, 10_000)
+                              ::Zip::Entry::DEFLATED, ::Zip.default_compression, 10_000)
     entry7 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 123,
-                              ::Zip::Entry::STORED, 10_000)
+                              ::Zip::Entry::STORED, ::Zip.default_compression, 10_000)
     entry8 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
                               'something extraXX', 12, 123,
-                              ::Zip::Entry::STORED, 100_000)
+                              ::Zip::Entry::STORED, ::Zip.default_compression, 100_000)
 
     assert_equal(entry1, entry1)
     assert_equal(entry1, entry2)

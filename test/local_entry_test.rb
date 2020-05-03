@@ -94,7 +94,8 @@ class ZipLocalEntryTest < MiniTest::Test
     ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new('bigfile.zip', 'entry_name', 'my little equine',
                              'malformed extra field because why not',
-                             0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
+                             0x7766554433221100, 0xDEADBEEF,
+                             ::Zip::Entry::DEFLATED, ::Zip.default_compression,
                              0x9988776655443322)
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
