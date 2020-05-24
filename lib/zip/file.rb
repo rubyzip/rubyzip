@@ -75,7 +75,9 @@ module Zip
     # a new archive if it doesn't exist already.
     def initialize(path_or_io, create = false, buffer = false, options = {})
       super()
-      options  = DEFAULT_OPTIONS.merge(options)
+      options  = DEFAULT_OPTIONS
+                 .merge(compression_level: ::Zip.default_compression)
+                 .merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
@@ -111,6 +113,7 @@ module Zip
       @restore_ownership   = options[:restore_ownership]
       @restore_permissions = options[:restore_permissions]
       @restore_times       = options[:restore_times]
+      @compression_level   = options[:compression_level]
     end
 
     class << self
@@ -266,14 +269,14 @@ module Zip
     # File.open method.
     def get_output_stream(entry, permission_int = nil, comment = nil,
                           extra = nil, compressed_size = nil, crc = nil,
-                          compression_method = nil, size = nil, time = nil,
-                          &a_proc)
+                          compression_method = nil, compression_level = nil,
+                          size = nil, time = nil, &a_proc)
 
       new_entry =
         if entry.kind_of?(Entry)
           entry
         else
-          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, ::Zip.default_compression, size, time)
+          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, compression_level, size, time)
         end
       if new_entry.directory?
         raise ArgumentError,
@@ -299,7 +302,11 @@ module Zip
     def add(entry, src_path, &continue_on_exists_proc)
       continue_on_exists_proc ||= proc { ::Zip.continue_on_exists_proc }
       check_entry_exists(entry, continue_on_exists_proc, 'add')
-      new_entry = entry.kind_of?(::Zip::Entry) ? entry : ::Zip::Entry.new(@name, entry.to_s)
+      new_entry = if entry.kind_of?(::Zip::Entry)
+                    entry
+                  else
+                    ::Zip::Entry.new(@name, entry.to_s, nil, nil, 0, 0, ::Zip::Entry::DEFLATED, @compression_level)
+                  end
       new_entry.gather_fileinfo_from_srcpath(src_path)
       new_entry.dirty = true
       @entry_set << new_entry

@@ -8,7 +8,7 @@ class ZipFileTest < MiniTest::Test
   OK_DELETE_MOVED_FILE = 'test/data/generated/okToDeleteMoved.txt'
 
   def teardown
-    ::Zip.write_zip64_support = false
+    ::Zip.reset!
   end
 
   def test_create_from_scratch_to_buffer
@@ -77,7 +77,7 @@ class ZipFileTest < MiniTest::Test
       assert_equal(count + 1, zf.size)
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
 
-      custom_entry_args = [TEST_COMMENT, TEST_EXTRA, TEST_COMPRESSED_SIZE, TEST_CRC, ::Zip::Entry::STORED, TEST_SIZE, TEST_TIME]
+      custom_entry_args = [TEST_COMMENT, TEST_EXTRA, TEST_COMPRESSED_SIZE, TEST_CRC, ::Zip::Entry::STORED, ::Zlib::BEST_SPEED, TEST_SIZE, TEST_TIME]
       zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) do |os|
         os.write 'Some data'
       end
@@ -188,7 +188,7 @@ class ZipFileTest < MiniTest::Test
     assert_equal(false, File.exist?(@tempfile_path))
   end
 
-  def test_add
+  def test_add_default_compression
     src_file = 'test/data/file2.txt'
     entry_name = 'newEntryName.rb'
     assert(::File.exist?(src_file))
@@ -197,9 +197,84 @@ class ZipFileTest < MiniTest::Test
     zf.close
 
     zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    entry = zf_read.entries.first
     assert_equal('', zf_read.comment)
     assert_equal(1, zf_read.entries.length)
     assert_equal(entry_name, zf_read.entries.first.name)
+    assert_equal(File.size(src_file), entry.size)
+    assert_equal(8_764, entry.compressed_size)
+    AssertEntry.assert_contents(src_file,
+                                zf_read.get_input_stream(entry_name, &:read))
+  end
+
+  def test_add_best_compression
+    src_file = 'test/data/file2.txt'
+    entry_name = 'newEntryName.rb'
+    assert(::File.exist?(src_file))
+    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE, false, { compression_level: Zlib::BEST_COMPRESSION })
+    zf.add(entry_name, src_file)
+    zf.close
+
+    zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    entry = zf_read.entries.first
+    assert_equal(1, zf_read.entries.length)
+    assert_equal(File.size(src_file), entry.size)
+    assert_equal(8_658, entry.compressed_size)
+    AssertEntry.assert_contents(src_file,
+                                zf_read.get_input_stream(entry_name, &:read))
+  end
+
+  def test_add_best_compression_as_default
+    ::Zip.default_compression = Zlib::BEST_COMPRESSION
+
+    src_file = 'test/data/file2.txt'
+    entry_name = 'newEntryName.rb'
+    assert(::File.exist?(src_file))
+    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf.add(entry_name, src_file)
+    zf.close
+
+    zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    entry = zf_read.entries.first
+    assert_equal(1, zf_read.entries.length)
+    assert_equal(File.size(src_file), entry.size)
+    assert_equal(8_658, entry.compressed_size)
+    AssertEntry.assert_contents(src_file,
+                                zf_read.get_input_stream(entry_name, &:read))
+  end
+
+  def test_add_best_speed
+    src_file = 'test/data/file2.txt'
+    entry_name = 'newEntryName.rb'
+    assert(::File.exist?(src_file))
+    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE, false, { compression_level: Zlib::BEST_SPEED })
+    zf.add(entry_name, src_file)
+    zf.close
+
+    zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    entry = zf_read.entries.first
+    assert_equal(1, zf_read.entries.length)
+    assert_equal(File.size(src_file), entry.size)
+    assert_equal(10_938, entry.compressed_size)
+    AssertEntry.assert_contents(src_file,
+                                zf_read.get_input_stream(entry_name, &:read))
+  end
+
+  def test_add_best_speed_as_default
+    ::Zip.default_compression = Zlib::BEST_SPEED
+
+    src_file = 'test/data/file2.txt'
+    entry_name = 'newEntryName.rb'
+    assert(::File.exist?(src_file))
+    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf.add(entry_name, src_file)
+    zf.close
+
+    zf_read = ::Zip::File.new(EMPTY_FILENAME)
+    entry = zf_read.entries.first
+    assert_equal(1, zf_read.entries.length)
+    assert_equal(File.size(src_file), entry.size)
+    assert_equal(10_938, entry.compressed_size)
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
