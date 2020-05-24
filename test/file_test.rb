@@ -87,6 +87,7 @@ class ZipFileTest < MiniTest::Test
       assert_equal(custom_entry_args[2], entry.compressed_size)
       assert_equal(custom_entry_args[3], entry.crc)
       assert_equal(custom_entry_args[4], entry.compression_method)
+      assert_equal(custom_entry_args[5], entry.compression_level)
       assert_equal(custom_entry_args[6], entry.size)
       assert_equal(custom_entry_args[7], entry.time)
 

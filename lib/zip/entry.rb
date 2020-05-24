@@ -13,8 +13,7 @@ module Zip
                   :restore_times, :restore_permissions, :restore_ownership,
                   :unix_uid, :unix_gid, :unix_perms,
                   :dirty
-    attr_reader :ftype, :filepath # :nodoc:
-    attr_writer :compression_level # :nodoc:
+    attr_reader :compression_level, :ftype, :filepath # :nodoc:
 
     def set_default_vars_values
       @local_header_offset      = 0
@@ -579,14 +578,13 @@ module Zip
 
     def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
       if @ftype == :directory
-        zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::STORED)
+        @compression_method = ::Zip::Entry::STORED
+        zip_output_stream.put_next_entry(self)
       elsif @filepath
-        zip_output_stream.put_next_entry(
-          self, nil, nil,
-          compression_method || ::Zip::Entry::DEFLATED,
-          @compression_level || ::Zip.default_compression
-        )
-        get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
+        zip_output_stream.put_next_entry(self)
+        get_input_stream do |is|
+          ::Zip::IOExtras.copy_stream(zip_output_stream, is)
+        end
       else
         zip_output_stream.copy_raw_entry(self)
       end
