@@ -6,7 +6,7 @@ module Zip
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 
-    attr_accessor :comment, :compressed_size, :crc, :extra, :compression_method,
+    attr_accessor :comment, :compressed_size, :crc, :extra,
                   :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
                   :internal_file_attributes,
                   :gp_flags, :header_signature, :follow_symlinks,
@@ -53,24 +53,24 @@ module Zip
     end
 
     def initialize(*args)
-      name = args[1] || ''
-      check_name(name)
+      @name = args[1] || ''
+      check_name(@name)
 
       set_default_vars_values
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
+      @ftype = name_is_directory? ? :directory : :file
 
       @zipfile            = args[0] || ''
-      @name               = name
       @comment            = args[2] || ''
       @extra              = args[3] || ''
       @compressed_size    = args[4] || 0
       @crc                = args[5] || 0
-      @compression_method = args[6] || ::Zip::Entry::DEFLATED
+      @compression_method =
+        (@ftype == :directory ? STORED : args[6] || DEFLATED)
       @compression_level  = args[7] || ::Zip.default_compression
       @size               = args[8] || 0
       @time               = args[9] || ::Zip::DOSTime.now
 
-      @ftype = name_is_directory? ? :directory : :file
       @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
     end
 
@@ -102,6 +102,14 @@ module Zip
       end
       (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
       @time = value
+    end
+
+    def compression_method
+      @ftype == :directory ? STORED : @compression_method
+    end
+
+    def compression_method=(method)
+      @compression_method = (@ftype == :directory ? STORED : method)
     end
 
     def file_type_is?(type)
@@ -287,7 +295,7 @@ module Zip
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
        @gp_flags, # @gp_flags
-       @compression_method,
+       compression_method,
        @time.to_binary_dos_time, # @last_mod_time
        @time.to_binary_dos_date, # @last_mod_date
        @crc,
@@ -453,7 +461,7 @@ module Zip
         @fstype, # filesystem type
         @version_needed_to_extract, # @versionNeededToExtract
         @gp_flags, # @gp_flags
-        @compression_method,
+        compression_method,
         @time.to_binary_dos_time, # @last_mod_time
         @time.to_binary_dos_date, # @last_mod_date
         @crc,
@@ -578,7 +586,6 @@ module Zip
 
     def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
       if @ftype == :directory
-        @compression_method = ::Zip::Entry::STORED
         zip_output_stream.put_next_entry(self)
       elsif @filepath
         zip_output_stream.put_next_entry(self)
