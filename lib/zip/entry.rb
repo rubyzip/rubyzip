@@ -72,6 +72,7 @@ module Zip
       @time               = args[9] || ::Zip::DOSTime.now
 
       @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
+      set_compression_level_flags
     end
 
     def encrypted?
@@ -687,6 +688,27 @@ module Zip
 
     def data_descriptor_size
       (@gp_flags & 0x0008) > 0 ? 16 : 0
+    end
+
+    # For DEFLATED compression *only*: set the general purpose flags 1 and 2 to
+    # indicate compression level. This seems to be mainly cosmetic but they are
+    # generally set by other tools - including in docx files. It is these flags
+    # that are used by commandline tools (and elsewhere) to give an indication
+    # of how compressed a file is. See the PKWARE APPNOTE for more information:
+    # https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+    #
+    # It's safe to simply OR these flags here as compression_level is read only.
+    def set_compression_level_flags
+      return unless compression_method == DEFLATED
+
+      case @compression_level
+      when 1
+        @gp_flags |= 0b110
+      when 2
+        @gp_flags |= 0b100
+      when 8, 9
+        @gp_flags |= 0b010
+      end
     end
 
     # create a zip64 extra information field if we need one

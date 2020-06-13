@@ -170,4 +170,30 @@ class ZipEntryTest < MiniTest::Test
     entry.gp_flags = 0
     assert_equal(false, entry.incomplete?)
   end
+
+  def test_compression_level_flags
+    [
+      [Zip.default_compression, 0],
+      [0, 0],
+      [1, 6],
+      [2, 4],
+      [3, 0],
+      [7, 0],
+      [8, 2],
+      [9, 2]
+    ].each do |level, flags|
+      # Check flags are set correctly when DEFLATED is specified.
+      e_def = Zip::Entry.new('', '', '', '', 0, 0, Zip::Entry::DEFLATED, level)
+      assert_equal(flags, e_def.gp_flags & 0b110)
+
+      # Check that flags are not set when STORED is specified.
+      e_sto = Zip::Entry.new('', '', '', '', 0, 0, Zip::Entry::STORED, level)
+      assert_equal(0, e_sto.gp_flags & 0b110)
+    end
+
+    # Check that a directory entry's flags are not set, even if DEFLATED
+    # is specified.
+    e_dir = Zip::Entry.new('', 'd/', '', '', 0, 0, Zip::Entry::DEFLATED, 1)
+    assert_equal(0, e_dir.gp_flags & 0b110)
+  end
 end
