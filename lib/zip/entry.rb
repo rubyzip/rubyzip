@@ -6,14 +6,14 @@ module Zip
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 
-    attr_accessor :comment, :compressed_size, :crc, :extra,
-                  :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
-                  :internal_file_attributes,
-                  :gp_flags, :header_signature, :follow_symlinks,
-                  :restore_times, :restore_permissions, :restore_ownership,
-                  :unix_uid, :unix_gid, :unix_perms,
-                  :dirty
-    attr_reader :compression_level, :ftype, :filepath # :nodoc:
+    attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
+                  :restore_ownership, :restore_permissions, :restore_times,
+                  :size, :unix_gid, :unix_perms, :unix_uid, :zipfile
+
+    attr_accessor :crc, :dirty, :external_file_attributes, :fstype, :gp_flags,
+                  :internal_file_attributes, :local_header_offset # :nodoc:
+
+    attr_reader :extra, :compression_level, :ftype, :filepath # :nodoc:
 
     def set_default_vars_values
       @local_header_offset      = 0
@@ -87,6 +87,14 @@ module Zip
 
     def incomplete?
       gp_flags & 8 == 8
+    end
+
+    def extra=(field)
+      @extra = if field.nil?
+                 ExtraField.new
+               else
+                 field.kind_of?(ExtraField) ? field : ExtraField.new(field.to_s)
+               end
     end
 
     def time
@@ -384,7 +392,7 @@ module Zip
     end
 
     def check_c_dir_entry_signature
-      return if header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+      return if @header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
 
       raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
     end
