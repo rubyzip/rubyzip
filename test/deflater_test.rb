@@ -8,6 +8,10 @@ class DeflaterTest < MiniTest::Test
   DEFAULT_COMP_FILE = 'test/data/generated/compressiontest_default_compression.bin'
   NO_COMP_FILE = 'test/data/generated/compressiontest_no_compression.bin'
 
+  def teardown
+    Zip.reset!
+  end
+
   def test_output_operator
     txt = load_file('test/data/file2.txt')
     deflate(txt, DEFLATER_TEST_FILE)

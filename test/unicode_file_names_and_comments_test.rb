@@ -3,6 +3,10 @@ require 'test_helper'
 class ZipUnicodeFileNamesAndComments < MiniTest::Test
   FILENAME = File.join(File.dirname(__FILE__), 'test1.zip')
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def test_unicode_file_name
     file_entrys = ['текстовыйфайл.txt', 'Résumé.txt', '슬레이어스휘.txt']
     directory_entrys = ['папка/текстовыйфайл.txt', 'Résumé/Résumé.txt', '슬레이어스휘/슬레이어스휘.txt']

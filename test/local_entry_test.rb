@@ -5,7 +5,7 @@ class ZipLocalEntryTest < MiniTest::Test
   LEH_FILE = 'test/data/generated/localEntryHeader.bin'
 
   def teardown
-    ::Zip.write_zip64_support = false
+    ::Zip.reset!
   end
 
   def test_read_local_entry_header_of_first_test_zip_entry

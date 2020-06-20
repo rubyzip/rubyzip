@@ -3,6 +3,10 @@ require 'test_helper'
 class ZipEntryTest < MiniTest::Test
   include ZipEntryData
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def test_constructor_and_getters
     entry = ::Zip::Entry.new(
       TEST_ZIPFILE, TEST_NAME,

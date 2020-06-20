@@ -5,12 +5,11 @@ class EncryptionTest < MiniTest::Test
   INPUT_FILE1 = 'test/data/file1.txt'
 
   def setup
-    @default_compression = Zip.default_compression
     Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
   end
 
   def teardown
-    Zip.default_compression = @default_compression
+    Zip.reset!
   end
 
   def test_encrypt
