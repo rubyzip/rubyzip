@@ -121,7 +121,9 @@ module Zip
     end
 
     def compression_method
-      @ftype == :directory ? STORED : @compression_method
+      return STORED if @ftype == :directory || @compression_level == 0
+
+      @compression_method
     end
 
     def compression_method=(method)

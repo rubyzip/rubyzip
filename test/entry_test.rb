@@ -229,4 +229,29 @@ class ZipEntryTest < MiniTest::Test
     )
     assert_equal(0, e_dir.gp_flags & 0b110)
   end
+
+  def test_compression_method_reader
+    [
+      [Zip.default_compression, Zip::Entry::DEFLATED],
+      [0, Zip::Entry::STORED],
+      [1, Zip::Entry::DEFLATED],
+      [9, Zip::Entry::DEFLATED]
+    ].each do |level, method|
+      # Check that the correct method is returned when DEFLATED is specified.
+      entry = Zip::Entry.new(compression_level: level)
+      assert_equal(method, entry.compression_method)
+    end
+
+    # Check that the correct method is returned when STORED is specified.
+    entry = Zip::Entry.new(
+      compression_method: Zip::Entry::STORED, compression_level: 1
+    )
+    assert_equal(Zip::Entry::STORED, entry.compression_method)
+
+    # Check that directories are always STORED, whatever level is specified.
+    entry = Zip::Entry.new(
+      '', 'd/', compression_method: Zip::Entry::DEFLATED, compression_level: 1
+    )
+    assert_equal(Zip::Entry::STORED, entry.compression_method)
+  end
 end
