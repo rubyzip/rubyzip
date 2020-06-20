@@ -1,8 +1,9 @@
 require 'pathname'
 module Zip
   class Entry
-    STORED   = 0
-    DEFLATED = 8
+    STORED   = ::Zip::COMPRESSION_METHOD_STORE
+    DEFLATED = ::Zip::COMPRESSION_METHOD_DEFLATE
+
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 
