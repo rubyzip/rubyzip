@@ -77,7 +77,10 @@ class ZipFileTest < MiniTest::Test
       assert_equal(count + 1, zf.size)
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
 
-      custom_entry_args = [TEST_COMMENT, TEST_EXTRA, TEST_COMPRESSED_SIZE, TEST_CRC, ::Zip::Entry::STORED, ::Zlib::BEST_SPEED, TEST_SIZE, TEST_TIME]
+      custom_entry_args = [
+        TEST_COMMENT, TEST_EXTRA, TEST_COMPRESSED_SIZE, TEST_CRC,
+        ::Zip::Entry::STORED, ::Zlib::BEST_SPEED, TEST_SIZE, TEST_TIME
+      ]
       zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) do |os|
         os.write 'Some data'
       end

@@ -276,7 +276,12 @@ module Zip
         if entry.kind_of?(Entry)
           entry
         else
-          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, compression_level, size, time)
+          Entry.new(
+            @name, entry.to_s, comment: comment, extra: extra,
+            compressed_size: compressed_size, crc: crc, size: size,
+            compression_method: compression_method,
+            compression_level: compression_level, time: time
+          )
         end
       if new_entry.directory?
         raise ArgumentError,
@@ -305,7 +310,10 @@ module Zip
       new_entry = if entry.kind_of?(::Zip::Entry)
                     entry
                   else
-                    ::Zip::Entry.new(@name, entry.to_s, nil, nil, 0, 0, ::Zip::Entry::DEFLATED, @compression_level)
+                    ::Zip::Entry.new(
+                      @name, entry.to_s,
+                      compression_level: @compression_level
+                    )
                   end
       new_entry.gather_fileinfo_from_srcpath(src_path)
       new_entry.dirty = true
@@ -315,7 +323,9 @@ module Zip
     # Convenience method for adding the contents of a file to the archive
     # in Stored format (uncompressed)
     def add_stored(entry, src_path, &continue_on_exists_proc)
-      entry = ::Zip::Entry.new(@name, entry.to_s, nil, nil, nil, nil, ::Zip::Entry::STORED)
+      entry = ::Zip::Entry.new(
+        @name, entry.to_s, compression_method: ::Zip::Entry::STORED
+      )
       add(entry, src_path, &continue_on_exists_proc)
     end
 

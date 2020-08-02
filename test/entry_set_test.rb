@@ -2,12 +2,12 @@ require 'test_helper'
 
 class ZipEntrySetTest < MiniTest::Test
   ZIP_ENTRIES = [
-    ::Zip::Entry.new('zipfile.zip', 'name1', 'comment1'),
-    ::Zip::Entry.new('zipfile.zip', 'name3', 'comment1'),
-    ::Zip::Entry.new('zipfile.zip', 'name2', 'comment1'),
-    ::Zip::Entry.new('zipfile.zip', 'name4', 'comment1'),
-    ::Zip::Entry.new('zipfile.zip', 'name5', 'comment1'),
-    ::Zip::Entry.new('zipfile.zip', 'name6', 'comment1')
+    ::Zip::Entry.new('zipfile.zip', 'name1', comment: 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name3', comment: 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name2', comment: 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name4', comment: 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name5', comment: 'comment1'),
+    ::Zip::Entry.new('zipfile.zip', 'name6', comment: 'comment1')
   ]
 
   def setup
@@ -20,13 +20,17 @@ class ZipEntrySetTest < MiniTest::Test
 
   def test_include
     assert(@zip_entry_set.include?(ZIP_ENTRIES.first))
-    assert(!@zip_entry_set.include?(::Zip::Entry.new('different.zip', 'different', 'aComment')))
+    assert(
+      !@zip_entry_set.include?(
+        ::Zip::Entry.new('different.zip', 'different', comment: 'aComment')
+      )
+    )
   end
 
   def test_size
     assert_equal(ZIP_ENTRIES.size, @zip_entry_set.size)
     assert_equal(ZIP_ENTRIES.size, @zip_entry_set.length)
-    @zip_entry_set << ::Zip::Entry.new('a', 'b', 'c')
+    @zip_entry_set << ::Zip::Entry.new('a', 'b', comment: 'c')
     assert_equal(ZIP_ENTRIES.size + 1, @zip_entry_set.length)
   end
 
@@ -66,7 +70,9 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_find_entry
-    entries = [::Zip::Entry.new('zipfile.zip', 'MiXeDcAsEnAmE', 'comment1')]
+    entries = [
+      ::Zip::Entry.new('zipfile.zip', 'MiXeDcAsEnAmE', comment: 'comment1')
+    ]
 
     ::Zip.case_insensitive_match = true
     zip_entry_set = ::Zip::EntrySet.new(entries)
@@ -96,7 +102,9 @@ class ZipEntrySetTest < MiniTest::Test
   end
 
   def test_compound
-    new_entry = ::Zip::Entry.new('zf.zip', 'new entry', "new entry's comment")
+    new_entry = ::Zip::Entry.new(
+      'zf.zip', 'new entry', comment: "new entry's comment"
+    )
     assert_equal(ZIP_ENTRIES.size, @zip_entry_set.size)
     @zip_entry_set << new_entry
     assert_equal(ZIP_ENTRIES.size + 1, @zip_entry_set.size)

@@ -52,26 +52,32 @@ module Zip
       raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
-    def initialize(*args)
-      @name = args[1] || ''
+    def initialize(
+      zipfile = '', name = '',
+      comment: '', size: 0, compressed_size: 0, crc: 0,
+      compression_method: DEFLATED,
+      compression_level: ::Zip.default_compression,
+      time: ::Zip::DOSTime.now, extra: ::Zip::ExtraField.new
+    )
+      @name = name
       check_name(@name)
 
       set_default_vars_values
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
       @ftype = name_is_directory? ? :directory : :file
 
-      @zipfile            = args[0] || ''
-      @comment            = args[2] || ''
-      @extra              = args[3] || ''
-      @compressed_size    = args[4] || 0
-      @crc                = args[5] || 0
-      @compression_method =
-        (@ftype == :directory ? STORED : args[6] || DEFLATED)
-      @compression_level  = args[7] || ::Zip.default_compression
-      @size               = args[8] || 0
-      @time               = args[9] || ::Zip::DOSTime.now
+      @zipfile            = zipfile
+      @comment            = comment
+      @compression_method = compression_method
+      @compression_level  = compression_level
 
-      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
+      @compressed_size    = compressed_size
+      @crc                = crc
+      @size               = size
+      @time               = time
+      @extra              =
+        extra.kind_of?(ExtraField) ? extra : ExtraField.new(extra.to_s)
+
       set_compression_level_flags
     end
 
