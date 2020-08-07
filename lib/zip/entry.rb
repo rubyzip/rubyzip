@@ -7,6 +7,11 @@ module Zip
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 
+    # Compression level flags (used as part of the gp flags).
+    COMPRESSION_LEVEL_SUPERFAST_GPFLAG = 0b110
+    COMPRESSION_LEVEL_FAST_GPFLAG = 0b100
+    COMPRESSION_LEVEL_MAX_GPFLAG = 0b010
+
     attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
                   :restore_ownership, :restore_permissions, :restore_times,
                   :size, :unix_gid, :unix_perms, :unix_uid, :zipfile
@@ -720,11 +725,11 @@ module Zip
 
       case @compression_level
       when 1
-        @gp_flags |= 0b110
+        @gp_flags |= COMPRESSION_LEVEL_SUPERFAST_GPFLAG
       when 2
-        @gp_flags |= 0b100
+        @gp_flags |= COMPRESSION_LEVEL_FAST_GPFLAG
       when 8, 9
-        @gp_flags |= 0b010
+        @gp_flags |= COMPRESSION_LEVEL_MAX_GPFLAG
       end
     end
 
