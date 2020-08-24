@@ -7,6 +7,8 @@ rvm:
   - 2.6
   - 2.7
   - ruby-head
+  - truffleruby
+  - truffleruby-head
 matrix:
   fast_finish: true
   include:
@@ -26,6 +28,7 @@ matrix:
     - rvm: ruby-head
     - rvm: rbx-4
     - rvm: jruby-head
+    - rvm: truffleruby
 before_install:
   - gem --version
 before_script:
