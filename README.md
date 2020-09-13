@@ -357,15 +357,22 @@ http://rdoc.info/github/rubyzip/rubyzip/master/frames
 
 ## Authors
 
-Alexander Simonov ( alex at simonov.me)
+See https://github.com/rubyzip/rubyzip/graphs/contributors for a comprehensive list.
 
-Alan Harper ( alan at aussiegeek.net)
+### Current contributors
 
-Thomas Sondergaard (thomas at sondergaard.cc)
+* Robert Haines (@hainesr)
+* John Lees-Miller (@jdleesmiller)
 
-Technorama Ltd. (oss-ruby-zip at technorama.net)
+### Past contributors
 
-extra-field support contributed by Tatsuki Sugiura (sugi at nemui.org)
+* Pavel Lobashov (@ShockwaveNN)
+* Oleksandr Simonov (@simonoff)
+* Alan Harper (@aussiegeek)
+
+### Original author
+
+* Thomas Sondergaard
 
 ## License
 
