@@ -1,5 +1,7 @@
 # X.X.X (Next)
 
+- Set compression level on a per-zipfile basis. [#448](https://github.com/rubyzip/rubyzip/pull/448)
+
 Tooling:
 
 - Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
