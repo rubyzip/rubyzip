@@ -73,9 +73,12 @@ class ZipFileTest < MiniTest::Test
       assert_equal(count + 1, zf.size)
       assert_equal('Putting stuff in new_entry.txt', zf.read('new_entry.txt'))
 
-      zf.get_output_stream(zf.get_entry('test/data/generated/empty.txt')) do |os|
-        os.write 'Putting stuff in data/generated/empty.txt'
-      end
+      # Use the non-block version of `get_output_stream` not tested elsewhere.
+      ostream =
+        zf.get_output_stream(zf.get_entry('test/data/generated/empty.txt'))
+      ostream.write 'Putting stuff in data/generated/empty.txt'
+      ostream.close
+
       assert_equal(count + 1, zf.size)
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
 
