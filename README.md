@@ -288,15 +288,25 @@ Zip.validate_entry_sizes = false
 
 Note that if you use the lower level `Zip::InputStream` interface, `rubyzip` does *not* check the entry `size`s. In this case, the caller is responsible for making sure it does not read more data than expected from the input stream.
 
-### Default Compression
+### Compression level
 
-You can set the default compression level like so:
+When adding entries to a zip archive you can set the compression level to trade-off compressed size against compression speed. By default this is set to the same as the underlying Zlib library's default (`Zlib::DEFAULT_COMPRESSION`), which is somewhere in the middle.
+
+You can configure the default compression level with:
 
 ```ruby
-Zip.default_compression = Zlib::DEFAULT_COMPRESSION
+Zip.default_compression = X
 ```
 
-It defaults to `Zlib::DEFAULT_COMPRESSION`. Possible values are `Zlib::BEST_COMPRESSION`, `Zlib::DEFAULT_COMPRESSION` and `Zlib::NO_COMPRESSION`
+Where X is an integer between 0 and 9, inclusive. If this option is set to 0 (`Zlib::NO_COMPRESSION`) then entries will be stored in the zip archive uncompressed. A value of 1 (`Zlib::BEST_SPEED`) gives the fastest compression and 9 (`Zlib::BEST_COMPRESSION`) gives the smallest compressed file size.
+
+This can also be set for each archive as an option to `Zip::File`:
+
+```ruby
+Zip::File.open('foo.zip', Zip::File::CREATE, {compression_level: 9}) do |zip|
+  zip.add ...
+end
+```
 
 ### Zip64 Support
 
