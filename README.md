@@ -333,12 +333,21 @@ You can set multiple settings at the same time by using a block:
 
 ## Developing
 
-To run the test you need to do this:
+Install the dependencies:
 
-```
+```shell
 bundle install
+```
+
+Run the tests with `rake`:
+
+```shell
 rake
 ```
+
+Please also run `rubocop` over your changes.
+
+Our CI is here: https://travis-ci.org/github/rubyzip/rubyzip. Please note that `rubocop` is run as part of the CI configuration and will fail a build if errors are found.
 
 ## Website and Project Home
 
