@@ -35,6 +35,8 @@ class ZipExtraFieldTest < MiniTest::Test
     assert_equal(t, extra['NTFS'].mtime)
     assert_equal(t, extra['NTFS'].atime)
     assert_equal(t, extra['NTFS'].ctime)
+
+    assert_equal(str.force_encoding('BINARY'), extra.to_local_bin)
   end
 
   def test_merge
