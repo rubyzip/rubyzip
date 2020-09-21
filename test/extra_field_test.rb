@@ -17,6 +17,16 @@ class ZipExtraFieldTest < MiniTest::Test
     assert_equal(extra.to_s, 'fooabarbaz')
   end
 
+  def test_bad_header_id
+    str = "ut\x5\0\x3\250$\r@"
+    ut = nil
+    assert_output('', /WARNING/) do
+      ut = ::Zip::ExtraField::UniversalTime.new(str)
+    end
+    assert_instance_of(::Zip::ExtraField::UniversalTime, ut)
+    assert_nil(ut.mtime)
+  end
+
   def test_ntfs
     str = "\x0A\x00 \x00\x00\x00\x00\x00\x01\x00\x18\x00\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01"
     extra = ::Zip::ExtraField.new(str)
