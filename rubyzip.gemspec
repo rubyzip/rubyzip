@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary               = 'rubyzip is a ruby module for reading and writing zip files'
   s.files                 = Dir.glob('{samples,lib}/**/*.rb') + %w[README.md TODO Rakefile]
   s.require_paths         = ['lib']
-  s.license               = 'BSD 2-Clause'
+  s.license               = 'BSD-2-Clause'
   s.metadata              = {
     'bug_tracker_uri'   => 'https://github.com/rubyzip/rubyzip/issues',
     'changelog_uri'     => "https://github.com/rubyzip/rubyzip/blob/v#{s.version}/Changelog.md",
