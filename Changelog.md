@@ -1,5 +1,7 @@
 # X.X.X (Next)
 
+- Fix input stream partial read error. [#462](https://github.com/rubyzip/rubyzip/pull/462)
+
 Tooling:
 
 - Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
