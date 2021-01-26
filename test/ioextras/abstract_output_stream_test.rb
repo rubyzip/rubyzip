@@ -20,12 +20,10 @@ class AbstractOutputStreamTest < MiniTest::Test
   def setup
     @output_stream = TestOutputStream.new
 
-    @save_comma_sep = $OUTPUT_FIELD_SEPARATOR
     @save_output_sep = $OUTPUT_RECORD_SEPARATOR
   end
 
   def teardown
-    $OUTPUT_FIELD_SEPARATOR = @save_comma_sep
     $OUTPUT_RECORD_SEPARATOR = @save_output_sep
   end
 
@@ -57,7 +55,6 @@ class AbstractOutputStreamTest < MiniTest::Test
     @output_stream.print('I sure hope so!')
     assert_equal("hello world. You ok out there?\nI sure hope so!\n", @output_stream.buffer)
 
-    $OUTPUT_FIELD_SEPARATOR = nil
     @output_stream.buffer = ''
     @output_stream.print('monkey', 'duck', 'zebra')
     assert_equal("monkeyduckzebra\n", @output_stream.buffer)
