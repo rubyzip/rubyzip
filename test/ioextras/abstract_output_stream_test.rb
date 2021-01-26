@@ -57,10 +57,10 @@ class AbstractOutputStreamTest < MiniTest::Test
     @output_stream.print('I sure hope so!')
     assert_equal("hello world. You ok out there?\nI sure hope so!\n", @output_stream.buffer)
 
-    $OUTPUT_FIELD_SEPARATOR = '\n'
+    $OUTPUT_FIELD_SEPARATOR = nil
     @output_stream.buffer = ''
     @output_stream.print('monkey', 'duck', 'zebra')
-    assert_equal("monkeyXduckXzebra\n", @output_stream.buffer)
+    assert_equal("monkeyduckzebra\n", @output_stream.buffer)
 
     $OUTPUT_RECORD_SEPARATOR = nil
     @output_stream.buffer = ''
