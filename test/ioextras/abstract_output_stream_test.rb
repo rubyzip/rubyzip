@@ -25,7 +25,7 @@ class AbstractOutputStreamTest < MiniTest::Test
   end
 
   def teardown
-    $, = @save_comma_sep
+    $OUTPUT_FIELD_SEPARATOR = @save_comma_sep
     $\ = @save_output_sep
   end
 
@@ -57,7 +57,7 @@ class AbstractOutputStreamTest < MiniTest::Test
     @output_stream.print('I sure hope so!')
     assert_equal("hello world. You ok out there?\nI sure hope so!\n", @output_stream.buffer)
 
-    $, = 'X'
+    $OUTPUT_FIELD_SEPARATOR = '\n'
     @output_stream.buffer = ''
     @output_stream.print('monkey', 'duck', 'zebra')
     assert_equal("monkeyXduckXzebra\n", @output_stream.buffer)
