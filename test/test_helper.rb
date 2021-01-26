@@ -165,16 +165,6 @@ module CrcTest
   end
 end
 
-module Enumerable
-  def compare_enumerables(enumerable)
-    array = enumerable.to_a
-    each_with_index do |element, index|
-      return false unless yield(element, array[index])
-    end
-    size == array.size
-  end
-end
-
 module CommonZipFileFixture
   include AssertEntry
 

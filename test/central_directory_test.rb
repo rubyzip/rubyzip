@@ -10,9 +10,7 @@ class ZipCentralDirectoryTest < MiniTest::Test
       cdir = ::Zip::CentralDirectory.read_from_stream(zip_file)
 
       assert_equal(TestZipFile::TEST_ZIP2.entry_names.size, cdir.size)
-      assert(cdir.entries.sort.compare_enumerables(TestZipFile::TEST_ZIP2.entry_names.sort) do |cdir_entry, test_entry_name|
-        cdir_entry.name == test_entry_name
-      end)
+      assert_equal(cdir.entries.map(&:name).sort, TestZipFile::TEST_ZIP2.entry_names.sort)
       assert_equal(TestZipFile::TEST_ZIP2.comment, cdir.comment)
     end
   end
