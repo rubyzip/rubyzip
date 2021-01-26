@@ -8,44 +8,35 @@ class BasicZipFileTest < MiniTest::Test
   end
 
   def test_entries
-    assert_equal(TestZipFile::TEST_ZIP2.entry_names.sort,
-                 @zip_file.entries.entries.sort.map(&:name))
+    expected_entry_names = TestZipFile::TEST_ZIP2.entry_names
+    actual_entry_names = @zip_file.entries.entries.map(&:name)
+    assert_equal(expected_entry_names.sort, actual_entry_names.sort)
   end
 
   def test_each
-    count = 0
-    visited = {}
-    @zip_file.each do |entry|
-      assert(TestZipFile::TEST_ZIP2.entry_names.include?(entry.name))
-      assert(!visited.include?(entry.name))
-      visited[entry.name] = nil
-      count = count.succ
-    end
-    assert_equal(TestZipFile::TEST_ZIP2.entry_names.length, count)
+    expected_entry_names = TestZipFile::TEST_ZIP2.entry_names
+    actual_entry_names = []
+    @zip_file.each { |entry| actual_entry_names << entry.name }
+    assert_equal(expected_entry_names.sort, actual_entry_names.sort)
   end
 
   def test_foreach
-    count = 0
-    visited = {}
-    ::Zip::File.foreach(TestZipFile::TEST_ZIP2.zip_name) do |entry|
-      assert(TestZipFile::TEST_ZIP2.entry_names.include?(entry.name))
-      assert(!visited.include?(entry.name))
-      visited[entry.name] = nil
-      count = count.succ
-    end
-    assert_equal(TestZipFile::TEST_ZIP2.entry_names.length, count)
+    expected_entry_names = TestZipFile::TEST_ZIP2.entry_names
+    actual_entry_names = []
+    ::Zip::File.foreach(TestZipFile::TEST_ZIP2.zip_name) { |entry| actual_entry_names << entry.name }
+    assert_equal(expected_entry_names.sort, actual_entry_names.sort)
   end
 
   def test_get_input_stream
-    count = 0
-    visited = {}
+    expected_entry_names = TestZipFile::TEST_ZIP2.entry_names
+    actual_entry_names = []
+
     @zip_file.each do |entry|
+      actual_entry_names << entry.name
       assert_entry(entry.name, @zip_file.get_input_stream(entry), entry.name)
-      assert(!visited.include?(entry.name))
-      visited[entry.name] = nil
-      count = count.succ
     end
-    assert_equal(TestZipFile::TEST_ZIP2.entry_names.length, count)
+
+    assert_equal(expected_entry_names.sort, actual_entry_names.sort)
   end
 
   def test_get_input_stream_block
