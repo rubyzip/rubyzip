@@ -3,16 +3,19 @@ require 'test_helper'
 class ZipEntryTest < MiniTest::Test
   include ZipEntryData
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def test_constructor_and_getters
-    entry = ::Zip::Entry.new(TEST_ZIPFILE,
-                             TEST_NAME,
-                             TEST_COMMENT,
-                             TEST_EXTRA,
-                             TEST_COMPRESSED_SIZE,
-                             TEST_CRC,
-                             TEST_COMPRESSIONMETHOD,
-                             TEST_SIZE,
-                             TEST_TIME)
+    entry = ::Zip::Entry.new(
+      TEST_ZIPFILE, TEST_NAME,
+      comment: TEST_COMMENT, extra: TEST_EXTRA,
+      compressed_size: TEST_COMPRESSED_SIZE,
+      crc: TEST_CRC, size: TEST_SIZE, time: TEST_TIME,
+      compression_method: TEST_COMPRESSIONMETHOD,
+      compression_level: TEST_COMPRESSIONLEVEL
+    )
 
     assert_equal(TEST_COMMENT, entry.comment)
     assert_equal(TEST_COMPRESSED_SIZE, entry.compressed_size)
@@ -39,30 +42,54 @@ class ZipEntryTest < MiniTest::Test
   end
 
   def test_equality
-    entry1 = ::Zip::Entry.new('file.zip', 'name', 'isNotCompared',
-                              'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
-    entry2 = ::Zip::Entry.new('file.zip', 'name', 'isNotComparedXXX',
-                              'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
-    entry3 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
-                              'something extra', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
-    entry4 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
-                              'something extraXX', 123, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
-    entry5 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
-                              'something extraXX', 12, 1234,
-                              ::Zip::Entry::DEFLATED, 10_000)
-    entry6 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
-                              'something extraXX', 12, 123,
-                              ::Zip::Entry::DEFLATED, 10_000)
-    entry7 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
-                              'something extraXX', 12, 123,
-                              ::Zip::Entry::STORED, 10_000)
-    entry8 = ::Zip::Entry.new('file.zip', 'name2', 'isNotComparedXXX',
-                              'something extraXX', 12, 123,
-                              ::Zip::Entry::STORED, 100_000)
+    entry1 = ::Zip::Entry.new(
+      'file.zip', 'name',
+      comment: 'isNotCompared', extra: 'something extra',
+      compressed_size: 123, crc: 1234, size: 10_000
+    )
+
+    entry2 = ::Zip::Entry.new(
+      'file.zip', 'name',
+      comment: 'isNotComparedXXX', extra: 'something extra',
+      compressed_size: 123, crc: 1234, size: 10_000
+    )
+
+    entry3 = ::Zip::Entry.new(
+      'file.zip', 'name2',
+      comment: 'isNotComparedXXX', extra: 'something extra',
+      compressed_size: 123, crc: 1234, size: 10_000
+    )
+
+    entry4 = ::Zip::Entry.new(
+      'file.zip', 'name2',
+      comment: 'isNotComparedXXX', extra: 'something extraXX',
+      compressed_size: 123, crc: 1234, size: 10_000
+    )
+
+    entry5 = ::Zip::Entry.new(
+      'file.zip', 'name2',
+      comment: 'isNotComparedXXX', extra: 'something extraXX',
+      compressed_size: 12, crc: 1234, size: 10_000
+    )
+
+    entry6 = ::Zip::Entry.new(
+      'file.zip', 'name2',
+      comment: 'isNotComparedXXX', extra: 'something extraXX',
+      compressed_size: 12, crc: 123, size: 10_000
+    )
+
+    entry7 = ::Zip::Entry.new(
+      'file.zip', 'name2', comment: 'isNotComparedXXX',
+      extra: 'something extraXX', compressed_size: 12, crc: 123, size: 10_000,
+      compression_method: ::Zip::Entry::STORED
+    )
+
+    entry8 = ::Zip::Entry.new(
+      'file.zip', 'name2',
+      comment: 'isNotComparedXXX', extra: 'something extraXX',
+      compressed_size: 12, crc: 123, size: 100_000,
+      compression_method: ::Zip::Entry::STORED
+    )
 
     assert_equal(entry1, entry1)
     assert_equal(entry1, entry2)
@@ -130,13 +157,11 @@ class ZipEntryTest < MiniTest::Test
     end
 
     zipfile = Zip::File.open('/tmp/no_compress.zip', Zip::File::CREATE)
-    mimetype_entry = Zip::Entry.new(zipfile,                # @zipfile
-                                    'mimetype',             # @name
-                                    '',                     # @comment
-                                    '',                     # @extra
-                                    0,                      # @compressed_size
-                                    0,                      # @crc
-                                    Zip::Entry::STORED)     # @comppressed_method
+    mimetype_entry = Zip::Entry.new(
+      zipfile,                # @zipfile
+      'mimetype',             # @name
+      compression_method: Zip::Entry::STORED
+    )
 
     zipfile.add(mimetype_entry, 'test/data/mimetype')
 
@@ -168,5 +193,65 @@ class ZipEntryTest < MiniTest::Test
 
     entry.gp_flags = 0
     assert_equal(false, entry.incomplete?)
+  end
+
+  def test_compression_level_flags
+    [
+      [Zip.default_compression, 0],
+      [0, 0],
+      [1, 6],
+      [2, 4],
+      [3, 0],
+      [7, 0],
+      [8, 2],
+      [9, 2]
+    ].each do |level, flags|
+      # Check flags are set correctly when DEFLATED is (implicitly) specified.
+      e_def = Zip::Entry.new(
+        '', '',
+        compression_level: level
+      )
+      assert_equal(flags, e_def.gp_flags & 0b110)
+
+      # Check that flags are not set when STORED is specified.
+      e_sto = Zip::Entry.new(
+        '', '',
+        compression_method: Zip::Entry::STORED,
+        compression_level:  level
+      )
+      assert_equal(0, e_sto.gp_flags & 0b110)
+    end
+
+    # Check that a directory entry's flags are not set, even if DEFLATED
+    # is specified.
+    e_dir = Zip::Entry.new(
+      '', 'd/', compression_method: Zip::Entry::DEFLATED, compression_level: 1
+    )
+    assert_equal(0, e_dir.gp_flags & 0b110)
+  end
+
+  def test_compression_method_reader
+    [
+      [Zip.default_compression, Zip::Entry::DEFLATED],
+      [0, Zip::Entry::STORED],
+      [1, Zip::Entry::DEFLATED],
+      [9, Zip::Entry::DEFLATED]
+    ].each do |level, method|
+      # Check that the correct method is returned when DEFLATED is specified.
+      entry = Zip::Entry.new(compression_level: level)
+      assert_equal(method, entry.compression_method)
+    end
+
+    # Check that the correct method is returned when STORED is specified.
+    entry = Zip::Entry.new(
+      compression_method: Zip::Entry::STORED, compression_level: 1
+    )
+    assert_equal(Zip::Entry::STORED, entry.compression_method)
+
+    # Check that directories are always STORED, whatever level is specified.
+    entry = Zip::Entry.new(
+      '', 'd/', compression_method: Zip::Entry::DEFLATED, compression_level: 1
+    )
+    assert_equal(Zip::Entry::STORED, entry.compression_method)
   end
 end

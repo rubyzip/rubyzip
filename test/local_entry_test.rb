@@ -5,7 +5,7 @@ class ZipLocalEntryTest < MiniTest::Test
   LEH_FILE = 'test/data/generated/localEntryHeader.bin'
 
   def teardown
-    ::Zip.write_zip64_support = false
+    ::Zip.reset!
   end
 
   def test_read_local_entry_header_of_first_test_zip_entry
@@ -53,9 +53,11 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_write_entry
-    entry = ::Zip::Entry.new('file.zip', 'entry_name', 'my little comment',
-                             'thisIsSomeExtraInformation', 100, 987_654,
-                             ::Zip::Entry::DEFLATED, 400)
+    entry = ::Zip::Entry.new(
+      'file.zip', 'entry_name', comment: 'my little comment', size: 400,
+      extra: 'thisIsSomeExtraInformation', compressed_size: 100, crc: 987_654
+    )
+
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
     assert(
@@ -68,9 +70,10 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_write_entry_with_zip64
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new('file.zip', 'entry_name', 'my little comment',
-                             'thisIsSomeExtraInformation', 100, 987_654,
-                             ::Zip::Entry::DEFLATED, 400)
+    entry = ::Zip::Entry.new(
+      'file.zip', 'entry_name', comment: 'my little comment', size: 400,
+      extra: 'thisIsSomeExtraInformation', compressed_size: 100, crc: 987_654
+    )
 
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
@@ -92,10 +95,12 @@ class ZipLocalEntryTest < MiniTest::Test
 
   def test_write_64entry
     ::Zip.write_zip64_support = true
-    entry = ::Zip::Entry.new('bigfile.zip', 'entry_name', 'my little equine',
-                             'malformed extra field because why not',
-                             0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
-                             0x9988776655443322)
+    entry = ::Zip::Entry.new(
+      'bigfile.zip', 'entry_name', comment: 'my little equine',
+      extra: 'malformed extra field because why not', size: 0x9988776655443322,
+      compressed_size: 0x7766554433221100, crc: 0xDEADBEEF
+    )
+
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
     compare_local_entry_headers(entry, local_entry)

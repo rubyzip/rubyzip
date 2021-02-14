@@ -7,7 +7,7 @@ class ZipCaseSensitivityTest < MiniTest::Test
                ['test/data/file2.txt', 'testFILE.rb']]
 
   def teardown
-    ::Zip.case_insensitive_match = false
+    ::Zip.reset!
   end
 
   # Ensure that everything functions normally when +case_insensitive_match = false+

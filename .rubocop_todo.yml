@@ -9,21 +9,21 @@
 # Offense count: 5
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
-  Max: 570
+  Max: 610
 
 # Offense count: 26
 Metrics/CyclomaticComplexity:
-  Max: 14
+  Max: 15
 
 # Offense count: 44
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/MethodLength:
-  Max: 29
+  Max: 32
 
 # Offense count: 2
 # Configuration parameters: CountKeywordArgs.
 Metrics/ParameterLists:
-  Max: 10
+  Max: 12
 
 # Offense count: 20
 Metrics/PerceivedComplexity:

@@ -89,20 +89,23 @@ module Zip
 
     # Closes the current entry and opens a new for writing.
     # +entry+ can be a ZipEntry object or a string.
-    def put_next_entry(entry_name, comment = nil, extra = nil, compression_method = Entry::DEFLATED, level = Zip.default_compression)
+    def put_next_entry(
+      entry_name, comment = '', extra = ExtraField.new,
+      compression_method = Entry::DEFLATED, level = Zip.default_compression
+    )
       raise Error, 'zip stream is closed' if @closed
 
       new_entry = if entry_name.kind_of?(Entry)
                     entry_name
                   else
-                    Entry.new(@file_name, entry_name.to_s)
+                    Entry.new(
+                      @file_name, entry_name.to_s, comment: comment,
+                      extra: extra, compression_method: compression_method,
+                      compression_level: level
+                    )
                   end
-      new_entry.comment = comment unless comment.nil?
-      unless extra.nil?
-        new_entry.extra = extra.kind_of?(ExtraField) ? extra : ExtraField.new(extra.to_s)
-      end
-      new_entry.compression_method = compression_method unless compression_method.nil?
-      init_next_entry(new_entry, level)
+
+      init_next_entry(new_entry)
       @current_entry = new_entry
     end
 
@@ -142,19 +145,19 @@ module Zip
       @compressor = ::Zip::NullCompressor.instance
     end
 
-    def init_next_entry(entry, level = Zip.default_compression)
+    def init_next_entry(entry)
       finalize_current_entry
       @entry_set << entry
       entry.write_local_entry(@output_stream)
       @encrypter.reset!
       @output_stream << @encrypter.header(entry.mtime)
-      @compressor = get_compressor(entry, level)
+      @compressor = get_compressor(entry)
     end
 
-    def get_compressor(entry, level)
+    def get_compressor(entry)
       case entry.compression_method
       when Entry::DEFLATED
-        ::Zip::Deflater.new(@output_stream, level, @encrypter)
+        ::Zip::Deflater.new(@output_stream, entry.compression_level, @encrypter)
       when Entry::STORED
         ::Zip::PassThruCompressor.new(@output_stream)
       else

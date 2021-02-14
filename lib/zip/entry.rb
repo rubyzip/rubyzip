@@ -1,19 +1,25 @@
 require 'pathname'
 module Zip
   class Entry
-    STORED   = 0
-    DEFLATED = 8
+    STORED   = ::Zip::COMPRESSION_METHOD_STORE
+    DEFLATED = ::Zip::COMPRESSION_METHOD_DEFLATE
+
     # Language encoding flag (EFS) bit
     EFS = 0b100000000000
 
-    attr_accessor :comment, :compressed_size, :crc, :extra, :compression_method,
-                  :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
-                  :internal_file_attributes,
-                  :gp_flags, :header_signature, :follow_symlinks,
-                  :restore_times, :restore_permissions, :restore_ownership,
-                  :unix_uid, :unix_gid, :unix_perms,
-                  :dirty
-    attr_reader :ftype, :filepath # :nodoc:
+    # Compression level flags (used as part of the gp flags).
+    COMPRESSION_LEVEL_SUPERFAST_GPFLAG = 0b110
+    COMPRESSION_LEVEL_FAST_GPFLAG = 0b100
+    COMPRESSION_LEVEL_MAX_GPFLAG = 0b010
+
+    attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
+                  :restore_ownership, :restore_permissions, :restore_times,
+                  :size, :unix_gid, :unix_perms, :unix_uid, :zipfile
+
+    attr_accessor :crc, :dirty, :external_file_attributes, :fstype, :gp_flags,
+                  :internal_file_attributes, :local_header_offset # :nodoc:
+
+    attr_reader :extra, :compression_level, :ftype, :filepath # :nodoc:
 
     def set_default_vars_values
       @local_header_offset      = 0
@@ -52,25 +58,33 @@ module Zip
       raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
-    def initialize(*args)
-      name = args[1] || ''
-      check_name(name)
+    def initialize(
+      zipfile = '', name = '',
+      comment: '', size: 0, compressed_size: 0, crc: 0,
+      compression_method: DEFLATED,
+      compression_level: ::Zip.default_compression,
+      time: ::Zip::DOSTime.now, extra: ::Zip::ExtraField.new
+    )
+      @name = name
+      check_name(@name)
 
       set_default_vars_values
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
-
-      @zipfile            = args[0] || ''
-      @name               = name
-      @comment            = args[2] || ''
-      @extra              = args[3] || ''
-      @compressed_size    = args[4] || 0
-      @crc                = args[5] || 0
-      @compression_method = args[6] || ::Zip::Entry::DEFLATED
-      @size               = args[7] || 0
-      @time               = args[8] || ::Zip::DOSTime.now
-
       @ftype = name_is_directory? ? :directory : :file
-      @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
+
+      @zipfile            = zipfile
+      @comment            = comment
+      @compression_method = compression_method
+      @compression_level  = compression_level
+
+      @compressed_size    = compressed_size
+      @crc                = crc
+      @size               = size
+      @time               = time
+      @extra              =
+        extra.kind_of?(ExtraField) ? extra : ExtraField.new(extra.to_s)
+
+      set_compression_level_flags
     end
 
     def encrypted?
@@ -79,6 +93,14 @@ module Zip
 
     def incomplete?
       gp_flags & 8 == 8
+    end
+
+    def extra=(field)
+      @extra = if field.nil?
+                 ExtraField.new
+               else
+                 field.kind_of?(ExtraField) ? field : ExtraField.new(field.to_s)
+               end
     end
 
     def time
@@ -101,6 +123,16 @@ module Zip
       end
       (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
       @time = value
+    end
+
+    def compression_method
+      return STORED if @ftype == :directory || @compression_level == 0
+
+      @compression_method
+    end
+
+    def compression_method=(method)
+      @compression_method = (@ftype == :directory ? STORED : method)
     end
 
     def file_type_is?(type)
@@ -281,7 +313,7 @@ module Zip
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
        @gp_flags, # @gp_flags
-       @compression_method,
+       compression_method,
        @time.to_binary_dos_time, # @last_mod_time
        @time.to_binary_dos_date, # @last_mod_date
        @crc,
@@ -363,7 +395,7 @@ module Zip
     end
 
     def check_c_dir_entry_signature
-      return if header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
+      return if @header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
 
       raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
     end
@@ -447,7 +479,7 @@ module Zip
         @fstype, # filesystem type
         @version_needed_to_extract, # @versionNeededToExtract
         @gp_flags, # @gp_flags
-        @compression_method,
+        compression_method,
         @time.to_binary_dos_time, # @last_mod_time
         @time.to_binary_dos_date, # @last_mod_date
         @crc,
@@ -572,10 +604,12 @@ module Zip
 
     def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
       if @ftype == :directory
-        zip_output_stream.put_next_entry(self, nil, nil, ::Zip::Entry::STORED)
+        zip_output_stream.put_next_entry(self)
       elsif @filepath
-        zip_output_stream.put_next_entry(self, nil, nil, compression_method || ::Zip::Entry::DEFLATED)
-        get_input_stream { |is| ::Zip::IOExtras.copy_stream(zip_output_stream, is) }
+        zip_output_stream.put_next_entry(self)
+        get_input_stream do |is|
+          ::Zip::IOExtras.copy_stream(zip_output_stream, is)
+        end
       else
         zip_output_stream.copy_raw_entry(self)
       end
@@ -671,6 +705,27 @@ module Zip
 
     def data_descriptor_size
       (@gp_flags & 0x0008) > 0 ? 16 : 0
+    end
+
+    # For DEFLATED compression *only*: set the general purpose flags 1 and 2 to
+    # indicate compression level. This seems to be mainly cosmetic but they are
+    # generally set by other tools - including in docx files. It is these flags
+    # that are used by commandline tools (and elsewhere) to give an indication
+    # of how compressed a file is. See the PKWARE APPNOTE for more information:
+    # https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+    #
+    # It's safe to simply OR these flags here as compression_level is read only.
+    def set_compression_level_flags
+      return unless compression_method == DEFLATED
+
+      case @compression_level
+      when 1
+        @gp_flags |= COMPRESSION_LEVEL_SUPERFAST_GPFLAG
+      when 2
+        @gp_flags |= COMPRESSION_LEVEL_FAST_GPFLAG
+      when 8, 9
+        @gp_flags |= COMPRESSION_LEVEL_MAX_GPFLAG
+      end
     end
 
     # create a zip64 extra information field if we need one
