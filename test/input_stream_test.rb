@@ -179,4 +179,14 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal('$VERBOSE =', zis.read(10))
     end
   end
+
+  def test_readline_then_read
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      zis.get_next_entry
+      assert_equal("#!/usr/bin/env ruby\n", zis.readline)
+      refute(zis.eof?)
+      refute_empty(zis.read) # Also should not raise an error.
+      assert(zis.eof?)
+    end
+  end
 end

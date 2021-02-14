@@ -19,7 +19,7 @@ module Zip
 
       def read(number_of_bytes = nil, buf = '')
         tbuf = if @output_buffer.bytesize > 0
-                 if number_of_bytes <= @output_buffer.bytesize
+                 if number_of_bytes && number_of_bytes <= @output_buffer.bytesize
                    @output_buffer.slice!(0, number_of_bytes)
                  else
                    number_of_bytes -= @output_buffer.bytesize if number_of_bytes
