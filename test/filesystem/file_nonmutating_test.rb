@@ -295,8 +295,10 @@ class ZipFsFileNonmutatingTest < MiniTest::Test
   end
 
   def test_atime
-    assert_nil(@zip_file.file.atime('file1'))
-    assert_nil(@zip_file.file.stat('file1').atime)
+    assert_equal(::Zip::DOSTime.at(1_027_694_306),
+                 @zip_file.file.atime('file1'))
+    assert_equal(::Zip::DOSTime.at(1_027_694_306),
+                 @zip_file.file.stat('file1').atime)
   end
 
   def test_ntfs_time

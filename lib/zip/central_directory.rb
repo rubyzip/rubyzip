@@ -124,8 +124,35 @@ module Zip
       end
       @entry_set = EntrySet.new
       @size.times do
-        @entry_set << Entry.read_c_dir_entry(io)
+        entry = Entry.read_c_dir_entry(io)
+        next unless entry
+
+        offset = if entry.extra['Zip64']
+                   entry.extra['Zip64'].relative_header_offset
+                 else
+                   entry.local_header_offset
+                 end
+
+        unless offset.nil?
+          io_save = io.tell
+          io.seek(offset, IO::SEEK_SET)
+          entry.read_extra_field(read_local_extra_field(io))
+          io.seek(io_save, IO::SEEK_SET)
+        end
+
+        @entry_set << entry
       end
+    end
+
+    def read_local_extra_field(io)
+      buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
+      return '' unless buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
+
+      head, _, _, _, _, _, _, _, _, _, n_len, e_len = buf.unpack('VCCvvvvVVVvv')
+      return '' unless head == ::Zip::LOCAL_ENTRY_SIGNATURE
+
+      io.seek(n_len, IO::SEEK_CUR) # Skip over the entry name.
+      io.read(e_len)
     end
 
     def read_from_stream(io) #:nodoc:
