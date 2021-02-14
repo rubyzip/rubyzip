@@ -13,16 +13,16 @@ module Zip
       val   = data.to_s
       @crc  = Zlib.crc32(val, @crc)
       @size += val.bytesize
-      buffer = @zlib_deflater.deflate(data)
-      if buffer.empty?
-        @output_stream
-      else
-        @output_stream << @encrypter.encrypt(buffer)
-      end
+      buffer = @zlib_deflater.deflate(data, Zlib::SYNC_FLUSH)
+      return @output_stream if buffer.empty?
+
+      @output_stream << @encrypter.encrypt(buffer)
     end
 
     def finish
-      @output_stream << @encrypter.encrypt(@zlib_deflater.finish) until @zlib_deflater.finished?
+      buffer = @zlib_deflater.finish
+      @output_stream << @encrypter.encrypt(buffer) unless buffer.empty?
+      @zlib_deflater.close
     end
 
     attr_reader :size, :crc
