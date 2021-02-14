@@ -1,6 +1,7 @@
 # X.X.X (Next)
 
 - Set compression level on a per-zipfile basis. [#448](https://github.com/rubyzip/rubyzip/pull/448)
+- Fix input stream partial read error. [#462](https://github.com/rubyzip/rubyzip/pull/462)
 
 Tooling:
 

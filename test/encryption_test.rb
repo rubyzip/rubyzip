@@ -13,20 +13,28 @@ class EncryptionTest < MiniTest::Test
   end
 
   def test_encrypt
-    test_file = ::File.open(ENCRYPT_ZIP_TEST_FILE, 'rb').read
+    content = File.open(INPUT_FILE1, 'r').read
+    test_filename = 'top_secret_file.txt'
 
-    @rand = [250, 143, 107, 13, 143, 22, 155, 75, 228, 150, 12]
-    @output = ::Zip::DOSTime.stub(:now, ::Zip::DOSTime.new(2014, 12, 17, 15, 56, 24)) do
-      Random.stub(:rand, ->(_range) { @rand.shift }) do
-        Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new('password')) do |zos|
-          zos.put_next_entry('file1.txt')
-          zos.write ::File.open(INPUT_FILE1).read
-        end.string
-      end
+    password = 'swordfish'
+
+    encrypted_zip = Zip::OutputStream.write_buffer(::StringIO.new(''), Zip::TraditionalEncrypter.new(password)) do |out|
+      out.put_next_entry(test_filename)
+      out.write content
     end
 
-    @output.unpack('C*').each_with_index do |c, i|
-      assert_equal test_file[i].ord, c
+    Zip::InputStream.open(encrypted_zip, 0, Zip::TraditionalDecrypter.new(password)) do |zis|
+      entry = zis.get_next_entry
+      assert_equal test_filename, entry.name
+      assert_equal 1327, entry.size
+      assert_equal content, zis.read
+    end
+
+    assert_raises(Zip::DecompressionError) do
+      Zip::InputStream.open(encrypted_zip, 0, Zip::TraditionalDecrypter.new(password + 'wrong')) do |zis|
+        zis.get_next_entry
+        assert_equal content, zis.read
+      end
     end
   end
 

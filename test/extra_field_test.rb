@@ -17,6 +17,16 @@ class ZipExtraFieldTest < MiniTest::Test
     assert_equal(extra.to_s, 'fooabarbaz')
   end
 
+  def test_bad_header_id
+    str = "ut\x5\0\x3\250$\r@"
+    ut = nil
+    assert_output('', /WARNING/) do
+      ut = ::Zip::ExtraField::UniversalTime.new(str)
+    end
+    assert_instance_of(::Zip::ExtraField::UniversalTime, ut)
+    assert_nil(ut.mtime)
+  end
+
   def test_ntfs
     str = "\x0A\x00 \x00\x00\x00\x00\x00\x01\x00\x18\x00\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01"
     extra = ::Zip::ExtraField.new(str)
@@ -25,6 +35,8 @@ class ZipExtraFieldTest < MiniTest::Test
     assert_equal(t, extra['NTFS'].mtime)
     assert_equal(t, extra['NTFS'].atime)
     assert_equal(t, extra['NTFS'].ctime)
+
+    assert_equal(str.force_encoding('BINARY'), extra.to_local_bin)
   end
 
   def test_merge
@@ -72,5 +84,17 @@ class ZipExtraFieldTest < MiniTest::Test
 
     extra1.create('IUnix')
     assert_equal(extra1, extra3)
+  end
+
+  def test_read_local_extra_field
+    ::Zip::File.open('test/data/local_extra_field.zip') do |zf|
+      ['file1.txt', 'file2.txt'].each do |file|
+        entry = zf.get_entry(file)
+
+        assert_instance_of(::Zip::ExtraField, entry.extra)
+        assert_equal(1_000, entry.extra['IUnix'].uid)
+        assert_equal(1_000, entry.extra['IUnix'].gid)
+      end
+    end
   end
 end

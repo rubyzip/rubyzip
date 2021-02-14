@@ -19,11 +19,11 @@ class ZipFsFileStatTest < MiniTest::Test
   end
 
   def test_uid
-    assert_equal(0, @zip_file.file.stat('file1').uid)
+    assert_equal(500, @zip_file.file.stat('file1').uid)
   end
 
   def test_gid
-    assert_equal(0, @zip_file.file.stat('file1').gid)
+    assert_equal(500, @zip_file.file.stat('file1').gid)
   end
 
   def test_ftype

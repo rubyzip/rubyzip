@@ -303,12 +303,7 @@ module Zip
         raise ::Zip::Error, 'Truncated local zip entry header'
       end
 
-      if @extra.kind_of?(::Zip::ExtraField)
-        @extra.merge(extra) if extra
-      else
-        @extra = ::Zip::ExtraField.new(extra)
-      end
-
+      read_extra_field(extra)
       parse_zip64_extra(true)
       @local_header_size = calculate_local_header_size
     end
@@ -411,11 +406,11 @@ module Zip
       raise ::Zip::Error, 'Truncated cdir zip entry header'
     end
 
-    def read_c_dir_extra_field(io)
+    def read_extra_field(buf)
       if @extra.kind_of?(::Zip::ExtraField)
-        @extra.merge(io.read(@extra_length))
+        @extra.merge(buf) if buf
       else
-        @extra = ::Zip::ExtraField.new(io.read(@extra_length))
+        @extra = ::Zip::ExtraField.new(buf)
       end
     end
 
@@ -429,7 +424,7 @@ module Zip
       if ::Zip.force_entry_names_encoding
         @name.force_encoding(::Zip.force_entry_names_encoding)
       end
-      read_c_dir_extra_field(io)
+      read_extra_field(io.read(@extra_length))
       @comment = io.read(@comment_length)
       check_c_dir_entry_comment_size
       set_ftype_from_c_dir_entry
