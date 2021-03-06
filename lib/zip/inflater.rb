@@ -7,7 +7,7 @@ module Zip
       @zlib_inflater = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
     end
 
-    def read(length = nil, outbuf = '')
+    def read(length = nil, outbuf = +'')
       return (length.nil? || length.zero? ? '' : nil) if eof
 
       while length.nil? || (@buffer.bytesize < length)
