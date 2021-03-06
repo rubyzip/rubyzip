@@ -23,7 +23,7 @@ class ZipOutputStreamTest < MiniTest::Test
   end
 
   def test_write_buffer
-    io = ::StringIO.new('')
+    io = ::StringIO.new(+'')
     buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
@@ -33,7 +33,7 @@ class ZipOutputStreamTest < MiniTest::Test
   end
 
   def test_write_buffer_binmode
-    io = ::StringIO.new('')
+    io = ::StringIO.new(+'')
     buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)

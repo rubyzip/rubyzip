@@ -239,7 +239,7 @@ module Zip
       end
 
       def open(filename, mode = 'r', permissions = 0o644, &block)
-        mode.delete!('b') # ignore b option
+        mode = mode.tr('b', '') # ignore b option
         case mode
         when 'r'
           @mapped_zip.get_input_stream(filename, &block)
@@ -619,7 +619,7 @@ module Zip
       end
 
       def expand_path(path)
-        expanded = path.start_with?('/') ? path : ::File.join(@pwd, path)
+        expanded = ::File.expand_path(path, @pwd)
         expanded.gsub!(/\/\.(\/|$)/, '')
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, '')
         expanded.empty? ? '/' : expanded
