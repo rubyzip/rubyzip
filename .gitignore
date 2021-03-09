@@ -8,3 +8,4 @@ coverage
 pkg/
 .ruby-gemset
 .ruby-version
+emptyZipFile.zip
