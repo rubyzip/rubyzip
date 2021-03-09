@@ -206,7 +206,7 @@ class ZipFileTest < MiniTest::Test
     assert_equal(1, zf_read.entries.length)
     assert_equal(entry_name, zf_read.entries.first.name)
     assert_equal(File.size(src_file), entry.size)
-    assert_equal(8_764, entry.compressed_size)
+    assert_equal(8_771, entry.compressed_size)
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
@@ -223,7 +223,7 @@ class ZipFileTest < MiniTest::Test
     entry = zf_read.entries.first
     assert_equal(1, zf_read.entries.length)
     assert_equal(File.size(src_file), entry.size)
-    assert_equal(8_658, entry.compressed_size)
+    assert_equal(8_665, entry.compressed_size)
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
@@ -242,7 +242,7 @@ class ZipFileTest < MiniTest::Test
     entry = zf_read.entries.first
     assert_equal(1, zf_read.entries.length)
     assert_equal(File.size(src_file), entry.size)
-    assert_equal(8_658, entry.compressed_size)
+    assert_equal(8_665, entry.compressed_size)
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
@@ -259,7 +259,7 @@ class ZipFileTest < MiniTest::Test
     entry = zf_read.entries.first
     assert_equal(1, zf_read.entries.length)
     assert_equal(File.size(src_file), entry.size)
-    assert_equal(10_938, entry.compressed_size)
+    assert_equal(10_945, entry.compressed_size)
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
@@ -278,7 +278,7 @@ class ZipFileTest < MiniTest::Test
     entry = zf_read.entries.first
     assert_equal(1, zf_read.entries.length)
     assert_equal(File.size(src_file), entry.size)
-    assert_equal(10_938, entry.compressed_size)
+    assert_equal(10_945, entry.compressed_size)
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
