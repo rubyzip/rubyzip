@@ -24,9 +24,14 @@ module Zip
         ((year - 1980) << 9)
     end
 
-    # Dos time is only stored with two seconds accuracy
     def dos_equals(other)
-      to_i / 2 == other.to_i / 2
+      warn 'Zip::DOSTime#dos_equals is deprecated. Use `==` instead.'
+      self == other
+    end
+
+    # Dos time is only stored with two seconds accuracy.
+    def <=>(other)
+      (to_i / 2) <=> (other.to_i / 2)
     end
 
     # Create a DOSTime instance from a vanilla Time instance.

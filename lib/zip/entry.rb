@@ -530,10 +530,9 @@ module Zip
       return false unless other.class == self.class
 
       # Compares contents of local entry and exposed fields
-      keys_equal = %w[compression_method crc compressed_size size name extra filepath].all? do |k|
+      %w[compression_method crc compressed_size size name extra filepath time].all? do |k|
         other.__send__(k.to_sym) == __send__(k.to_sym)
       end
-      keys_equal && time.dos_equals(other.time)
     end
 
     def <=>(other)
