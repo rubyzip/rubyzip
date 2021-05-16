@@ -6,8 +6,17 @@ jobs:
   test:
     strategy:
       matrix:
-        ruby: [2.4, 2.5, 2.6, 2.7, '3.0', head, jruby, truffleruby]
+        ruby: [2.4, 2.5, 2.6, 2.7, '3.0', jruby, truffleruby]
+        can-fail: [false]
+        include:
+          - ruby: head
+            can-fail: true
+          - ruby: jruby-head
+            can-fail: true
+          - ruby: truffleruby-head
+            can-fail: true
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.can-fail }}
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
