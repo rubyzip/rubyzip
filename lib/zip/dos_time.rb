@@ -1,3 +1,5 @@
+require 'rubygems'
+
 module Zip
   class DOSTime < Time #:nodoc:all
     # MS-DOS File Date and Time format as used in Interrupt 21H Function 57H:
@@ -49,6 +51,32 @@ module Zip
       begin
         local(year, month, day, hour, minute, second)
       end
+    end
+
+    if defined? JRUBY_VERSION && Gem::Version.new(JRUBY_VERSION) < '9.2.18.0'
+      module JRubyCMP # :nodoc:
+        def ==(other)
+          (self <=> other).zero?
+        end
+
+        def <(other)
+          (self <=> other).negative?
+        end
+
+        def <=(other)
+          (self <=> other) <= 0
+        end
+
+        def >(other)
+          (self <=> other).positive?
+        end
+
+        def >=(other)
+          (self <=> other) >= 0
+        end
+      end
+
+      include JRubyCMP
     end
   end
 end
