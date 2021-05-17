@@ -33,6 +33,8 @@ module Zip
 
     # Dos time is only stored with two seconds accuracy.
     def <=>(other)
+      return unless other.kind_of?(Time)
+
       (to_i / 2) <=> (other.to_i / 2)
     end
 
