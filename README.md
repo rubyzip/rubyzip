@@ -361,16 +361,11 @@ http://rdoc.info/github/rubyzip/rubyzip/master/frames
 
 See https://github.com/rubyzip/rubyzip/graphs/contributors for a comprehensive list.
 
-### Current contributors
+### Current maintainers
 
 * Robert Haines (@hainesr)
 * John Lees-Miller (@jdleesmiller)
-
-### Past contributors
-
-* Pavel Lobashov (@ShockwaveNN)
 * Oleksandr Simonov (@simonoff)
-* Alan Harper (@aussiegeek)
 
 ### Original author
 
