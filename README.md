@@ -349,7 +349,7 @@ rake
 
 Please also run `rubocop` over your changes.
 
-Our CI is here: https://travis-ci.org/github/rubyzip/rubyzip. Please note that `rubocop` is run as part of the CI configuration and will fail a build if errors are found.
+Our CI currently runs on [Travis](https://travis-ci.org/github/rubyzip/rubyzip) and [GitHub Actions](https://github.com/rubyzip/rubyzip/actions). Please note that `rubocop` is run as part of the CI configuration and will fail a build if errors are found.
 
 ## Website and Project Home
 
