@@ -1,10 +1,21 @@
-# X.X.X (Next)
+# 3.0.0 (Next)
 
+- Replace and deprecate `Zip::DOSTime#dos_equals`. [#464](https://github.com/rubyzip/rubyzip/pull/464)
+- Fix input stream partial read error. [#462](https://github.com/rubyzip/rubyzip/pull/462)
+- Fix loading extra fields. [#459](https://github.com/rubyzip/rubyzip/pull/459)
 - Set compression level on a per-zipfile basis. [#448](https://github.com/rubyzip/rubyzip/pull/448)
 - Fix input stream partial read error. [#462](https://github.com/rubyzip/rubyzip/pull/462)
+- Fix zlib deflate buffer growth. [#447](https://github.com/rubyzip/rubyzip/pull/447)
 
 Tooling:
 
+- Add GitHub Actions CI infrastructure. [#469](https://github.com/rubyzip/rubyzip/issues/469)
+- Add Ruby 3.0 to CI. [#474](https://github.com/rubyzip/rubyzip/pull/474)
+- Fix the compression level tests to compare relative sizes. [#473](https://github.com/rubyzip/rubyzip/pull/473)
+- Simplify assertions in basic_zip_file_test. [#470](https://github.com/rubyzip/rubyzip/pull/470)
+- Remove compare_enumerables from test_helper.rb. [#468](https://github.com/rubyzip/rubyzip/pull/468)
+- Use correct SPDX license identifier. [#458](https://github.com/rubyzip/rubyzip/pull/458)
+- Enable truffle ruby in Travis CI. [#450](https://github.com/rubyzip/rubyzip/pull/450)
 - Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
 - Fix a test that was incorrect on big-endian architectures. [#445](https://github.com/rubyzip/rubyzip/pull/445)
 
