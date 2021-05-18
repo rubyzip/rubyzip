@@ -6,10 +6,14 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
+    - name: Checkout rubyzip code
+      uses: actions/checkout@v2
+
+    - name: Install and set up ruby
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.4
         bundler-cache: true
+
     - name: Rubocop
       run: bundle exec rubocop
