@@ -442,13 +442,13 @@ module Zip
     end
 
     def get_extra_attributes_from_path(path) # :nodoc:
-      return if Zip::RUNNING_ON_WINDOWS
+      stat = file_stat(path)
+      @time = DOSTime.from_time(stat.mtime)
+      return if ::Zip::RUNNING_ON_WINDOWS
 
-      stat        = file_stat(path)
       @unix_uid   = stat.uid
       @unix_gid   = stat.gid
       @unix_perms = stat.mode & 0o7777
-      @time = ::Zip::DOSTime.from_time(stat.mtime)
     end
 
     def set_unix_attributes_on_path(dest_path)

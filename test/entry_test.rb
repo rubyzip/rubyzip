@@ -263,4 +263,10 @@ class ZipEntryTest < MiniTest::Test
     entry.time = ::Zip::DOSTime.now
     assert(entry.time.kind_of?(::Zip::DOSTime))
   end
+
+  def test_ensure_entry_time_set_to_file_mtime
+    entry = ::Zip::Entry.new
+    entry.gather_fileinfo_from_srcpath('test/data/mimetype')
+    assert_equal(entry.time, File.stat('test/data/mimetype').mtime)
+  end
 end
