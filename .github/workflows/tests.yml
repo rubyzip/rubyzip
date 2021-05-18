@@ -7,17 +7,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.4, 2.5, 2.6, 2.7, '3.0', jruby, truffleruby]
-        can-fail: [false]
-        include:
-          - ruby: head
-            can-fail: true
-          - ruby: jruby-head
-            can-fail: true
-          - ruby: truffleruby-head
-            can-fail: true
+        ruby: [2.4, 2.5, 2.6, 2.7, '3.0', head, jruby, jruby-head, truffleruby, truffleruby-head]
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.can-fail }}
+    continue-on-error: ${{ endsWith(matrix.ruby, 'head') }}
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
