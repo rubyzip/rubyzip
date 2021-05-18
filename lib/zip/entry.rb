@@ -121,6 +121,8 @@ module Zip
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
         @extra.create('UniversalTime')
       end
+
+      value = DOSTime.from_time(value)
       (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
       @time = value
     end

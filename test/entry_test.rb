@@ -254,4 +254,13 @@ class ZipEntryTest < MiniTest::Test
     )
     assert_equal(Zip::Entry::STORED, entry.compression_method)
   end
+
+  def test_set_time_as_dos_time
+    entry = ::Zip::Entry.new
+    assert(entry.time.kind_of?(::Zip::DOSTime))
+    entry.time = Time.now
+    assert(entry.time.kind_of?(::Zip::DOSTime))
+    entry.time = ::Zip::DOSTime.now
+    assert(entry.time.kind_of?(::Zip::DOSTime))
+  end
 end
