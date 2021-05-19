@@ -31,6 +31,8 @@ jobs:
       run: choco install zip
 
     - name: Run the tests
+      env:
+        JRUBY_OPTS: --debug
       run: bundle exec rake
 
     - name: Coveralls
