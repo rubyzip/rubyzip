@@ -178,12 +178,6 @@ Style/OptionalBooleanParameter:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'lib/zip/dos_time.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 Style/RedundantFileExtensionInRequire:
   Exclude:
     - 'samples/qtzip.rb'
