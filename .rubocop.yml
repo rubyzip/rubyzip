@@ -6,6 +6,11 @@ AllCops:
   TargetRubyVersion: 2.4
   NewCops: enable
 
+# Allow this in this file because adding the extra lines is pointless.
+Layout/EmptyLineBetweenDefs:
+  Exclude:
+    - 'lib/zip/errors.rb'
+
 Layout/HashAlignment:
   EnforcedHashRocketStyle: table
   EnforcedColonStyle: table
