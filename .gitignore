@@ -4,6 +4,7 @@
 Gemfile.lock
 +samples/*.zip
 +samples/*.zip.*
+samples/zipdialogui.rb
 coverage
 pkg/
 .ruby-gemset
