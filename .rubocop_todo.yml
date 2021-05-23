@@ -23,13 +23,6 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
-# Offense count: 3
-# Configuration parameters: AllowComments.
-Lint/EmptyClass:
-  Exclude:
-    - 'lib/zip/crypto/encryption.rb'
-    - 'test/decompressor_test.rb'
-
 # Offense count: 7
 Lint/MissingSuper:
   Exclude:

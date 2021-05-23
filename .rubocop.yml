@@ -22,6 +22,9 @@ Layout/LineLength:
   Exclude:
     - 'test/**/*.rb'
 
+Lint/EmptyClass:
+  Enabled: false
+
 # In some cases we just need to catch an exception, rather than
 # actually handle it. Allow the tests to make use of this shortcut.
 Lint/SuppressedException:
