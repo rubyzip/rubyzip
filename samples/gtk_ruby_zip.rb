@@ -43,7 +43,8 @@ class MainApp < Gtk::Window
   end
 
   class ButtonPanel < Gtk::HButtonBox
-    attr_reader :open_button, :extract_button
+    attr_reader :extract_button, :open_button
+
     def initialize
       super
       set_layout(Gtk::BUTTONBOX_START)

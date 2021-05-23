@@ -3,7 +3,9 @@
 module Zip
   # Info-ZIP Extra for Zip64 size
   class ExtraField::Zip64 < ExtraField::Generic
-    attr_accessor :original_size, :compressed_size, :relative_header_offset, :disk_start_number
+    attr_accessor :compressed_size, :disk_start_number,
+                  :original_size, :relative_header_offset
+
     HEADER_ID = ['0100'].pack('H*')
     register_map
 

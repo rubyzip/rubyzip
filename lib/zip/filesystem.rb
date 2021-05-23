@@ -66,7 +66,6 @@ module Zip
     # similarity with the methods in File
     class ZipFsFile
       attr_writer :dir
-      # protected :dir
 
       class ZipFsStat
         class << self

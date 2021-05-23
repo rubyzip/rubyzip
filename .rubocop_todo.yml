@@ -6,16 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAliasSyntax, AllowedMethods.
-# AllowedMethods: alias_method, public, protected, private
-Layout/EmptyLinesAroundAttributeAccessor:
-  Exclude:
-    - 'lib/zip/extra_field/zip64.rb'
-    - 'lib/zip/filesystem.rb'
-    - 'samples/gtk_ruby_zip.rb'
-
 # Offense count: 7
 Lint/MissingSuper:
   Exclude:
