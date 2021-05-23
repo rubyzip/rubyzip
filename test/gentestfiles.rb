@@ -42,7 +42,7 @@ class TestFiles
 
     def create_random_ascii(filename, size)
       File.open(filename, 'wb') do |file|
-        file << rand while file.tell < size
+        file << (0...size).map { rand(33..126).chr }.join
       end
     end
 
