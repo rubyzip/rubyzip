@@ -75,7 +75,7 @@ class ZipFileExtractTest < MiniTest::Test
     zf.close if zf
   end
 
-  def test_extract_non_entry_2
+  def test_extract_another_non_entry
     out_file = 'outfile'
     assert_raises(Errno::ENOENT) do
       zf = ::Zip::File.new(TEST_ZIP.zip_name)

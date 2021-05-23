@@ -59,6 +59,11 @@ Metrics/MethodLength:
   Exclude:
     - 'test/**/*.rb'
 
+# These tests are just better with snake_case numbers.
+Naming/VariableNumber:
+  Exclude:
+    - 'test/file_permissions_test.rb'
+
 # Set a consistent way of checking types.
 Style/ClassCheck:
   EnforcedStyle: kind_of?
