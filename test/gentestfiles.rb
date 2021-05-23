@@ -48,7 +48,7 @@ class TestFiles
 
     def create_random_binary(filename, size)
       File.open(filename, 'wb') do |file|
-        file << [rand].pack('V') while file.tell < size
+        file << (0...size).map { rand(255) }.pack('C*')
       end
     end
 
