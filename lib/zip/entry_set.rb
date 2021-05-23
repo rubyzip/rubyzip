@@ -72,7 +72,7 @@ module Zip
     protected
 
     def sorted_entries
-      ::Zip.sort_entries ? Hash[@entry_set.sort] : @entry_set
+      ::Zip.sort_entries ? @entry_set.sort.to_h : @entry_set
     end
 
     private

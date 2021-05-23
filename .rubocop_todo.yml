@@ -117,13 +117,6 @@ Style/DocumentDynamicEvalDefinition:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowSplatArgument.
-Style/HashConversion:
-  Exclude:
-    - 'lib/zip/entry_set.rb'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
