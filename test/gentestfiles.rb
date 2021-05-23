@@ -80,8 +80,8 @@ class TestZipFile
         "zip -q #{TEST_ZIP1.zip_name} -d test/data/file2.txt"
       )
 
-    File.open('test/data/generated/empty.txt', 'w') {}
-    File.open('test/data/generated/empty_chmod640.txt', 'w') {}
+    File.open('test/data/generated/empty.txt', 'w') {} # Empty file.
+    File.open('test/data/generated/empty_chmod640.txt', 'w') {} # Empty file.
     ::File.chmod(0o640, 'test/data/generated/empty_chmod640.txt')
 
     File.open('test/data/generated/short.txt', 'w') { |file| file << 'ABCDEF' }

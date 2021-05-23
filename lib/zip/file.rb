@@ -242,8 +242,7 @@ module Zip
         return if zip_file_size <= segment_size
 
         segment_count = get_segment_count_for_split(zip_file_size, segment_size)
-        # Checking for correct zip structure
-        ::Zip::File.open(zip_file_name) {}
+        ::Zip::File.open(zip_file_name) {} # Check for correct zip structure.
         partial_zip_file_name = get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
         szip_file_index       = 0
         ::File.open(zip_file_name, 'rb') do |zip_file|

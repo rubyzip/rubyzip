@@ -23,14 +23,6 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
-# Offense count: 5
-# Configuration parameters: AllowComments, AllowEmptyLambdas.
-Lint/EmptyBlock:
-  Exclude:
-    - 'lib/zip/file.rb'
-    - 'test/gentestfiles.rb'
-    - 'test/settings_test.rb'
-
 # Offense count: 3
 # Configuration parameters: AllowComments.
 Lint/EmptyClass:

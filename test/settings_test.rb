@@ -73,8 +73,7 @@ class ZipSettingsTest < MiniTest::Test
     Zip.warn_invalid_date = false
 
     assert_output('', '') do
-      ::Zip::File.open(test_file) do |_zf|
-      end
+      ::Zip::File.open(test_file) {} # Do nothing with the open file.
     end
   end
 
@@ -83,8 +82,7 @@ class ZipSettingsTest < MiniTest::Test
     Zip.warn_invalid_date = true
 
     assert_output('', /invalid date\/time in zip entry/) do
-      ::Zip::File.open(test_file) do |_zf|
-      end
+      ::Zip::File.open(test_file) {} # Do nothing with the open file.
     end
   end
 
