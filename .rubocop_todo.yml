@@ -107,12 +107,6 @@ Style/ClassAndModuleChildren:
     - 'lib/zip/extra_field/zip64.rb'
     - 'lib/zip/extra_field/zip64_placeholder.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/Dir:
-  Exclude:
-    - 'test/file_test.rb'
-
 # Offense count: 2
 Style/DocumentDynamicEvalDefinition:
   Exclude:
