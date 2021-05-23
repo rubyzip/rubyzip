@@ -9,10 +9,12 @@ SimpleCov::Formatter::LcovFormatter.config do |c|
   c.single_report_path = 'coverage/lcov.info'
 end
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-  SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::LcovFormatter
-])
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
+  [
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::LcovFormatter
+  ]
+)
 
 SimpleCov.start do
   # enable_coverage :branch   <-- Re-enable this when we move to ruby ~> 2.5.

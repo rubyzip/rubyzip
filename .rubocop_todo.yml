@@ -16,13 +16,6 @@ Layout/EmptyLinesAroundAttributeAccessor:
     - 'lib/zip/filesystem.rb'
     - 'samples/gtk_ruby_zip.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Layout/FirstArrayElementIndentation:
-  EnforcedStyle: consistent
-
 # Offense count: 7
 Lint/MissingSuper:
   Exclude:
