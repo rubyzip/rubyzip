@@ -22,8 +22,7 @@ Gem::Specification.new do |s|
   }
   s.required_ruby_version = '>= 2.4'
   s.add_development_dependency 'minitest', '~> 5.4'
-  s.add_development_dependency 'pry', '~> 0.10'
-  s.add_development_dependency 'rake', '~> 12.3', '>= 12.3.3'
+  s.add_development_dependency 'rake', '~> 12.3.3'
   s.add_development_dependency 'rubocop', '~> 0.80.1'
   s.add_development_dependency 'simplecov', '~> 0.18.0'
   s.add_development_dependency 'simplecov-lcov', '~> 0.8'
