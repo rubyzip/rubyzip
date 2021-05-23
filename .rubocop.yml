@@ -64,6 +64,11 @@ Naming/VariableNumber:
   Exclude:
     - 'test/file_permissions_test.rb'
 
+# Need to allow accessors in Entry to be separated for doc purposes.
+Style/AccessorGrouping:
+  Exclude:
+    - 'lib/zip/entry.rb'
+
 # Set a consistent way of checking types.
 Style/ClassCheck:
   EnforcedStyle: kind_of?

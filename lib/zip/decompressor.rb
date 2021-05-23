@@ -16,8 +16,7 @@ module Zip
       decompressor_classes[compression_method]
     end
 
-    attr_reader :input_stream
-    attr_reader :decompressed_size
+    attr_reader :decompressed_size, :input_stream
 
     def initialize(input_stream, decompressed_size = nil)
       super()

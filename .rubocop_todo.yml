@@ -51,15 +51,6 @@ Naming/AccessorMethodName:
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/streamable_stream.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: separated, grouped
-Style/AccessorGrouping:
-  Exclude:
-    - 'lib/zip/decompressor.rb'
-    - 'lib/zip/entry.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
