@@ -4,6 +4,7 @@ inherit_from: .rubocop_todo.yml
 # we get errors if our ruby version doesn't match.
 AllCops:
   TargetRubyVersion: 2.4
+  NewCops: enable
 
 Layout/HashAlignment:
   EnforcedHashRocketStyle: table
@@ -24,7 +25,7 @@ Lint/SuppressedException:
     - 'test/**/*.rb'
 
 # Allow this "useless" test, as we are testing <=> here.
-Lint/UselessComparison:
+Lint/BinaryOperatorWithIdenticalOperands:
   Exclude:
     - 'test/entry_test.rb'
 
