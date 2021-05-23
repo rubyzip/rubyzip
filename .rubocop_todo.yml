@@ -142,12 +142,6 @@ Style/ModuleFunction:
 Style/MutableConstant:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/NegatedIfElseCondition:
-  Exclude:
-    - 'samples/qtzip.rb'
-
 # Offense count: 24
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IgnoredMethods.

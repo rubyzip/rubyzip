@@ -66,14 +66,14 @@ class ZipDialog < ZipDialogUI
     end
     puts "selected_items.size = #{selected_items.size}"
     puts "unselected_items.size = #{unselected_items.size}"
-    items = !selected_items.empty? ? selected_items : unselected_items
+    items = selected_items.empty? ? unselected_items : selected_items
     puts "items.size = #{items.size}"
 
     d = Qt::FileDialog.get_existing_directory(nil, self)
-    if !d
-      puts 'No directory chosen'
-    else
+    if d
       zipfile { |zf| items.each { |e| zf.extract(e, File.join(d, e)) } }
+    else
+      puts 'No directory chosen'
     end
   end
 
