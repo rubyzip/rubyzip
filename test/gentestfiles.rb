@@ -152,7 +152,11 @@ class TestZipFile
     ],
     'my zip comment'
   )
-  TEST_ZIP3 = TestZipFile.new('test/data/generated/test1.zip', %w[test/data/file1.txt])
-  TEST_ZIP4 = TestZipFile.new('test/data/generated/zipWithDir.zip', ['test/data/file1.txt',
-                                                                     TestFiles::EMPTY_TEST_DIR])
+  TEST_ZIP3 = TestZipFile.new(
+    'test/data/generated/test1.zip', %w[test/data/file1.txt]
+  )
+  TEST_ZIP4 = TestZipFile.new(
+    'test/data/generated/zipWithDir.zip',
+    ['test/data/file1.txt', TestFiles::EMPTY_TEST_DIR]
+  )
 end
