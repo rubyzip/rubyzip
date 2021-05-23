@@ -43,7 +43,7 @@ if ENV['FULL_ZIP64_TEST']
         assert_equal last_text, zf.read('last_file.txt')
       end
 
-      # note: if this fails, be sure you have UnZip version 6.0 or newer
+      # NOTE: if this fails, be sure you have UnZip version 6.0 or newer
       # as this is the first version to support zip64 extensions
       # but some OSes (*cough* OSX) still bundle a 5.xx release
       assert system("unzip -tqq #{test_filename}"), 'third-party zip validation failed'

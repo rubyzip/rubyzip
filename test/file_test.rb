@@ -134,7 +134,7 @@ class ZipFileTest < MiniTest::Test
       test_zip = File.join(tmp, 'test.zip')
       FileUtils.cp 'test/data/rubycode.zip', test_zip
 
-      # Note: this may change the file if it is opened with r+b instead of rb.
+      # NOTE: this may change the file if it is opened with r+b instead of rb.
       # The 'extra fields' in this particular zip file get reordered.
       File.open(test_zip, 'rb') do |file|
         Zip::File.open_buffer(file) do
