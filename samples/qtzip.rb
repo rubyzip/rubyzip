@@ -7,7 +7,7 @@ $LOAD_PATH << '../lib'
 
 require 'Qt'
 system('rbuic -o zipdialogui.rb zipdialogui.ui')
-require 'zipdialogui.rb'
+require 'zipdialogui'
 require 'zip'
 
 a = Qt::Application.new(ARGV)

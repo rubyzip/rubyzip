@@ -176,12 +176,6 @@ Style/OptionalBooleanParameter:
     - 'lib/zip/file.rb'
     - 'lib/zip/output_stream.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantFileExtensionInRequire:
-  Exclude:
-    - 'samples/qtzip.rb'
-
 # Offense count: 29
 # Cop supports --auto-correct.
 Style/RedundantRegexpEscape:
