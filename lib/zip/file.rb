@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   # ZipFile is modeled after java.util.zip.ZipFile from the Java SDK.
   # The most important methods are those inherited from

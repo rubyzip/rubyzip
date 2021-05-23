@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 $LOAD_PATH << '../lib'
 system('zip example.zip example.rb gtk_ruby_zip.rb')

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class StreamableDirectory < Entry
     def initialize(zipfile, entry, src_path = nil, permission = nil)

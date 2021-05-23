@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simplecov-lcov'
 
 SimpleCov::Formatter::LcovFormatter.config do |c|

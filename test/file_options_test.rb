@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 class FileOptionsTest < MiniTest::Test
@@ -8,9 +10,9 @@ class FileOptionsTest < MiniTest::Test
   EXTPATH_1 = ::File.join(Dir.tmpdir, 'extracted_1.txt').freeze
   EXTPATH_2 = ::File.join(Dir.tmpdir, 'extracted_2.txt').freeze
   EXTPATH_3 = ::File.join(Dir.tmpdir, 'extracted_3.txt').freeze
-  ENTRY_1 = 'entry_1.txt'.freeze
-  ENTRY_2 = 'entry_2.txt'.freeze
-  ENTRY_3 = 'entry_3.txt'.freeze
+  ENTRY_1 = 'entry_1.txt'
+  ENTRY_2 = 'entry_2.txt'
+  ENTRY_3 = 'entry_3.txt'
 
   def teardown
     ::File.unlink(ZIPPATH) if ::File.exist?(ZIPPATH)

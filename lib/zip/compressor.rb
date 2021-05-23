@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class Compressor #:nodoc:all
     def finish; end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   # PKWARE NTFS Extra Field (0x000a)
   # Only Tag 0x0001 is supported

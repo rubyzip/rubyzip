@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class Inflater < Decompressor #:nodoc:all
     def initialize(*args)

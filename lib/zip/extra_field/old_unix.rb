@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   # Olf Info-ZIP Extra for UNIX uid/gid and file timestampes
   class ExtraField::OldUnix < ExtraField::Generic

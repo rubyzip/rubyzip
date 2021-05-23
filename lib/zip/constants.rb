@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   RUNNING_ON_WINDOWS = RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/i
 
@@ -38,27 +40,27 @@ module Zip
   FSTYPE_ATHEOS   = 30
 
   FSTYPES = {
-    FSTYPE_FAT      => 'FAT'.freeze,
-    FSTYPE_AMIGA    => 'Amiga'.freeze,
-    FSTYPE_VMS      => 'VMS (Vax or Alpha AXP)'.freeze,
-    FSTYPE_UNIX     => 'Unix'.freeze,
-    FSTYPE_VM_CMS   => 'VM/CMS'.freeze,
-    FSTYPE_ATARI    => 'Atari ST'.freeze,
-    FSTYPE_HPFS     => 'OS/2 or NT HPFS'.freeze,
-    FSTYPE_MAC      => 'Macintosh'.freeze,
-    FSTYPE_Z_SYSTEM => 'Z-System'.freeze,
-    FSTYPE_CPM      => 'CP/M'.freeze,
-    FSTYPE_TOPS20   => 'TOPS-20'.freeze,
-    FSTYPE_NTFS     => 'NTFS'.freeze,
-    FSTYPE_QDOS     => 'SMS/QDOS'.freeze,
-    FSTYPE_ACORN    => 'Acorn RISC OS'.freeze,
-    FSTYPE_VFAT     => 'Win32 VFAT'.freeze,
-    FSTYPE_MVS      => 'MVS'.freeze,
-    FSTYPE_BEOS     => 'BeOS'.freeze,
-    FSTYPE_TANDEM   => 'Tandem NSK'.freeze,
-    FSTYPE_THEOS    => 'Theos'.freeze,
-    FSTYPE_MAC_OSX  => 'Mac OS/X (Darwin)'.freeze,
-    FSTYPE_ATHEOS   => 'AtheOS'.freeze
+    FSTYPE_FAT      => 'FAT',
+    FSTYPE_AMIGA    => 'Amiga',
+    FSTYPE_VMS      => 'VMS (Vax or Alpha AXP)',
+    FSTYPE_UNIX     => 'Unix',
+    FSTYPE_VM_CMS   => 'VM/CMS',
+    FSTYPE_ATARI    => 'Atari ST',
+    FSTYPE_HPFS     => 'OS/2 or NT HPFS',
+    FSTYPE_MAC      => 'Macintosh',
+    FSTYPE_Z_SYSTEM => 'Z-System',
+    FSTYPE_CPM      => 'CP/M',
+    FSTYPE_TOPS20   => 'TOPS-20',
+    FSTYPE_NTFS     => 'NTFS',
+    FSTYPE_QDOS     => 'SMS/QDOS',
+    FSTYPE_ACORN    => 'Acorn RISC OS',
+    FSTYPE_VFAT     => 'Win32 VFAT',
+    FSTYPE_MVS      => 'MVS',
+    FSTYPE_BEOS     => 'BeOS',
+    FSTYPE_TANDEM   => 'Tandem NSK',
+    FSTYPE_THEOS    => 'Theos',
+    FSTYPE_MAC_OSX  => 'Mac OS/X (Darwin)',
+    FSTYPE_ATHEOS   => 'AtheOS'
   }.freeze
 
   COMPRESSION_METHOD_STORE = 0

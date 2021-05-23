@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   module NullInputStream #:nodoc:all
     include ::Zip::NullDecompressor

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class EntrySet #:nodoc:all
     include Enumerable

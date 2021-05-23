@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'zip'
 
 # This is a simple example which uses rubyzip to

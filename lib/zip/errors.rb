@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class Error < StandardError; end
   class EntryExistsError < Error; end

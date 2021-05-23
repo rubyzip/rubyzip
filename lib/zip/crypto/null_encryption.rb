@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   module NullEncryption
     def header_bytesize

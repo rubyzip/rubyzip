@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   # Info-ZIP Additional timestamp field
   class ExtraField::UniversalTime < ExtraField::Generic

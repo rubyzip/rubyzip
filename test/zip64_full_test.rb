@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if ENV['FULL_ZIP64_TEST']
   require 'minitest/autorun'
   require 'minitest/unit'

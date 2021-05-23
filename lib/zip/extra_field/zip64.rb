@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   # Info-ZIP Extra for Zip64 size
   class ExtraField::Zip64 < ExtraField::Generic

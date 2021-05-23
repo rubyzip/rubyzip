@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   module IOExtras
     # Implements many of the convenience methods of IO

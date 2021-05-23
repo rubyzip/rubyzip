@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   # Info-ZIP Extra for UNIX uid/gid
   class ExtraField::IUnix < ExtraField::Generic

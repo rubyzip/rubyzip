@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class ExtraField::Generic
     def self.register_map

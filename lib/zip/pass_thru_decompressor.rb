@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Zip
   class PassThruDecompressor < Decompressor #:nodoc:all
     def initialize(*args)
