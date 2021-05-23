@@ -117,12 +117,6 @@ Style/DocumentDynamicEvalDefinition:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 2
-# Configuration parameters: MaxUnannotatedPlaceholdersAllowed, IgnoredMethods.
-# SupportedStyles: annotated, template, unannotated
-Style/FormatStringToken:
-  EnforcedStyle: unannotated
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowSplatArgument.

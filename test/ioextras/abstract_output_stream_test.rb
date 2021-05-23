@@ -71,7 +71,7 @@ class AbstractOutputStreamTest < MiniTest::Test
   end
 
   def test_printf
-    @output_stream.printf('%d %04x', 123, 123)
+    @output_stream.printf('%<dec>d %<hex>04x', dec: 123, hex: 123)
     assert_equal('123 007b', @output_stream.buffer)
   end
 
