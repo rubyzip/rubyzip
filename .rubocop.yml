@@ -79,6 +79,11 @@ Style/HashEachMethods:
 Style/HashTransformValues:
   Enabled: true
 
+# Allow non-default behaviour for Zip.
+Style/ModuleFunction:
+  Exclude:
+    - 'lib/zip.rb'
+
 # Allow this multi-line block chain as it actually reads better
 # than the alternatives.
 Style/MultilineBlockChain:

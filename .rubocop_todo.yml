@@ -85,14 +85,6 @@ Style/IfUnlessModifier:
     - 'lib/zip/pass_thru_decompressor.rb'
     - 'lib/zip/streamable_stream.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, Autocorrect.
-# SupportedStyles: module_function, extend_self, forbidden
-Style/ModuleFunction:
-  Exclude:
-    - 'lib/zip.rb'
-
 # Offense count: 56
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
