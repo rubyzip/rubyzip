@@ -699,14 +699,14 @@ class ZipFileTest < MiniTest::Test
     File.open(zname, 'rb') do |f|
       Zip::File.open_buffer(f) do |zipfile|
         zipfile.each do |entry|
-          next unless entry.name =~ /README.md/
+          next unless entry.name.include?('README.md')
 
           data = zipfile.read(entry)
         end
       end
     end
     assert data
-    assert data =~ /Simonov/
+    assert data.include?('Simonov')
   end
 
   def test_nonexistant_zip

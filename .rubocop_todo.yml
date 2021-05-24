@@ -63,13 +63,6 @@ Performance/RegexpMatch:
     - 'test/file_test.rb'
     - 'test/gentestfiles.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect.
-Performance/StringInclude:
-  Exclude:
-    - 'test/file_test.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
