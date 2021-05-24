@@ -106,7 +106,7 @@ class TestZipFile
         "zip -q #{TEST_ZIP2.zip_name} #{TEST_ZIP2.entry_names.join(' ')}"
       )
 
-    if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+    if RUBY_PLATFORM.match?(/mswin|mingw|cygwin/)
       raise "failed to add comment to test zip '#{TEST_ZIP2.zip_name}'" \
         unless system(
           "echo #{TEST_ZIP2.comment}| zip -zq #{TEST_ZIP2.zip_name}\""
