@@ -547,7 +547,7 @@ module Zip
     # Warning: may behave weird with symlinks.
     def get_input_stream(&block)
       if @ftype == :directory
-        yield ::Zip::NullInputStream if block_given?
+        yield ::Zip::NullInputStream if block
         ::Zip::NullInputStream
       elsif @filepath
         case @ftype
@@ -556,7 +556,7 @@ module Zip
         when :symlink
           linkpath = ::File.readlink(@filepath)
           stringio = ::StringIO.new(linkpath)
-          yield(stringio) if block_given?
+          yield(stringio) if block
           stringio
         else
           raise "unknown @file_type #{@ftype}"
@@ -565,7 +565,7 @@ module Zip
         zis = ::Zip::InputStream.new(@zipfile, local_header_offset)
         zis.instance_variable_set(:@complete_entry, self)
         zis.get_next_entry
-        if block_given?
+        if block
           begin
             yield(zis)
           ensure

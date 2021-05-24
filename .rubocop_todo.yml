@@ -51,12 +51,6 @@ Naming/AccessorMethodName:
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/streamable_stream.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Performance/BlockGivenWithExplicitBlock:
-  Exclude:
-    - 'lib/zip/entry.rb'
-
 # Offense count: 2
 Performance/FixedSize:
   Exclude:
