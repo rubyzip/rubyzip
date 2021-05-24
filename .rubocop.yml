@@ -1,3 +1,6 @@
+require:
+  - rubocop-rake
+
 inherit_from: .rubocop_todo.yml
 
 # Set this to the minimum supported ruby in the gemspec. Otherwise
