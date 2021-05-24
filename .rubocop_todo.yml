@@ -52,11 +52,6 @@ Naming/AccessorMethodName:
     - 'lib/zip/streamable_stream.rb'
 
 # Offense count: 2
-Performance/FixedSize:
-  Exclude:
-    - 'test/ioextras/abstract_output_stream_test.rb'
-
-# Offense count: 2
 # Cop supports --auto-correct.
 Performance/RegexpMatch:
   Exclude:

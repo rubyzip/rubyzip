@@ -32,13 +32,15 @@ class AbstractOutputStreamTest < MiniTest::Test
   end
 
   def test_write
-    count = @output_stream.write('a little string')
-    assert_equal('a little string', @output_stream.buffer)
-    assert_equal('a little string'.length, count)
+    str1 = 'a little string'
+    count = @output_stream.write(str1)
+    assert_equal(str1, @output_stream.buffer)
+    assert_equal(str1.length, count)
 
-    count = @output_stream.write('. a little more')
-    assert_equal('a little string. a little more', @output_stream.buffer)
-    assert_equal('. a little more'.length, count)
+    str2 = '. a little more'
+    count = @output_stream.write(str2)
+    assert_equal(str1 + str2, @output_stream.buffer)
+    assert_equal(str2.length, count)
   end
 
   def test_print
