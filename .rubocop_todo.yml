@@ -65,11 +65,6 @@ Style/ClassAndModuleChildren:
     - 'lib/zip/extra_field/zip64.rb'
     - 'lib/zip/extra_field/zip64_placeholder.rb'
 
-# Offense count: 2
-Style/DocumentDynamicEvalDefinition:
-  Exclude:
-    - 'test/test_helper.rb'
-
 # Offense count: 24
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
