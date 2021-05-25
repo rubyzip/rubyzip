@@ -1,5 +1,6 @@
 # 3.0.0 (Next)
 
+- Fix frozen string literal error. [#475](https://github.com/rubyzip/rubyzip/pull/475)
 - Set the default `Entry` time to the file's mtime on Windows. [#465](https://github.com/rubyzip/rubyzip/issues/465)
 - Ensure that `Entry#time=` sets times as `DOSTime` objects. [#481](https://github.com/rubyzip/rubyzip/issues/481)
 - Replace and deprecate `Zip::DOSTime#dos_equals`. [#464](https://github.com/rubyzip/rubyzip/pull/464)
@@ -11,6 +12,7 @@
 
 Tooling:
 
+- Refactor `assert_forwarded` so it does not need `ObjectSpace._id2ref` or `eval`. [#483](https://github.com/rubyzip/rubyzip/pull/483)
 - Add GitHub Actions CI infrastructure. [#469](https://github.com/rubyzip/rubyzip/issues/469)
 - Add Ruby 3.0 to CI. [#474](https://github.com/rubyzip/rubyzip/pull/474)
 - Fix the compression level tests to compare relative sizes. [#473](https://github.com/rubyzip/rubyzip/pull/473)
