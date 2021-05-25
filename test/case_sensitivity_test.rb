@@ -5,8 +5,10 @@ require 'test_helper'
 class ZipCaseSensitivityTest < MiniTest::Test
   include CommonZipFileFixture
 
-  SRC_FILES = [['test/data/file1.txt', 'testfile.rb'],
-               ['test/data/file2.txt', 'testFILE.rb']]
+  SRC_FILES = [
+    ['test/data/file1.txt', 'testfile.rb'],
+    ['test/data/file2.txt', 'testFILE.rb']
+  ].freeze
 
   def teardown
     ::Zip.reset!

@@ -10,7 +10,7 @@ class ZipEntrySetTest < MiniTest::Test
     ::Zip::Entry.new('zipfile.zip', 'name4', comment: 'comment1'),
     ::Zip::Entry.new('zipfile.zip', 'name5', comment: 'comment1'),
     ::Zip::Entry.new('zipfile.zip', 'name6', comment: 'comment1')
-  ]
+  ].freeze
 
   def setup
     @zip_entry_set = ::Zip::EntrySet.new(ZIP_ENTRIES)

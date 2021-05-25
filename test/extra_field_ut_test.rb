@@ -11,7 +11,7 @@ class ZipExtraFieldUTTest < MiniTest::Test
     ["UT\x09\x00\x05PS>APS>A", 0b101, true, false, false],
     ["UT\x09\x00\x06PS>APS>A", 0b110, false, false, true],
     ["UT\x13\x00\x07PS>APS>APS>A", 0b111, false, false, false]
-  ]
+  ].freeze
 
   def test_parse
     PARSE_TESTS.each do |bin, flags, a, c, m|

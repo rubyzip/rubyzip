@@ -6,10 +6,13 @@ require 'zip/ioextras'
 class AbstractInputStreamTest < MiniTest::Test
   # AbstractInputStream subclass that provides a read method
 
-  TEST_LINES = ["Hello world#{$INPUT_RECORD_SEPARATOR}",
-                "this is the second line#{$INPUT_RECORD_SEPARATOR}",
-                'this is the last line']
+  TEST_LINES = [
+    "Hello world#{$INPUT_RECORD_SEPARATOR}",
+    "this is the second line#{$INPUT_RECORD_SEPARATOR}",
+    'this is the last line'
+  ].freeze
   TEST_STRING = TEST_LINES.join
+
   class TestAbstractInputStream
     include ::Zip::IOExtras::AbstractInputStream
 
@@ -59,7 +62,7 @@ class AbstractInputStreamTest < MiniTest::Test
     'x' * 48 + "\r\n",
     'y' * 49 + "\r\n",
     'rest'
-  ]
+  ].freeze
 
   def test_gets_mulit_char_seperator_split
     io = TestAbstractInputStream.new(LONG_LINES.join)

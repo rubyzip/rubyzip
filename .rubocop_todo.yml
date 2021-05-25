@@ -80,21 +80,13 @@ Style/IfUnlessModifier:
     - 'lib/zip/pass_thru_decompressor.rb'
     - 'lib/zip/streamable_stream.rb'
 
-# Offense count: 12
+# Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: literals, strict
 Style/MutableConstant:
   Exclude:
     - 'lib/zip/extra_field.rb'
-    - 'lib/zip/file.rb'
-    - 'lib/zip/ioextras.rb'
-    - 'test/case_sensitivity_test.rb'
-    - 'test/entry_set_test.rb'
-    - 'test/extra_field_ut_test.rb'
-    - 'test/filesystem/dir_iterator_test.rb'
-    - 'test/gentestfiles.rb'
-    - 'test/ioextras/abstract_input_stream_test.rb'
 
 # Offense count: 24
 # Cop supports --auto-correct.

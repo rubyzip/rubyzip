@@ -4,8 +4,6 @@ module Zip
   module IOExtras #:nodoc:
     CHUNK_SIZE = 131_072
 
-    RANGE_ALL = 0..-1
-
     class << self
       def copy_stream(ostream, istream)
         ostream.write(istream.read(CHUNK_SIZE, +'')) until istream.eof?
