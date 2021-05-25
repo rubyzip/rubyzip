@@ -182,22 +182,21 @@ end
 module ExtraAssertions
   def assert_forwarded(object, method, ret_val, *expected_args)
     call_args = nil
-    call_args_proc = proc { |args| call_args = args }
-    object.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
-      alias #{method}_org #{method}
-      def #{method}(*args)
-        ObjectSpace._id2ref(#{call_args_proc.object_id}).call(args)
-        ObjectSpace._id2ref(#{ret_val.object_id})
-        end
-    END_EVAL
+    object.singleton_class.class_exec do
+      alias_method :"#{method}_org", method
+      define_method(method) do |*args|
+        call_args = args
+        ret_val
+      end
+    end
 
     assert_equal(ret_val, yield) # Invoke test
     assert_equal(expected_args, call_args)
   ensure
-    object.instance_eval <<-END_EVAL, __FILE__, __LINE__ + 1
-      undef #{method}
-      alias #{method} #{method}_org
-    END_EVAL
+    object.singleton_class.class_exec do
+      remove_method method
+      alias_method method, :"#{method}_org"
+    end
   end
 end
 
