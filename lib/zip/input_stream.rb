@@ -87,6 +87,13 @@ module Zip
       @decompressor.read(length, outbuf)
     end
 
+    # Returns the size of the current entry, or `nil` if there isn't one.
+    def size
+      return if @current_entry.nil?
+
+      @current_entry.size
+    end
+
     class << self
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block

@@ -67,6 +67,18 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
+  def test_size_no_entry
+    zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
+    assert_nil(zis.size)
+  end
+
+  def test_size_with_entry
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      zis.get_next_entry
+      assert_equal(123_702, zis.size)
+    end
+  end
+
   def test_incomplete_reads
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       entry = zis.get_next_entry # longAscii.txt
