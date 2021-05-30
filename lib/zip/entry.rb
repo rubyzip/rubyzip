@@ -164,8 +164,9 @@ module Zip
       return false unless cleanpath.relative?
 
       root = ::File::SEPARATOR
-      naive_expanded_path = ::File.join(root, cleanpath.to_s)
-      ::File.absolute_path(cleanpath.to_s, root) == naive_expanded_path
+      naive = ::File.join(root, cleanpath.to_s)
+      # Allow for Windows drive mappings at the root.
+      ::File.absolute_path(cleanpath.to_s, root).match?(/([A-Z]:)?#{naive}/i)
     end
 
     def local_entry_offset #:nodoc:all
