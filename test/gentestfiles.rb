@@ -79,19 +79,19 @@ class TestZipFile
         "zip -q #{TEST_ZIP1.zip_name} -d test/data/file2.txt"
       )
 
-    File.open('test/data/generated/empty.txt', 'w') {} # Empty file.
-    File.open('test/data/generated/empty_chmod640.txt', 'w') {} # Empty file.
+    File.open('test/data/generated/empty.txt', 'wb') {} # Empty file.
+    File.open('test/data/generated/empty_chmod640.txt', 'wb') {} # Empty file.
     ::File.chmod(0o640, 'test/data/generated/empty_chmod640.txt')
 
-    File.open('test/data/generated/short.txt', 'w') { |file| file << 'ABCDEF' }
+    File.open('test/data/generated/short.txt', 'wb') { |file| file << 'ABCDEF' }
     test_text = ''
-    File.open('test/data/file2.txt') { |file| test_text = file.read }
-    File.open('test/data/generated/longAscii.txt', 'w') do |file|
+    File.open('test/data/file2.txt', 'rb') { |file| test_text = file.read }
+    File.open('test/data/generated/longAscii.txt', 'wb') do |file|
       file << test_text while file.tell < 1E5
     end
 
     binary_pattern = ''
-    File.open('test/data/generated/empty.zip') do |file|
+    File.open('test/data/generated/empty.zip', 'rb') do |file|
       binary_pattern = file.read
     end
     binary_pattern *= 4

@@ -57,7 +57,7 @@ module DecompressorTests
 
   def setup
     @ref_text = ''
-    File.open(TEST_FILE) { |f| @ref_text = f.read }
+    File.open(TEST_FILE, 'rb') { |f| @ref_text = f.read }
     @ref_lines = @ref_text.split($INPUT_RECORD_SEPARATOR)
   end
 
