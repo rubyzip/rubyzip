@@ -6,7 +6,7 @@ class PassThruDecompressorTest < MiniTest::Test
 
   def setup
     super
-    @file = File.new(TEST_FILE)
+    @file = File.new(TEST_FILE, 'rb')
     @decompressor = ::Zip::PassThruDecompressor.new(@file, File.size(TEST_FILE))
   end
 

@@ -42,13 +42,13 @@ class ZipInputStreamTest < MiniTest::Test
   end
 
   def test_open_string_io_without_block
-    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
+    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name, mode: 'rb'))
     zis = ::Zip::InputStream.open(string_io)
     assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
   end
 
   def test_open_string_io_with_block
-    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
+    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name, mode: 'rb'))
     ::Zip::InputStream.open(string_io) do |zis|
       assert_stream_contents(zis, TestZipFile::TEST_ZIP2)
       assert_equal(true, zis.eof?)
@@ -106,7 +106,7 @@ class ZipInputStreamTest < MiniTest::Test
   end
 
   def test_incomplete_reads_from_string_io
-    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name))
+    string_io = ::StringIO.new(::File.read(TestZipFile::TEST_ZIP2.zip_name, mode: 'rb'))
     ::Zip::InputStream.open(string_io) do |zis|
       entry = zis.get_next_entry # longAscii.txt
       assert_equal(false, zis.eof?)

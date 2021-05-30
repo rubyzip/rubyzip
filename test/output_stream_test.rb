@@ -85,7 +85,7 @@ class ZipOutputStreamTest < MiniTest::Test
       zos << stored_text
     end
 
-    assert(File.read(TEST_ZIP.zip_name)[stored_text])
+    assert(File.read(TEST_ZIP.zip_name, mode: 'rb')[stored_text])
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(stored_text, zf.read(entry_name))
     end

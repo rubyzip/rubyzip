@@ -113,21 +113,21 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_open_buffer_with_string
-    string = File.read('test/data/rubycode.zip')
+    string = File.read('test/data/rubycode.zip', mode: 'rb')
     ::Zip::File.open_buffer string do |zf|
       assert zf.entries.map(&:name).include?('zippedruby1.rb')
     end
   end
 
   def test_open_buffer_with_stringio
-    string_io = StringIO.new File.read('test/data/rubycode.zip')
+    string_io = StringIO.new File.read('test/data/rubycode.zip', mode: 'rb')
     ::Zip::File.open_buffer string_io do |zf|
       assert zf.entries.map(&:name).include?('zippedruby1.rb')
     end
   end
 
   def test_close_buffer_with_stringio
-    string_io = StringIO.new File.read('test/data/rubycode.zip')
+    string_io = StringIO.new File.read('test/data/rubycode.zip', mode: 'rb')
     zf = ::Zip::File.open_buffer string_io
     assert_nil zf.close
   end
@@ -178,7 +178,7 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_open_buffer_without_block
-    string_io = StringIO.new File.read('test/data/rubycode.zip')
+    string_io = StringIO.new File.read('test/data/rubycode.zip', mode: 'rb')
     zf = ::Zip::File.open_buffer string_io
     assert zf.entries.map(&:name).include?('zippedruby1.rb')
   end
