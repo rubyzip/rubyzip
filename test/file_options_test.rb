@@ -23,7 +23,7 @@ class FileOptionsTest < MiniTest::Test
     ::File.unlink(TXTPATH_755) if ::File.exist?(TXTPATH_755)
   end
 
-  def test_restore_permissions
+  def test_restore_permissions_true
     # Copy and set up files with different permissions.
     ::FileUtils.cp(TXTPATH, TXTPATH_600)
     ::File.chmod(0o600, TXTPATH_600)
@@ -37,6 +37,55 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH, false, restore_permissions: true) do |zip|
+      zip.extract(ENTRY_1, EXTPATH_1)
+      zip.extract(ENTRY_2, EXTPATH_2)
+      zip.extract(ENTRY_3, EXTPATH_3)
+    end
+
+    assert_equal(::File.stat(TXTPATH).mode, ::File.stat(EXTPATH_1).mode)
+    assert_equal(::File.stat(TXTPATH_600).mode, ::File.stat(EXTPATH_2).mode)
+    assert_equal(::File.stat(TXTPATH_755).mode, ::File.stat(EXTPATH_3).mode)
+  end
+
+  def test_restore_permissions_false
+    # Copy and set up files with different permissions.
+    ::FileUtils.cp(TXTPATH, TXTPATH_600)
+    ::File.chmod(0o600, TXTPATH_600)
+    ::FileUtils.cp(TXTPATH, TXTPATH_755)
+    ::File.chmod(0o755, TXTPATH_755)
+
+    ::Zip::File.open(ZIPPATH, true) do |zip|
+      zip.add(ENTRY_1, TXTPATH)
+      zip.add(ENTRY_2, TXTPATH_600)
+      zip.add(ENTRY_3, TXTPATH_755)
+    end
+
+    ::Zip::File.open(ZIPPATH, false, restore_permissions: false) do |zip|
+      zip.extract(ENTRY_1, EXTPATH_1)
+      zip.extract(ENTRY_2, EXTPATH_2)
+      zip.extract(ENTRY_3, EXTPATH_3)
+    end
+
+    default_perms = 0o100_666 - ::File.umask
+    assert_equal(default_perms, ::File.stat(EXTPATH_1).mode)
+    assert_equal(default_perms, ::File.stat(EXTPATH_2).mode)
+    assert_equal(default_perms, ::File.stat(EXTPATH_3).mode)
+  end
+
+  def test_restore_permissions_as_default
+    # Copy and set up files with different permissions.
+    ::FileUtils.cp(TXTPATH, TXTPATH_600)
+    ::File.chmod(0o600, TXTPATH_600)
+    ::FileUtils.cp(TXTPATH, TXTPATH_755)
+    ::File.chmod(0o755, TXTPATH_755)
+
+    ::Zip::File.open(ZIPPATH, true) do |zip|
+      zip.add(ENTRY_1, TXTPATH)
+      zip.add(ENTRY_2, TXTPATH_600)
+      zip.add(ENTRY_3, TXTPATH_755)
+    end
+
+    ::Zip::File.open(ZIPPATH) do |zip|
       zip.extract(ENTRY_1, EXTPATH_1)
       zip.extract(ENTRY_2, EXTPATH_2)
       zip.extract(ENTRY_3, EXTPATH_3)
@@ -79,6 +128,21 @@ class FileOptionsTest < MiniTest::Test
 
     assert_time_equal(::Time.now, ::File.mtime(EXTPATH_1))
     assert_time_equal(::Time.now, ::File.mtime(EXTPATH_2))
+  end
+
+  def test_restore_times_true_as_default
+    ::Zip::File.open(ZIPPATH, true) do |zip|
+      zip.add(ENTRY_1, TXTPATH)
+      zip.add_stored(ENTRY_2, TXTPATH)
+    end
+
+    ::Zip::File.open(ZIPPATH) do |zip|
+      zip.extract(ENTRY_1, EXTPATH_1)
+      zip.extract(ENTRY_2, EXTPATH_2)
+    end
+
+    assert_time_equal(::File.mtime(TXTPATH), ::File.mtime(EXTPATH_1))
+    assert_time_equal(::File.mtime(TXTPATH), ::File.mtime(EXTPATH_2))
   end
 
   def test_get_find_consistency
