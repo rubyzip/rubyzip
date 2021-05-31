@@ -42,9 +42,9 @@ module Zip
       end
       @follow_symlinks = false
 
-      @restore_times       = false
-      @restore_permissions = false
-      @restore_ownership   = false
+      @restore_times       = DEFAULT_RESTORE_OPTIONS[:restore_times]
+      @restore_permissions = DEFAULT_RESTORE_OPTIONS[:restore_permissions]
+      @restore_ownership   = DEFAULT_RESTORE_OPTIONS[:restore_ownership]
       # BUG: need an extra field to support uid/gid's
       @unix_uid            = nil
       @unix_gid            = nil

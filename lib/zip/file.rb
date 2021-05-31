@@ -53,12 +53,6 @@ module Zip
     DATA_BUFFER_SIZE     = 8192
     IO_METHODS           = [:tell, :seek, :read, :eof, :close].freeze
 
-    DEFAULT_OPTIONS = {
-      restore_ownership:   false,
-      restore_permissions: false,
-      restore_times:       false
-    }.freeze
-
     attr_reader :name
 
     # default -> false.
@@ -77,7 +71,7 @@ module Zip
     # a new archive if it doesn't exist already.
     def initialize(path_or_io, create = false, buffer = false, options = {})
       super()
-      options  = DEFAULT_OPTIONS
+      options  = DEFAULT_RESTORE_OPTIONS
                  .merge(compression_level: ::Zip.default_compression)
                  .merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
