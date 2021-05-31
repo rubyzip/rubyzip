@@ -1,5 +1,7 @@
 # 3.0.0 (Next)
 
+- Fix restore options consistency. [#486](https://github.com/rubyzip/rubyzip/pull/486)
+- View and/or preserve original date created, date modified? (Windows). [#336](https://github.com/rubyzip/rubyzip/issues/336)
 - Fix frozen string literal error. [#475](https://github.com/rubyzip/rubyzip/pull/475)
 - Set the default `Entry` time to the file's mtime on Windows. [#465](https://github.com/rubyzip/rubyzip/issues/465)
 - Ensure that `Entry#time=` sets times as `DOSTime` objects. [#481](https://github.com/rubyzip/rubyzip/issues/481)
