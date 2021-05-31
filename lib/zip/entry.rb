@@ -462,11 +462,6 @@ module Zip
       unix_perms_mask = 0o7777 if @restore_ownership
       ::FileUtils.chmod(@unix_perms & unix_perms_mask, dest_path) if @restore_permissions && @unix_perms
       ::FileUtils.chown(@unix_uid, @unix_gid, dest_path) if @restore_ownership && @unix_uid && @unix_gid && ::Process.egid == 0
-
-      # Restore the timestamp on a file. This will either have come from the
-      # original source file that was copied into the archive, or from the
-      # creation date of the archive if there was no original source file.
-      ::FileUtils.touch(dest_path, mtime: time) if @restore_times
     end
 
     def set_extra_attributes_on_path(dest_path) # :nodoc:
@@ -476,6 +471,11 @@ module Zip
       when ::Zip::FSTYPE_UNIX
         set_unix_attributes_on_path(dest_path)
       end
+
+      # Restore the timestamp on a file. This will either have come from the
+      # original source file that was copied into the archive, or from the
+      # creation date of the archive if there was no original source file.
+      ::FileUtils.touch(dest_path, mtime: time) if @restore_times
     end
 
     def pack_c_dir_entry
