@@ -50,8 +50,8 @@ module Zip
 
   DEFAULT_RESTORE_OPTIONS = {
     restore_ownership:   false,
-    restore_permissions: false,
-    restore_times:       false
+    restore_permissions: true,
+    restore_times:       true
   }.freeze
 
   def reset!
