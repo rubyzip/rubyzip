@@ -48,6 +48,12 @@ module Zip
                 :force_entry_names_encoding,
                 :validate_entry_sizes
 
+  DEFAULT_RESTORE_OPTIONS = {
+    restore_ownership:   false,
+    restore_permissions: false,
+    restore_times:       false
+  }.freeze
+
   def reset!
     @_ran_once = false
     @unicode_names = false
