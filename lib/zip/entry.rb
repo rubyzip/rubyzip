@@ -296,13 +296,12 @@ module Zip
       set_time(@last_mod_date, @last_mod_time)
 
       @name = io.read(@name_length)
-      extra = io.read(@extra_length)
-
-      @name.tr!('\\', '/')
       if ::Zip.force_entry_names_encoding
         @name.force_encoding(::Zip.force_entry_names_encoding)
       end
+      @name.tr!('\\', '/') # Normalise filepath separators after encoding set.
 
+      extra = io.read(@extra_length)
       if extra && extra.bytesize != @extra_length
         raise ::Zip::Error, 'Truncated local zip entry header'
       end
@@ -424,10 +423,13 @@ module Zip
       unpack_c_dir_entry(static_sized_fields_buf)
       check_c_dir_entry_signature
       set_time(@last_mod_date, @last_mod_time)
+
       @name = io.read(@name_length)
       if ::Zip.force_entry_names_encoding
         @name.force_encoding(::Zip.force_entry_names_encoding)
       end
+      @name.tr!('\\', '/') # Normalise filepath separators after encoding set.
+
       read_extra_field(io.read(@extra_length))
       @comment = io.read(@comment_length)
       check_c_dir_entry_comment_size
