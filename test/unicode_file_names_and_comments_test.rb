@@ -47,7 +47,6 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Test
         refute_nil(zip.find_entry(filepath))
       end
     end
-    ::Zip.force_entry_names_encoding = nil
 
     ::File.unlink(FILENAME)
   end

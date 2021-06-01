@@ -58,6 +58,7 @@ module Zip
     @write_zip64_support = false
     @warn_invalid_date = true
     @case_insensitive_match = false
+    @force_entry_names_encoding = nil
     @validate_entry_sizes = true
   end
 
