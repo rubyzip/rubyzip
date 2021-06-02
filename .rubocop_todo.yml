@@ -47,7 +47,7 @@ Metrics/PerceivedComplexity:
 Naming/AccessorMethodName:
   Exclude:
     - 'lib/zip/entry.rb'
-    - 'lib/zip/filesystem/file.rb'
+    - 'lib/zip/filesystem/file_stat.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/streamable_stream.rb'
 
