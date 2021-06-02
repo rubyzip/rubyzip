@@ -38,7 +38,6 @@ module Zip
   #     |zipfile|
   #     puts zipfile.file.read("first.txt")
   #   }
-
   module FileSystem
     def initialize # :nodoc:
       mapped_zip       = ZipFileNameMapper.new(self)
