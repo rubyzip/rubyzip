@@ -2,6 +2,7 @@
 
 require 'zip'
 require_relative 'filesystem/zip_file_name_mapper'
+require_relative 'filesystem/directory_iterator'
 
 module Zip
   # The ZipFileSystem API provides an API for accessing entries in
@@ -442,7 +443,7 @@ module Zip
       attr_writer :file
 
       def new(directory_name)
-        ZipFsDirIterator.new(entries(directory_name))
+        DirectoryIterator.new(entries(directory_name))
       end
 
       def open(directory_name)
@@ -512,49 +513,6 @@ module Zip
 
       def chroot(*_args)
         raise NotImplementedError, 'The chroot() function is not implemented'
-      end
-    end
-
-    class ZipFsDirIterator # :nodoc:all
-      include Enumerable
-
-      def initialize(filenames)
-        @filenames = filenames
-        @index = 0
-      end
-
-      def close
-        @filenames = nil
-      end
-
-      def each(&a_proc)
-        raise IOError, 'closed directory' if @filenames.nil?
-
-        @filenames.each(&a_proc)
-      end
-
-      def read
-        raise IOError, 'closed directory' if @filenames.nil?
-
-        @filenames[(@index += 1) - 1]
-      end
-
-      def rewind
-        raise IOError, 'closed directory' if @filenames.nil?
-
-        @index = 0
-      end
-
-      def seek(position)
-        raise IOError, 'closed directory' if @filenames.nil?
-
-        @index = position
-      end
-
-      def tell
-        raise IOError, 'closed directory' if @filenames.nil?
-
-        @index
       end
     end
   end

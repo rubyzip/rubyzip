@@ -3,11 +3,11 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class ZipFsDirIteratorTest < MiniTest::Test
+class DirectoryIteratorTest < MiniTest::Test
   FILENAME_ARRAY = %w[f1 f2 f3 f4 f5 f6].freeze
 
   def setup
-    @dir_iter = ::Zip::FileSystem::ZipFsDirIterator.new(FILENAME_ARRAY)
+    @dir_iter = ::Zip::FileSystem::DirectoryIterator.new(FILENAME_ARRAY)
   end
 
   def test_close
