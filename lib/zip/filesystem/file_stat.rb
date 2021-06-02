@@ -7,11 +7,11 @@ module Zip
         class << self
           def delegate_to_fs_file(*methods)
             methods.each do |method|
-              class_eval <<-END_EVAL, __FILE__, __LINE__ + 1
-                def #{method}                      # def file?
-                  @zip_fs_file.#{method}(@entry_name) #   @zip_fs_file.file?(@entry_name)
-                end                                # end
-              END_EVAL
+              class_exec do
+                define_method(method) do
+                  @zip_fs_file.__send__(method, @entry_name)
+                end
+              end
             end
           end
         end
