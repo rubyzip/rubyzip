@@ -3,6 +3,7 @@
 require 'zip'
 require_relative 'filesystem/zip_file_name_mapper'
 require_relative 'filesystem/directory_iterator'
+require_relative 'filesystem/dir'
 
 module Zip
   # The ZipFileSystem API provides an API for accessing entries in
@@ -40,13 +41,13 @@ module Zip
   module FileSystem
     def initialize # :nodoc:
       mapped_zip       = ZipFileNameMapper.new(self)
-      @zip_fs_dir      = ZipFsDir.new(mapped_zip)
+      @zip_fs_dir      = Dir.new(mapped_zip)
       @zip_fs_file     = ZipFsFile.new(mapped_zip)
       @zip_fs_dir.file = @zip_fs_file
       @zip_fs_file.dir = @zip_fs_dir
     end
 
-    # Returns a ZipFsDir which is much like ruby's builtin Dir (class)
+    # Returns a FileSystem::Dir which is much like ruby's builtin Dir (class)
     # object, except it works on the Zip::File on which this method is
     # invoked
     def dir
@@ -426,93 +427,6 @@ module Zip
 
       def expand_path(path)
         @mapped_zip.expand_path(path)
-      end
-    end
-
-    # Instances of this class are normally accessed via the accessor
-    # ZipFile::dir. An instance of ZipFsDir behaves like ruby's
-    # builtin Dir (class) object, except it works on ZipFile entries.
-    #
-    # The individual methods are not documented due to their
-    # similarity with the methods in Dir
-    class ZipFsDir
-      def initialize(mapped_zip)
-        @mapped_zip = mapped_zip
-      end
-
-      attr_writer :file
-
-      def new(directory_name)
-        DirectoryIterator.new(entries(directory_name))
-      end
-
-      def open(directory_name)
-        dir_iter = new(directory_name)
-        if block_given?
-          begin
-            yield(dir_iter)
-            return nil
-          ensure
-            dir_iter.close
-          end
-        end
-        dir_iter
-      end
-
-      def pwd
-        @mapped_zip.pwd
-      end
-      alias getwd pwd
-
-      def chdir(directory_name)
-        unless @file.stat(directory_name).directory?
-          raise Errno::EINVAL, "Invalid argument - #{directory_name}"
-        end
-
-        @mapped_zip.pwd = @file.expand_path(directory_name)
-      end
-
-      def entries(directory_name)
-        entries = []
-        foreach(directory_name) { |e| entries << e }
-        entries
-      end
-
-      def glob(*args, &block)
-        @mapped_zip.glob(*args, &block)
-      end
-
-      def foreach(directory_name)
-        unless @file.stat(directory_name).directory?
-          raise Errno::ENOTDIR, directory_name
-        end
-
-        path = @file.expand_path(directory_name)
-        path << '/' unless path.end_with?('/')
-        path = Regexp.escape(path)
-        subdir_entry_regex = Regexp.new("^#{path}([^/]+)$")
-        @mapped_zip.each do |filename|
-          match = subdir_entry_regex.match(filename)
-          yield(match[1]) unless match.nil?
-        end
-      end
-
-      def delete(entry_name)
-        unless @file.stat(entry_name).directory?
-          raise Errno::EINVAL, "Invalid argument - #{entry_name}"
-        end
-
-        @mapped_zip.remove(entry_name)
-      end
-      alias rmdir delete
-      alias unlink delete
-
-      def mkdir(entry_name, permissions = 0o755)
-        @mapped_zip.mkdir(entry_name, permissions)
-      end
-
-      def chroot(*_args)
-        raise NotImplementedError, 'The chroot() function is not implemented'
       end
     end
   end

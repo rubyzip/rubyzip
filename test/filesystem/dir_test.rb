@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class ZipFsDirectoryTest < MiniTest::Test
+class DirectoryTest < MiniTest::Test
   TEST_ZIP = 'test/data/generated/zipWithDirs_copy.zip'
   GLOB_TEST_ZIP = 'test/data/globTest.zip'
 
