@@ -1,0 +1,374 @@
+# frozen_string_literal: true
+
+module Zip
+  module FileSystem
+    # Instances of this class are normally accessed via the accessor
+    # Zip::File::file. An instance of File behaves like ruby's
+    # builtin File (class) object, except it works on Zip::File entries.
+    #
+    # The individual methods are not documented due to their
+    # similarity with the methods in File
+    class File # :nodoc:all
+      attr_writer :dir
+
+      class ZipFsStat
+        class << self
+          def delegate_to_fs_file(*methods)
+            methods.each do |method|
+              class_eval <<-END_EVAL, __FILE__, __LINE__ + 1
+                def #{method}                      # def file?
+                  @zip_fs_file.#{method}(@entry_name) #   @zip_fs_file.file?(@entry_name)
+                end                                # end
+              END_EVAL
+            end
+          end
+        end
+
+        def initialize(zip_fs_file, entry_name)
+          @zip_fs_file = zip_fs_file
+          @entry_name = entry_name
+        end
+
+        def kind_of?(type)
+          super || type == ::File::Stat
+        end
+
+        delegate_to_fs_file :file?, :directory?, :pipe?, :chardev?, :symlink?,
+                            :socket?, :blockdev?, :readable?, :readable_real?, :writable?, :ctime,
+                            :writable_real?, :executable?, :executable_real?, :sticky?, :owned?,
+                            :grpowned?, :setuid?, :setgid?, :zero?, :size, :size?, :mtime, :atime
+
+        def blocks
+          nil
+        end
+
+        def get_entry
+          @zip_fs_file.__send__(:get_entry, @entry_name)
+        end
+        private :get_entry
+
+        def gid
+          e = get_entry
+          if e.extra.member? 'IUnix'
+            e.extra['IUnix'].gid || 0
+          else
+            0
+          end
+        end
+
+        def uid
+          e = get_entry
+          if e.extra.member? 'IUnix'
+            e.extra['IUnix'].uid || 0
+          else
+            0
+          end
+        end
+
+        def ino
+          0
+        end
+
+        def dev
+          0
+        end
+
+        def rdev
+          0
+        end
+
+        def rdev_major
+          0
+        end
+
+        def rdev_minor
+          0
+        end
+
+        def ftype
+          if file?
+            'file'
+          elsif directory?
+            'directory'
+          else
+            raise StandardError, 'Unknown file type'
+          end
+        end
+
+        def nlink
+          1
+        end
+
+        def blksize
+          nil
+        end
+
+        def mode
+          e = get_entry
+          if e.fstype == 3
+            e.external_file_attributes >> 16
+          else
+            33_206 # 33206 is equivalent to -rw-rw-rw-
+          end
+        end
+      end
+
+      def initialize(mapped_zip)
+        @mapped_zip = mapped_zip
+      end
+
+      def get_entry(filename)
+        unless exists?(filename)
+          raise Errno::ENOENT, "No such file or directory - #{filename}"
+        end
+
+        @mapped_zip.find_entry(filename)
+      end
+      private :get_entry
+
+      def unix_mode_cmp(filename, mode)
+        e = get_entry(filename)
+        e.fstype == 3 && ((e.external_file_attributes >> 16) & mode) != 0
+      rescue Errno::ENOENT
+        false
+      end
+      private :unix_mode_cmp
+
+      def exists?(filename)
+        expand_path(filename) == '/' || !@mapped_zip.find_entry(filename).nil?
+      end
+      alias exist? exists?
+
+      # Permissions not implemented, so if the file exists it is accessible
+      alias owned? exists?
+      alias grpowned? exists?
+
+      def readable?(filename)
+        unix_mode_cmp(filename, 0o444)
+      end
+      alias readable_real? readable?
+
+      def writable?(filename)
+        unix_mode_cmp(filename, 0o222)
+      end
+      alias writable_real? writable?
+
+      def executable?(filename)
+        unix_mode_cmp(filename, 0o111)
+      end
+      alias executable_real? executable?
+
+      def setuid?(filename)
+        unix_mode_cmp(filename, 0o4000)
+      end
+
+      def setgid?(filename)
+        unix_mode_cmp(filename, 0o2000)
+      end
+
+      def sticky?(filename)
+        unix_mode_cmp(filename, 0o1000)
+      end
+
+      def umask(*args)
+        ::File.umask(*args)
+      end
+
+      def truncate(_filename, _len)
+        raise StandardError, 'truncate not supported'
+      end
+
+      def directory?(filename)
+        entry = @mapped_zip.find_entry(filename)
+        expand_path(filename) == '/' || (!entry.nil? && entry.directory?)
+      end
+
+      def open(filename, mode = 'r', permissions = 0o644, &block)
+        mode = mode.tr('b', '') # ignore b option
+        case mode
+        when 'r'
+          @mapped_zip.get_input_stream(filename, &block)
+        when 'w'
+          @mapped_zip.get_output_stream(filename, permissions, &block)
+        else
+          raise StandardError, "openmode '#{mode} not supported" unless mode == 'r'
+        end
+      end
+
+      def new(filename, mode = 'r')
+        self.open(filename, mode)
+      end
+
+      def size(filename)
+        @mapped_zip.get_entry(filename).size
+      end
+
+      # Returns nil for not found and nil for directories
+      def size?(filename)
+        entry = @mapped_zip.find_entry(filename)
+        entry.nil? || entry.directory? ? nil : entry.size
+      end
+
+      def chown(owner, group, *filenames)
+        filenames.each do |filename|
+          e = get_entry(filename)
+          e.extra.create('IUnix') unless e.extra.member?('IUnix')
+          e.extra['IUnix'].uid = owner
+          e.extra['IUnix'].gid = group
+        end
+        filenames.size
+      end
+
+      def chmod(mode, *filenames)
+        filenames.each do |filename|
+          e = get_entry(filename)
+          e.fstype = 3 # force convertion filesystem type to unix
+          e.unix_perms = mode
+          e.external_file_attributes = mode << 16
+          e.dirty = true
+        end
+        filenames.size
+      end
+
+      def zero?(filename)
+        sz = size(filename)
+        sz.nil? || sz == 0
+      rescue Errno::ENOENT
+        false
+      end
+
+      def file?(filename)
+        entry = @mapped_zip.find_entry(filename)
+        !entry.nil? && entry.file?
+      end
+
+      def dirname(filename)
+        ::File.dirname(filename)
+      end
+
+      def basename(filename)
+        ::File.basename(filename)
+      end
+
+      def split(filename)
+        ::File.split(filename)
+      end
+
+      def join(*fragments)
+        ::File.join(*fragments)
+      end
+
+      def utime(modified_time, *filenames)
+        filenames.each do |filename|
+          get_entry(filename).time = modified_time
+        end
+      end
+
+      def mtime(filename)
+        @mapped_zip.get_entry(filename).mtime
+      end
+
+      def atime(filename)
+        e = get_entry(filename)
+        if e.extra.member? 'UniversalTime'
+          e.extra['UniversalTime'].atime
+        elsif e.extra.member? 'NTFS'
+          e.extra['NTFS'].atime
+        end
+      end
+
+      def ctime(filename)
+        e = get_entry(filename)
+        if e.extra.member? 'UniversalTime'
+          e.extra['UniversalTime'].ctime
+        elsif e.extra.member? 'NTFS'
+          e.extra['NTFS'].ctime
+        end
+      end
+
+      def pipe?(_filename)
+        false
+      end
+
+      def blockdev?(_filename)
+        false
+      end
+
+      def chardev?(_filename)
+        false
+      end
+
+      def symlink?(_filename)
+        false
+      end
+
+      def socket?(_filename)
+        false
+      end
+
+      def ftype(filename)
+        @mapped_zip.get_entry(filename).directory? ? 'directory' : 'file'
+      end
+
+      def readlink(_filename)
+        raise NotImplementedError, 'The readlink() function is not implemented'
+      end
+
+      def symlink(_filename, _symlink_name)
+        raise NotImplementedError, 'The symlink() function is not implemented'
+      end
+
+      def link(_filename, _symlink_name)
+        raise NotImplementedError, 'The link() function is not implemented'
+      end
+
+      def pipe
+        raise NotImplementedError, 'The pipe() function is not implemented'
+      end
+
+      def stat(filename)
+        raise Errno::ENOENT, filename unless exists?(filename)
+
+        ZipFsStat.new(self, filename)
+      end
+
+      alias lstat stat
+
+      def readlines(filename)
+        self.open(filename, &:readlines)
+      end
+
+      def read(filename)
+        @mapped_zip.read(filename)
+      end
+
+      def popen(*args, &a_proc)
+        ::File.popen(*args, &a_proc)
+      end
+
+      def foreach(filename, sep = $INPUT_RECORD_SEPARATOR, &a_proc)
+        self.open(filename) { |is| is.each_line(sep, &a_proc) }
+      end
+
+      def delete(*args)
+        args.each do |filename|
+          if directory?(filename)
+            raise Errno::EISDIR, "Is a directory - \"#{filename}\""
+          end
+
+          @mapped_zip.remove(filename)
+        end
+      end
+
+      def rename(file_to_rename, new_name)
+        @mapped_zip.rename(file_to_rename, new_name) { true }
+      end
+
+      alias unlink delete
+
+      def expand_path(path)
+        @mapped_zip.expand_path(path)
+      end
+    end
+  end
+end

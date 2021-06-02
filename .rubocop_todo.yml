@@ -47,7 +47,7 @@ Metrics/PerceivedComplexity:
 Naming/AccessorMethodName:
   Exclude:
     - 'lib/zip/entry.rb'
-    - 'lib/zip/filesystem.rb'
+    - 'lib/zip/filesystem/file.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/streamable_stream.rb'
 
@@ -76,8 +76,8 @@ Style/IfUnlessModifier:
   Exclude:
     - 'lib/zip/entry.rb'
     - 'lib/zip/file.rb'
-    - 'lib/zip/filesystem.rb'
     - 'lib/zip/filesystem/dir.rb'
+    - 'lib/zip/filesystem/file.rb'
     - 'lib/zip/pass_thru_decompressor.rb'
     - 'lib/zip/streamable_stream.rb'
 
@@ -101,7 +101,7 @@ Style/NumericPredicate:
     - 'lib/zip/extra_field/universal_time.rb'
     - 'lib/zip/extra_field/unix.rb'
     - 'lib/zip/file.rb'
-    - 'lib/zip/filesystem.rb'
+    - 'lib/zip/filesystem/file.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/ioextras.rb'
     - 'lib/zip/ioextras/abstract_input_stream.rb'

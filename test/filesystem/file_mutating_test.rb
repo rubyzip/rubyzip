@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class ZipFsFileMutatingTest < MiniTest::Test
+class FileMutatingTest < MiniTest::Test
   TEST_ZIP = 'test/data/generated/zipWithDirs_copy.zip'
   def setup
     FileUtils.cp('test/data/zipWithDirs.zip', TEST_ZIP)
