@@ -17,17 +17,16 @@ module Zip
         @mapped_zip = mapped_zip
       end
 
-      def get_entry(filename)
+      def find_entry(filename)
         unless exists?(filename)
           raise Errno::ENOENT, "No such file or directory - #{filename}"
         end
 
         @mapped_zip.find_entry(filename)
       end
-      private :get_entry
 
       def unix_mode_cmp(filename, mode)
-        e = get_entry(filename)
+        e = find_entry(filename)
         e.fstype == 3 && ((e.external_file_attributes >> 16) & mode) != 0
       rescue Errno::ENOENT
         false
@@ -111,7 +110,7 @@ module Zip
 
       def chown(owner, group, *filenames)
         filenames.each do |filename|
-          e = get_entry(filename)
+          e = find_entry(filename)
           e.extra.create('IUnix') unless e.extra.member?('IUnix')
           e.extra['IUnix'].uid = owner
           e.extra['IUnix'].gid = group
@@ -121,7 +120,7 @@ module Zip
 
       def chmod(mode, *filenames)
         filenames.each do |filename|
-          e = get_entry(filename)
+          e = find_entry(filename)
           e.fstype = 3 # force convertion filesystem type to unix
           e.unix_perms = mode
           e.external_file_attributes = mode << 16
@@ -160,7 +159,7 @@ module Zip
 
       def utime(modified_time, *filenames)
         filenames.each do |filename|
-          get_entry(filename).time = modified_time
+          find_entry(filename).time = modified_time
         end
       end
 
@@ -169,7 +168,7 @@ module Zip
       end
 
       def atime(filename)
-        e = get_entry(filename)
+        e = find_entry(filename)
         if e.extra.member? 'UniversalTime'
           e.extra['UniversalTime'].atime
         elsif e.extra.member? 'NTFS'
@@ -178,7 +177,7 @@ module Zip
       end
 
       def ctime(filename)
-        e = get_entry(filename)
+        e = find_entry(filename)
         if e.extra.member? 'UniversalTime'
           e.extra['UniversalTime'].ctime
         elsif e.extra.member? 'NTFS'

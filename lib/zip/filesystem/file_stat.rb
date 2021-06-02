@@ -34,13 +34,8 @@ module Zip
           nil
         end
 
-        def get_entry
-          @zip_fs_file.__send__(:get_entry, @entry_name)
-        end
-        private :get_entry
-
         def gid
-          e = get_entry
+          e = find_entry
           if e.extra.member? 'IUnix'
             e.extra['IUnix'].gid || 0
           else
@@ -49,7 +44,7 @@ module Zip
         end
 
         def uid
-          e = get_entry
+          e = find_entry
           if e.extra.member? 'IUnix'
             e.extra['IUnix'].uid || 0
           else
@@ -96,12 +91,18 @@ module Zip
         end
 
         def mode
-          e = get_entry
+          e = find_entry
           if e.fstype == 3
             e.external_file_attributes >> 16
           else
             33_206 # 33206 is equivalent to -rw-rw-rw-
           end
+        end
+
+        private
+
+        def find_entry
+          @zip_fs_file.find_entry(@entry_name)
         end
       end
     end
