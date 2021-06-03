@@ -92,7 +92,7 @@ module Zip
 
         def mode
           e = find_entry
-          if e.fstype == 3
+          if e.fstype == FSTYPE_UNIX
             e.external_file_attributes >> 16
           else
             0o100_666 # Equivalent to -rw-rw-rw-.

@@ -27,7 +27,7 @@ module Zip
 
       def unix_mode_cmp(filename, mode)
         e = find_entry(filename)
-        e.fstype == 3 && ((e.external_file_attributes >> 16) & mode) != 0
+        e.fstype == FSTYPE_UNIX && ((e.external_file_attributes >> 16) & mode) != 0
       rescue Errno::ENOENT
         false
       end
@@ -121,7 +121,7 @@ module Zip
       def chmod(mode, *filenames)
         filenames.each do |filename|
           e = find_entry(filename)
-          e.fstype = 3 # force convertion filesystem type to unix
+          e.fstype = FSTYPE_UNIX # Force conversion filesystem type to unix.
           e.unix_perms = mode
           e.external_file_attributes = mode << 16
           e.dirty = true
