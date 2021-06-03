@@ -17,6 +17,10 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     continue-on-error: ${{ endsWith(matrix.ruby, 'head') || matrix.os == 'windows' }}
     steps:
+    - name: Don't automatically add carriage returns to text files on checkout
+      if: matrix.os == 'windows'
+      run: git config --global core.autocrlf false
+
     - name: Checkout rubyzip code
       uses: actions/checkout@v2
 
