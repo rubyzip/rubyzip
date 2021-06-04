@@ -285,6 +285,9 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_recover_permissions_after_add_files_to_archive
+    # Windows NT does not support granular permissions
+    skip if Zip::RUNNING_ON_WINDOWS
+
     src_zip = TEST_ZIP.zip_name
     assert(::File.exist?(src_zip))
 
