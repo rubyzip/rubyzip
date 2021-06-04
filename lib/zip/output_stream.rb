@@ -30,7 +30,7 @@ module Zip
       super()
       @file_name = file_name
       @output_stream = if stream
-                         iostream = @file_name.dup
+                         iostream = Zip::RUNNING_ON_WINDOWS ? @file_name : @file_name.dup
                          iostream.reopen(@file_name)
                          iostream.rewind
                          iostream
