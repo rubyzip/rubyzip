@@ -151,32 +151,35 @@ class ZipEntryTest < MiniTest::Test
   end
 
   def test_store_file_without_compression
-    File.delete('/tmp/no_compress.zip') if File.exist?('/tmp/no_compress.zip')
-    files = Dir[File.join('test/data/globTest', '**', '**')]
+    Dir.mktmpdir do |tmp|
+      tmp_zip = File.join(tmp, 'no_compress.zip')
 
-    Zip.setup do |z|
-      z.write_zip64_support = false
+      Zip.setup do |z|
+        z.write_zip64_support = false
+      end
+
+      zipfile = Zip::File.open(tmp_zip, Zip::File::CREATE)
+
+      mimetype_entry = Zip::Entry.new(
+        zipfile,                # @zipfile
+        'mimetype',             # @name
+        compression_method: Zip::Entry::STORED
+      )
+      zipfile.add(mimetype_entry, 'test/data/mimetype')
+
+      files = Dir[File.join('test/data/globTest', '**', '**')]
+      files.each do |file|
+        zipfile.add(file.sub('test/data/globTest/', ''), file)
+      end
+
+      zipfile.close
+
+      f = File.open(tmp_zip, 'rb')
+      first_100_bytes = f.read(100)
+      f.close
+
+      assert_match(/mimetypeapplication\/epub\+zip/, first_100_bytes)
     end
-
-    zipfile = Zip::File.open('/tmp/no_compress.zip', Zip::File::CREATE)
-    mimetype_entry = Zip::Entry.new(
-      zipfile,                # @zipfile
-      'mimetype',             # @name
-      compression_method: Zip::Entry::STORED
-    )
-
-    zipfile.add(mimetype_entry, 'test/data/mimetype')
-
-    files.each do |file|
-      zipfile.add(file.sub('test/data/globTest/', ''), file)
-    end
-    zipfile.close
-
-    f = File.open('/tmp/no_compress.zip', 'rb')
-    first_100_bytes = f.read(100)
-    f.close
-
-    assert_match(/mimetypeapplication\/epub\+zip/, first_100_bytes)
   end
 
   def test_encrypted?
