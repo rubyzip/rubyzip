@@ -286,15 +286,16 @@ class ZipFileTest < MiniTest::Test
 
   def test_recover_permissions_after_add_files_to_archive
     src_zip = TEST_ZIP.zip_name
-    ::File.chmod(0o664, src_zip)
-    src_file = 'test/data/file2.txt'
-    entry_name = 'newEntryName.rb'
-    assert_equal(::File.stat(src_zip).mode, 0o100664)
     assert(::File.exist?(src_zip))
+
+    ::File.chmod(0o664, src_zip)
+    assert_equal(0o100664, ::File.stat(src_zip).mode)
+
     zf = ::Zip::File.new(src_zip, ::Zip::File::CREATE)
-    zf.add(entry_name, src_file)
+    zf.add('newEntryName.rb', 'test/data/file2.txt')
     zf.close
-    assert_equal(::File.stat(src_zip).mode, 0o100664)
+
+    assert_equal(0o100664, ::File.stat(src_zip).mode)
   end
 
   def test_add_existing_entry_name
