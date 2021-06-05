@@ -620,7 +620,7 @@ module Zip
       end
 
       def expand_path(path)
-        expanded = ::File.expand_path(path, @pwd)
+        expanded = path.start_with?('/') ? path.dup : ::File.join(@pwd, path)
         expanded.gsub!(/\/\.(\/|$)/, '')
         expanded.gsub!(/[^\/]+\/\.\.(\/|$)/, '')
         expanded.empty? ? '/' : expanded
