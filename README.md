@@ -332,6 +332,21 @@ You can set multiple settings at the same time by using a block:
   end
 ```
 
+## Compatibility
+
+Rubyzip is known to run on a number of platforms and under a number of different Ruby versions. Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
+
+| OS | 2.4 | 2.5 | 2.6 | 2.7 | 3.0 | Head | JRuby 9.2.17.0 | JRuby Head | Truffleruby 21.1.0 | Truffleruby Head |
+|----|-----|-----|-----|-----|-----|------|----------------|------------|--------------------|------------------|
+|Ubuntu 20.04| CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
+|Mac OS 10.15.7| CI | x | x | x | x |  | x |  | x |  |
+|Windows 10|  |  |  | x |  |  |  |  |  |  |
+|Windows Server 2019| CI |  |  |  |  |  |  |  |  |  |
+
+Key: `CI` - tested in CI, should work; `ci` - tested in CI, might fail; `x` - known working; `o` - known failing.
+
+Please [raise a PR](https://github.com/rubyzip/rubyzip/pulls) if you know Rubyzip works on a platform/Ruby combination not listed here, or [raise an issue](https://github.com/rubyzip/rubyzip/issues) if you see a failure where we think it should work.
+
 ## Developing
 
 Install the dependencies:
