@@ -12,6 +12,7 @@
 
 Tooling:
 
+- Fix Windows tests. [#489](https://github.com/rubyzip/rubyzip/pull/489)
 - Refactor `assert_forwarded` so it does not need `ObjectSpace._id2ref` or `eval`. [#483](https://github.com/rubyzip/rubyzip/pull/483)
 - Add GitHub Actions CI infrastructure. [#469](https://github.com/rubyzip/rubyzip/issues/469)
 - Add Ruby 3.0 to CI. [#474](https://github.com/rubyzip/rubyzip/pull/474)
