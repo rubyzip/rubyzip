@@ -66,7 +66,7 @@ class FileOptionsTest < MiniTest::Test
       zip.extract(ENTRY_3, EXTPATH_3)
     end
 
-    default_perms = 0o100_666 - ::File.umask
+    default_perms = (Zip::RUNNING_ON_WINDOWS ? 0o100_644 : 0o100_666) - ::File.umask
     assert_equal(default_perms, ::File.stat(EXTPATH_1).mode)
     assert_equal(default_perms, ::File.stat(EXTPATH_2).mode)
     assert_equal(default_perms, ::File.stat(EXTPATH_3).mode)
