@@ -13,7 +13,7 @@ module Zip
       end
 
       def print(*params)
-        self << params.join($OUTPUT_FIELD_SEPARATOR) << $OUTPUT_RECORD_SEPARATOR.to_s
+        self << params.join << $OUTPUT_RECORD_SEPARATOR.to_s
       end
 
       def printf(a_format_string, *params)
