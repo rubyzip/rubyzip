@@ -545,8 +545,7 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
     old_name = zf.entries.first
     zf.rename(old_name, new_name)
-    io = ::StringIO.new(+'')
-    buffer = zf.write_buffer(io)
+    buffer = zf.write_buffer(::StringIO.new)
     File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
     zf_read = ::Zip::File.new(TEST_ZIP.zip_name)
     refute_nil(zf_read.entries.detect { |e| e.name == new_name })

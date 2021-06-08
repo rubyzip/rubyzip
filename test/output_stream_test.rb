@@ -25,8 +25,7 @@ class ZipOutputStreamTest < MiniTest::Test
   end
 
   def test_write_buffer
-    io = ::StringIO.new(+'')
-    buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
+    buffer = ::Zip::OutputStream.write_buffer(::StringIO.new) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -35,8 +34,7 @@ class ZipOutputStreamTest < MiniTest::Test
   end
 
   def test_write_buffer_binmode
-    io = ::StringIO.new(+'')
-    buffer = ::Zip::OutputStream.write_buffer(io) do |zos|
+    buffer = ::Zip::OutputStream.write_buffer(::StringIO.new) do |zos|
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -70,6 +68,15 @@ class ZipOutputStreamTest < MiniTest::Test
     ::Zip::File.open(tmp_file) # Should open without error.
   ensure
     ::File.unlink(tmp_file)
+  end
+
+  def test_write_buffer_with_default_io
+    buffer = ::Zip::OutputStream.write_buffer do |zos|
+      zos.comment = TEST_ZIP.comment
+      write_test_zip(zos)
+    end
+    File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
+    assert_test_zip_contents(TEST_ZIP)
   end
 
   def test_writing_to_closed_stream

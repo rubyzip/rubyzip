@@ -128,7 +128,7 @@ module Zip
 
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
-        io = ::StringIO.new(+'')
+        io = ::StringIO.new
         zf = ::Zip::File.new(io, true, true)
         yield zf
         zf.write_buffer(io)
@@ -297,7 +297,7 @@ module Zip
     end
 
     # Write buffer write changes to buffer and return
-    def write_buffer(io = ::StringIO.new(''))
+    def write_buffer(io = ::StringIO.new)
       ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
