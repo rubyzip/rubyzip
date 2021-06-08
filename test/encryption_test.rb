@@ -20,7 +20,10 @@ class EncryptionTest < MiniTest::Test
 
     password = 'swordfish'
 
-    encrypted_zip = Zip::OutputStream.write_buffer(::StringIO.new(+''), Zip::TraditionalEncrypter.new(password)) do |out|
+    encrypted_zip = Zip::OutputStream.write_buffer(
+      ::StringIO.new(+''),
+      encrypter: Zip::TraditionalEncrypter.new(password)
+    ) do |out|
       out.put_next_entry(test_filename)
       out.write content
     end
