@@ -21,7 +21,7 @@ module Zip
   #
   #   require 'zip/filesystem'
   #
-  #   Zip::File.open("my.zip", Zip::File::CREATE) {
+  #   Zip::File.open("my.zip", create: true) {
   #     |zipfile|
   #     zipfile.file.open("first.txt", "w") { |f| f.puts "Hello world" }
   #     zipfile.dir.mkdir("mydir")

@@ -25,7 +25,7 @@ module Zip
   #
   #   require 'zip'
   #
-  #   Zip::File.open("my.zip", Zip::File::CREATE) {
+  #   Zip::File.open("my.zip", create: true) {
   #    |zipfile|
   #     zipfile.get_output_stream("first.txt") { |f| f.puts "Hello from ZipFile" }
   #     zipfile.mkdir("a_dir")
@@ -37,7 +37,7 @@ module Zip
   #
   #   require 'zip'
   #
-  #   Zip::File.open("my.zip", Zip::File::CREATE) {
+  #   Zip::File.open("my.zip", create: true) {
   #     |zipfile|
   #     puts zipfile.read("first.txt")
   #     zipfile.remove("first.txt")
@@ -49,8 +49,7 @@ module Zip
   class File < CentralDirectory
     extend FileSplit
 
-    CREATE               = true
-    IO_METHODS           = [:tell, :seek, :read, :eof, :close].freeze
+    IO_METHODS = [:tell, :seek, :read, :eof, :close].freeze
 
     attr_reader :name
 
@@ -66,9 +65,9 @@ module Zip
     # Returns the zip files comment, if it has one
     attr_accessor :comment
 
-    # Opens a zip archive. Pass true as the second parameter to create
+    # Opens a zip archive. Pass create: true to create
     # a new archive if it doesn't exist already.
-    def initialize(path_or_io, create = false, buffer = false, options = {})
+    def initialize(path_or_io, create: false, buffer: false, **options)
       super()
       options  = DEFAULT_RESTORE_OPTIONS
                  .merge(compression_level: ::Zip.default_compression)
@@ -115,8 +114,8 @@ module Zip
       # Similar to ::new. If a block is passed the Zip::File object is passed
       # to the block and is automatically closed afterwards, just as with
       # ruby's builtin File::open method.
-      def open(file_name, create = false, options = {})
-        zf = ::Zip::File.new(file_name, create, false, options)
+      def open(file_name, create: false, **options)
+        zf = ::Zip::File.new(file_name, create: create, **options)
         return zf unless block_given?
 
         begin
@@ -129,7 +128,7 @@ module Zip
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
         io = ::StringIO.new
-        zf = ::Zip::File.new(io, true, true)
+        zf = ::Zip::File.new(io, create: true, buffer: true)
         yield zf
         zf.write_buffer(io)
       end
@@ -138,7 +137,7 @@ module Zip
       # stream, and outputs data to a buffer.
       # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
-      def open_buffer(io, options = {})
+      def open_buffer(io, **options)
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise 'Zip::File.open_buffer expects a String or IO-like argument' \
                 "(responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
@@ -149,7 +148,7 @@ module Zip
         # https://github.com/rubyzip/rubyzip/issues/119
         io.binmode if io.respond_to?(:binmode)
 
-        zf = ::Zip::File.new(io, true, true, options)
+        zf = ::Zip::File.new(io, create: true, buffer: true, **options)
         return zf unless block_given?
 
         yield zf

@@ -9,7 +9,7 @@ EXAMPLE_ZIP = 'filesystem.zip'
 
 File.delete(EXAMPLE_ZIP) if File.exist?(EXAMPLE_ZIP)
 
-Zip::File.open(EXAMPLE_ZIP, Zip::File::CREATE) do |zf|
+Zip::File.open(EXAMPLE_ZIP, create: true) do |zf|
   zf.file.open('file1.txt', 'w') { |os| os.write 'first file1.txt' }
   zf.dir.mkdir('dir1')
   zf.dir.chdir('dir1')

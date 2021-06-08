@@ -167,7 +167,7 @@ class ZipEntryTest < MiniTest::Test
         z.write_zip64_support = false
       end
 
-      zipfile = Zip::File.open(tmp_zip, Zip::File::CREATE)
+      zipfile = Zip::File.open(tmp_zip, create: true)
 
       mimetype_entry = Zip::Entry.new(
         zipfile,                # @zipfile

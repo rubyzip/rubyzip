@@ -53,7 +53,7 @@ class ZipUnicodeFileNamesAndComments < MiniTest::Test
 
   def test_unicode_comment
     str = '渠道升级'
-    ::Zip::File.open(FILENAME, Zip::File::CREATE) do |z|
+    ::Zip::File.open(FILENAME, create: true) do |z|
       z.comment = str
     end
 

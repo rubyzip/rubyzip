@@ -21,7 +21,7 @@ class Zip64FullTest < MiniTest::Test
     last_text = 'this tests files starting after 4GB in the archive'
     comment_text = 'this is a file comment in a zip64 archive'
 
-    ::Zip::File.open(HUGE_ZIP, ::Zip::File::CREATE) do |zf|
+    ::Zip::File.open(HUGE_ZIP, create: true) do |zf|
       zf.comment = comment_text
 
       zf.get_output_stream('first_file.txt') do |io|
