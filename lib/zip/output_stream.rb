@@ -49,7 +49,7 @@ module Zip
     # stream is passed to the block and closed when the block
     # returns.
     class << self
-      def open(file_name, encrypter = nil)
+      def open(file_name, encrypter: nil)
         return new(file_name) unless block_given?
 
         zos = new(file_name, stream: false, encrypter: encrypter)
@@ -59,7 +59,7 @@ module Zip
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io = ::StringIO.new(''), encrypter = nil)
+      def write_buffer(io = ::StringIO.new(''), encrypter: nil)
         io.binmode if io.respond_to?(:binmode)
         zos = new(io, stream: true, encrypter: encrypter)
         yield zos
