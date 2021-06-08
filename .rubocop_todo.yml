@@ -109,7 +109,6 @@ Style/NumericPredicate:
 # AllowedMethods: respond_to_missing?
 Style/OptionalBooleanParameter:
   Exclude:
-    - 'lib/zip/entry.rb'
     - 'lib/zip/file.rb'
     - 'lib/zip/file_split.rb'
     - 'lib/zip/output_stream.rb'
