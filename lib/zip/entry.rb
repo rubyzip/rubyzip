@@ -333,7 +333,7 @@ module Zip
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
-    def write_local_entry(io, rewrite = false) #:nodoc:all
+    def write_local_entry(io, rewrite: false) #:nodoc:all
       prep_zip64_extra(true)
       verify_local_header_size! if rewrite
       @local_header_offset = io.tell

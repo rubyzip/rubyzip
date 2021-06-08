@@ -177,7 +177,7 @@ module Zip
       pos = @output_stream.pos
       @entry_set.each do |entry|
         @output_stream.pos = entry.local_header_offset
-        entry.write_local_entry(@output_stream, true)
+        entry.write_local_entry(@output_stream, rewrite: true)
       end
       @output_stream.pos = pos
     end
