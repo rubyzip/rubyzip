@@ -30,13 +30,13 @@ class FileOptionsTest < MiniTest::Test
     ::FileUtils.cp(TXTPATH, TXTPATH_755)
     ::File.chmod(0o755, TXTPATH_755)
 
-    ::Zip::File.open(ZIPPATH, true) do |zip|
+    ::Zip::File.open(ZIPPATH, create: true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
       zip.add(ENTRY_2, TXTPATH_600)
       zip.add(ENTRY_3, TXTPATH_755)
     end
 
-    ::Zip::File.open(ZIPPATH, false, restore_permissions: true) do |zip|
+    ::Zip::File.open(ZIPPATH, restore_permissions: true) do |zip|
       zip.extract(ENTRY_1, EXTPATH_1)
       zip.extract(ENTRY_2, EXTPATH_2)
       zip.extract(ENTRY_3, EXTPATH_3)
@@ -54,13 +54,13 @@ class FileOptionsTest < MiniTest::Test
     ::FileUtils.cp(TXTPATH, TXTPATH_755)
     ::File.chmod(0o755, TXTPATH_755)
 
-    ::Zip::File.open(ZIPPATH, true) do |zip|
+    ::Zip::File.open(ZIPPATH, create: true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
       zip.add(ENTRY_2, TXTPATH_600)
       zip.add(ENTRY_3, TXTPATH_755)
     end
 
-    ::Zip::File.open(ZIPPATH, false, restore_permissions: false) do |zip|
+    ::Zip::File.open(ZIPPATH, restore_permissions: false) do |zip|
       zip.extract(ENTRY_1, EXTPATH_1)
       zip.extract(ENTRY_2, EXTPATH_2)
       zip.extract(ENTRY_3, EXTPATH_3)
@@ -79,7 +79,7 @@ class FileOptionsTest < MiniTest::Test
     ::FileUtils.cp(TXTPATH, TXTPATH_755)
     ::File.chmod(0o755, TXTPATH_755)
 
-    ::Zip::File.open(ZIPPATH, true) do |zip|
+    ::Zip::File.open(ZIPPATH, create: true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
       zip.add(ENTRY_2, TXTPATH_600)
       zip.add(ENTRY_3, TXTPATH_755)
@@ -97,12 +97,12 @@ class FileOptionsTest < MiniTest::Test
   end
 
   def test_restore_times_true
-    ::Zip::File.open(ZIPPATH, true) do |zip|
+    ::Zip::File.open(ZIPPATH, create: true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
       zip.add_stored(ENTRY_2, TXTPATH)
     end
 
-    ::Zip::File.open(ZIPPATH, false, restore_times: true) do |zip|
+    ::Zip::File.open(ZIPPATH, restore_times: true) do |zip|
       zip.extract(ENTRY_1, EXTPATH_1)
       zip.extract(ENTRY_2, EXTPATH_2)
     end
@@ -112,12 +112,12 @@ class FileOptionsTest < MiniTest::Test
   end
 
   def test_restore_times_false
-    ::Zip::File.open(ZIPPATH, true) do |zip|
+    ::Zip::File.open(ZIPPATH, create: true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
       zip.add_stored(ENTRY_2, TXTPATH)
     end
 
-    ::Zip::File.open(ZIPPATH, false, restore_times: false) do |zip|
+    ::Zip::File.open(ZIPPATH, restore_times: false) do |zip|
       zip.extract(ENTRY_1, EXTPATH_1)
       zip.extract(ENTRY_2, EXTPATH_2)
     end
@@ -127,7 +127,7 @@ class FileOptionsTest < MiniTest::Test
   end
 
   def test_restore_times_true_as_default
-    ::Zip::File.open(ZIPPATH, true) do |zip|
+    ::Zip::File.open(ZIPPATH, create: true) do |zip|
       zip.add(ENTRY_1, TXTPATH)
       zip.add_stored(ENTRY_2, TXTPATH)
     end

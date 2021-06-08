@@ -32,21 +32,7 @@ class ZipFileTest < MiniTest::Test
   def test_create_from_scratch
     comment = 'a short comment'
 
-    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
-    zf.get_output_stream('myFile') { |os| os.write 'myFile contains just this' }
-    zf.mkdir('dir1')
-    zf.comment = comment
-    zf.close
-
-    zf_read = ::Zip::File.new(EMPTY_FILENAME)
-    assert_equal(comment, zf_read.comment)
-    assert_equal(2, zf_read.entries.length)
-  end
-
-  def test_create_from_scratch_with_old_create_parameter
-    comment = 'a short comment'
-
-    zf = ::Zip::File.new(EMPTY_FILENAME, 1)
+    zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
     zf.get_output_stream('myFile') { |os| os.write 'myFile contains just this' }
     zf.mkdir('dir1')
     zf.comment = comment
@@ -184,7 +170,7 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_cleans_up_tempfiles_after_close
-    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
     zf.get_output_stream('myFile') do |os|
       @tempfile_path = os.path
       os.write 'myFile contains just this'
@@ -208,9 +194,7 @@ class ZipFileTest < MiniTest::Test
     sizes = []
 
     files.each do |name, comp|
-      zf = ::Zip::File.new(
-        name, ::Zip::File::CREATE, false, { compression_level: comp }
-      )
+      zf = ::Zip::File.new(name, create: true, compression_level: comp)
 
       zf.add(entry_name, src_file)
       zf.close
@@ -243,7 +227,7 @@ class ZipFileTest < MiniTest::Test
 
     files.each do |name, comp|
       ::Zip.default_compression = comp
-      zf = ::Zip::File.new(name, ::Zip::File::CREATE)
+      zf = ::Zip::File.new(name, create: true)
 
       zf.add(entry_name, src_file)
       zf.close
@@ -268,7 +252,7 @@ class ZipFileTest < MiniTest::Test
     src_file = 'test/data/file2.txt'
     entry_name = 'newEntryName.rb'
     assert(::File.exist?(src_file))
-    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
     zf.add_stored(entry_name, src_file)
     zf.close
 
@@ -294,7 +278,7 @@ class ZipFileTest < MiniTest::Test
     ::File.chmod(0o664, src_zip)
     assert_equal(0o100664, ::File.stat(src_zip).mode)
 
-    zf = ::Zip::File.new(src_zip, ::Zip::File::CREATE)
+    zf = ::Zip::File.new(src_zip, create: true)
     zf.add('newEntryName.rb', 'test/data/file2.txt')
     zf.close
 
@@ -385,7 +369,7 @@ class ZipFileTest < MiniTest::Test
     ::File.unlink(zf_name) if ::File.exist?(zf_name)
     arr = []
     arr_renamed = []
-    ::Zip::File.open(zf_name, ::Zip::File::CREATE) do |zf|
+    ::Zip::File.open(zf_name, create: true) do |zf|
       zf.mkdir('test')
       arr << 'test/'
       arr_renamed << 'Ztest/'
@@ -398,7 +382,7 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.open(zf_name)
     assert_equal(zf.entries.map(&:name), arr)
     zf.close
-    Zip::File.open(zf_name, 'wb') do |z|
+    Zip::File.open(zf_name) do |z|
       z.each do |f|
         z.rename(f, "Z#{f.name}")
       end
@@ -522,7 +506,7 @@ class ZipFileTest < MiniTest::Test
   def test_double_commit(filename = 'test/data/generated/double_commit_test.zip')
     ::FileUtils.touch('test/data/generated/test_double_commit1.txt')
     ::FileUtils.touch('test/data/generated/test_double_commit2.txt')
-    zf = ::Zip::File.open(filename, ::Zip::File::CREATE)
+    zf = ::Zip::File.open(filename, create: true)
     zf.add('test1.txt', 'test/data/generated/test_double_commit1.txt')
     zf.commit
     zf.add('test2.txt', 'test/data/generated/test_double_commit2.txt')
@@ -695,7 +679,7 @@ class ZipFileTest < MiniTest::Test
   def test_streaming
     fname = ::File.join(__dir__, '..', 'README.md')
     zname = 'test/data/generated/README.zip'
-    Zip::File.open(zname, Zip::File::CREATE) do |zipfile|
+    Zip::File.open(zname, create: true) do |zipfile|
       zipfile.get_output_stream(File.basename(fname)) do |f|
         f.puts File.read(fname)
       end

@@ -19,7 +19,7 @@ class ZipCaseSensitivityTest < MiniTest::Test
     ::Zip.case_insensitive_match = false
 
     SRC_FILES.each { |fn, _en| assert(::File.exist?(fn)) }
-    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
 
     SRC_FILES.each { |fn, en| zf.add(en, fn) }
     zf.close
@@ -38,7 +38,7 @@ class ZipCaseSensitivityTest < MiniTest::Test
     ::Zip.case_insensitive_match = true
 
     SRC_FILES.each { |fn, _en| assert(::File.exist?(fn)) }
-    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
 
     assert_raises Zip::EntryExistsError do
       SRC_FILES.each { |fn, en| zf.add(en, fn) }
@@ -50,7 +50,7 @@ class ZipCaseSensitivityTest < MiniTest::Test
     ::Zip.case_insensitive_match = false
 
     SRC_FILES.each { |fn, _en| assert(::File.exist?(fn)) }
-    zf = ::Zip::File.new(EMPTY_FILENAME, ::Zip::File::CREATE)
+    zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
 
     SRC_FILES.each { |fn, en| zf.add(en, fn) }
     zf.close

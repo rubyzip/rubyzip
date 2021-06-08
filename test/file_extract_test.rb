@@ -99,7 +99,7 @@ class ZipFileExtractTest < MiniTest::Test
       true_size = 500_000
       fake_size = 1
 
-      ::Zip::File.open(real_zip, ::Zip::File::CREATE) do |zf|
+      ::Zip::File.open(real_zip, create: true) do |zf|
         zf.get_output_stream(file_name) do |os|
           os.write 'a' * true_size
         end

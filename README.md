@@ -50,7 +50,7 @@ input_filenames = ['image.jpg', 'description.txt', 'stats.csv']
 
 zipfile_name = "/Users/me/Desktop/archive.zip"
 
-Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
+Zip::File.open(zipfile_name, create: true) do |zipfile|
   input_filenames.each do |filename|
     # Two arguments:
     # - The name of the file as it will appear in the archive
@@ -89,7 +89,7 @@ class ZipFileGenerator
   def write
     entries = Dir.entries(@input_dir) - %w[. ..]
 
-    ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |zipfile|
+    ::Zip::File.open(@output_file, create: true) do |zipfile|
       write_entries entries, '', zipfile
     end
   end
@@ -318,7 +318,7 @@ Where X is an integer between 0 and 9, inclusive. If this option is set to 0 (`Z
 This can also be set for each archive as an option to `Zip::File`:
 
 ```ruby
-Zip::File.open('foo.zip', Zip::File::CREATE, {compression_level: 9}) do |zip|
+Zip::File.open('foo.zip', create:true, compression_level: 9) do |zip|
   zip.add ...
 end
 ```
