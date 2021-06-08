@@ -111,7 +111,6 @@ Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/zip/file.rb'
     - 'lib/zip/file_split.rb'
-    - 'lib/zip/output_stream.rb'
 
 # Offense count: 17
 # Cop supports --auto-correct.
