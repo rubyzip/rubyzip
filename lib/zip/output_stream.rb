@@ -26,7 +26,7 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream = false, encrypter = nil)
+    def initialize(file_name, stream: false, encrypter: nil)
       super()
       @file_name = file_name
       @output_stream = if stream
@@ -52,7 +52,7 @@ module Zip
       def open(file_name, encrypter = nil)
         return new(file_name) unless block_given?
 
-        zos = new(file_name, false, encrypter)
+        zos = new(file_name, stream: false, encrypter: encrypter)
         yield zos
       ensure
         zos.close if zos
@@ -61,7 +61,7 @@ module Zip
       # Same as #open but writes to a filestream instead
       def write_buffer(io = ::StringIO.new(''), encrypter = nil)
         io.binmode if io.respond_to?(:binmode)
-        zos = new(io, true, encrypter)
+        zos = new(io, stream: true, encrypter: encrypter)
         yield zos
         zos.close_buffer
       end
