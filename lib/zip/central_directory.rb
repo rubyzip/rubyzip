@@ -101,21 +101,26 @@ module Zip
       raise Error, 'Zip consistency problem while reading eocd structure' unless buf.empty?
     end
 
-    def read_e_o_c_d(buf) #:nodoc:
-      buf                                           = get_e_o_c_d(buf)
-      @number_of_this_disk                          = read_short(buf)
-      @number_of_disk_with_start_of_cdir            = read_short(buf)
-      @total_number_of_entries_in_cdir_on_this_disk = read_short(buf)
-      @size                                         = read_short(buf)
-      @size_in_bytes                                = read_long(buf)
-      @cdir_offset                                  = read_long(buf)
-      comment_length                                = read_short(buf)
-      @comment                                      = if comment_length.to_i <= 0
-                                                        buf.slice!(0, buf.size)
-                                                      else
-                                                        buf.read(comment_length)
-                                                      end
-      raise Error, 'Zip consistency problem while reading eocd structure' unless buf.empty?
+    def unpack_e_o_c_d(buffer) #:nodoc:
+      index = buffer.rindex([END_OF_CDS].pack('V'))
+      raise Error, 'Zip end of central directory signature not found' unless index
+
+      buf = buffer.slice(index, buffer.size)
+
+      _, # END_OF_CDS signature. We know we have this at this point.
+      @number_of_this_disk,
+      @number_of_disk_with_start_of_cdir,
+      @total_number_of_entries_in_cdir_on_this_disk,
+      @size,
+      @size_in_bytes,
+      @cdir_offset,
+      comment_length = buf.unpack('VvvvvVVv')
+
+      @comment = if comment_length.positive?
+                   buf.slice(STATIC_EOCD_SIZE, comment_length)
+                 else
+                   ''
+                 end
     end
 
     def read_central_directory_entries(io) #:nodoc:
@@ -162,22 +167,9 @@ module Zip
       if zip64_file?(buf)
         read_64_e_o_c_d(buf)
       else
-        read_e_o_c_d(buf)
+        unpack_e_o_c_d(buf)
       end
       read_central_directory_entries(io)
-    end
-
-    def get_e_o_c_d(buf) #:nodoc:
-      sig_index = buf.rindex([END_OF_CDS].pack('V'))
-      raise Error, 'Zip end of central directory signature not found' unless sig_index
-
-      buf = buf.slice!((sig_index + 4)..(buf.bytesize))
-
-      def buf.read(count)
-        slice!(0, count)
-      end
-
-      buf
     end
 
     def zip64_file?(buf)
