@@ -88,28 +88,28 @@ module Zip
 
     def read_64_e_o_c_d(buf) #:nodoc:
       buf                                           = get_64_e_o_c_d(buf)
-      @size_of_zip64_e_o_c_d                        = Entry.read_zip_64_long(buf)
-      @version_made_by                              = Entry.read_zip_short(buf)
-      @version_needed_for_extract                   = Entry.read_zip_short(buf)
-      @number_of_this_disk                          = Entry.read_zip_long(buf)
-      @number_of_disk_with_start_of_cdir            = Entry.read_zip_long(buf)
-      @total_number_of_entries_in_cdir_on_this_disk = Entry.read_zip_64_long(buf)
-      @size                                         = Entry.read_zip_64_long(buf)
-      @size_in_bytes                                = Entry.read_zip_64_long(buf)
-      @cdir_offset                                  = Entry.read_zip_64_long(buf)
+      @size_of_zip64_e_o_c_d                        = read_long64(buf)
+      @version_made_by                              = read_short(buf)
+      @version_needed_for_extract                   = read_short(buf)
+      @number_of_this_disk                          = read_long(buf)
+      @number_of_disk_with_start_of_cdir            = read_long(buf)
+      @total_number_of_entries_in_cdir_on_this_disk = read_long64(buf)
+      @size                                         = read_long64(buf)
+      @size_in_bytes                                = read_long64(buf)
+      @cdir_offset                                  = read_long64(buf)
       @zip_64_extensible                            = buf.slice!(0, buf.bytesize)
       raise Error, 'Zip consistency problem while reading eocd structure' unless buf.empty?
     end
 
     def read_e_o_c_d(buf) #:nodoc:
       buf                                           = get_e_o_c_d(buf)
-      @number_of_this_disk                          = Entry.read_zip_short(buf)
-      @number_of_disk_with_start_of_cdir            = Entry.read_zip_short(buf)
-      @total_number_of_entries_in_cdir_on_this_disk = Entry.read_zip_short(buf)
-      @size                                         = Entry.read_zip_short(buf)
-      @size_in_bytes                                = Entry.read_zip_long(buf)
-      @cdir_offset                                  = Entry.read_zip_long(buf)
-      comment_length                                = Entry.read_zip_short(buf)
+      @number_of_this_disk                          = read_short(buf)
+      @number_of_disk_with_start_of_cdir            = read_short(buf)
+      @total_number_of_entries_in_cdir_on_this_disk = read_short(buf)
+      @size                                         = read_short(buf)
+      @size_in_bytes                                = read_long(buf)
+      @cdir_offset                                  = read_long(buf)
+      comment_length                                = read_short(buf)
       @comment                                      = if comment_length.to_i <= 0
                                                         buf.slice!(0, buf.size)
                                                       else
@@ -232,6 +232,20 @@ module Zip
       return false unless other.kind_of?(CentralDirectory)
 
       @entry_set.entries.sort == other.entries.sort && comment == other.comment
+    end
+
+    private
+
+    def read_short(io) # :nodoc:
+      io.read(2).unpack1('v')
+    end
+
+    def read_long(io) # :nodoc:
+      io.read(4).unpack1('V')
+    end
+
+    def read_long64(io) # :nodoc:
+      io.read(8).unpack1('Q<')
     end
   end
 end

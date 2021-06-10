@@ -230,18 +230,6 @@ module Zip
     end
 
     class << self
-      def read_zip_short(io) # :nodoc:
-        io.read(2).unpack1('v')
-      end
-
-      def read_zip_long(io) # :nodoc:
-        io.read(4).unpack1('V')
-      end
-
-      def read_zip_64_long(io) # :nodoc:
-        io.read(8).unpack1('Q<')
-      end
-
       def read_c_dir_entry(io) #:nodoc:all
         path = if io.respond_to?(:path)
                  io.path
