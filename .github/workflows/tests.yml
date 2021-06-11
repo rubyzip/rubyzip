@@ -33,6 +33,7 @@ jobs:
     - name: Run the tests
       env:
         JRUBY_OPTS: --debug
+        FULL_ZIP64_TEST: 1
       run: bundle exec rake
 
     - name: Coveralls
