@@ -19,8 +19,11 @@ class Zip64FullTest < MiniTest::Test
     ::Zip.write_zip64_support = true
     first_text = 'starting out small'
     last_text = 'this tests files starting after 4GB in the archive'
+    comment_text = 'this is a file comment in a zip64 archive'
 
     ::Zip::File.open(HUGE_ZIP, ::Zip::File::CREATE) do |zf|
+      zf.comment = comment_text
+
       zf.get_output_stream('first_file.txt') do |io|
         io.write(first_text)
       end
@@ -44,6 +47,7 @@ class Zip64FullTest < MiniTest::Test
       )
       assert_equal(first_text, zf.read('first_file.txt'))
       assert_equal(last_text, zf.read('last_file.txt'))
+      assert_equal(comment_text, zf.comment)
     end
 
     # NOTE: if this fails, be sure you have UnZip version 6.0 or newer

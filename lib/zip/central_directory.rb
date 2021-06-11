@@ -126,13 +126,20 @@ module Zip
       buf = buffer.slice(index, buffer.size)
 
       _, # END_OF_CDS signature. We know we have this at this point.
-      @number_of_this_disk,
-      @number_of_disk_with_start_of_cdir,
-      @total_number_of_entries_in_cdir_on_this_disk,
-      @size,
-      @size_in_bytes,
-      @cdir_offset,
+      num_disk,
+      num_disk_cdir,
+      num_cdir_disk,
+      num_entries,
+      size_in_bytes,
+      cdir_offset,
       comment_length = buf.unpack('VvvvvVVv')
+
+      @number_of_this_disk = num_disk unless num_disk == 0xFFFF
+      @number_of_disk_with_start_of_cdir = num_disk_cdir unless num_disk_cdir == 0xFFFF
+      @total_number_of_entries_in_cdir_on_this_disk = num_cdir_disk unless num_cdir_disk == 0xFFFF
+      @size = num_entries unless num_entries == 0xFFFF
+      @size_in_bytes = size_in_bytes unless size_in_bytes == 0xFFFFFFFF
+      @cdir_offset = cdir_offset unless cdir_offset == 0xFFFFFFFF
 
       @comment = if comment_length.positive?
                    buf.slice(STATIC_EOCD_SIZE, comment_length)
@@ -182,11 +189,8 @@ module Zip
 
     def read_from_stream(io) #:nodoc:
       buf = start_buf(io)
-      if zip64_file?(buf)
-        unpack_64_e_o_c_d(buf)
-      else
-        unpack_e_o_c_d(buf)
-      end
+      unpack_64_e_o_c_d(buf) if zip64_file?(buf)
+      unpack_e_o_c_d(buf)
       read_central_directory_entries(io)
     end
 
