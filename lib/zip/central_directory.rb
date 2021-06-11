@@ -227,20 +227,6 @@ module Zip
 
       @entry_set.entries.sort == other.entries.sort && comment == other.comment
     end
-
-    private
-
-    def read_short(io) # :nodoc:
-      io.read(2).unpack1('v')
-    end
-
-    def read_long(io) # :nodoc:
-      io.read(4).unpack1('V')
-    end
-
-    def read_long64(io) # :nodoc:
-      io.read(8).unpack1('Q<')
-    end
   end
 end
 
