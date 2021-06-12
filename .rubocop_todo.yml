@@ -75,6 +75,7 @@ Style/IfUnlessModifier:
   Exclude:
     - 'lib/zip/entry.rb'
     - 'lib/zip/file.rb'
+    - 'lib/zip/file_split.rb'
     - 'lib/zip/filesystem/dir.rb'
     - 'lib/zip/filesystem/file.rb'
     - 'lib/zip/pass_thru_decompressor.rb'
@@ -100,6 +101,7 @@ Style/NumericPredicate:
     - 'lib/zip/extra_field/universal_time.rb'
     - 'lib/zip/extra_field/unix.rb'
     - 'lib/zip/file.rb'
+    - 'lib/zip/file_split.rb'
     - 'lib/zip/filesystem/file.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/ioextras.rb'
@@ -114,6 +116,7 @@ Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/zip/entry.rb'
     - 'lib/zip/file.rb'
+    - 'lib/zip/file_split.rb'
     - 'lib/zip/output_stream.rb'
 
 # Offense count: 29
