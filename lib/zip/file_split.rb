@@ -19,15 +19,18 @@ module Zip
 
     def get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
       unless partial_zip_file_name.nil?
-        partial_zip_file_name = zip_file_name.sub(/#{::File.basename(zip_file_name)}\z/,
-                                                  partial_zip_file_name + ::File.extname(zip_file_name))
+        partial_zip_file_name = zip_file_name.sub(
+          /#{::File.basename(zip_file_name)}\z/,
+          partial_zip_file_name + ::File.extname(zip_file_name)
+        )
       end
       partial_zip_file_name ||= zip_file_name
       partial_zip_file_name
     end
 
     def get_segment_count_for_split(zip_file_size, segment_size)
-      (zip_file_size / segment_size).to_i + (zip_file_size % segment_size == 0 ? 0 : 1)
+      (zip_file_size / segment_size).to_i +
+        ((zip_file_size % segment_size).zero? ? 0 : 1)
     end
 
     def put_split_signature(szip_file, segment_size)

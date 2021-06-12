@@ -101,12 +101,10 @@ Style/NumericPredicate:
     - 'lib/zip/extra_field/universal_time.rb'
     - 'lib/zip/extra_field/unix.rb'
     - 'lib/zip/file.rb'
-    - 'lib/zip/file_split.rb'
     - 'lib/zip/filesystem/file.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/ioextras.rb'
     - 'lib/zip/ioextras/abstract_input_stream.rb'
-    - 'test/file_split_test.rb'
     - 'test/test_helper.rb'
 
 # Offense count: 6

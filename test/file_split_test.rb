@@ -33,7 +33,7 @@ class ZipFileSplitTest < MiniTest::Test
 
     Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
       File.open(zip_file_name, 'rb') do |zip_file|
-        zip_file.read([::Zip::FileSplit::SPLIT_SIGNATURE].pack('V').size) if index == 0
+        zip_file.read([::Zip::FileSplit::SPLIT_SIGNATURE].pack('V').size) if index.zero?
         File.open(UNSPLITTED_FILENAME, 'ab') do |file|
           file << zip_file.read
         end
