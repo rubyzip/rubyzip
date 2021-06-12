@@ -2,10 +2,9 @@
 
 module Zip
   module FileSplit #:nodoc:
-    SPLIT_SIGNATURE      = 0x08074b50
-    MAX_SEGMENT_SIZE     = 3_221_225_472
-    MIN_SEGMENT_SIZE     = 65_536
-    DATA_BUFFER_SIZE     = 8192
+    MAX_SEGMENT_SIZE = 3_221_225_472
+    MIN_SEGMENT_SIZE = 65_536
+    DATA_BUFFER_SIZE = 8192
 
     def get_segment_size_for_split(segment_size)
       if MIN_SEGMENT_SIZE > segment_size
@@ -34,7 +33,7 @@ module Zip
     end
 
     def put_split_signature(szip_file, segment_size)
-      signature_packed = [SPLIT_SIGNATURE].pack('V')
+      signature_packed = [SPLIT_FILE_SIGNATURE].pack('V')
       szip_file << signature_packed
       segment_size - signature_packed.size
     end
