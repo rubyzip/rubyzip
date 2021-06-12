@@ -14,6 +14,7 @@
 
 Tooling/internal:
 
+- Extract the file splitting code out into its own module.
 - Refactor, and tidy up, the `Zip::Filesystem` classes for improved maintainability.
 - Fix Windows tests. [#489](https://github.com/rubyzip/rubyzip/pull/489)
 - Refactor `assert_forwarded` so it does not need `ObjectSpace._id2ref` or `eval`. [#483](https://github.com/rubyzip/rubyzip/pull/483)
