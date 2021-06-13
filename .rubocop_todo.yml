@@ -104,13 +104,6 @@ Style/NumericPredicate:
     - 'lib/zip/ioextras.rb'
     - 'lib/zip/ioextras/abstract_input_stream.rb'
 
-# Offense count: 1
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: respond_to_missing?
-Style/OptionalBooleanParameter:
-  Exclude:
-    - 'lib/zip/file_split.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.

@@ -67,8 +67,8 @@ module Zip
 
     # Splits an archive into parts with segment size
     def split(
-      zip_file_name, segment_size = MAX_SEGMENT_SIZE,
-      delete_zip_file = true, partial_zip_file_name = nil
+      zip_file_name, segment_size: MAX_SEGMENT_SIZE,
+      delete_original: true, partial_zip_file_name: nil
     )
       raise Error, "File #{zip_file_name} not found" unless ::File.exist?(zip_file_name)
       raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
@@ -90,7 +90,7 @@ module Zip
           )
         end
       end
-      ::File.delete(zip_file_name) if delete_zip_file
+      ::File.delete(zip_file_name) if delete_original
       szip_file_index
     end
   end
