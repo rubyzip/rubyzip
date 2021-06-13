@@ -27,7 +27,9 @@ class ZipFileSplitTest < MiniTest::Test
   end
 
   def test_split
-    result = ::Zip::File.split(TEST_ZIP.zip_name, 65_536, false)
+    result = ::Zip::File.split(
+      TEST_ZIP.zip_name, segment_size: 65_536, delete_original: false
+    )
 
     return if result.nil?
 
