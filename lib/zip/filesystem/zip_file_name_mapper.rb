@@ -28,7 +28,7 @@ module Zip
 
       def get_output_stream(filename, permissions = nil, &a_proc)
         @zip_file.get_output_stream(
-          expand_to_entry(filename), permissions, &a_proc
+          expand_to_entry(filename), permissions: permissions, &a_proc
         )
       end
 
