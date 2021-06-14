@@ -31,7 +31,7 @@ class Zip64FullTest < MiniTest::Test
       # Write just over 4GB (stored, so the zip file exceeds 4GB).
       buf = 'blah' * 16_384
       zf.get_output_stream(
-        'huge_file', nil, nil, nil, nil, nil, ::Zip::Entry::STORED
+        'huge_file', compression_method: ::Zip::COMPRESSION_METHOD_STORE
       ) do |io|
         65_537.times { io.write(buf) }
       end

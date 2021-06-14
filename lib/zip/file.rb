@@ -185,10 +185,10 @@ module Zip
     # specified. If a block is passed the stream object is passed to the block and
     # the stream is automatically closed afterwards just as with ruby's builtin
     # File.open method.
-    def get_output_stream(entry, permission_int = nil, comment = nil,
-                          extra = nil, compressed_size = nil, crc = nil,
-                          compression_method = nil, compression_level = nil,
-                          size = nil, time = nil, &a_proc)
+    def get_output_stream(entry, permissions: nil, comment: nil,
+                          extra: nil, compressed_size: nil, crc: nil,
+                          compression_method: nil, compression_level: nil,
+                          size: nil, time: nil, &a_proc)
 
       new_entry =
         if entry.kind_of?(Entry)
@@ -205,7 +205,7 @@ module Zip
         raise ArgumentError,
               "cannot open stream to directory entry - '#{new_entry}'"
       end
-      new_entry.unix_perms = permission_int
+      new_entry.unix_perms = permissions
       zip_streamable_entry = StreamableStream.new(new_entry)
       @entry_set << zip_streamable_entry
       zip_streamable_entry.get_output_stream(&a_proc)

@@ -68,22 +68,30 @@ class ZipFileTest < MiniTest::Test
       assert_equal(count + 1, zf.size)
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
 
-      custom_entry_args = [
-        TEST_COMMENT, TEST_EXTRA, TEST_COMPRESSED_SIZE, TEST_CRC,
-        ::Zip::Entry::STORED, ::Zlib::BEST_SPEED, TEST_SIZE, TEST_TIME
-      ]
-      zf.get_output_stream('entry_with_custom_args.txt', nil, *custom_entry_args) do |os|
+      custom_entry_args = {
+        comment: TEST_COMMENT, compressed_size: TEST_COMPRESSED_SIZE,
+        crc: TEST_CRC, compression_method: ::Zip::COMPRESSION_METHOD_STORE,
+        compression_level: ::Zlib::BEST_SPEED, size: TEST_SIZE, time: TEST_TIME
+      }
+      zf.get_output_stream(
+        'entry_with_custom_args.txt', **custom_entry_args
+      ) do |os|
         os.write 'Some data'
       end
+
       assert_equal(count + 2, zf.size)
       entry = zf.get_entry('entry_with_custom_args.txt')
-      assert_equal(custom_entry_args[0], entry.comment)
-      assert_equal(custom_entry_args[2], entry.compressed_size)
-      assert_equal(custom_entry_args[3], entry.crc)
-      assert_equal(custom_entry_args[4], entry.compression_method)
-      assert_equal(custom_entry_args[5], entry.compression_level)
-      assert_equal(custom_entry_args[6], entry.size)
-      assert_equal(custom_entry_args[7], entry.time)
+      assert_equal(custom_entry_args[:comment], entry.comment)
+      assert_equal(custom_entry_args[:compressed_size], entry.compressed_size)
+      assert_equal(custom_entry_args[:crc], entry.crc)
+      assert_equal(
+        custom_entry_args[:compression_method], entry.compression_method
+      )
+      assert_equal(
+        custom_entry_args[:compression_level], entry.compression_level
+      )
+      assert_equal(custom_entry_args[:size], entry.size)
+      assert_equal(custom_entry_args[:time], entry.time)
 
       zf.get_output_stream('entry.bin') do |os|
         os.write(::File.open('test/data/generated/5entry.zip', 'rb').read)
