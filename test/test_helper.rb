@@ -16,40 +16,6 @@ TestZipFile.create_test_zips
   FileUtils.rm_rf('test/data/generated')
 end
 
-module IOizeString
-  attr_reader :tell
-
-  def read(count = nil)
-    @tell ||= 0
-    count ||= size
-    ret_val = slice(@tell, count)
-    @tell += count
-    ret_val
-  end
-
-  def seek(index, offset)
-    @tell ||= 0
-    case offset
-    when IO::SEEK_END
-      pos = size + index
-    when IO::SEEK_SET
-      pos = index
-    when IO::SEEK_CUR
-      pos = @tell + index
-    else
-      raise 'Error in test method IOizeString::seek'
-    end
-
-    raise Errno::EINVAL if pos < 0 || pos >= size
-
-    @tell = pos
-  end
-
-  def reset
-    @tell = 0
-  end
-end
-
 module DecompressorTests
   # expects @ref_text, @ref_lines and @decompressor
 
