@@ -149,11 +149,16 @@ module Zip
     end
 
     def read_central_directory_entries(io) #:nodoc:
+      # `StringIO` doesn't raise `EINVAL` if you seek beyond the current end,
+      # so we need to catch that *and* query `io#eof?` here.
+      eof = false
       begin
         io.seek(@cdir_offset, IO::SEEK_SET)
       rescue Errno::EINVAL
-        raise Error, 'Zip consistency problem while reading central directory entry'
+        eof = true
       end
+      raise Error, 'Zip consistency problem while reading central directory entry' if eof || io.eof?
+
       @entry_set = EntrySet.new
       @size.times do
         entry = Entry.read_c_dir_entry(io)

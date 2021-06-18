@@ -26,15 +26,22 @@ class ZipCentralDirectoryTest < MiniTest::Test
   rescue ::Zip::Error
   end
 
-  def test_read_from_truncated_zip_file
-    fragment = ''
-    File.open('test/data/testDirectory.bin', 'rb') { |f| fragment = f.read }
-    fragment.slice!(12) # removed part of first cdir entry. eocd structure still complete
-    fragment.extend(IOizeString)
-    entry = ::Zip::CentralDirectory.new
-    entry.read_from_stream(fragment)
-    raise 'ZipError expected'
-  rescue ::Zip::Error
+  def test_read_eocd_with_wrong_cdir_offset_from_file
+    ::File.open('test/data/testDirectory.bin', 'rb') do |f|
+      assert_raises(::Zip::Error) do
+        cdir = ::Zip::CentralDirectory.new
+        cdir.read_from_stream(f)
+      end
+    end
+  end
+
+  def test_read_eocd_with_wrong_cdir_offset_from_buffer
+    ::File.open('test/data/testDirectory.bin', 'rb') do |f|
+      assert_raises(::Zip::Error) do
+        cdir = ::Zip::CentralDirectory.new
+        cdir.read_from_stream(StringIO.new(f.read))
+      end
+    end
   end
 
   def test_write_to_stream
