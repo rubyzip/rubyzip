@@ -51,7 +51,7 @@ module Zip
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, offset = 0, decrypter = nil)
+    def initialize(context, offset: 0, decrypter: nil)
       super()
       @archive_io = get_io(context, offset)
       @decompressor = ::Zip::NullDecompressor
@@ -99,8 +99,8 @@ module Zip
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
-      def open(filename_or_io, offset = 0, decrypter = nil)
-        zio = new(filename_or_io, offset, decrypter)
+      def open(filename_or_io, offset: 0, decrypter: nil)
+        zio = new(filename_or_io, offset: offset, decrypter: decrypter)
         return zio unless block_given?
 
         begin
@@ -110,9 +110,9 @@ module Zip
         end
       end
 
-      def open_buffer(filename_or_io, offset = 0)
+      def open_buffer(filename_or_io, offset: 0)
         warn 'open_buffer is deprecated!!! Use open instead!'
-        ::Zip::InputStream.open(filename_or_io, offset)
+        ::Zip::InputStream.open(filename_or_io, offset: offset)
       end
     end
 

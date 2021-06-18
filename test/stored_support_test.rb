@@ -22,7 +22,9 @@ class StoredSupportTest < MiniTest::Test
   end
 
   def test_encrypted_read
-    Zip::InputStream.open(ENCRYPTED_STORED_ZIP_TEST_FILE, 0, Zip::TraditionalDecrypter.new('password')) do |zis|
+    Zip::InputStream.open(
+      ENCRYPTED_STORED_ZIP_TEST_FILE, decrypter: Zip::TraditionalDecrypter.new('password')
+    ) do |zis|
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
       assert_equal 1_327, entry.size

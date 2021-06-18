@@ -28,7 +28,9 @@ class EncryptionTest < MiniTest::Test
       out.write content
     end
 
-    Zip::InputStream.open(encrypted_zip, 0, Zip::TraditionalDecrypter.new(password)) do |zis|
+    Zip::InputStream.open(
+      encrypted_zip, decrypter: Zip::TraditionalDecrypter.new(password)
+    ) do |zis|
       entry = zis.get_next_entry
       assert_equal test_filename, entry.name
       assert_equal 1327, entry.size
@@ -36,7 +38,10 @@ class EncryptionTest < MiniTest::Test
     end
 
     assert_raises(Zip::DecompressionError) do
-      Zip::InputStream.open(encrypted_zip, 0, Zip::TraditionalDecrypter.new("#{password}wrong")) do |zis|
+      Zip::InputStream.open(
+        encrypted_zip,
+        decrypter: Zip::TraditionalDecrypter.new("#{password}wrong")
+      ) do |zis|
         zis.get_next_entry
         assert_equal content, zis.read
       end
@@ -44,7 +49,10 @@ class EncryptionTest < MiniTest::Test
   end
 
   def test_decrypt
-    Zip::InputStream.open(ENCRYPT_ZIP_TEST_FILE, 0, Zip::TraditionalDecrypter.new('password')) do |zis|
+    Zip::InputStream.open(
+      ENCRYPT_ZIP_TEST_FILE,
+      decrypter: Zip::TraditionalDecrypter.new('password')
+    ) do |zis|
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
       assert_equal 1327, entry.size
