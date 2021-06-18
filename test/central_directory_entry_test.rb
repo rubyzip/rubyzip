@@ -77,4 +77,25 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
       assert_nil(::Zip::Entry.read_c_dir_entry(StringIO.new(fragment)))
     end
   end
+
+  def test_read_corrupted_entry_raises_error
+    fragment = File.binread('test/data/testDirectory.bin')
+    fragment.slice!(12)
+    io = StringIO.new(fragment)
+    assert_raises(::Zip::Error) do
+      entry = ::Zip::Entry.new
+      entry.read_c_dir_entry(io)
+      # First entry will be read but break later entries.
+      entry.read_c_dir_entry(io)
+    end
+  end
+
+  def test_read_corrupted_entry_returns_nil
+    fragment = File.binread('test/data/testDirectory.bin')
+    fragment.slice!(12)
+    io = StringIO.new(fragment)
+    refute_nil(::Zip::Entry.read_c_dir_entry(io))
+    # First entry will be read but break later entries.
+    assert_nil(::Zip::Entry.read_c_dir_entry(io))
+  end
 end
