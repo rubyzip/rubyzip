@@ -42,16 +42,23 @@ class ZipLocalEntryTest < MiniTest::Test
     end
   end
 
-  def test_read_local_entry_from_truncated_zip_file
-    fragment = ''
-    # local header is at least 30 bytes
-    ::File.open(TestZipFile::TEST_ZIP2.zip_name) { |f| fragment = f.read(12) }
+  def test_read_local_entry_from_truncated_zip_file_raises_error
+    ::File.open(TestZipFile::TEST_ZIP2.zip_name) do |f|
+      # Local header is at least 30 bytes, so don't read it all here.
+      fragment = f.read(12)
+      assert_raises(::Zip::Error) do
+        entry = ::Zip::Entry.new
+        entry.read_local_entry(StringIO.new(fragment))
+      end
+    end
+  end
 
-    fragment.extend(IOizeString).reset
-    entry = ::Zip::Entry.new
-    entry.read_local_entry(fragment)
-    raise 'ZipError expected'
-  rescue ::Zip::Error
+  def test_read_local_entry_from_truncated_zip_file_returns_nil
+    ::File.open(TestZipFile::TEST_ZIP2.zip_name) do |f|
+      # Local header is at least 30 bytes, so don't read it all here.
+      fragment = f.read(12)
+      assert_nil(::Zip::Entry.read_local_entry(StringIO.new(fragment)))
+    end
   end
 
   def test_write_entry

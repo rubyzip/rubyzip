@@ -59,13 +59,22 @@ class ZipCentralDirectoryEntryTest < MiniTest::Test
     end
   end
 
-  def test_read_entry_from_truncated_zip_file
-    fragment = ''
-    File.open('test/data/testDirectory.bin') { |f| fragment = f.read(12) } # cdir entry header is at least 46 bytes
-    fragment.extend(IOizeString)
-    entry = ::Zip::Entry.new
-    entry.read_c_dir_entry(fragment)
-    raise 'ZipError expected'
-  rescue ::Zip::Error
+  def test_read_entry_from_truncated_zip_file_raises_error
+    File.open('test/data/testDirectory.bin') do |f|
+      # cdir entry header is at least 46 bytes, so just read a bit.
+      fragment = f.read(12)
+      assert_raises(::Zip::Error) do
+        entry = ::Zip::Entry.new
+        entry.read_c_dir_entry(StringIO.new(fragment))
+      end
+    end
+  end
+
+  def test_read_entry_from_truncated_zip_file_returns_nil
+    File.open('test/data/testDirectory.bin') do |f|
+      # cdir entry header is at least 46 bytes, so just read a bit.
+      fragment = f.read(12)
+      assert_nil(::Zip::Entry.read_c_dir_entry(StringIO.new(fragment)))
+    end
   end
 end
