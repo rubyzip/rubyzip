@@ -114,14 +114,6 @@ Style/OptionalBooleanParameter:
     - 'lib/zip/file_split.rb'
     - 'lib/zip/output_stream.rb'
 
-# Offense count: 29
-# Cop supports --auto-correct.
-Style/RedundantRegexpEscape:
-  Exclude:
-    - 'Guardfile'
-    - 'test/file_extract_test.rb'
-    - 'test/path_traversal_test.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.
