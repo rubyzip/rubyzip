@@ -59,8 +59,8 @@ class AbstractInputStreamTest < MiniTest::Test
   end
 
   LONG_LINES = [
-    'x' * 48 + "\r\n",
-    'y' * 49 + "\r\n",
+    "#{'x' * 48}\r\n",
+    "#{'y' * 49}\r\n",
     'rest'
   ].freeze
 
@@ -74,7 +74,7 @@ class AbstractInputStreamTest < MiniTest::Test
   def test_gets_with_sep_and_index
     io = TestAbstractInputStream.new(LONG_LINES.join)
     assert_equal('x', io.gets("\r\n", 1))
-    assert_equal('x' * 47 + "\r", io.gets("\r\n", 48))
+    assert_equal("#{'x' * 47}\r", io.gets("\r\n", 48))
     assert_equal("\n", io.gets(nil, 1))
     assert_equal('yy', io.gets(nil, 2))
   end

@@ -332,7 +332,7 @@ class ZipFileTest < MiniTest::Test
 
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       dir_entry = zf.entries.detect do |e|
-        e.name == TestFiles::EMPTY_TEST_DIR + '/'
+        e.name == "#{TestFiles::EMPTY_TEST_DIR}/"
       end
 
       assert(dir_entry.directory?)

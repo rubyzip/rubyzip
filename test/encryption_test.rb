@@ -33,7 +33,7 @@ class EncryptionTest < MiniTest::Test
     end
 
     assert_raises(Zip::DecompressionError) do
-      Zip::InputStream.open(encrypted_zip, 0, Zip::TraditionalDecrypter.new(password + 'wrong')) do |zis|
+      Zip::InputStream.open(encrypted_zip, 0, Zip::TraditionalDecrypter.new("#{password}wrong")) do |zis|
         zis.get_next_entry
         assert_equal content, zis.read
       end
