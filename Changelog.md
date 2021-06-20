@@ -1,5 +1,6 @@
 # 3.0.0 (Next)
 
+- Use named parameters for optional arguments in the public API.
 - Raise an error if entry names exceed 65,535 characters. [#247](https://github.com/rubyzip/rubyzip/issues/247)
 - Remove the `ZipXError` v1 legacy classes.
 - Raise an error on reading a split archive with `InputStream`. [#349](https://github.com/rubyzip/rubyzip/issues/349)
