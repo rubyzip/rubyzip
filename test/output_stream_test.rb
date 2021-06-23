@@ -58,6 +58,20 @@ class ZipOutputStreamTest < MiniTest::Test
     assert_test_zip_contents(TEST_ZIP)
   end
 
+  def test_write_buffer_with_temp_file2
+    tmp_file = ::File.join(Dir.tmpdir, 'zos.zip')
+    ::File.open(tmp_file, 'wb') do |f|
+      ::Zip::OutputStream.write_buffer(f) do |zos|
+        zos.comment = TEST_ZIP.comment
+        write_test_zip(zos)
+      end
+    end
+
+    ::Zip::File.open(tmp_file) # Should open without error.
+  ensure
+    ::File.unlink(tmp_file)
+  end
+
   def test_writing_to_closed_stream
     assert_i_o_error_in_closed_stream { |zos| zos << 'hello world' }
     assert_i_o_error_in_closed_stream { |zos| zos.puts 'hello world' }

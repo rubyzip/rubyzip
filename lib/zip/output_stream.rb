@@ -86,6 +86,7 @@ module Zip
       update_local_headers
       write_central_directory
       @closed = true
+      @output_stream.flush
       @output_stream
     end
 
