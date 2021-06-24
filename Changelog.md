@@ -1,5 +1,10 @@
 # 3.0.0 (Next)
 
+- Ensure `InputStream` raises `GPFBit3Error` for OSX Archive files. [#493](https://github.com/rubyzip/rubyzip/issues/493)
+- Improve documentation and error messages for `InputStream`. [#196](https://github.com/rubyzip/rubyzip/issues/196)
+- Fix zip file-level comment is not read from zip64 files. [#492](https://github.com/rubyzip/rubyzip/issues/492)
+- Fix `Zip::OutputStream.write_buffer` doesn't work with Tempfiles. [#265](https://github.com/rubyzip/rubyzip/issues/265)
+- Reinstate normalising pathname separators to /. [#487](https://github.com/rubyzip/rubyzip/pull/487)
 - Fix restore options consistency. [#486](https://github.com/rubyzip/rubyzip/pull/486)
 - View and/or preserve original date created, date modified? (Windows). [#336](https://github.com/rubyzip/rubyzip/issues/336)
 - Fix frozen string literal error. [#475](https://github.com/rubyzip/rubyzip/pull/475)
@@ -14,6 +19,7 @@
 
 Tooling/internal:
 
+- Configure Coveralls to not report a failure on minor decreases of test coverage. [#491](https://github.com/rubyzip/rubyzip/issues/491)
 - Extract the file splitting code out into its own module.
 - Refactor, and tidy up, the `Zip::Filesystem` classes for improved maintainability.
 - Fix Windows tests. [#489](https://github.com/rubyzip/rubyzip/pull/489)
