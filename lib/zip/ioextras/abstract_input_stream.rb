@@ -84,7 +84,10 @@ module Zip
           @output_buffer << produce_input
           over_limit = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
         end
-        sep_index = [match_index + a_sep_string.bytesize, number_of_bytes || @output_buffer.bytesize].min
+        sep_index = [
+          match_index + a_sep_string.bytesize,
+          number_of_bytes || @output_buffer.bytesize
+        ].min
         @pos += sep_index
         @output_buffer.slice!(0...sep_index)
       end

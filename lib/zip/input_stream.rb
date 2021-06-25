@@ -134,7 +134,10 @@ module Zip
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
       return if @current_entry.nil?
 
-      raise Error, 'A password is required to decode this zip file' if @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
+      if @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
+        raise Error,
+              'A password is required to decode this zip file'
+      end
 
       if @current_entry.incomplete? && @current_entry.compressed_size == 0 \
         && !@complete_entry
@@ -161,13 +164,16 @@ module Zip
       return ::Zip::NullDecompressor if @current_entry.nil?
 
       decompressed_size =
-        if @current_entry.incomplete? && @current_entry.crc == 0 && @current_entry.size == 0 && @complete_entry
+        if @current_entry.incomplete? && @current_entry.crc == 0 \
+           && @current_entry.size == 0 && @complete_entry
           @complete_entry.size
         else
           @current_entry.size
         end
 
-      decompressor_class = ::Zip::Decompressor.find_by_compression_method(@current_entry.compression_method)
+      decompressor_class = ::Zip::Decompressor.find_by_compression_method(
+        @current_entry.compression_method
+      )
       if decompressor_class.nil?
         raise ::Zip::CompressionMethodError,
               "Unsupported compression method #{@current_entry.compression_method}"

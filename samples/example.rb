@@ -21,7 +21,8 @@ end
 
 zf = Zip::File.new('example.zip')
 zf.each_with_index do |entry, index|
-  puts "entry #{index} is #{entry.name}, size = #{entry.size}, compressed size = #{entry.compressed_size}"
+  puts "entry #{index} is #{entry.name}, size = #{entry.size}, " \
+       "compressed size = #{entry.compressed_size}"
   # use zf.get_input_stream(entry) to get a ZipInputStream for the entry
   # entry can be the ZipEntry object or any object which has a to_s method that
   # returns the name of the entry.
@@ -71,8 +72,11 @@ part_zips_count = Zip::File.split('large_zip_file.zip', 2_097_152, false)
 puts "Zip file splitted in #{part_zips_count} parts"
 
 # Track splitting an archive
-Zip::File.split('large_zip_file.zip', 1_048_576, true, 'part_zip_file') do |part_count, part_index, chunk_bytes, segment_bytes|
-  puts "#{part_index} of #{part_count} part splitting: #{(chunk_bytes.to_f / segment_bytes * 100).to_i}%"
+Zip::File.split(
+  'large_zip_file.zip', 1_048_576, true, 'part_zip_file'
+) do |part_count, part_index, chunk_bytes, segment_bytes|
+  puts "#{part_index} of #{part_count} part splitting: " \
+       "#{(chunk_bytes.to_f / segment_bytes * 100).to_i}%"
 end
 
 # For other examples, look at zip.rb and ziptest.rb

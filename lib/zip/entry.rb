@@ -195,7 +195,10 @@ module Zip
       return if @local_header_size.nil?
 
       new_size = calculate_local_header_size
-      raise Error, "local header size changed (#{@local_header_size} -> #{new_size})" if @local_header_size != new_size
+      return unless @local_header_size != new_size
+
+      raise Error,
+            "Local header size changed (#{@local_header_size} -> #{new_size})"
     end
 
     def cdir_header_size #:nodoc:all
@@ -363,8 +366,9 @@ module Zip
                  when ::Zip::FILE_TYPE_SYMLINK
                    :symlink
                  else
-                   # best case guess for whether it is a file or not
-                   # Otherwise this would be set to unknown and that entry would never be able to extracted
+                   # Best case guess for whether it is a file or not.
+                   # Otherwise this would be set to unknown and that
+                   # entry would never be able to be extracted.
                    if name_is_directory?
                      :directory
                    else
@@ -444,13 +448,18 @@ module Zip
       @unix_perms = stat.mode & 0o7777
     end
 
+    # rubocop:disable Style/GuardClause
     def set_unix_attributes_on_path(dest_path)
-      # ignore setuid/setgid bits by default.  honor if @restore_ownership
-      unix_perms_mask = 0o1777
-      unix_perms_mask = 0o7777 if @restore_ownership
-      ::FileUtils.chmod(@unix_perms & unix_perms_mask, dest_path) if @restore_permissions && @unix_perms
-      ::FileUtils.chown(@unix_uid, @unix_gid, dest_path) if @restore_ownership && @unix_uid && @unix_gid && ::Process.egid == 0
+      # Ignore setuid/setgid bits by default. Honour if @restore_ownership.
+      unix_perms_mask = (@restore_ownership ? 0o7777 : 0o1777)
+      if @restore_permissions && @unix_perms
+        ::FileUtils.chmod(@unix_perms & unix_perms_mask, dest_path)
+      end
+      if @restore_ownership && @unix_uid && @unix_gid && ::Process.egid == 0
+        ::FileUtils.chown(@unix_uid, @unix_gid, dest_path)
+      end
     end
+    # rubocop:enable Style/GuardClause
 
     def set_extra_attributes_on_path(dest_path) # :nodoc:
       return unless file? || directory?
@@ -693,7 +702,9 @@ module Zip
       if for_local_header
         @size, @compressed_size = @extra['Zip64'].parse(@size, @compressed_size)
       else
-        @size, @compressed_size, @local_header_offset = @extra['Zip64'].parse(@size, @compressed_size, @local_header_offset)
+        @size, @compressed_size, @local_header_offset = @extra['Zip64'].parse(
+          @size, @compressed_size, @local_header_offset
+        )
       end
     end
 

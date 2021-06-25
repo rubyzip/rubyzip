@@ -140,7 +140,8 @@ module Zip
       # downloaded zip archive without first saving it to disk.)
       def open_buffer(io, options = {})
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
-          raise "Zip::File.open_buffer expects a String or IO-like argument (responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
+          raise 'Zip::File.open_buffer expects a String or IO-like argument' \
+                "(responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
         end
 
         io = ::StringIO.new(io) if io.kind_of?(::String)

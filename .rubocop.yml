@@ -22,7 +22,7 @@ Layout/HashAlignment:
 # Set a workable line length, given the current state of the code,
 # and turn off for the tests.
 Layout/LineLength:
-  Max: 135
+  Max: 100
   Exclude:
     - 'test/**/*.rb'
 

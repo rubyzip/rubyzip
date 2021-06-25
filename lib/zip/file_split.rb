@@ -41,7 +41,10 @@ module Zip
     #
     # TODO: Make the code more understandable
     #
-    def save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
+    def save_splited_part(
+      zip_file, partial_zip_file_name, zip_file_size,
+      szip_file_index, segment_size, segment_count
+    )
       ssegment_size  = zip_file_size - zip_file.pos
       ssegment_size  = segment_size if ssegment_size > segment_size
       szip_file_name = "#{partial_zip_file_name}.#{format('%03d', szip_file_index)}"
@@ -52,7 +55,7 @@ module Zip
         chunk_bytes = 0
         until ssegment_size == chunk_bytes || zip_file.eof?
           segment_bytes_left = ssegment_size - chunk_bytes
-          buffer_size        = segment_bytes_left < DATA_BUFFER_SIZE ? segment_bytes_left : DATA_BUFFER_SIZE
+          buffer_size        = [segment_bytes_left, DATA_BUFFER_SIZE].min
           chunk              = zip_file.read(buffer_size)
           chunk_bytes += buffer_size
           szip_file << chunk
@@ -63,7 +66,10 @@ module Zip
     end
 
     # Splits an archive into parts with segment size
-    def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
+    def split(
+      zip_file_name, segment_size = MAX_SEGMENT_SIZE,
+      delete_zip_file = true, partial_zip_file_name = nil
+    )
       raise Error, "File #{zip_file_name} not found" unless ::File.exist?(zip_file_name)
       raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
 
@@ -78,7 +84,10 @@ module Zip
       ::File.open(zip_file_name, 'rb') do |zip_file|
         until zip_file.eof?
           szip_file_index += 1
-          save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
+          save_splited_part(
+            zip_file, partial_zip_file_name, zip_file_size,
+            szip_file_index, segment_size, segment_count
+          )
         end
       end
       ::File.delete(zip_file_name) if delete_zip_file
