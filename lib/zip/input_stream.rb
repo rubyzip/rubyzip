@@ -136,12 +136,12 @@ module Zip
 
       raise Error, 'A password is required to decode this zip file' if @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
 
-      if @current_entry.incomplete? && @current_entry.crc == 0 \
-        && @current_entry.compressed_size == 0 \
-        && @current_entry.size == 0 && !@complete_entry
+      if @current_entry.incomplete? && @current_entry.compressed_size == 0 \
+        && !@complete_entry
         raise GPFBit3Error,
-              'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
-              'Please use ::Zip::File instead of ::Zip::InputStream'
+              'It is not possible to get complete info from the local ' \
+              'header to extract this entry (GP flags bit 3 is set).' \
+              'Please use `Zip::File` instead of `Zip::InputStream`.'
       end
 
       @decrypted_io = get_decrypted_io
