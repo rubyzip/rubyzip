@@ -67,6 +67,14 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
+  def test_open_file_with_gp3bit_set
+    ::Zip::InputStream.open('test/data/gpbit3stored.zip') do |zis|
+      assert_raises(::Zip::GPFBit3Error) do
+        zis.get_next_entry
+      end
+    end
+  end
+
   def test_size_no_entry
     zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_nil(zis.size)
