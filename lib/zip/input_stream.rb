@@ -53,10 +53,11 @@ module Zip
     # @param offset [Integer] offset in the IO/StringIO
     def initialize(context, offset = 0, decrypter = nil)
       super()
-      @archive_io    = get_io(context, offset)
-      @decompressor  = ::Zip::NullDecompressor
-      @decrypter     = decrypter || ::Zip::NullDecrypter.new
+      @archive_io = get_io(context, offset)
+      @decompressor = ::Zip::NullDecompressor
+      @decrypter = decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil
+      @complete_entry = nil
     end
 
     def close
@@ -131,17 +132,18 @@ module Zip
 
     def open_entry
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
-      if @current_entry && @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
-        raise Error, 'password required to decode zip file'
-      end
+      return if @current_entry.nil?
 
-      if @current_entry && @current_entry.incomplete? && @current_entry.crc == 0 \
+      raise Error, 'A password is required to decode this zip file' if @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
+
+      if @current_entry.incomplete? && @current_entry.crc == 0 \
         && @current_entry.compressed_size == 0 \
         && @current_entry.size == 0 && !@complete_entry
         raise GPFBit3Error,
               'General purpose flag Bit 3 is set so not possible to get proper info from local header.' \
               'Please use ::Zip::File instead of ::Zip::InputStream'
       end
+
       @decrypted_io = get_decrypted_io
       @decompressor = get_decompressor
       flush
