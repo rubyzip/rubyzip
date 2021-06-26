@@ -1,5 +1,6 @@
 # 3.0.0 (Next)
 
+- Remove the `ZipXError` v1 legacy classes.
 - Raise an error on reading a split archive with `InputStream`. [#349](https://github.com/rubyzip/rubyzip/issues/349)
 - Ensure `InputStream` raises `GPFBit3Error` for OSX Archive files. [#493](https://github.com/rubyzip/rubyzip/issues/493)
 - Improve documentation and error messages for `InputStream`. [#196](https://github.com/rubyzip/rubyzip/issues/196)

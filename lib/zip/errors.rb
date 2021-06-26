@@ -11,12 +11,4 @@ module Zip
   class GPFBit3Error < Error; end
   class DecompressionError < Error; end
   class SplitArchiveError < Error; end
-
-  # Backwards compatibility with v1 (delete in v2)
-  ZipError = Error
-  ZipEntryExistsError = EntryExistsError
-  ZipDestinationFileExistsError = DestinationFileExistsError
-  ZipCompressionMethodError = CompressionMethodError
-  ZipEntryNameError = EntryNameError
-  ZipInternalError = InternalError
 end
