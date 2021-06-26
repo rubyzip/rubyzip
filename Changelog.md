@@ -12,7 +12,6 @@
 - Set the default `Entry` time to the file's mtime on Windows. [#465](https://github.com/rubyzip/rubyzip/issues/465)
 - Ensure that `Entry#time=` sets times as `DOSTime` objects. [#481](https://github.com/rubyzip/rubyzip/issues/481)
 - Replace and deprecate `Zip::DOSTime#dos_equals`. [#464](https://github.com/rubyzip/rubyzip/pull/464)
-- Fix input stream partial read error. [#462](https://github.com/rubyzip/rubyzip/pull/462)
 - Fix loading extra fields. [#459](https://github.com/rubyzip/rubyzip/pull/459)
 - Set compression level on a per-zipfile basis. [#448](https://github.com/rubyzip/rubyzip/pull/448)
 - Fix input stream partial read error. [#462](https://github.com/rubyzip/rubyzip/pull/462)
