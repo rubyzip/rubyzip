@@ -150,6 +150,15 @@ class ZipEntryTest < MiniTest::Test
     assert_raises(::Zip::EntryNameError) { ::Zip::Entry.new('zf.zip', '/hej/der') }
   end
 
+  def test_entry_name_cannot_be_too_long
+    name = 'a' * 65_535
+    ::Zip::Entry.new('', name) # Should not raise anything.
+
+    assert_raises(::Zip::EntryNameError) do
+      ::Zip::Entry.new('', "a#{name}")
+    end
+  end
+
   def test_store_file_without_compression
     Dir.mktmpdir do |tmp|
       tmp_zip = File.join(tmp, 'no_compress.zip')

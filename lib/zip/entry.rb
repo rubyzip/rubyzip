@@ -55,9 +55,17 @@ module Zip
     end
 
     def check_name(name)
-      return unless name.start_with?('/')
+      error =
+        if name.start_with?('/')
+          "Illegal entry name '#{name}'. Names must not start with '/'"
+        elsif name.length > 65_535
+          'Illegal entry name. Names must have fewer than 65,536 characters'
+        else
+          ''
+        end
+      return if error.empty?
 
-      raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
+      raise EntryNameError, error
     end
 
     def initialize(

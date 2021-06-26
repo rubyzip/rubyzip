@@ -20,7 +20,7 @@ Lint/MissingSuper:
 # Offense count: 5
 # Configuration parameters: CountComments, CountAsOne.
 Metrics/ClassLength:
-  Max: 610
+  Max: 620
 
 # Offense count: 21
 # Configuration parameters: IgnoredMethods.
