@@ -83,6 +83,14 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
+  def test_open_split_archive_raises_error
+    ::Zip::InputStream.open('test/data/invalid-split.zip') do |zis|
+      assert_raises(::Zip::SplitArchiveError) do
+        zis.get_next_entry
+      end
+    end
+  end
+
   def test_size_no_entry
     zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_nil(zis.size)

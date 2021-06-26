@@ -250,6 +250,8 @@ module Zip
         entry = new(io)
         entry.read_local_entry(io)
         entry
+      rescue SplitArchiveError
+        raise
       rescue Error
         nil
       end
@@ -281,8 +283,13 @@ module Zip
 
       unpack_local_entry(static_sized_fields_buf)
 
-      unless @header_signature == ::Zip::LOCAL_ENTRY_SIGNATURE
-        raise ::Zip::Error, "Zip local header magic not found at location '#{local_header_offset}'"
+      unless @header_signature == LOCAL_ENTRY_SIGNATURE
+        if @header_signature == SPLIT_FILE_SIGNATURE
+          raise SplitArchiveError,
+                'Rubyzip cannot extract from split archives at this time'
+        end
+
+        raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
       end
 
       set_time(@last_mod_date, @last_mod_time)

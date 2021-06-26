@@ -10,6 +10,7 @@ module Zip
   class InternalError < Error; end
   class GPFBit3Error < Error; end
   class DecompressionError < Error; end
+  class SplitArchiveError < Error; end
 
   # Backwards compatibility with v1 (delete in v2)
   ZipError = Error
