@@ -330,7 +330,11 @@ module Zip
       selected_entry
     end
 
-    # Searches for entries given a glob
+    # Search for entries given a glob pattern. You can also supply flags
+    # in the second argument, which are equivalent to those used by
+    # `::Dir.glob` and `::File.fnmatch`. Default flags are
+    # `::File::FNM_PATHNAME | ::File::FNM_DOTMATCH | ::File::FNM_EXTGLOB`,
+    # which will be overridden if you set your own flags.
     def glob(*args, &block)
       @entry_set.glob(*args, &block)
     end
