@@ -153,7 +153,7 @@ module Zip
         && !@complete_entry
         raise GPFBit3Error,
               'It is not possible to get complete info from the local ' \
-              'header to extract this entry (GP flags bit 3 is set).' \
+              'header to extract this entry (GP flags bit 3 is set). ' \
               'Please use `Zip::File` instead of `Zip::InputStream`.'
       end
 
