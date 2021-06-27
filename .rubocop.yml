@@ -48,9 +48,10 @@ Metrics/AbcSize:
   Exclude:
     - 'test/**/*.rb'
 
-# Turn block length metrics off for the tests.
+# Turn block length metrics off for the tests and gemspec.
 Metrics/BlockLength:
   Exclude:
+    - 'rubyzip.gemspec'
     - 'test/**/*.rb'
 
 # Turn class length metrics off for the tests.
