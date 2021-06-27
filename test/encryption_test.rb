@@ -5,6 +5,7 @@ require 'test_helper'
 class EncryptionTest < MiniTest::Test
   ENCRYPT_ZIP_TEST_FILE = 'test/data/zipWithEncryption.zip'
   INPUT_FILE1 = 'test/data/file1.txt'
+  INPUT_FILE2 = 'test/data/file2.txt'
 
   def setup
     Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
@@ -33,7 +34,7 @@ class EncryptionTest < MiniTest::Test
     ) do |zis|
       entry = zis.get_next_entry
       assert_equal test_filename, entry.name
-      assert_equal 1327, entry.size
+      assert_equal 1_327, entry.size
       assert_equal content, zis.read
     end
 
@@ -55,8 +56,12 @@ class EncryptionTest < MiniTest::Test
     ) do |zis|
       entry = zis.get_next_entry
       assert_equal 'file1.txt', entry.name
-      assert_equal 1327, entry.size
+      assert_equal 1_327, entry.size
       assert_equal ::File.open(INPUT_FILE1, 'r').read, zis.read
+      entry = zis.get_next_entry
+      assert_equal 'file2.txt', entry.name
+      assert_equal 41_234, entry.size
+      assert_equal ::File.open(INPUT_FILE2, 'r').read, zis.read
     end
   end
 end

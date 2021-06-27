@@ -4,7 +4,8 @@ require 'test_helper'
 
 class StoredSupportTest < MiniTest::Test
   STORED_ZIP_TEST_FILE = 'test/data/zipWithStoredCompression.zip'
-  ENCRYPTED_STORED_ZIP_TEST_FILE = 'test/data/zipWithStoredCompressionAndEncryption.zip'
+  ENCRYPTED_STORED_ZIP_TEST_FILE =
+    'test/data/zipWithStoredCompressionAndEncryption.zip'
   INPUT_FILE1 = 'test/data/file1.txt'
   INPUT_FILE2 = 'test/data/file2.txt'
 
