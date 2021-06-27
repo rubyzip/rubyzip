@@ -69,7 +69,17 @@ module Zip
     # the first entry in the archive. Returns nil when there are
     # no more entries.
     def get_next_entry
-      @archive_io.seek(@current_entry.next_header_offset, IO::SEEK_SET) if @current_entry
+      unless @current_entry.nil?
+        if @current_entry.incomplete?
+          raise GPFBit3Error,
+                'It is not possible to get complete info from the local ' \
+                'header to extract this entry (GP flags bit 3 is set). ' \
+                'Please use `Zip::File` instead of `Zip::InputStream`.'
+        end
+
+        @archive_io.seek(@current_entry.next_header_offset, IO::SEEK_SET)
+      end
+
       open_entry
     end
 

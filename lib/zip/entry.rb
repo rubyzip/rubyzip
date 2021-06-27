@@ -215,7 +215,7 @@ module Zip
     end
 
     def next_header_offset #:nodoc:all
-      local_entry_offset + compressed_size + data_descriptor_size
+      local_entry_offset + compressed_size
     end
 
     # Extracts entry to file dest_path (defaults to @name).
@@ -721,10 +721,6 @@ module Zip
           @size, @compressed_size, @local_header_offset
         )
       end
-    end
-
-    def data_descriptor_size
-      (@gp_flags & 0x0008) > 0 ? 16 : 0
     end
 
     # For DEFLATED compression *only*: set the general purpose flags 1 and 2 to
