@@ -5,8 +5,10 @@ require_relative 'lib/zip/version'
 Gem::Specification.new do |s|
   s.name          = 'rubyzip'
   s.version       = ::Zip::VERSION
-  s.authors       = ['Alexander Simonov']
-  s.email         = ['alex@simonov.me']
+  s.authors       = ['Robert Haines', 'John Lees-Miller', 'Alexander Simonov']
+  s.email         = [
+    'hainesr@gmail.com', 'jdleesmiller@gmail.com', 'alex@simonov.me'
+  ]
   s.homepage      = 'http://github.com/rubyzip/rubyzip'
   s.platform      = Gem::Platform::RUBY
   s.summary       = 'rubyzip is a ruby module for reading and writing zip files'
