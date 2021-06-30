@@ -132,9 +132,9 @@ class ZipFileGenerator
 end
 ```
 
-### Save zip archive entries in sorted by name state
+### Save zip archive entries sorted by name
 
-To save zip archives in sorted order like below, you need to set `::Zip.sort_entries` to `true`
+To save zip archives with their entries sorted by name (see below), set `::Zip.sort_entries` to `true`
 
 ```
 Vegetable/
@@ -148,7 +148,7 @@ fruit/mango
 fruit/orange
 ```
 
-After this, entries in the zip archive will be saved in ordered state.
+Opening an existing zip file with this option set will not change the order of the entries automatically. Altering the zip file - adding an entry, renaming an entry, adding or changing the archive comment, etc - will cause the ordering to be applied when closing the file.
 
 ### Default permissions of zip archives
 

@@ -62,9 +62,15 @@ class ZipEntrySetTest < MiniTest::Test
     count = 0
     @zip_entry_set.each do |entry|
       assert(ZIP_ENTRIES.include?(entry))
+      refute(entry.dirty)
+      entry.dirty = true # Check that entries can be changed in this block.
       count += 1
     end
+
     assert_equal(ZIP_ENTRIES.size, count)
+    @zip_entry_set.each do |entry|
+      assert(entry.dirty)
+    end
   end
 
   def test_entries
@@ -101,6 +107,14 @@ class ZipEntrySetTest < MiniTest::Test
       arr << entry
     end
     assert_equal(ZIP_ENTRIES.sort, arr)
+
+    # Ensure `each` above hasn't permanently altered the ordering.
+    ::Zip.sort_entries = false
+    arr = []
+    @zip_entry_set.each do |entry|
+      arr << entry
+    end
+    assert_equal(ZIP_ENTRIES, arr)
   end
 
   def test_compound

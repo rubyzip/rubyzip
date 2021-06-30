@@ -35,10 +35,8 @@ module Zip
       entry if @entry_set.delete(to_key(entry))
     end
 
-    def each
-      @entry_set = sorted_entries.dup.each do |_, value|
-        yield(value)
-      end
+    def each(&block)
+      entries.each(&block)
     end
 
     def entries
