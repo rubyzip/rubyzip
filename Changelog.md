@@ -1,5 +1,9 @@
 # X.X.X (Next)
 
+# 2.3.1 (2021-07-03)
+
+- This is a dummy release to warn about breaking changes coming in version 3.0.
+
 # 2.3.0 (2020-03-14)
 
 - Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
