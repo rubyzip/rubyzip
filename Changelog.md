@@ -38,6 +38,10 @@ Tooling/internal:
 - Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
 - Fix a test that was incorrect on big-endian architectures. [#445](https://github.com/rubyzip/rubyzip/pull/445)
 
+# 2.3.1 (2021-07-03)
+
+- A "dummy" release to warn about breaking changes coming in version 3.0.
+
 # 2.3.0 (2020-03-14)
 
 - Fix frozen string literal error [#431](https://github.com/rubyzip/rubyzip/pull/431)
