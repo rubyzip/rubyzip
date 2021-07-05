@@ -1,5 +1,9 @@
 # X.X.X (Next)
 
+# 2.3.2 (2021-07-05)
+
+- This is a dummy release to warn about breaking changes coming in version 3.0. This updated version uses the Gem `post_install_message` instead of printing to `STDERR`.
+
 # 2.3.1 (2021-07-03)
 
 - This is a dummy release to warn about breaking changes coming in version 3.0.

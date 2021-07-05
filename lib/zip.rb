@@ -34,25 +34,6 @@ require 'zip/streamable_directory'
 require 'zip/errors'
 
 module Zip
-  BANNER = [
-    'RubyZip 3.0 is coming!',
-    '**********************',
-    '',
-    'The public API of some Rubyzip classes has been modernized to use named',
-    'parameters for optional arguments. Please check your usage of the',
-    'following classes:',
-    ' * `Zip::File`',
-    ' * `Zip::Entry`',
-    ' * `Zip::InputStream`',
-    ' * `Zip::OutputStream`',
-    '',
-    'Please ensure that your Gemfiles and .gemspecs are suitably restrictive',
-    'to avoid an unexpected breakage when 3.0 is released (e.g. ~> 2.3.0).',
-    'See https://github.com/rubyzip/rubyzip for details. The Changelog also',
-    'lists other enhancements and bugfixes that have been implemented since',
-    'version 2.3.0.'
-  ].freeze
-
   extend self
   attr_accessor :unicode_names,
                 :on_exists_proc,
@@ -66,8 +47,6 @@ module Zip
                 :validate_entry_sizes
 
   def reset!
-    warn BANNER.join("\n") unless BANNER.empty?
-
     @_ran_once = false
     @unicode_names = false
     @on_exists_proc = false
