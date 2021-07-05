@@ -36,8 +36,6 @@ require 'zip/streamable_directory'
 require 'zip/errors'
 
 module Zip
-  BANNER = [].freeze
-
   extend self
   attr_accessor :unicode_names,
                 :on_exists_proc,
@@ -57,8 +55,6 @@ module Zip
   }.freeze
 
   def reset!
-    warn BANNER.join("\n") unless BANNER.empty?
-
     @_ran_once = false
     @unicode_names = false
     @on_exists_proc = false
