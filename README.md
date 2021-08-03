@@ -212,7 +212,7 @@ Rubyzip supports reading/writing zip files with traditional zip encryption (a.k.
 
 ```ruby
 Zip::OutputStream.write_buffer(
-  ::StringIO.new, encrypter: Zip::TraditionalEncrypter.new('password')
+  ::StringIO.new, Zip::TraditionalEncrypter.new('password')
 ) do |out|
   out.put_next_entry("my_file.txt")
   out.write my_data
