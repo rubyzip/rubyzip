@@ -26,7 +26,10 @@ class ZipEntryTest < MiniTest::Test
     assert_equal(TEST_COMPRESSIONMETHOD, entry.compression_method)
     assert_equal(TEST_NAME, entry.name)
     assert_equal(TEST_SIZE, entry.size)
-    assert_equal(TEST_TIME, entry.time)
+
+    # Reverse times when testing because we need to use DOSTime#== for the
+    # comparison, not Time#==.
+    assert_equal(entry.time, TEST_TIME)
   end
 
   def test_is_directory_and_is_file

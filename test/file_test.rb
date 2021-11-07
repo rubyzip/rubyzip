@@ -95,7 +95,10 @@ class ZipFileTest < MiniTest::Test
         custom_entry_args[:compression_level], entry.compression_level
       )
       assert_equal(custom_entry_args[:size], entry.size)
-      assert_equal(custom_entry_args[:time], entry.time)
+
+      # Reverse times when testing because we need to use DOSTime#== for the
+      # comparison, not Time#==.
+      assert_equal(entry.time, custom_entry_args[:time])
 
       zf.get_output_stream('entry.bin') do |os|
         os.write(::File.open('test/data/generated/5entry.zip', 'rb').read)
@@ -107,6 +110,24 @@ class ZipFileTest < MiniTest::Test
       assert_equal('Putting stuff in new_entry.txt', zf.read('new_entry.txt'))
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
       assert_equal(File.open('test/data/generated/5entry.zip', 'rb').read, zf.read('entry.bin'))
+    end
+  end
+
+  def test_get_output_stream_with_entry
+    Dir.mktmpdir do |tmp|
+      test_zip = File.join(tmp, 'test.zip')
+      time = Time.new(1999, 12, 31)
+
+      ::Zip::File.open(test_zip, create: true) do |zip|
+        entry = ::Zip::Entry.new(zip.name, 'entry.txt', time: time)
+        zip.get_output_stream(entry) { |out| out.puts 'CONTENT!' }
+      end
+
+      ::Zip::File.open(test_zip) do |zip|
+        # Reverse times when testing because we need to use DOSTime#== for the
+        # comparison, not Time#==.
+        assert_equal(zip.get_entry('entry.txt').time, time)
+      end
     end
   end
 
