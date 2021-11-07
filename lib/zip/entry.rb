@@ -83,14 +83,21 @@ module Zip
       @ftype = name_is_directory? ? :directory : :file
 
       @zipfile            = zipfile
-      @comment            = comment
-      @compression_method = compression_method
-      @compression_level  = compression_level
+      @comment            = comment || ''
+      @compression_method = compression_method || DEFLATED
+      @compression_level  = compression_level || ::Zip.default_compression
 
-      @compressed_size    = compressed_size
-      @crc                = crc
-      @size               = size
-      @time               = time
+      @compressed_size    = compressed_size || 0
+      @crc                = crc || 0
+      @size               = size || 0
+      @time               = case time
+                            when ::Zip::DOSTime
+                              time
+                            when Time
+                              ::Zip::DOSTime.from_time(time)
+                            else
+                              ::Zip::DOSTime.now
+                            end
       @extra              =
         extra.kind_of?(ExtraField) ? extra : ExtraField.new(extra.to_s)
 

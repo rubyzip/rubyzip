@@ -100,15 +100,15 @@ module Zip
     )
       raise Error, 'zip stream is closed' if @closed
 
-      new_entry = if entry_name.kind_of?(Entry)
-                    entry_name
-                  else
-                    Entry.new(
-                      @file_name, entry_name.to_s, comment: comment,
-                      extra: extra, compression_method: compression_method,
-                      compression_level: level
-                    )
-                  end
+      new_entry =
+        if entry_name.kind_of?(Entry) || entry_name.kind_of?(StreamableStream)
+          entry_name
+        else
+          Entry.new(
+            @file_name, entry_name.to_s, comment: comment, extra: extra,
+            compression_method: compression_method, compression_level: level
+          )
+        end
 
       init_next_entry(new_entry)
       @current_entry = new_entry
