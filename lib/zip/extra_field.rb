@@ -4,8 +4,8 @@ module Zip
   class ExtraField < Hash
     ID_MAP = {}
 
-    def initialize(binstr = nil)
-      merge(binstr) if binstr
+    def initialize(binstr = nil, local: false)
+      merge(binstr, local: local) if binstr
     end
 
     def extra_field_type_exist(binstr, id, len, index)
@@ -18,25 +18,18 @@ module Zip
       end
     end
 
-    def extra_field_type_unknown(binstr, len, index)
-      create_unknown_item unless self['Unknown']
+    def extra_field_type_unknown(binstr, len, index, local)
+      self['Unknown'] ||= Unknown.new
+
       if !len || len + 4 > binstr[index..-1].bytesize
-        self['Unknown'] << binstr[index..-1]
+        self['Unknown'].merge(binstr[index..-1], local: local)
         return
       end
-      self['Unknown'] << binstr[index, len + 4]
+
+      self['Unknown'].merge(binstr[index, len + 4], local: local)
     end
 
-    def create_unknown_item
-      s = +''
-      class << s
-        alias_method :to_c_dir_bin, :to_s
-        alias_method :to_local_bin, :to_s
-      end
-      self['Unknown'] = s
-    end
-
-    def merge(binstr)
+    def merge(binstr, local: false)
       return if binstr.empty?
 
       i = 0
@@ -46,8 +39,7 @@ module Zip
         if id && ID_MAP.member?(id)
           extra_field_type_exist(binstr, id, len, i)
         elsif id
-          create_unknown_item unless self['Unknown']
-          break unless extra_field_type_unknown(binstr, len, i)
+          break unless extra_field_type_unknown(binstr, len, i, local)
         end
         i += len + 4
       end
@@ -61,8 +53,8 @@ module Zip
       self[name] = field_class.new
     end
 
-    # place Unknown last, so "extra" data that is missing the proper signature/size
-    # does not prevent known fields from being read back in
+    # Place Unknown last, so "extra" data that is missing the proper
+    # signature/size does not prevent known fields from being read back in.
     def ordered_values
       result = []
       each { |k, v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
@@ -92,6 +84,7 @@ module Zip
   end
 end
 
+require 'zip/extra_field/unknown'
 require 'zip/extra_field/generic'
 require 'zip/extra_field/universal_time'
 require 'zip/extra_field/old_unix'

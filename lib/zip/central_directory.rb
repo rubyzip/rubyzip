@@ -174,7 +174,7 @@ module Zip
         unless offset.nil?
           io_save = io.tell
           io.seek(offset, IO::SEEK_SET)
-          entry.read_extra_field(read_local_extra_field(io))
+          entry.read_extra_field(read_local_extra_field(io), local: true)
           io.seek(io_save, IO::SEEK_SET)
         end
 

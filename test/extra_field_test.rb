@@ -6,17 +6,29 @@ class ZipExtraFieldTest < MiniTest::Test
   def test_new
     extra_pure = ::Zip::ExtraField.new('')
     extra_withstr = ::Zip::ExtraField.new('foo')
+    extra_withstr_local = ::Zip::ExtraField.new('foo', local: true)
+
     assert_instance_of(::Zip::ExtraField, extra_pure)
     assert_instance_of(::Zip::ExtraField, extra_withstr)
+    assert_instance_of(::Zip::ExtraField, extra_withstr_local)
+
+    assert_equal('foo', extra_withstr['Unknown'].to_c_dir_bin)
+    assert_equal('foo', extra_withstr_local['Unknown'].to_local_bin)
   end
 
   def test_unknownfield
     extra = ::Zip::ExtraField.new('foo')
-    assert_equal(extra['Unknown'], 'foo')
+    assert_equal('foo', extra['Unknown'].to_c_dir_bin)
+
     extra.merge('a')
-    assert_equal(extra['Unknown'], 'fooa')
+    assert_equal('fooa', extra['Unknown'].to_c_dir_bin)
+
     extra.merge('barbaz')
-    assert_equal(extra.to_s, 'fooabarbaz')
+    assert_equal('fooabarbaz', extra['Unknown'].to_c_dir_bin)
+
+    extra.merge('bar', local: true)
+    assert_equal('bar', extra['Unknown'].to_local_bin)
+    assert_equal('fooabarbaz', extra['Unknown'].to_c_dir_bin)
   end
 
   def test_bad_header_id
@@ -66,9 +78,9 @@ class ZipExtraFieldTest < MiniTest::Test
     extra = ::Zip::ExtraField.new(str)
     assert_instance_of(String, extra.to_s)
 
-    s = extra.to_s
-    extra.merge('foo')
-    assert_equal(s.length + 3, extra.to_s.length)
+    extra_len = extra.to_s.length
+    extra.merge('foo', local: true)
+    assert_equal(extra_len + 3, extra.to_s.length)
   end
 
   def test_equality
@@ -96,6 +108,16 @@ class ZipExtraFieldTest < MiniTest::Test
         assert_instance_of(::Zip::ExtraField, entry.extra)
         assert_equal(1_000, entry.extra['IUnix'].uid)
         assert_equal(1_000, entry.extra['IUnix'].gid)
+      end
+    end
+  end
+
+  def test_load_unknown_extra_field
+    ::Zip::File.open('test/data/osx-archive.zip') do |zf|
+      zf.each do |entry|
+        # Check that there is only one occurance of the 'ux' extra field.
+        assert_equal(0, entry.extra['Unknown'].to_c_dir_bin.rindex('ux'))
+        assert_equal(0, entry.extra['Unknown'].to_local_bin.rindex('ux'))
       end
     end
   end

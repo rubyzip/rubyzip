@@ -313,7 +313,7 @@ module Zip
         raise ::Zip::Error, 'Truncated local zip entry header'
       end
 
-      read_extra_field(extra)
+      read_extra_field(extra, local: true)
       parse_zip64_extra(true)
       @local_header_size = calculate_local_header_size
     end
@@ -417,11 +417,11 @@ module Zip
       raise ::Zip::Error, 'Truncated cdir zip entry header'
     end
 
-    def read_extra_field(buf)
+    def read_extra_field(buf, local: false)
       if @extra.kind_of?(::Zip::ExtraField)
-        @extra.merge(buf) if buf
+        @extra.merge(buf, local: local) if buf
       else
-        @extra = ::Zip::ExtraField.new(buf)
+        @extra = ::Zip::ExtraField.new(buf, local: local)
       end
     end
 

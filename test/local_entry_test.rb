@@ -83,6 +83,7 @@ class ZipLocalEntryTest < MiniTest::Test
       'file.zip', 'entry_name', comment: 'my little comment', size: 400,
       extra: 'thisIsSomeExtraInformation', compressed_size: 100, crc: 987_654
     )
+    entry.extra.merge('thisIsSomeExtraInformation', local: true)
 
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
@@ -153,18 +154,23 @@ class ZipLocalEntryTest < MiniTest::Test
 
   private
 
-  def compare_local_entry_headers(entry1, entry2)
+  def compare_common_entry_headers(entry1, entry2)
     assert_equal(entry1.compressed_size, entry2.compressed_size)
     assert_equal(entry1.crc, entry2.crc)
-    assert_equal(entry1.extra, entry2.extra)
     assert_equal(entry1.compression_method, entry2.compression_method)
     assert_equal(entry1.name, entry2.name)
     assert_equal(entry1.size, entry2.size)
     assert_equal(entry1.local_header_offset, entry2.local_header_offset)
   end
 
+  def compare_local_entry_headers(entry1, entry2)
+    compare_common_entry_headers(entry1, entry2)
+    assert_equal(entry1.extra.to_local_bin, entry2.extra.to_local_bin)
+  end
+
   def compare_c_dir_entry_headers(entry1, entry2)
-    compare_local_entry_headers(entry1, entry2)
+    compare_common_entry_headers(entry1, entry2)
+    assert_equal(entry1.extra.to_c_dir_bin, entry2.extra.to_c_dir_bin)
     assert_equal(entry1.comment, entry2.comment)
   end
 
