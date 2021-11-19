@@ -181,6 +181,11 @@ class ZipFileTest < MiniTest::Test
     assert zf.entries.map(&:name).include?('zippedruby1.rb')
   end
 
+  def test_open_file_with_max_length_comment
+    # Should not raise any errors.
+    Zip::File.open('test/data/max_length_file_comment.zip')
+  end
+
   def test_cleans_up_tempfiles_after_close
     zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
     zf.get_output_stream('myFile') do |os|
