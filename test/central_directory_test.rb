@@ -44,6 +44,24 @@ class ZipCentralDirectoryTest < MiniTest::Test
     end
   end
 
+  def test_count_entries
+    [
+      ['test/data/osx-archive.zip', 4],
+      ['test/data/zip64-sample.zip', 2],
+      ['test/data/max_length_file_comment.zip', 1]
+    ].each do |filename, num_entries|
+      cdir = ::Zip::CentralDirectory.new
+
+      ::File.open(filename, 'rb') do |f|
+        assert_equal(num_entries, cdir.count_entries(f))
+
+        f.seek(0)
+        s = StringIO.new(f.read)
+        assert_equal(num_entries, cdir.count_entries(s))
+      end
+    end
+  end
+
   def test_write_to_stream
     entries = [
       ::Zip::Entry.new(

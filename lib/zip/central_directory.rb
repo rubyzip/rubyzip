@@ -228,6 +228,15 @@ module Zip
       @entry_set.size
     end
 
+    # Reads the End of Central Directory Record (and the Zip64 equivalent if
+    # needs be) and returns the number of entries in the archive. This is a
+    # convenience method that avoids reading in all of the entry data to get a
+    # very quick entry count.
+    def count_entries(io)
+      read_eocds(io)
+      @size
+    end
+
     def self.read_from_stream(io) #:nodoc:
       cdir = new
       cdir.read_from_stream(io)
