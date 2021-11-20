@@ -194,10 +194,14 @@ module Zip
     end
 
     def read_from_stream(io) #:nodoc:
+      read_eocds(io)
+      read_central_directory_entries(io)
+    end
+
+    def read_eocds(io) #:nodoc:
       buf = start_buf(io)
       unpack_64_e_o_c_d(buf) if zip64_file?(buf)
       unpack_e_o_c_d(buf)
-      read_central_directory_entries(io)
     end
 
     def zip64_file?(buf)
