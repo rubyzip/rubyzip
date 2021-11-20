@@ -48,7 +48,8 @@ class ZipCentralDirectoryTest < MiniTest::Test
     [
       ['test/data/osx-archive.zip', 4],
       ['test/data/zip64-sample.zip', 2],
-      ['test/data/max_length_file_comment.zip', 1]
+      ['test/data/max_length_file_comment.zip', 1],
+      ['test/data/100000-files.zip', 100_000]
     ].each do |filename, num_entries|
       cdir = ::Zip::CentralDirectory.new
 
