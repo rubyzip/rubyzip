@@ -186,6 +186,24 @@ class ZipFileTest < MiniTest::Test
     Zip::File.open('test/data/max_length_file_comment.zip')
   end
 
+  def test_count_entries
+    [
+      ['test/data/osx-archive.zip', 4],
+      ['test/data/zip64-sample.zip', 2],
+      ['test/data/max_length_file_comment.zip', 1]
+    ].each do |filename, num_entries|
+      assert_equal(num_entries, ::Zip::File.count_entries(filename))
+
+      ::File.open(filename, 'rb') do |f|
+        assert_equal(num_entries, ::Zip::File.count_entries(f))
+
+        f.seek(0)
+        s = StringIO.new(f.read)
+        assert_equal(num_entries, ::Zip::File.count_entries(s))
+      end
+    end
+  end
+
   def test_cleans_up_tempfiles_after_close
     zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
     zf.get_output_stream('myFile') do |os|

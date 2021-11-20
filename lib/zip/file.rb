@@ -171,6 +171,20 @@ module Zip
           zip_file.each(&block)
         end
       end
+
+      # Count the entries in a zip archive without reading the whole set of
+      # entry data into memory.
+      def count_entries(path_or_io)
+        cdir = ::Zip::CentralDirectory.new
+
+        if path_or_io.kind_of?(String)
+          ::File.open(path_or_io, 'rb') do |f|
+            cdir.count_entries(f)
+          end
+        else
+          cdir.count_entries(path_or_io)
+        end
+      end
     end
 
     # Returns an input stream to the specified entry. If a block is passed
