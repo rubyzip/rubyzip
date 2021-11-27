@@ -185,8 +185,7 @@ module Zip
         @current_entry.compression_method
       )
       if decompressor_class.nil?
-        raise ::Zip::CompressionMethodError,
-              "Unsupported compression method #{@current_entry.compression_method}"
+        raise ::Zip::CompressionMethodError, @current_entry.compression_method
       end
 
       decompressor_class.new(@decrypted_io, decompressed_size)

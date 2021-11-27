@@ -170,8 +170,7 @@ module Zip
       when Entry::STORED
         ::Zip::PassThruCompressor.new(@output_stream)
       else
-        raise ::Zip::CompressionMethodError,
-              "Invalid compression method: '#{entry.compression_method}'"
+        raise ::Zip::CompressionMethodError, entry.compression_method
       end
     end
 
