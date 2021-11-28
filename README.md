@@ -185,7 +185,7 @@ There is one exception where it can not work however, and this is if the file do
 
 > If bit 3 (0x08) of the general-purpose flags field is set, then the CRC-32 and file sizes are not known when the header is written. The fields in the local header are filled with zero, and the CRC-32 and size are appended in a 12-byte structure (optionally preceded by a 4-byte signature) immediately after the compressed data.
 
-If `Zip::InputStream` finds such an entry in the zip archive it will raise an exception (`Zip::GPFBit3Error`).
+If `Zip::InputStream` finds such an entry in the zip archive it will raise an exception (`Zip::StreamingError`).
 
 `Zip::InputStream` is not designed to be used for random access in a zip file. When performing any operations on an entry that you are accessing via `Zip::InputStream.get_next_entry` then you should complete any such operations before the next call to `get_next_entry`.
 

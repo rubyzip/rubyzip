@@ -70,12 +70,7 @@ module Zip
     # Returns nil when there are no more entries.
     def get_next_entry
       unless @current_entry.nil?
-        if @current_entry.incomplete?
-          raise GPFBit3Error,
-                'It is not possible to get complete info from the local ' \
-                'header to extract this entry (GP flags bit 3 is set). ' \
-                'Please use `Zip::File` instead of `Zip::InputStream`.'
-        end
+        raise StreamingError, @current_entry if @current_entry.incomplete?
 
         @archive_io.seek(@current_entry.next_header_offset, IO::SEEK_SET)
       end
@@ -151,10 +146,7 @@ module Zip
 
       if @current_entry.incomplete? && @current_entry.compressed_size == 0 \
         && !@complete_entry
-        raise GPFBit3Error,
-              'It is not possible to get complete info from the local ' \
-              'header to extract this entry (GP flags bit 3 is set). ' \
-              'Please use `Zip::File` instead of `Zip::InputStream`.'
+        raise StreamingError, @current_entry
       end
 
       @decrypted_io = get_decrypted_io

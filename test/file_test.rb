@@ -46,9 +46,13 @@ class ZipFileTest < MiniTest::Test
   def test_get_input_stream_stored_with_gpflag_bit3
     ::Zip::File.open('test/data/gpbit3stored.zip') do |zf|
       zis = zf.get_input_stream('file1.txt')
-      assert_raises(::Zip::GPFBit3Error) do
+
+      error = assert_raises(::Zip::StreamingError) do
         zis.get_next_entry
       end
+      assert_match(/file1\.txt/, error.message)
+      assert_equal('file1.txt', error.entry.name)
+
       zf.get_input_stream('file2.txt')
     end
   end

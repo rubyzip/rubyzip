@@ -69,17 +69,21 @@ class ZipInputStreamTest < MiniTest::Test
 
   def test_open_file_with_gp3bit_set
     ::Zip::InputStream.open('test/data/gpbit3stored.zip') do |zis|
-      assert_raises(::Zip::GPFBit3Error) do
+      error = assert_raises(::Zip::StreamingError) do
         zis.get_next_entry
       end
+      assert_match(/file1\.txt/, error.message)
+      assert_equal('file1.txt', error.entry.name)
     end
   end
 
   def test_open_file_with_gp3bit_set_created_by_osx_archive
     ::Zip::InputStream.open('test/data/osx-archive.zip') do |zis|
-      assert_raises(::Zip::GPFBit3Error) do
+      error = assert_raises(::Zip::StreamingError) do
         zis.get_next_entry
       end
+      assert_match(/1\.txt/, error.message)
+      assert_equal('1.txt', error.entry.name)
     end
   end
 
