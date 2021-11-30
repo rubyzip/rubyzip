@@ -90,6 +90,7 @@ module Zip
         end
       elsif buffer && path_or_io.size > 0
         # This zip is probably a non-empty StringIO.
+        @create = false
         read_from_stream(path_or_io)
       elsif @create
         # This zip is completely new/empty and is to be created.
@@ -311,6 +312,8 @@ module Zip
 
     # Write buffer write changes to buffer and return
     def write_buffer(io = ::StringIO.new)
+      return unless commit_required?
+
       ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
