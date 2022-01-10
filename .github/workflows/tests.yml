@@ -44,6 +44,25 @@ jobs:
         flag-name: ${{ matrix.ruby }}
         parallel: true
 
+  test-yjit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+    - name: Checkout rubyzip code
+      uses: actions/checkout@v2
+
+    - name: Install and set up ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+        bundler-cache: true
+
+    - name: Run the tests
+      env:
+        RUBYOPT: --enable-yjit -v
+        FULL_ZIP64_TEST: 1
+      run: bundle exec rake
+
   finish:
     needs: test
     runs-on: ubuntu-latest
