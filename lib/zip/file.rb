@@ -406,14 +406,12 @@ module Zip
     def on_success_replace
       dirname, basename = ::File.split(name)
       ::Dir::Tmpname.create(basename, dirname) do |tmp_filename|
-        begin
-          if yield tmp_filename
-            ::File.rename(tmp_filename, name)
-            ::File.chmod(@file_permissions, name) unless @create
-          end
-        ensure
-          ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
+        if yield tmp_filename
+          ::File.rename(tmp_filename, name)
+          ::File.chmod(@file_permissions, name) unless @create
         end
+      ensure
+        ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
       end
     end
   end

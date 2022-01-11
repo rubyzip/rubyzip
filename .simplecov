@@ -17,6 +17,6 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
 )
 
 SimpleCov.start do
-  # enable_coverage :branch   <-- Re-enable this when we move to ruby ~> 2.5.
+  enable_coverage :branch
   add_filter ['/test/', '/samples/']
 end

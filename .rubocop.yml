@@ -7,7 +7,7 @@ inherit_from: .rubocop_todo.yml
 # Set this to the minimum supported ruby in the gemspec. Otherwise
 # we get errors if our ruby version doesn't match.
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
   NewCops: enable
 
 # Allow this in this file because adding the extra lines is pointless.

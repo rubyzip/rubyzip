@@ -445,7 +445,7 @@ class FileNonmutatingTest < MiniTest::Test
         '*/foo/**/*.txt'   => ['globTest/foo/bar/baz/foo.txt']
       }.each do |spec, expected_results|
         results = zf.glob(spec)
-        assert(results.all? { |entry| entry.kind_of? ::Zip::Entry })
+        assert(results.all?(::Zip::Entry))
 
         result_strings = results.map(&:to_s)
         missing_matches = expected_results - result_strings
