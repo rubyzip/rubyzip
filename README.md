@@ -360,10 +360,10 @@ You can set multiple settings at the same time by using a block:
 
 Rubyzip is known to run on a number of platforms and under a number of different Ruby versions. Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 
-| OS | 2.4 | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.1 +YJIT | Head | Head +YJIT | JRuby 9.2.17.0 | JRuby Head | Truffleruby 21.1.0 | Truffleruby Head |
+| OS | 2.4 | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.1 +YJIT | Head | Head +YJIT | JRuby 9.3.2.0 | JRuby Head | Truffleruby 21.3.0 | Truffleruby Head |
 |----|-----|-----|-----|-----|-----|-----|----------|------|-----------|----------------|------------|--------------------|------------------|
-|Ubuntu 20.04| CI | CI | CI | CI | CI | CI | ci | ci | ci | CI | ci | CI | ci |
-|Mac OS 10.15.7| CI | x | x | x | x | x | ci |  | ci | x |  | x |  |
+|Ubuntu 20.04.3| CI | CI | CI | CI | CI | CI | ci | ci | ci | CI | ci | CI | ci |
+|Mac OS 11.6.2| CI | x | x | x | x | x | ci |  | ci | x |  | x |  |
 |Windows 10|  |  |  | x |  |  |  |  |  |  |  |  |  |
 |Windows Server 2019| CI |  |  |  |  |  |  |  |  |  |  |  |  |
 
