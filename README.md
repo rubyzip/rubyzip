@@ -10,24 +10,13 @@ Rubyzip is a ruby library for reading and writing zip files.
 
 ## Important notes
 
-### Version 3.0
+### Updating to version 3.0
 
 The public API of some classes has been modernized to use named parameters for optional arguments. Please check your usage of the following Rubyzip classes:
 * `File`
 * `Entry`
 * `InputStream`
 * `OutputStream`
-
-### Older versions (pre 2.0)
-
-The Rubyzip interface has changed!!! No need to do `require "zip/zip"` and `Zip` prefix in class names removed.
-
-If you have issues with any third-party gems that require an old version of rubyzip, you can use this workaround:
-
-```ruby
-gem 'rubyzip', '>= 1.0.0' # will load new rubyzip version
-gem 'zip-zip' # will load compatibility for old rubyzip API.
-```
 
 ## Requirements
 
