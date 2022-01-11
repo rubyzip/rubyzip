@@ -32,6 +32,7 @@ jobs:
 
     - name: Run the tests
       env:
+        RUBYOPT: -v
         JRUBY_OPTS: --debug
         FULL_ZIP64_TEST: 1
       run: bundle exec rake
