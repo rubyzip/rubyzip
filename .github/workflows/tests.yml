@@ -45,7 +45,12 @@ jobs:
         parallel: true
 
   test-yjit:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos]
+        ruby: ['3.1', head]
+    runs-on: ${{ matrix.os }}-latest
     continue-on-error: true
     steps:
     - name: Checkout rubyzip code
@@ -54,7 +59,7 @@ jobs:
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.1'
+        ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
 
     - name: Run the tests
