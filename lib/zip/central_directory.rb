@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Zip
   class CentralDirectory
+    extend Forwardable
+
     END_OF_CDS             = 0x06054b50
     ZIP64_END_OF_CDS       = 0x06064b50
     ZIP64_EOCD_LOCATOR     = 0x07064b50
@@ -14,12 +18,9 @@ module Zip
 
     attr_accessor :comment
 
-    attr_reader :entry_set
-
-    # Returns an Enumerable containing the entries.
-    def entries
-      @entry_set.entries
-    end
+    def_delegators :@entry_set,
+                   :<<, :delete, :each, :entries, :find_entry, :glob,
+                   :include?, :size
 
     def initialize(entries = EntrySet.new, comment = '') #:nodoc:
       super()
@@ -218,17 +219,6 @@ module Zip
         io.seek(0, IO::SEEK_SET)
       end
       io.read
-    end
-
-    # For iterating over the entries.
-    def each(&a_proc)
-      @entry_set.each(&a_proc)
-    end
-
-    # Returns the number of entries in the central directory (and
-    # consequently in the zip archive).
-    def size
-      @entry_set.size
     end
 
     # Reads the End of Central Directory Record (and the Zip64 equivalent if
