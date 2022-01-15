@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 require_relative 'file_split'
 
 module Zip
@@ -45,8 +47,8 @@ module Zip
   #
   # ZipFileSystem offers an alternative API that emulates ruby's
   # interface for accessing the filesystem, ie. the File and Dir classes.
-
-  class File < CentralDirectory
+  class File
+    extend Forwardable
     extend FileSplit
 
     IO_METHODS = [:tell, :seek, :read, :eof, :close].freeze
@@ -62,8 +64,7 @@ module Zip
     # default -> true.
     attr_accessor :restore_times
 
-    # Returns the zip files comment, if it has one
-    attr_accessor :comment
+    def_delegators :@cdir, :comment, :comment=, :each, :entries, :size
 
     # Opens a zip archive. Pass create: true to create
     # a new archive if it doesn't exist already.
@@ -73,8 +74,8 @@ module Zip
                  .merge(compression_level: ::Zip.default_compression)
                  .merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
-      @comment = ''
       @create  = create ? true : false # allow any truthy value to mean true
+      @cdir = ::Zip::CentralDirectory.new
 
       if ::File.size?(@name.to_s)
         # There is a file, which exists, that is associated with this zip.
@@ -82,29 +83,28 @@ module Zip
         @file_permissions = ::File.stat(@name).mode
 
         if buffer
-          read_from_stream(path_or_io)
+          @cdir.read_from_stream(path_or_io)
         else
           ::File.open(@name, 'rb') do |f|
-            read_from_stream(f)
+            @cdir.read_from_stream(f)
           end
         end
       elsif buffer && path_or_io.size > 0
         # This zip is probably a non-empty StringIO.
         @create = false
-        read_from_stream(path_or_io)
-      elsif @create
-        # This zip is completely new/empty and is to be created.
-        @entry_set = EntrySet.new
-      elsif ::File.zero?(@name)
-        # A file exists, but it is empty.
+        @cdir.read_from_stream(path_or_io)
+      elsif !@create && ::File.zero?(@name)
+        # A file exists, but it is empty, and we've said we're
+        # NOT creating a new zip.
         raise Error, "File #{@name} has zero size. Did you mean to pass the create flag?"
-      else
-        # Everything is wrong.
+      elsif !@create
+        # If we get here, and we're not creating a new zip, then
+        # everything is wrong.
         raise Error, "File #{@name} not found"
       end
 
-      @stored_entries      = @entry_set.dup
-      @stored_comment      = @comment
+      @stored_entries      = @cdir.entry_set.dup
+      @stored_comment      = @cdir.comment
       @restore_ownership   = options[:restore_ownership]
       @restore_permissions = options[:restore_permissions]
       @restore_times       = options[:restore_times]
@@ -222,7 +222,7 @@ module Zip
       end
       new_entry.unix_perms = permissions
       zip_streamable_entry = StreamableStream.new(new_entry)
-      @entry_set << zip_streamable_entry
+      @cdir.entry_set << zip_streamable_entry
       zip_streamable_entry.get_output_stream(&a_proc)
     end
 
@@ -250,7 +250,7 @@ module Zip
                   end
       new_entry.gather_fileinfo_from_srcpath(src_path)
       new_entry.dirty = true
-      @entry_set << new_entry
+      @cdir.entry_set << new_entry
     end
 
     # Convenience method for adding the contents of a file to the archive
@@ -264,16 +264,16 @@ module Zip
 
     # Removes the specified entry.
     def remove(entry)
-      @entry_set.delete(get_entry(entry))
+      @cdir.entry_set.delete(get_entry(entry))
     end
 
     # Renames the specified entry.
     def rename(entry, new_name, &continue_on_exists_proc)
       found_entry = get_entry(entry)
       check_entry_exists(new_name, continue_on_exists_proc, 'rename')
-      @entry_set.delete(found_entry)
+      @cdir.entry_set.delete(found_entry)
       found_entry.name = new_name
-      @entry_set << found_entry
+      @cdir.entry_set << found_entry
     end
 
     # Replaces the specified entry with the contents of src_path (from
@@ -298,7 +298,7 @@ module Zip
 
       on_success_replace do |tmp_file|
         ::Zip::OutputStream.open(tmp_file) do |zos|
-          @entry_set.each do |e|
+          @cdir.each do |e|
             e.write_to_zip_output_stream(zos)
             e.dirty = false
             e.clean_up
@@ -315,7 +315,7 @@ module Zip
       return unless commit_required?
 
       ::Zip::OutputStream.write_buffer(io) do |zos|
-        @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
+        @cdir.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
     end
@@ -328,16 +328,16 @@ module Zip
     # Returns true if any changes has been made to this archive since
     # the previous commit
     def commit_required?
-      @entry_set.each do |e|
+      @cdir.each do |e|
         return true if e.dirty
       end
-      @comment != @stored_comment || @entry_set != @stored_entries || @create
+      comment != @stored_comment || @cdir.entry_set != @stored_entries || @create
     end
 
     # Searches for entry with the specified name. Returns nil if
     # no entry is found. See also get_entry
     def find_entry(entry_name)
-      selected_entry = @entry_set.find_entry(entry_name)
+      selected_entry = @cdir.entry_set.find_entry(entry_name)
       return if selected_entry.nil?
 
       selected_entry.restore_ownership   = @restore_ownership
@@ -352,7 +352,7 @@ module Zip
     # `::File::FNM_PATHNAME | ::File::FNM_DOTMATCH | ::File::FNM_EXTGLOB`,
     # which will be overridden if you set your own flags.
     def glob(*args, &block)
-      @entry_set.glob(*args, &block)
+      @cdir.entry_set.glob(*args, &block)
     end
 
     # Searches for an entry just as find_entry, but throws Errno::ENOENT
@@ -370,7 +370,7 @@ module Zip
 
       entry_name = entry_name.dup.to_s
       entry_name << '/' unless entry_name.end_with?('/')
-      @entry_set << ::Zip::StreamableDirectory.new(@name, entry_name, nil, permission)
+      @cdir.entry_set << ::Zip::StreamableDirectory.new(@name, entry_name, nil, permission)
     end
 
     private
@@ -389,7 +389,7 @@ module Zip
 
     def check_entry_exists(entry_name, continue_on_exists_proc, proc_name)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
-      return unless @entry_set.include?(entry_name)
+      return unless @cdir.entry_set.include?(entry_name)
 
       if continue_on_exists_proc.call
         remove get_entry(entry_name)

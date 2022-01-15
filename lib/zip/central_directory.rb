@@ -2,8 +2,6 @@
 
 module Zip
   class CentralDirectory
-    include Enumerable
-
     END_OF_CDS             = 0x06054b50
     ZIP64_END_OF_CDS       = 0x06064b50
     ZIP64_EOCD_LOCATOR     = 0x07064b50
@@ -14,7 +12,9 @@ module Zip
     MAX_FILE_COMMENT_SIZE  = 1 << 16
     MAX_END_OF_CDS_SIZE    = MAX_FILE_COMMENT_SIZE + STATIC_EOCD_SIZE
 
-    attr_reader :comment
+    attr_accessor :comment
+
+    attr_reader :entry_set
 
     # Returns an Enumerable containing the entries.
     def entries
