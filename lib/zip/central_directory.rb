@@ -29,6 +29,11 @@ module Zip
       @comment   = comment
     end
 
+    def read_from_stream(io)
+      read_eocds(io)
+      read_central_directory_entries(io)
+    end
+
     def write_to_stream(io) #:nodoc:
       cdir_offset = io.tell
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
@@ -46,6 +51,23 @@ module Zip
       write_e_o_c_d(io, cdir_offset, cdir_size)
     end
 
+    # Reads the End of Central Directory Record (and the Zip64 equivalent if
+    # needs be) and returns the number of entries in the archive. This is a
+    # convenience method that avoids reading in all of the entry data to get a
+    # very quick entry count.
+    def count_entries(io)
+      read_eocds(io)
+      @size
+    end
+
+    def ==(other) #:nodoc:
+      return false unless other.kind_of?(CentralDirectory)
+
+      @entry_set.entries.sort == other.entries.sort && comment == other.comment
+    end
+
+    private
+
     def write_e_o_c_d(io, offset, cdir_size) #:nodoc:
       tmp = [
         END_OF_CD_SIG,
@@ -60,8 +82,6 @@ module Zip
       io << tmp.pack('VvvvvVVv')
       io << @comment
     end
-
-    private :write_e_o_c_d
 
     def write_64_e_o_c_d(io, offset, cdir_size) #:nodoc:
       tmp = [
@@ -79,8 +99,6 @@ module Zip
       io << tmp.pack('VQ<vvVVQ<Q<Q<Q<')
     end
 
-    private :write_64_e_o_c_d
-
     def write_64_eocd_locator(io, zip64_eocd_offset)
       tmp = [
         ZIP64_EOCD_LOCATOR_SIG,
@@ -90,8 +108,6 @@ module Zip
       ]
       io << tmp.pack('VVQ<V')
     end
-
-    private :write_64_eocd_locator
 
     def unpack_64_e_o_c_d(buffer) #:nodoc:
       _, # ZIP64_END_OF_CD_SIG. We know we have this at this point.
@@ -192,11 +208,6 @@ module Zip
       io.read(e_len)
     end
 
-    def read_from_stream(io) #:nodoc:
-      read_eocds(io)
-      read_central_directory_entries(io)
-    end
-
     def read_eocds(io) #:nodoc:
       base_location, data = eocd_data(io)
 
@@ -237,21 +248,6 @@ module Zip
       end
 
       [io.tell, io.read]
-    end
-
-    # Reads the End of Central Directory Record (and the Zip64 equivalent if
-    # needs be) and returns the number of entries in the archive. This is a
-    # convenience method that avoids reading in all of the entry data to get a
-    # very quick entry count.
-    def count_entries(io)
-      read_eocds(io)
-      @size
-    end
-
-    def ==(other) #:nodoc:
-      return false unless other.kind_of?(CentralDirectory)
-
-      @entry_set.entries.sort == other.entries.sort && comment == other.comment
     end
   end
 end
