@@ -248,14 +248,6 @@ module Zip
       @size
     end
 
-    def self.read_from_stream(io) #:nodoc:
-      cdir = new
-      cdir.read_from_stream(io)
-      cdir
-    rescue Error
-      nil
-    end
-
     def ==(other) #:nodoc:
       return false unless other.kind_of?(CentralDirectory)
 

@@ -9,7 +9,8 @@ class ZipCentralDirectoryTest < MiniTest::Test
 
   def test_read_from_stream
     ::File.open(TestZipFile::TEST_ZIP2.zip_name, 'rb') do |zip_file|
-      cdir = ::Zip::CentralDirectory.read_from_stream(zip_file)
+      cdir = ::Zip::CentralDirectory.new
+      cdir.read_from_stream(zip_file)
 
       assert_equal(TestZipFile::TEST_ZIP2.entry_names.size, cdir.size)
       assert_equal(cdir.entries.map(&:name).sort, TestZipFile::TEST_ZIP2.entry_names.sort)
