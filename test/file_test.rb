@@ -205,12 +205,18 @@ class ZipFileTest < MiniTest::Test
 
   def test_open_file_with_max_length_comment
     # Should not raise any errors.
-    Zip::File.open('test/data/max_length_file_comment.zip')
+    Zip::File.open('test/data/max_length_file_comment.zip') do |zf|
+      assert_equal(1, zf.size)
+      assert_equal(65_535, zf.comment.length)
+    end
   end
 
   def test_open_zip64_file_with_max_length_comment
     # Should not raise any errors.
-    Zip::File.open('test/data/zip64_max_length_file_comment.zip')
+    Zip::File.open('test/data/zip64_max_length_file_comment.zip') do |zf|
+      assert_equal(2, zf.size)
+      assert_equal(65_535, zf.comment.length)
+    end
   end
 
   def test_count_entries
