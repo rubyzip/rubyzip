@@ -6,15 +6,16 @@ module Zip
   class CentralDirectory
     extend Forwardable
 
-    END_OF_CDS             = 0x06054b50
-    ZIP64_END_OF_CDS       = 0x06064b50
-    ZIP64_EOCD_LOCATOR     = 0x07064b50
+    END_OF_CD_SIG          = 0x06054b50
+    ZIP64_END_OF_CD_SIG    = 0x06064b50
+    ZIP64_EOCD_LOCATOR_SIG = 0x07064b50
 
     STATIC_EOCD_SIZE       = 22
     ZIP64_STATIC_EOCD_SIZE = 56
     ZIP64_EOCD_LOC_SIZE    = 20
-    MAX_FILE_COMMENT_SIZE  = 1 << 16
-    MAX_END_OF_CDS_SIZE    = MAX_FILE_COMMENT_SIZE + STATIC_EOCD_SIZE
+    MAX_FILE_COMMENT_SIZE  = (1 << 16) - 1
+    MAX_END_OF_CD_SIZE     =
+      MAX_FILE_COMMENT_SIZE + STATIC_EOCD_SIZE + ZIP64_EOCD_LOC_SIZE
 
     attr_accessor :comment
 
@@ -47,7 +48,7 @@ module Zip
 
     def write_e_o_c_d(io, offset, cdir_size) #:nodoc:
       tmp = [
-        END_OF_CDS,
+        END_OF_CD_SIG,
         0, # @numberOfThisDisk
         0, # @numberOfDiskWithStartOfCDir
         @entry_set ? [@entry_set.size, 0xFFFF].min : 0,
@@ -64,7 +65,7 @@ module Zip
 
     def write_64_e_o_c_d(io, offset, cdir_size) #:nodoc:
       tmp = [
-        ZIP64_END_OF_CDS,
+        ZIP64_END_OF_CD_SIG,
         44, # size of zip64 end of central directory record (excludes signature and field itself)
         VERSION_MADE_BY,
         VERSION_NEEDED_TO_EXTRACT_ZIP64,
@@ -82,7 +83,7 @@ module Zip
 
     def write_64_eocd_locator(io, zip64_eocd_offset)
       tmp = [
-        ZIP64_EOCD_LOCATOR,
+        ZIP64_EOCD_LOCATOR_SIG,
         0, # number of disk containing the start of zip64 eocd record
         zip64_eocd_offset, # offset of the start of zip64 eocd record in its disk
         1 # total number of disks
@@ -93,15 +94,7 @@ module Zip
     private :write_64_eocd_locator
 
     def unpack_64_e_o_c_d(buffer) #:nodoc:
-      index = buffer.rindex([ZIP64_END_OF_CDS].pack('V'))
-      raise Error, 'Zip64 end of central directory signature not found' unless index
-
-      l_index = buffer.rindex([ZIP64_EOCD_LOCATOR].pack('V'))
-      raise Error, 'Zip64 end of central directory signature locator not found' unless l_index
-
-      buf = buffer.slice(index..l_index)
-
-      _, # ZIP64_END_OF_CDS signature. We know we have this at this point.
+      _, # ZIP64_END_OF_CD_SIG. We know we have this at this point.
       @size_of_zip64_e_o_c_d,
       @version_made_by,
       @version_needed_for_extract,
@@ -110,7 +103,7 @@ module Zip
       @total_number_of_entries_in_cdir_on_this_disk,
       @size,
       @size_in_bytes,
-      @cdir_offset = buf.unpack('VQ<vvVVQ<Q<Q<Q<')
+      @cdir_offset = buffer.unpack('VQ<vvVVQ<Q<Q<Q<')
 
       zip64_extensible_data_size =
         @size_of_zip64_e_o_c_d - ZIP64_STATIC_EOCD_SIZE + 12
@@ -124,20 +117,22 @@ module Zip
                                end
     end
 
+    def unpack_64_eocd_locator(buffer) #:nodoc:
+      _, # ZIP64_EOCD_LOCATOR_SIG. We know we have this at this point.
+      _, zip64_eocd_offset, = buffer.unpack('VVQ<V')
+
+      zip64_eocd_offset
+    end
+
     def unpack_e_o_c_d(buffer) #:nodoc:
-      index = buffer.rindex([END_OF_CDS].pack('V'))
-      raise Error, 'Zip end of central directory signature not found' unless index
-
-      buf = buffer.slice(index, buffer.size)
-
-      _, # END_OF_CDS signature. We know we have this at this point.
+      _, # END_OF_CD_SIG. We know we have this at this point.
       num_disk,
       num_disk_cdir,
       num_cdir_disk,
       num_entries,
       size_in_bytes,
       cdir_offset,
-      comment_length = buf.unpack('VvvvvVVv')
+      comment_length = buffer.unpack('VvvvvVVv')
 
       @number_of_this_disk = num_disk unless num_disk == 0xFFFF
       @number_of_disk_with_start_of_cdir = num_disk_cdir unless num_disk_cdir == 0xFFFF
@@ -147,7 +142,7 @@ module Zip
       @cdir_offset = cdir_offset unless cdir_offset == 0xFFFFFFFF
 
       @comment = if comment_length.positive?
-                   buf.slice(STATIC_EOCD_SIZE, comment_length)
+                   buffer.slice(STATIC_EOCD_SIZE, comment_length)
                  else
                    ''
                  end
@@ -203,22 +198,45 @@ module Zip
     end
 
     def read_eocds(io) #:nodoc:
-      buf = start_buf(io)
-      unpack_64_e_o_c_d(buf) if zip64_file?(buf)
-      unpack_e_o_c_d(buf)
+      base_location, data = eocd_data(io)
+
+      eocd_location = data.rindex([END_OF_CD_SIG].pack('V'))
+      raise Error, 'Zip end of central directory signature not found' unless eocd_location
+
+      zip64_eocd_locator = data.rindex([ZIP64_EOCD_LOCATOR_SIG].pack('V'))
+
+      if zip64_eocd_locator
+        zip64_eocd_location = data.rindex([ZIP64_END_OF_CD_SIG].pack('V'))
+
+        zip64_eocd_data =
+          if zip64_eocd_location
+            data.slice(zip64_eocd_location..zip64_eocd_locator)
+          else
+            zip64_eocd_location = unpack_64_eocd_locator(
+              data.slice(zip64_eocd_locator..eocd_location)
+            )
+            unless zip64_eocd_location
+              raise Error, 'Zip64 end of central directory signature not found'
+            end
+
+            io.seek(zip64_eocd_location, IO::SEEK_SET)
+            io.read(base_location + zip64_eocd_locator - zip64_eocd_location)
+          end
+
+        unpack_64_e_o_c_d(zip64_eocd_data)
+      end
+
+      unpack_e_o_c_d(data.slice(eocd_location..-1))
     end
 
-    def zip64_file?(buf)
-      buf.rindex([ZIP64_END_OF_CDS].pack('V')) && buf.rindex([ZIP64_EOCD_LOCATOR].pack('V'))
-    end
-
-    def start_buf(io)
+    def eocd_data(io)
       begin
-        io.seek(-MAX_END_OF_CDS_SIZE, IO::SEEK_END)
+        io.seek(-MAX_END_OF_CD_SIZE, IO::SEEK_END)
       rescue Errno::EINVAL
         io.seek(0, IO::SEEK_SET)
       end
-      io.read
+
+      [io.tell, io.read]
     end
 
     # Reads the End of Central Directory Record (and the Zip64 equivalent if

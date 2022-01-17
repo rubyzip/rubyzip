@@ -208,6 +208,11 @@ class ZipFileTest < MiniTest::Test
     Zip::File.open('test/data/max_length_file_comment.zip')
   end
 
+  def test_open_zip64_file_with_max_length_comment
+    # Should not raise any errors.
+    Zip::File.open('test/data/zip64_max_length_file_comment.zip')
+  end
+
   def test_count_entries
     [
       ['test/data/osx-archive.zip', 4],
