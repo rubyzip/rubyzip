@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Zip
   # ZipOutputStream is the basic class for writing zip files. It is
   # possible to create a ZipOutputStream object directly, passing
@@ -20,9 +22,10 @@ module Zip
   # class.
 
   class OutputStream
+    extend Forwardable
     include ::Zip::IOExtras::AbstractOutputStream
 
-    attr_accessor :comment
+    def_delegators :@cdir, :comment, :comment=
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
@@ -37,12 +40,11 @@ module Zip
                        else
                          ::File.new(@file_name, 'wb')
                        end
-      @entry_set = ::Zip::EntrySet.new
+      @cdir = ::Zip::CentralDirectory.new
       @compressor = ::Zip::NullCompressor.instance
       @encrypter = encrypter || ::Zip::NullEncrypter.new
       @closed = false
       @current_entry = nil
-      @comment = nil
     end
 
     # Same as #initialize but if a block is passed the opened
@@ -73,7 +75,7 @@ module Zip
 
       finalize_current_entry
       update_local_headers
-      write_central_directory
+      @cdir.write_to_stream(@output_stream)
       @output_stream.close
       @closed = true
     end
@@ -84,7 +86,7 @@ module Zip
 
       finalize_current_entry
       update_local_headers
-      write_central_directory
+      @cdir.write_to_stream(@output_stream)
       @closed = true
       @output_stream.flush
       @output_stream
@@ -118,7 +120,7 @@ module Zip
       raise Error, 'entry is not a ZipEntry' unless entry.kind_of?(Entry)
 
       finalize_current_entry
-      @entry_set << entry
+      @cdir << entry
       src_pos = entry.local_header_offset
       entry.write_local_entry(@output_stream)
       @compressor = NullCompressor.instance
@@ -154,7 +156,7 @@ module Zip
 
     def init_next_entry(entry)
       finalize_current_entry
-      @entry_set << entry
+      @cdir << entry
       entry.write_local_entry(@output_stream)
       @encrypter.reset!
       @output_stream << @encrypter.header(entry.mtime)
@@ -175,16 +177,11 @@ module Zip
 
     def update_local_headers
       pos = @output_stream.pos
-      @entry_set.each do |entry|
+      @cdir.each do |entry|
         @output_stream.pos = entry.local_header_offset
         entry.write_local_entry(@output_stream, rewrite: true)
       end
       @output_stream.pos = pos
-    end
-
-    def write_central_directory
-      cdir = CentralDirectory.new(@entry_set, @comment)
-      cdir.write_to_stream(@output_stream)
     end
 
     protected
