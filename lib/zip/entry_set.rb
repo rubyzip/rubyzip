@@ -3,7 +3,9 @@
 module Zip
   class EntrySet #:nodoc:all
     include Enumerable
-    attr_accessor :entry_set, :entry_order
+
+    attr_reader :entry_set
+    protected   :entry_set
 
     def initialize(an_enumerable = [])
       super()
