@@ -413,6 +413,44 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
+  def test_mkdir
+    buffer = ::Zip::File.open_buffer(create: true) do |zf|
+      # Add a directory with no slash.
+      zf.mkdir('dir')
+
+      # Add it again.
+      assert_raises(Errno::EEXIST) do
+        zf.mkdir('dir')
+      end
+
+      # Add it with a slash.
+      assert_raises(Errno::EEXIST) do
+        zf.mkdir('dir/')
+      end
+
+      # Add a directory with a slash.
+      zf.mkdir('folder/')
+
+      # Add it again.
+      assert_raises(Errno::EEXIST) do
+        zf.mkdir('folder/')
+      end
+
+      # Add it without a slash.
+      assert_raises(Errno::EEXIST) do
+        zf.mkdir('folder')
+      end
+    end
+
+    ::Zip::File.open_buffer(buffer) do |zf|
+      assert(zf.find_entry('dir/').directory?)
+      assert(zf.find_entry('dir').directory?)
+
+      assert(zf.find_entry('folder/').directory?)
+      assert(zf.find_entry('folder').directory?)
+    end
+  end
+
   def test_remove
     entry, *remaining = TEST_ZIP.entry_names
 
