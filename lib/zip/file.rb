@@ -358,18 +358,6 @@ module Zip
 
     private
 
-    def directory?(new_entry, src_path)
-      path_is_directory = ::File.directory?(src_path)
-      if new_entry.directory? && !path_is_directory
-        raise ArgumentError,
-              "entry name '#{new_entry}' indicates directory entry, but " \
-                  "'#{src_path}' is not a directory"
-      elsif !new_entry.directory? && path_is_directory
-        new_entry.name += '/'
-      end
-      new_entry.directory? && path_is_directory
-    end
-
     def check_entry_exists(entry_name, continue_on_exists_proc, proc_name)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
       return unless @cdir.include?(entry_name)
