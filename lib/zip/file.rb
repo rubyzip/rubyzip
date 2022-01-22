@@ -126,19 +126,11 @@ module Zip
         end
       end
 
-      # Same as #open. But outputs data to a buffer instead of a file
-      def add_buffer
-        io = ::StringIO.new
-        zf = ::Zip::File.new(io, create: true, buffer: true)
-        yield zf
-        zf.write_buffer(io)
-      end
-
       # Like #open, but reads zip archive contents from a String or open IO
       # stream, and outputs data to a buffer.
       # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
-      def open_buffer(io, **options)
+      def open_buffer(io = ::StringIO.new, create: false, **options)
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise 'Zip::File.open_buffer expects a String or IO-like argument' \
                 "(responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
@@ -149,7 +141,7 @@ module Zip
         # https://github.com/rubyzip/rubyzip/issues/119
         io.binmode if io.respond_to?(:binmode)
 
-        zf = ::Zip::File.new(io, create: true, buffer: true, **options)
+        zf = ::Zip::File.new(io, create: create, buffer: true, **options)
         return zf unless block_given?
 
         yield zf

@@ -16,7 +16,7 @@ class ZipFileTest < MiniTest::Test
   def test_create_from_scratch_to_buffer
     comment = 'a short comment'
 
-    buffer = ::Zip::File.add_buffer do |zf|
+    buffer = ::Zip::File.open_buffer(create: true) do |zf|
       zf.get_output_stream('myFile') { |os| os.write 'myFile contains just this' }
       zf.mkdir('dir1')
       zf.comment = comment
