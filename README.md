@@ -328,10 +328,10 @@ end
 
 ### Zip64 Support
 
-By default, Zip64 support is disabled for writing. To enable it do this:
+By default, Zip64 support is enabled for writing. To disable it do this:
 
 ```ruby
-Zip.write_zip64_support = true
+Zip.write_zip64_support = false
 ```
 
 _NOTE_: If you will enable Zip64 writing then you will need zip extractor with Zip64 support to extract archive.

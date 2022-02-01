@@ -62,6 +62,7 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_write_entry
+    ::Zip.write_zip64_support = false
     entry = ::Zip::Entry.new(
       'file.zip', 'entry_name', comment: 'my little comment', size: 400,
       extra: 'thisIsSomeExtraInformation', compressed_size: 100, crc: 987_654
