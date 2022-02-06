@@ -16,7 +16,7 @@ module Zip
 
     attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
                   :restore_ownership, :restore_permissions, :restore_times,
-                  :size, :unix_gid, :unix_perms, :unix_uid, :zipfile
+                  :size, :unix_gid, :unix_perms, :unix_uid
 
     attr_accessor :crc, :dirty, :external_file_attributes, :fstype, :gp_flags,
                   :internal_file_attributes, :local_header_offset # :nodoc:
