@@ -1,0 +1,55 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+        ruby: ['2.4', '2.5', '2.6', '2.7', '3.0', '3.1', jruby, truffleruby]
+        include:
+          - os: macos
+            ruby: '2.4'
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+    - name: Checkout rubyzip code
+      uses: actions/checkout@v2
+
+    - name: Install and set up ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Run the tests
+      env:
+        RUBYOPT: -v
+        JRUBY_OPTS: --debug
+        FULL_ZIP64_TEST: 1
+      run: bundle exec rake
+
+  test-yjit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos]
+        ruby: ['3.1', head]
+    runs-on: ${{ matrix.os }}-latest
+    continue-on-error: true
+    steps:
+    - name: Checkout rubyzip code
+      uses: actions/checkout@v2
+
+    - name: Install and set up ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Run the tests
+      env:
+        RUBYOPT: --enable-yjit -v
+        FULL_ZIP64_TEST: 1
+      run: bundle exec rake
