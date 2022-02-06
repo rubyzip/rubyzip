@@ -240,7 +240,6 @@ module Zip
                     )
                   end
       new_entry.gather_fileinfo_from_srcpath(src_path)
-      new_entry.dirty = true
       @cdir << new_entry
     end
 
@@ -291,7 +290,6 @@ module Zip
         ::Zip::OutputStream.open(tmp_file) do |zos|
           @cdir.each do |e|
             e.write_to_zip_output_stream(zos)
-            e.dirty = false
             e.clean_up
           end
           zos.comment = comment

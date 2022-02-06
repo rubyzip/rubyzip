@@ -62,14 +62,14 @@ class ZipEntrySetTest < MiniTest::Test
     count = 0
     @zip_entry_set.each do |entry|
       assert(ZIP_ENTRIES.include?(entry))
-      refute(entry.dirty)
-      entry.dirty = true # Check that entries can be changed in this block.
+      assert(entry.dirty)
+      entry.dirty = false # Check that entries can be changed in this block.
       count += 1
     end
 
     assert_equal(ZIP_ENTRIES.size, count)
     @zip_entry_set.each do |entry|
-      assert(entry.dirty)
+      refute(entry.dirty)
     end
   end
 

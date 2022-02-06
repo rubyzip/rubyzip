@@ -49,9 +49,6 @@ module Zip
       @unix_uid            = nil
       @unix_gid            = nil
       @unix_perms          = nil
-      # @posix_acl = nil
-      # @ntfs_acl = nil
-      @dirty               = false
     end
 
     def check_name(name)
@@ -82,11 +79,11 @@ module Zip
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
       @ftype = name_is_directory? ? :directory : :file
 
+      @dirty              = true
       @zipfile            = zipfile
       @comment            = comment || ''
       @compression_method = compression_method || DEFLATED
       @compression_level  = compression_level || ::Zip.default_compression
-
       @compressed_size    = compressed_size || 0
       @crc                = crc || 0
       @size               = size || 0
@@ -288,6 +285,7 @@ module Zip
     end
 
     def read_local_entry(io) #:nodoc:all
+      @dirty = false # No changes at this point.
       @local_header_offset = io.tell
 
       static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
@@ -433,6 +431,7 @@ module Zip
     end
 
     def read_c_dir_entry(io) #:nodoc:all
+      @dirty = false # No changes at this point.
       static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
       check_c_dir_entry_static_header_length(static_sized_fields_buf)
       unpack_c_dir_entry(static_sized_fields_buf)
@@ -655,7 +654,7 @@ module Zip
     end
 
     def clean_up
-      # By default, do nothing
+      @dirty = false # Any changes are written at this point.
     end
 
     private

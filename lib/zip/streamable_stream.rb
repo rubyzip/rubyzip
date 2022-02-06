@@ -44,6 +44,7 @@ module Zip
     end
 
     def clean_up
+      super
       @temp_file.unlink
     end
   end
