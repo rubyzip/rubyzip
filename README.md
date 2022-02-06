@@ -351,7 +351,15 @@ You can set multiple settings at the same time by using a block:
 
 ## Compatibility
 
-Rubyzip is known to run on a number of platforms and under a number of different Ruby versions. Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
+Rubyzip is known to run on a number of platforms and under a number of different Ruby versions.
+
+### Version 2.3.x
+
+Rubyzip 2.3 is known to work on MRI 2.4 to 3.1 on Linux and Mac, and JRuby and Truffleruby on Linux. There are known issues with Windows which have been fixed on the development branch. Please [let us know](https://github.com/rubyzip/rubyzip/pulls) if you know Rubyzip 2.3 works on a platform/Ruby combination not listed here, or [raise an issue](https://github.com/rubyzip/rubyzip/issues) if you see a failure where we think it should work.
+
+### Next (version 3.0.0)
+
+Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 
 | OS/Ruby | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.1 +YJIT | Head | Head +YJIT | JRuby 9.3.2.0 | JRuby Head | Truffleruby 21.3.0 | Truffleruby Head |
 |---------|-----|-----|-----|-----|-----|----------|------|-----------|----------------|------------|--------------------|------------------|
