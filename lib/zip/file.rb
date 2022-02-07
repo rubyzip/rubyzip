@@ -105,8 +105,6 @@ module Zip
         raise Error, "File #{@name} not found"
       end
 
-      @stored_entries      = @cdir.entries.map(&:dup)
-      @stored_comment      = @cdir.comment
       @restore_ownership   = options[:restore_ownership]
       @restore_permissions = options[:restore_permissions]
       @restore_times       = options[:restore_times]
@@ -317,10 +315,13 @@ module Zip
     # Returns true if any changes has been made to this archive since
     # the previous commit
     def commit_required?
+      return true if @create || @cdir.dirty?
+
       @cdir.each do |e|
-        return true if e.dirty
+        return true if e.dirty?
       end
-      comment != @stored_comment || entries != @stored_entries || @create
+
+      false
     end
 
     # Searches for entry with the specified name. Returns nil if
