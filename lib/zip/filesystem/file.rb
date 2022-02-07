@@ -124,7 +124,6 @@ module Zip
           e.fstype = FSTYPE_UNIX # Force conversion filesystem type to unix.
           e.unix_perms = mode
           e.external_file_attributes = mode << 16
-          e.dirty = true
         end
         filenames.size
       end

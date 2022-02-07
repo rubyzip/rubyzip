@@ -23,12 +23,13 @@ module Zip
                   :restore_ownership, :restore_permissions, :restore_times,
                   :size, :unix_gid, :unix_perms, :unix_uid
 
-    attr_accessor :crc, :dirty, :external_file_attributes, :fstype, :gp_flags,
+    attr_accessor :crc, :external_file_attributes, :fstype, :gp_flags,
                   :internal_file_attributes, :local_header_offset # :nodoc:
 
     attr_reader :extra, :compression_level, :ftype, :filepath # :nodoc:
 
-    mark_dirty :comment=, :compressed_size=, :name=, :size=,
+    mark_dirty :comment=, :compressed_size=, :external_file_attributes=,
+               :fstype=, :gp_flags=, :name=, :size=,
                :unix_gid=, :unix_perms=, :unix_uid=
 
     def set_default_vars_values

@@ -60,16 +60,18 @@ class ZipEntrySetTest < MiniTest::Test
   def test_each
     # Used each instead each_with_index due the bug in jRuby
     count = 0
+    new_size = 200
     @zip_entry_set.each do |entry|
       assert(ZIP_ENTRIES.include?(entry))
-      assert(entry.dirty)
-      entry.dirty = false # Check that entries can be changed in this block.
+      entry.clean_up # Start from a "saved" state.
+      entry.size = new_size # Check that entries can be changed in this block.
       count += 1
     end
 
     assert_equal(ZIP_ENTRIES.size, count)
     @zip_entry_set.each do |entry|
-      refute(entry.dirty)
+      assert_equal(new_size, entry.size)
+      assert(entry.dirty?) # Size was changed.
     end
   end
 
