@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 require 'pathname'
+
+require_relative 'dirtyable'
+
 module Zip
   class Entry
+    include Dirtyable
+
     STORED   = ::Zip::COMPRESSION_METHOD_STORE
     DEFLATED = ::Zip::COMPRESSION_METHOD_DEFLATE
 
@@ -13,20 +18,6 @@ module Zip
     COMPRESSION_LEVEL_SUPERFAST_GPFLAG = 0b110
     COMPRESSION_LEVEL_FAST_GPFLAG = 0b100
     COMPRESSION_LEVEL_MAX_GPFLAG = 0b010
-
-    # Mark this Entry as dirty if the supplied method is called.
-    def self.mark_dirty(*symbols) # :nodoc:
-      # Move the original method and call it after we've set the dirty flag.
-      symbols.each do |symbol|
-        orig_name = "orig_#{symbol}"
-        alias_method orig_name, symbol
-
-        define_method(symbol) do |param|
-          @dirty = true
-          send(orig_name, param)
-        end
-      end
-    end
 
     attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
                   :restore_ownership, :restore_permissions, :restore_times,
@@ -89,6 +80,7 @@ module Zip
       compression_level: ::Zip.default_compression,
       time: ::Zip::DOSTime.now, extra: ::Zip::ExtraField.new
     )
+      super()
       @name = name
       check_name(@name)
 
@@ -96,7 +88,6 @@ module Zip
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
       @ftype = name_is_directory? ? :directory : :file
 
-      @dirty              = true
       @zipfile            = zipfile
       @comment            = comment || ''
       @compression_method = compression_method || DEFLATED
