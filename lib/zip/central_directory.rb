@@ -2,9 +2,12 @@
 
 require 'forwardable'
 
+require_relative 'dirtyable'
+
 module Zip
   class CentralDirectory
     extend Forwardable
+    include Dirtyable
 
     END_OF_CD_SIG          = 0x06054b50
     ZIP64_END_OF_CD_SIG    = 0x06064b50
@@ -23,8 +26,10 @@ module Zip
                    :<<, :delete, :each, :entries, :find_entry, :glob,
                    :include?, :size
 
+    mark_dirty :<<, :comment=, :delete
+
     def initialize(entries = EntrySet.new, comment = '') #:nodoc:
-      super()
+      super(dirty_on_create: false)
       @entry_set = entries.kind_of?(EntrySet) ? entries : EntrySet.new(entries)
       @comment   = comment
     end
