@@ -118,14 +118,6 @@ module Zip
       gp_flags & 8 == 8
     end
 
-    def extra=(field)
-      @extra = if field.nil?
-                 ExtraField.new
-               else
-                 field.kind_of?(ExtraField) ? field : ExtraField.new(field.to_s)
-               end
-    end
-
     def time
       if @extra['UniversalTime'] && !@extra['UniversalTime'].mtime.nil?
         @extra['UniversalTime'].mtime
@@ -141,6 +133,7 @@ module Zip
     alias mtime time
 
     def time=(value)
+      @dirty = true
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
         @extra.create('UniversalTime')
       end
@@ -157,6 +150,7 @@ module Zip
     end
 
     def compression_method=(method)
+      @dirty = true
       @compression_method = (@ftype == :directory ? STORED : method)
     end
 

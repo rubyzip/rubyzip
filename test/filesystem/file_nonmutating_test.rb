@@ -152,15 +152,6 @@ class FileNonmutatingTest < MiniTest::Test
     assert_equal('a/b/c/d', @zip_file.file.join('a', 'b', 'c', 'd'))
   end
 
-  def test_utime
-    t_now = ::Zip::DOSTime.now
-    t_bak = @zip_file.file.mtime('file1')
-    @zip_file.file.utime(t_now, 'file1')
-    assert_equal(t_now, @zip_file.file.mtime('file1'))
-    @zip_file.file.utime(t_bak, 'file1')
-    assert_equal(t_bak, @zip_file.file.mtime('file1'))
-  end
-
   def assert_always_false(operation)
     assert(!@zip_file.file.send(operation, 'noSuchFile'))
     assert(!@zip_file.file.send(operation, 'file1'))
