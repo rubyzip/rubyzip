@@ -133,15 +133,16 @@ module Zip
 
     alias mtime time
 
-    def time=(value)
+    def time=(value, component: :mtime)
       @dirty = true
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
         @extra.create('UniversalTime')
       end
 
       value = DOSTime.from_time(value)
-      (@extra['UniversalTime'] || @extra['NTFS']).mtime = value
-      @time = value
+      comp = "#{component}=" unless component.to_s.end_with?('=')
+      (@extra['UniversalTime'] || @extra['NTFS']).send(comp, value)
+      @time = value if component == :mtime
     end
 
     def compression_method
