@@ -167,21 +167,11 @@ module Zip
       end
 
       def atime(filename)
-        e = find_entry(filename)
-        if e.extra.member? 'UniversalTime'
-          e.extra['UniversalTime'].atime
-        elsif e.extra.member? 'NTFS'
-          e.extra['NTFS'].atime
-        end
+        @mapped_zip.get_entry(filename).atime
       end
 
       def ctime(filename)
-        e = find_entry(filename)
-        if e.extra.member? 'UniversalTime'
-          e.extra['UniversalTime'].ctime
-        elsif e.extra.member? 'NTFS'
-          e.extra['NTFS'].ctime
-        end
+        @mapped_zip.get_entry(filename).ctime
       end
 
       def pipe?(_filename)
