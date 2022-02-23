@@ -145,6 +145,8 @@ module Zip
       @time = value if component == :mtime
     end
 
+    alias mtime= time=
+
     def compression_method
       return STORED if @ftype == :directory || @compression_level == 0
 
