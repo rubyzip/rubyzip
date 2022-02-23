@@ -118,16 +118,17 @@ module Zip
       gp_flags & 8 == 8
     end
 
-    def time
-      if @extra['UniversalTime'] && !@extra['UniversalTime'].mtime.nil?
-        @extra['UniversalTime'].mtime
-      elsif @extra['NTFS'] && !@extra['NTFS'].mtime.nil?
-        @extra['NTFS'].mtime
-      else
-        # Standard time field in central directory has local time
-        # under archive creator. Then, we can't get timezone.
-        @time
-      end
+    def time(component: :mtime)
+      time =
+        if @extra['UniversalTime']
+          @extra['UniversalTime'].send(component)
+        elsif @extra['NTFS']
+          @extra['NTFS'].send(component)
+        end
+
+      # Standard time field in central directory has local time
+      # under archive creator. Then, we can't get timezone.
+      time || (@time if component == :mtime)
     end
 
     alias mtime time
