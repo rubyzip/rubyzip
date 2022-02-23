@@ -133,6 +133,14 @@ module Zip
 
     alias mtime time
 
+    def atime
+      time(component: :atime)
+    end
+
+    def ctime
+      time(component: :ctime)
+    end
+
     def time=(value, component: :mtime)
       @dirty = true
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
@@ -146,6 +154,14 @@ module Zip
     end
 
     alias mtime= time=
+
+    def atime=(value)
+      send(:time=, value, component: :atime)
+    end
+
+    def ctime=(value)
+      send(:time=, value, component: :ctime)
+    end
 
     def compression_method
       return STORED if @ftype == :directory || @compression_level == 0

@@ -281,6 +281,56 @@ class ZipEntryTest < MiniTest::Test
     assert(entry.time.kind_of?(::Zip::DOSTime))
   end
 
+  def test_atime
+    entry = ::Zip::Entry.new
+    time = Time.new(1999, 12, 31, 23, 59, 59)
+
+    entry.atime = time
+    assert(entry.dirty?)
+    assert_equal(::Zip::DOSTime.from_time(time), entry.atime)
+    refute_equal(entry.time, entry.atime)
+    assert(entry.atime.kind_of?(::Zip::DOSTime))
+    assert_nil(entry.ctime)
+  end
+
+  def test_ctime
+    entry = ::Zip::Entry.new
+    time = Time.new(1999, 12, 31, 23, 59, 59)
+
+    entry.ctime = time
+    assert(entry.dirty?)
+    assert_equal(::Zip::DOSTime.from_time(time), entry.ctime)
+    refute_equal(entry.time, entry.ctime)
+    assert(entry.ctime.kind_of?(::Zip::DOSTime))
+    assert_nil(entry.atime)
+  end
+
+  def test_mtime
+    entry = ::Zip::Entry.new
+    time = Time.new(1999, 12, 31, 23, 59, 59)
+
+    entry.mtime = time
+    assert(entry.dirty?)
+    assert_equal(::Zip::DOSTime.from_time(time), entry.mtime)
+    assert_equal(entry.time, entry.mtime)
+    assert(entry.mtime.kind_of?(::Zip::DOSTime))
+    assert_nil(entry.atime)
+    assert_nil(entry.ctime)
+  end
+
+  def test_time
+    entry = ::Zip::Entry.new
+    time = Time.new(1999, 12, 31, 23, 59, 59)
+
+    entry.time = time
+    assert(entry.dirty?)
+    assert_equal(::Zip::DOSTime.from_time(time), entry.time)
+    assert_equal(entry.mtime, entry.time)
+    assert(entry.time.kind_of?(::Zip::DOSTime))
+    assert_nil(entry.atime)
+    assert_nil(entry.ctime)
+  end
+
   def test_ensure_entry_time_set_to_file_mtime
     entry = ::Zip::Entry.new
     entry.gather_fileinfo_from_srcpath('test/data/mimetype')
