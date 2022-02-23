@@ -122,13 +122,13 @@ class ZipLocalEntryTest < MiniTest::Test
     buf1 = StringIO.new
     entry = ::Zip::Entry.new('file.zip', 'entry_name')
     entry.write_local_entry(buf1)
-    assert(entry.extra['Zip64'].nil?, 'zip64 extra is unnecessarily present')
+    refute(entry.zip64?, 'zip64 extra is unnecessarily present')
 
     buf2 = StringIO.new
     entry.size = 0x123456789ABCDEF0
     entry.compressed_size = 0x0123456789ABCDEF
     entry.write_local_entry(buf2, rewrite: true)
-    refute_nil(entry.extra['Zip64'])
+    assert(entry.zip64?)
     refute_equal(buf1.size, 0)
     assert_equal(buf1.size, buf2.size) # it can't grow, or we'd clobber file data
   end

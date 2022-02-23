@@ -47,7 +47,7 @@ module Zip
       if ::Zip.write_zip64_support
         need_zip64_eocd = cdir_offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF \
                           || @entry_set.size > 0xFFFF
-        need_zip64_eocd ||= @entry_set.any? { |entry| entry.extra['Zip64'] }
+        need_zip64_eocd ||= @entry_set.any?(&:zip64?)
         if need_zip64_eocd
           write_64_e_o_c_d(io, cdir_offset, cdir_size)
           write_64_eocd_locator(io, eocd_offset)
@@ -185,7 +185,7 @@ module Zip
         entry = Entry.read_c_dir_entry(io)
         next unless entry
 
-        offset = if entry.extra['Zip64']
+        offset = if entry.zip64?
                    entry.extra['Zip64'].relative_header_offset
                  else
                    entry.local_header_offset

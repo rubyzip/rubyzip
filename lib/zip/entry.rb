@@ -154,6 +154,10 @@ module Zip
       @compression_method = (@ftype == :directory ? STORED : method)
     end
 
+    def zip64?
+      !@extra['Zip64'].nil?
+    end
+
     def file_type_is?(type)
       raise InternalError, "current filetype is unknown: #{inspect}" unless @ftype
 
@@ -721,7 +725,7 @@ module Zip
     # apply missing data from the zip64 extra information field, if present
     # (required when file sizes exceed 2**32, but can be used for all files)
     def parse_zip64_extra(for_local_header) #:nodoc:all
-      return if @extra['Zip64'].nil?
+      return unless zip64?
 
       if for_local_header
         @size, @compressed_size = @extra['Zip64'].parse(@size, @compressed_size)
