@@ -226,7 +226,7 @@ buffer = Zip::OutputStream.write_buffer do |out|
     unless [DOCUMENT_FILE_PATH, RELS_FILE_PATH].include?(e.name)
       out.put_next_entry(e.name)
       out.write e.get_input_stream.read
-     end
+    end
   end
 
   out.put_next_entry(DOCUMENT_FILE_PATH)
