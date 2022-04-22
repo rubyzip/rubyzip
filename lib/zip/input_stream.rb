@@ -149,6 +149,8 @@ module Zip
               'A password is required to decode this zip file'
       end
 
+      @current_entry.instance_variable_set(:@decrypter, @decrypter)
+
       if @current_entry.incomplete? && @current_entry.compressed_size == 0 \
         && !@complete_entry
         raise GPFBit3Error,
