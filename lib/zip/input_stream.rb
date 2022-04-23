@@ -64,10 +64,10 @@ module Zip
       @archive_io.close
     end
 
-    # Returns a Entry object. It is necessary to call this
-    # method on a newly created InputStream before reading from
-    # the first entry in the archive. Returns nil when there are
-    # no more entries.
+    # Returns an Entry object and positions the stream at the beginning of
+    # the entry data. It is necessary to call this method on a newly created
+    # InputStream before reading from the first entry in the archive.
+    # Returns nil when there are no more entries.
     def get_next_entry
       unless @current_entry.nil?
         if @current_entry.incomplete?
