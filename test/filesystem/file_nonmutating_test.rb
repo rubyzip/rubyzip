@@ -186,7 +186,9 @@ class FileNonmutatingTest < MiniTest::Test
   end
 
   def test_symlink?
-    assert_always_false(:symlink?)
+    zip_file = ::Zip::File.new('test/data/path_traversal/tuzovakaoff/symlink.zip')
+    assert(zip_file.file.symlink?('path'))
+    assert(!zip_file.file.symlink?('path/file.txt'))
   end
 
   def test_socket?

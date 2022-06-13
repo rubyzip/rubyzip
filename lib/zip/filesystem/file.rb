@@ -197,8 +197,8 @@ module Zip
         false
       end
 
-      def symlink?(_filename)
-        false
+      def symlink?(filename)
+        @mapped_zip.get_entry(filename).symlink?
       end
 
       def socket?(_filename)
