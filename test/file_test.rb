@@ -131,6 +131,15 @@ class ZipFileTest < MiniTest::Test
     end
   end
 
+  def test_new_with_io_opened_non_binary_mode
+    File.open('test/data/test.xls') do |io|
+      refute(io.binmode?) # We open in non-binmode on purpose.
+      Zip::File.new(io, buffer: true) do |zip_io|
+        # left empty on purpose
+      end
+    end
+  end
+
   def test_open_buffer_with_string
     data = File.read('test/data/rubycode.zip', mode: 'rb')
     string = data.dup
@@ -199,6 +208,7 @@ class ZipFileTest < MiniTest::Test
 
   def test_open_buffer_with_io_and_block
     File.open('test/data/rubycode.zip') do |io|
+      refute(io.binmode?) # We open in non-binmode on purpose.
       Zip::File.open_buffer(io) do |zip_io|
         # left empty on purpose
       end

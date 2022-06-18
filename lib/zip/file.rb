@@ -83,6 +83,8 @@ module Zip
         @file_permissions = ::File.stat(@name).mode
 
         if buffer
+          # https://github.com/rubyzip/rubyzip/issues/119
+          path_or_io.binmode if path_or_io.respond_to?(:binmode)
           @cdir.read_from_stream(path_or_io)
         else
           ::File.open(@name, 'rb') do |f|
@@ -137,9 +139,6 @@ module Zip
         end
 
         io = ::StringIO.new(io) if io.kind_of?(::String)
-
-        # https://github.com/rubyzip/rubyzip/issues/119
-        io.binmode if io.respond_to?(:binmode)
 
         zf = ::Zip::File.new(io, create: create, buffer: true, **options)
         return zf unless block_given?
