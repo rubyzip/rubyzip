@@ -199,7 +199,6 @@ class ZipFileTest < MiniTest::Test
 
   def test_open_buffer_with_io_and_block
     File.open('test/data/rubycode.zip') do |io|
-      io.set_encoding(Encoding::BINARY) # not strictly required but can be set
       Zip::File.open_buffer(io) do |zip_io|
         # left empty on purpose
       end
