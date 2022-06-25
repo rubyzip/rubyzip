@@ -656,8 +656,11 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.open(filename, create: true)
     zf.add('test1.txt', 'test/data/generated/test_double_commit1.txt')
     zf.commit
+    refute(zf.commit_required?)
     zf.add('test2.txt', 'test/data/generated/test_double_commit2.txt')
+    assert(zf.commit_required?)
     zf.commit
+    refute(zf.commit_required?)
     zf.close
     zf2 = ::Zip::File.open(filename)
     refute_nil(zf2.entries.detect { |e| e.name == 'test1.txt' })
