@@ -267,7 +267,7 @@ module Zip
         end
         true
       end
-      initialize(name)
+      initialize_cdir(@name)
     end
 
     # Write buffer write changes to buffer and return

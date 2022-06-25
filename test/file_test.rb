@@ -640,6 +640,16 @@ class ZipFileTest < MiniTest::Test
     assert_equal(res, true)
   end
 
+  def test_commit_preserves_options
+    zip_file = 'test/data/generated/preserve_options.zip'
+    ::Zip::File.open(zip_file, create: true, compression_level: 8) do |zf|
+      assert(zf.commit_required?)
+      zf.commit
+      assert_equal(8, zf.instance_variable_get(:@compression_level))
+      refute(zf.commit_required?)
+    end
+  end
+
   def test_double_commit(filename = 'test/data/generated/double_commit_test.zip')
     ::FileUtils.touch('test/data/generated/test_double_commit1.txt')
     ::FileUtils.touch('test/data/generated/test_double_commit2.txt')
