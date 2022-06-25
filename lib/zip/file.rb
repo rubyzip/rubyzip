@@ -75,35 +75,8 @@ module Zip
                  .merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @create  = create ? true : false # allow any truthy value to mean true
-      @cdir = ::Zip::CentralDirectory.new
 
-      if ::File.size?(@name.to_s)
-        # There is a file, which exists, that is associated with this zip.
-        @create = false
-        @file_permissions = ::File.stat(@name).mode
-
-        if buffer
-          # https://github.com/rubyzip/rubyzip/issues/119
-          path_or_io.binmode if path_or_io.respond_to?(:binmode)
-          @cdir.read_from_stream(path_or_io)
-        else
-          ::File.open(@name, 'rb') do |f|
-            @cdir.read_from_stream(f)
-          end
-        end
-      elsif buffer && path_or_io.size > 0
-        # This zip is probably a non-empty StringIO.
-        @create = false
-        @cdir.read_from_stream(path_or_io)
-      elsif !@create && ::File.zero?(@name)
-        # A file exists, but it is empty, and we've said we're
-        # NOT creating a new zip.
-        raise Error, "File #{@name} has zero size. Did you mean to pass the create flag?"
-      elsif !@create
-        # If we get here, and we're not creating a new zip, then
-        # everything is wrong.
-        raise Error, "File #{@name} not found"
-      end
+      initialize_cdir(path_or_io, buffer: buffer)
 
       @restore_ownership   = options[:restore_ownership]
       @restore_permissions = options[:restore_permissions]
@@ -355,6 +328,38 @@ module Zip
     end
 
     private
+
+    def initialize_cdir(path_or_io, buffer: false)
+      @cdir = ::Zip::CentralDirectory.new
+
+      if ::File.size?(@name.to_s)
+        # There is a file, which exists, that is associated with this zip.
+        @create = false
+        @file_permissions = ::File.stat(@name).mode
+
+        if buffer
+          # https://github.com/rubyzip/rubyzip/issues/119
+          path_or_io.binmode if path_or_io.respond_to?(:binmode)
+          @cdir.read_from_stream(path_or_io)
+        else
+          ::File.open(@name, 'rb') do |f|
+            @cdir.read_from_stream(f)
+          end
+        end
+      elsif buffer && path_or_io.size > 0
+        # This zip is probably a non-empty StringIO.
+        @create = false
+        @cdir.read_from_stream(path_or_io)
+      elsif !@create && ::File.zero?(@name)
+        # A file exists, but it is empty, and we've said we're
+        # NOT creating a new zip.
+        raise Error, "File #{@name} has zero size. Did you mean to pass the create flag?"
+      elsif !@create
+        # If we get here, and we're not creating a new zip, then
+        # everything is wrong.
+        raise Error, "File #{@name} not found"
+      end
+    end
 
     def check_entry_exists(entry_name, continue_on_exists_proc, proc_name)
       continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
