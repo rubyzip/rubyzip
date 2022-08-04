@@ -144,7 +144,7 @@ module Zip
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
       return if @current_entry.nil?
 
-      if @current_entry.encrypted? && @decrypter.kind_of?(NullEncrypter)
+      if @current_entry.encrypted? && @decrypter.kind_of?(NullDecrypter)
         raise Error,
               'A password is required to decode this zip file'
       end

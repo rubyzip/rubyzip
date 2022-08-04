@@ -91,6 +91,14 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
+  def test_open_encrypted_archive_raises_error
+    ::Zip::InputStream.open('test/data/zipWithEncryption.zip') do |zis|
+      assert_raises(::Zip::Error) do
+        zis.get_next_entry
+      end
+    end
+  end
+
   def test_size_no_entry
     zis = ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name)
     assert_nil(zis.size)
