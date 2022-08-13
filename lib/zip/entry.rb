@@ -26,7 +26,7 @@ module Zip
     attr_accessor :crc, :external_file_attributes, :fstype, :gp_flags,
                   :internal_file_attributes, :local_header_offset # :nodoc:
 
-    attr_reader :extra, :compression_level, :ftype, :filepath # :nodoc:
+    attr_reader :extra, :compression_level, :filepath # :nodoc:
 
     mark_dirty :comment=, :compressed_size=, :external_file_attributes=,
                :fstype=, :gp_flags=, :name=, :size=,
@@ -87,7 +87,6 @@ module Zip
 
       set_default_vars_values
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
-      @ftype = name_is_directory? ? :directory : :file
 
       @zipfile            = zipfile
       @comment            = comment || ''
@@ -164,14 +163,14 @@ module Zip
     end
 
     def compression_method
-      return STORED if @ftype == :directory || @compression_level == 0
+      return STORED if ftype == :directory || @compression_level == 0
 
       @compression_method
     end
 
     def compression_method=(method)
       @dirty = true
-      @compression_method = (@ftype == :directory ? STORED : method)
+      @compression_method = (ftype == :directory ? STORED : method)
     end
 
     def zip64?
@@ -179,9 +178,11 @@ module Zip
     end
 
     def file_type_is?(type)
-      raise InternalError, "current filetype is unknown: #{inspect}" unless @ftype
+      ftype == type
+    end
 
-      @ftype == type
+    def ftype # :nodoc:
+      @ftype ||= name_is_directory? ? :directory : :file
     end
 
     # Dynamic checkers
@@ -263,7 +264,7 @@ module Zip
 
       raise "unknown file type #{inspect}" unless directory? || file? || symlink?
 
-      __send__("create_#{@ftype}", dest_path, &block)
+      __send__("create_#{ftype}", dest_path, &block)
       self
     end
 
@@ -339,6 +340,10 @@ module Zip
         @name.force_encoding(::Zip.force_entry_names_encoding)
       end
       @name.tr!('\\', '/') # Normalise filepath separators after encoding set.
+
+      # We need to do this here because `initialize` has so many side-effects.
+      # :-(
+      @ftype = name_is_directory? ? :directory : :file
 
       extra = io.read(@extra_length)
       if extra && extra.bytesize != @extra_length
@@ -554,7 +559,7 @@ module Zip
       prep_zip64_extra(false)
       case @fstype
       when ::Zip::FSTYPE_UNIX
-        ft = case @ftype
+        ft = case ftype
              when :file
                @unix_perms ||= 0o644
                ::Zip::FILE_TYPE_FILE
@@ -594,11 +599,11 @@ module Zip
     # Returns an IO like object for the given ZipEntry.
     # Warning: may behave weird with symlinks.
     def get_input_stream(&block)
-      if @ftype == :directory
+      if ftype == :directory
         yield ::Zip::NullInputStream if block
         ::Zip::NullInputStream
       elsif @filepath
-        case @ftype
+        case ftype
         when :file
           ::File.open(@filepath, 'rb', &block)
         when :symlink
@@ -607,7 +612,7 @@ module Zip
           yield(stringio) if block
           stringio
         else
-          raise "unknown @file_type #{@ftype}"
+          raise "unknown @file_type #{ftype}"
         end
       else
         zis = ::Zip::InputStream.new(@zipfile, offset: local_header_offset)
@@ -654,7 +659,7 @@ module Zip
     end
 
     def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
-      if @ftype == :directory
+      if ftype == :directory
         zip_output_stream.put_next_entry(self)
       elsif @filepath
         zip_output_stream.put_next_entry(self)

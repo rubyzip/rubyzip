@@ -111,6 +111,16 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
+  def test_get_entry_ftypes
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP4.zip_name) do |zis|
+      entry = zis.get_next_entry
+      assert_equal(:file, entry.ftype)
+
+      entry = zis.get_next_entry
+      assert_equal(:directory, entry.ftype)
+    end
+  end
+
   def test_incomplete_reads
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       entry = zis.get_next_entry # longAscii.txt
