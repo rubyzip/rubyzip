@@ -326,8 +326,7 @@ module Zip
 
       unless @header_signature == LOCAL_ENTRY_SIGNATURE
         if @header_signature == SPLIT_FILE_SIGNATURE
-          raise SplitArchiveError,
-                'Rubyzip cannot extract from split archives at this time'
+          raise SplitArchiveError
         end
 
         raise Error, "Zip local header magic not found at location '#{local_header_offset}'"

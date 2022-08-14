@@ -8,7 +8,6 @@ module Zip
   class EntrySizeError < Error; end
   class InternalError < Error; end
   class DecompressionError < Error; end
-  class SplitArchiveError < Error; end
 
   class CompressionMethodError < Error
     attr_reader :compression_method
@@ -20,6 +19,12 @@ module Zip
 
     def message
       "Unsupported compression method: #{COMPRESSION_METHODS[@compression_method]}."
+    end
+  end
+
+  class SplitArchiveError < Error
+    def message
+      'Rubyzip cannot extract from split archives at this time.'
     end
   end
 
