@@ -40,8 +40,7 @@ module Zip
         retry
       end
     rescue Zlib::Error => e
-      raise ::Zip::DecompressionError,
-            "Zlib error ('#{e.message}') while inflating"
+      raise ::Zip::DecompressionError, e
     end
 
     def input_finished?

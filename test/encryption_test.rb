@@ -38,7 +38,7 @@ class EncryptionTest < MiniTest::Test
       assert_equal content, zis.read
     end
 
-    assert_raises(Zip::DecompressionError) do
+    error = assert_raises(Zip::DecompressionError) do
       Zip::InputStream.open(
         encrypted_zip,
         decrypter: Zip::TraditionalDecrypter.new("#{password}wrong")
@@ -47,6 +47,7 @@ class EncryptionTest < MiniTest::Test
         assert_equal content, zis.read
       end
     end
+    assert_match(/Zlib error \('.+'\) while inflating\./, error.message)
   end
 
   def test_decrypt

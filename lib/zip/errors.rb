@@ -7,7 +7,6 @@ module Zip
   class EntryNameError < Error; end
   class EntrySizeError < Error; end
   class InternalError < Error; end
-  class DecompressionError < Error; end
 
   class CompressionMethodError < Error
     attr_reader :compression_method
@@ -19,6 +18,19 @@ module Zip
 
     def message
       "Unsupported compression method: #{COMPRESSION_METHODS[@compression_method]}."
+    end
+  end
+
+  class DecompressionError < Error
+    attr_reader :zlib_error
+
+    def initialize(zlib_error)
+      super()
+      @zlib_error = zlib_error
+    end
+
+    def message
+      "Zlib error ('#{@zlib_error.message}') while inflating."
     end
   end
 
