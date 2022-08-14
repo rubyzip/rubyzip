@@ -6,7 +6,6 @@ module Zip
   class DestinationFileExistsError < Error; end
   class EntryNameError < Error; end
   class EntrySizeError < Error; end
-  class InternalError < Error; end
 
   class CompressionMethodError < Error
     attr_reader :compression_method
