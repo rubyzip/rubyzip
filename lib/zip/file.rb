@@ -362,15 +362,12 @@ module Zip
     end
 
     def check_entry_exists(entry_name, continue_on_exists_proc, proc_name)
-      continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
       return unless @cdir.include?(entry_name)
 
-      if continue_on_exists_proc.call
-        remove get_entry(entry_name)
-      else
-        raise ::Zip::EntryExistsError,
-              proc_name + " failed. Entry #{entry_name} already exists"
-      end
+      continue_on_exists_proc ||= proc { Zip.continue_on_exists_proc }
+      raise ::Zip::EntryExistsError.new proc_name, entry_name unless continue_on_exists_proc.call
+
+      remove get_entry(entry_name)
     end
 
     def check_file(path)

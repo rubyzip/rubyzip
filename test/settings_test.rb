@@ -46,11 +46,12 @@ class ZipSettingsTest < MiniTest::Test
   def test_false_continue_on_exists_proc
     Zip.continue_on_exists_proc = false
 
-    assert_raises(::Zip::EntryExistsError) do
+    error = assert_raises(::Zip::EntryExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.add(zf.entries.first.name, 'test/data/file2.txt')
       end
     end
+    assert_match(/'add'/, error.message)
   end
 
   def test_true_continue_on_exists_proc

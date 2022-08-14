@@ -40,9 +40,10 @@ class ZipCaseSensitivityTest < MiniTest::Test
     SRC_FILES.each { |fn, _en| assert(::File.exist?(fn)) }
     zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
 
-    assert_raises Zip::EntryExistsError do
+    error = assert_raises Zip::EntryExistsError do
       SRC_FILES.each { |fn, en| zf.add(en, fn) }
     end
+    assert_match(/'add'/, error.message)
   end
 
   # Ensure that names are treated case insensitively when reading files and +case_insensitive_match = true+

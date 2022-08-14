@@ -2,7 +2,6 @@
 
 module Zip
   class Error < StandardError; end
-  class EntryExistsError < Error; end
   class DestinationFileExistsError < Error; end
   class EntryNameError < Error; end
   class EntrySizeError < Error; end
@@ -30,6 +29,18 @@ module Zip
 
     def message
       "Zlib error ('#{@zlib_error.message}') while inflating."
+    end
+  end
+
+  class EntryExistsError < Error
+    def initialize(source, name)
+      super()
+      @source = source
+      @name = name
+    end
+
+    def message
+      "'#{@source}' failed. Entry #{@name} already exists."
     end
   end
 

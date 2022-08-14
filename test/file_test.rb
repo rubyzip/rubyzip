@@ -389,11 +389,12 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_add_existing_entry_name
-    assert_raises(::Zip::EntryExistsError) do
+    error = assert_raises(::Zip::EntryExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.add(zf.entries.first.name, 'test/data/file2.txt')
       end
     end
+    assert_match(/'add'/, error.message)
   end
 
   def test_add_existing_entry_name_replace
@@ -538,11 +539,12 @@ class ZipFileTest < MiniTest::Test
     old_entries = nil
     ::Zip::File.open(TEST_ZIP.zip_name) { |zf| old_entries = zf.entries }
 
-    assert_raises(::Zip::EntryExistsError) do
+    error = assert_raises(::Zip::EntryExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.rename(zf.entries[0], zf.entries[1].name)
       end
     end
+    assert_match(/'rename'/, error.message)
 
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       assert_equal(old_entries.sort.map(&:name), zf.entries.sort.map(&:name))
@@ -586,7 +588,10 @@ class ZipFileTest < MiniTest::Test
   def test_rename_entry_to_existing_entry
     entry1, entry2, * = TEST_ZIP.entry_names
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
-    assert_raises(::Zip::EntryExistsError) { zf.rename(entry1, entry2) }
+    error = assert_raises(::Zip::EntryExistsError) do
+      zf.rename(entry1, entry2)
+    end
+    assert_match(/'rename'/, error.message)
   ensure
     zf.close
   end
