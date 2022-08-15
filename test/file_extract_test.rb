@@ -139,9 +139,10 @@ class ZipFileExtractTest < MiniTest::Test
           error = assert_raises ::Zip::EntrySizeError do
             a_entry.extract
           end
-          assert_equal \
-            "entry 'a' should be 1B, but is larger when inflated.",
+          assert_equal(
+            "Entry 'a' should be 1B, but is larger when inflated.",
             error.message
+          )
         end
       end
     end

@@ -711,10 +711,10 @@ module Zip
             bytes_written += buf.bytesize
             next unless bytes_written > size && !warned
 
-            message = "entry '#{name}' should be #{size}B, but is larger when inflated."
-            raise ::Zip::EntrySizeError, message if ::Zip.validate_entry_sizes
+            error = ::Zip::EntrySizeError.new(self)
+            raise error if ::Zip.validate_entry_sizes
 
-            warn "WARNING: #{message}"
+            warn "WARNING: #{error.message}"
             warned = true
           end
         end

@@ -4,7 +4,6 @@ module Zip
   class Error < StandardError; end
   class DestinationFileExistsError < Error; end
   class EntryNameError < Error; end
-  class EntrySizeError < Error; end
 
   class CompressionMethodError < Error
     attr_reader :compression_method
@@ -41,6 +40,19 @@ module Zip
 
     def message
       "'#{@source}' failed. Entry #{@name} already exists."
+    end
+  end
+
+  class EntrySizeError < Error
+    attr_reader :entry
+
+    def initialize(entry)
+      super()
+      @entry = entry
+    end
+
+    def message
+      "Entry '#{@entry.name}' should be #{@entry.size}B, but is larger when inflated."
     end
   end
 
