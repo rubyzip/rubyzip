@@ -38,7 +38,9 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
 
   def test_extract_directory_exists_as_file
     File.open(TEST_OUT_NAME, 'w') { |f| f.puts 'something' }
-    assert_raises(::Zip::DestinationFileExistsError) { extract_test_dir }
+    assert_raises(::Zip::DestinationExistsError) do
+      extract_test_dir
+    end
   end
 
   def test_extract_directory_exists_as_file_overwrite

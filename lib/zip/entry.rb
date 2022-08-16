@@ -689,9 +689,9 @@ module Zip
 
     def create_file(dest_path, _continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
       if ::File.exist?(dest_path) && !yield(self, dest_path)
-        raise ::Zip::DestinationFileExistsError,
-              "Destination '#{dest_path}' already exists"
+        raise ::Zip::DestinationExistsError, dest_path
       end
+
       ::File.open(dest_path, 'wb') do |os|
         get_input_stream do |is|
           bytes_written = 0
@@ -718,14 +718,11 @@ module Zip
       return if ::File.directory?(dest_path)
 
       if ::File.exist?(dest_path)
-        if block_given? && yield(self, dest_path)
-          ::FileUtils.rm_f dest_path
-        else
-          raise ::Zip::DestinationFileExistsError,
-                "Cannot create directory '#{dest_path}'. " \
-                    'A file already exists with that name'
-        end
+        raise ::Zip::DestinationExistsError, dest_path unless block_given? && yield(self, dest_path)
+
+        ::FileUtils.rm_f dest_path
       end
+
       ::FileUtils.mkdir_p(dest_path)
       set_extra_attributes_on_path(dest_path)
     end

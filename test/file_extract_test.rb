@@ -39,11 +39,12 @@ class ZipFileExtractTest < MiniTest::Test
     text = 'written text'
     ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(text) }
 
-    assert_raises(::Zip::DestinationFileExistsError) do
+    assert_raises(::Zip::DestinationExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
         zf.extract(zf.entries.first, EXTRACTED_FILENAME)
       end
     end
+
     File.open(EXTRACTED_FILENAME, 'r') do |f|
       assert_equal(text, f.read)
     end

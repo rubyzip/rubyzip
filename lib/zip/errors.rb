@@ -2,7 +2,6 @@
 
 module Zip
   class Error < StandardError; end
-  class DestinationFileExistsError < Error; end
 
   class CompressionMethodError < Error
     attr_reader :compression_method
@@ -27,6 +26,18 @@ module Zip
 
     def message
       "Zlib error ('#{@zlib_error.message}') while inflating."
+    end
+  end
+
+  class DestinationExistsError < Error
+    def initialize(destination)
+      super()
+      @destination = destination
+    end
+
+    def message
+      "Cannot create file or directory '#{@destination}'. " \
+      'A file already exists with that name.'
     end
   end
 
