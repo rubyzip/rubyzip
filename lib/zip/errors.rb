@@ -3,7 +3,6 @@
 module Zip
   class Error < StandardError; end
   class DestinationFileExistsError < Error; end
-  class EntryNameError < Error; end
 
   class CompressionMethodError < Error
     attr_reader :compression_method
@@ -40,6 +39,21 @@ module Zip
 
     def message
       "'#{@source}' failed. Entry #{@name} already exists."
+    end
+  end
+
+  class EntryNameError < Error
+    def initialize(name = nil)
+      super()
+      @name = name
+    end
+
+    def message
+      if @name.nil?
+        'Illegal entry name. Names must have fewer than 65,536 characters.'
+      else
+        "Illegal entry name '#{@name}'. Names must not start with '/'."
+      end
     end
   end
 

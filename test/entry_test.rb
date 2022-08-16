@@ -150,16 +150,20 @@ class ZipEntryTest < MiniTest::Test
   end
 
   def test_entry_name_cannot_start_with_slash
-    assert_raises(::Zip::EntryNameError) { ::Zip::Entry.new('zf.zip', '/hej/der') }
+    error = assert_raises(::Zip::EntryNameError) do
+      ::Zip::Entry.new('zf.zip', '/hej/der')
+    end
+    assert_match(/'\/hej\/der'/, error.message)
   end
 
   def test_entry_name_cannot_be_too_long
     name = 'a' * 65_535
     ::Zip::Entry.new('', name) # Should not raise anything.
 
-    assert_raises(::Zip::EntryNameError) do
+    error = assert_raises(::Zip::EntryNameError) do
       ::Zip::Entry.new('', "a#{name}")
     end
+    assert_match(/65,536/, error.message)
   end
 
   def test_store_file_without_compression
