@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module Zip
-  module IOExtras
+  module IOExtras # :nodoc:
     # Implements many of the convenience methods of IO
     # such as gets, getc, readline and readlines
     # depends on: input_finished?, produce_input and read
-    module AbstractInputStream
+    module AbstractInputStream # :nodoc:
       include Enumerable
       include FakeIO
 

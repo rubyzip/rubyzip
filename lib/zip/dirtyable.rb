@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module Dirtyable # :nodoc:
+  module Dirtyable # :nodoc:all
     def initialize(dirty_on_create: true)
       @dirty = dirty_on_create
     end
@@ -10,7 +10,7 @@ module Zip
       @dirty
     end
 
-    module ClassMethods
+    module ClassMethods # :nodoc:
       def mark_dirty(*symbols) # :nodoc:
         # Move the original method and call it after we've set the dirty flag.
         symbols.each do |symbol|

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module TraditionalEncryption
+  module TraditionalEncryption # :nodoc:
     def initialize(password)
       @password = password
       reset_keys!

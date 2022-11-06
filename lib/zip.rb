@@ -35,6 +35,11 @@ require 'zip/streamable_stream'
 require 'zip/streamable_directory'
 require 'zip/errors'
 
+# Rubyzip is a ruby module for reading and writing zip files.
+#
+# The main entry points are File, InputStream and OutputStream. For a
+# file/directory interface in the style of the standard ruby ::File and
+# ::Dir APIs then `require 'zip/filesystem'` and see FileSystem.
 module Zip
   extend self
   attr_accessor :unicode_names,

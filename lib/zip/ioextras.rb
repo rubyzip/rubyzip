@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module IOExtras #:nodoc:
+  module IOExtras # :nodoc:
     CHUNK_SIZE = 131_072
 
     class << self
@@ -20,7 +20,7 @@ module Zip
     end
 
     # Implements kind_of? in order to pretend to be an IO object
-    module FakeIO
+    module FakeIO # :nodoc:
       def kind_of?(object)
         object == IO || super
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module NullEncryption
+  module NullEncryption # :nodoc:
     def header_bytesize
       0
     end

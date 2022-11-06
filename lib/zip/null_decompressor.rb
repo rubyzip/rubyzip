@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module NullDecompressor #:nodoc:all
+  module NullDecompressor # :nodoc:all
     module_function
 
     def read(_length = nil, _outbuf = nil)

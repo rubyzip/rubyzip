@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module NullInputStream #:nodoc:all
+  module NullInputStream # :nodoc:all
     include ::Zip::NullDecompressor
     include ::Zip::IOExtras::AbstractInputStream
   end

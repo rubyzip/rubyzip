@@ -19,25 +19,27 @@ module Zip
   # <code>first.txt</code>, a directory entry named <code>mydir</code>
   # and finally another normal entry named <code>second.txt</code>
   #
-  #   require 'zip/filesystem'
+  # ```
+  # require 'zip/filesystem'
   #
-  #   Zip::File.open("my.zip", create: true) {
-  #     |zipfile|
-  #     zipfile.file.open("first.txt", "w") { |f| f.puts "Hello world" }
-  #     zipfile.dir.mkdir("mydir")
-  #     zipfile.file.open("mydir/second.txt", "w") { |f| f.puts "Hello again" }
-  #   }
+  # Zip::File.open('my.zip', create: true) do |zipfile|
+  #   zipfile.file.open('first.txt', 'w') { |f| f.puts 'Hello world' }
+  #   zipfile.dir.mkdir('mydir')
+  #   zipfile.file.open('mydir/second.txt', 'w') { |f| f.puts 'Hello again' }
+  # end
+  # ```
   #
   # Reading is as easy as writing, as the following example shows. The
   # example writes the contents of <code>first.txt</code> from zip archive
   # <code>my.zip</code> to standard out.
   #
-  #   require 'zip/filesystem'
+  # ```
+  # require 'zip/filesystem'
   #
-  #   Zip::File.open("my.zip") {
-  #     |zipfile|
-  #     puts zipfile.file.read("first.txt")
-  #   }
+  # Zip::File.open('my.zip') do |zipfile|
+  #   puts zipfile.file.read('first.txt')
+  # end
+  # ```
   module FileSystem
     def initialize # :nodoc:
       mapped_zip       = ZipFileNameMapper.new(self)
@@ -47,14 +49,14 @@ module Zip
       @zip_fs_file.dir = @zip_fs_dir
     end
 
-    # Returns a FileSystem::Dir which is much like ruby's builtin Dir (class)
-    # object, except it works on the Zip::File on which this method is
+    # Returns a Zip::FileSystem::Dir which is much like ruby's builtin Dir
+    # (class) object, except it works on the Zip::File on which this method is
     # invoked
     def dir
       @zip_fs_dir
     end
 
-    # Returns a FileSystem::File which is much like ruby's builtin File
+    # Returns a Zip::FileSystem::File which is much like ruby's builtin File
     # (class) object, except it works on the Zip::File on which this method is
     # invoked
     def file

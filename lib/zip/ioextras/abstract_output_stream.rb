@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Zip
-  module IOExtras
+  module IOExtras # :nodoc:
     # Implements many of the output convenience methods of IO.
     # relies on <<
-    module AbstractOutputStream
+    module AbstractOutputStream # :nodoc:
       include FakeIO
 
       def write(data)

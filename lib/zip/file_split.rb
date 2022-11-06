@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  module FileSplit #:nodoc:
+  module FileSplit # :nodoc:
     MAX_SEGMENT_SIZE = 3_221_225_472
     MIN_SEGMENT_SIZE = 65_536
     DATA_BUFFER_SIZE = 8192
