@@ -38,7 +38,7 @@ module Zip
     end
   end
 
-  class TraditionalEncrypter < Encrypter
+  class TraditionalEncrypter < Encrypter # :nodoc:
     include TraditionalEncryption
 
     def header(mtime)
@@ -72,7 +72,7 @@ module Zip
     end
   end
 
-  class TraditionalDecrypter < Decrypter
+  class TraditionalDecrypter < Decrypter # :nodoc:
     include TraditionalEncryption
 
     def decrypt(data)

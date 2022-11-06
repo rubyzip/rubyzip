@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class Decompressor #:nodoc:all
+  class Decompressor # :nodoc:all
     CHUNK_SIZE = 32_768
 
     def self.decompressor_classes

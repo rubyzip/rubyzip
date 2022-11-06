@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class NullCompressor < Compressor #:nodoc:all
+  class NullCompressor < Compressor # :nodoc:all
     include Singleton
 
     def <<(_data)

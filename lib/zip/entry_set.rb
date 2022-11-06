@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class EntrySet #:nodoc:all
+  class EntrySet # :nodoc:all
     include Enumerable
 
     attr_reader :entry_set

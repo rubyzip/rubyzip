@@ -2,7 +2,7 @@
 
 module Zip
   # Info-ZIP Extra for UNIX uid/gid
-  class ExtraField::IUnix < ExtraField::Generic
+  class ExtraField::IUnix < ExtraField::Generic # :nodoc:
     HEADER_ID = 'Ux'
     register_map
 

@@ -11,7 +11,7 @@ module Zip
     end
   end
 
-  class NullEncrypter < Encrypter
+  class NullEncrypter < Encrypter # :nodoc:
     include NullEncryption
 
     def header(_mtime)
@@ -29,7 +29,7 @@ module Zip
     def reset!; end
   end
 
-  class NullDecrypter < Decrypter
+  class NullDecrypter < Decrypter # :nodoc:
     include NullEncryption
 
     def decrypt(data)

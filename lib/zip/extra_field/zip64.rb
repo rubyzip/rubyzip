@@ -2,7 +2,7 @@
 
 module Zip
   # Info-ZIP Extra for Zip64 size
-  class ExtraField::Zip64 < ExtraField::Generic
+  class ExtraField::Zip64 < ExtraField::Generic # :nodoc:
     attr_accessor :compressed_size, :disk_start_number,
                   :original_size, :relative_header_offset
 

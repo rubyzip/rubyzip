@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class PassThruCompressor < Compressor #:nodoc:all
+  class PassThruCompressor < Compressor # :nodoc:all
     def initialize(output_stream)
       super()
       @output_stream = output_stream

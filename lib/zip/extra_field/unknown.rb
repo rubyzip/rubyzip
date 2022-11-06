@@ -2,7 +2,7 @@
 
 module Zip
   # A class to hold unknown extra fields so that they are preserved.
-  class ExtraField::Unknown
+  class ExtraField::Unknown # :nodoc:
     def initialize
       @local_bin = +''
       @cdir_bin = +''

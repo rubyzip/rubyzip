@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Zip
-  class Encrypter #:nodoc:all
+  class Encrypter # :nodoc:all
   end
 
-  class Decrypter
+  class Decrypter # :nodoc:all
   end
 end
 

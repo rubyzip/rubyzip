@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class ExtraField < Hash
+  class ExtraField < Hash # :nodoc:all
     ID_MAP = {}
 
     def initialize(binstr = nil, local: false)

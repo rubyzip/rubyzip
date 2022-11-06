@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class PassThruDecompressor < Decompressor #:nodoc:all
+  class PassThruDecompressor < Decompressor # :nodoc:all
     def initialize(*args)
       super
       @read_so_far = 0

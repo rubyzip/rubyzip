@@ -5,7 +5,7 @@ require 'forwardable'
 require_relative 'dirtyable'
 
 module Zip
-  class CentralDirectory
+  class CentralDirectory # :nodoc:
     extend Forwardable
     include Dirtyable
 

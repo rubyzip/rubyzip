@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 module Zip
+  # The superclass for all rubyzip error types. Simply rescue this one if
+  # you don't need to know what sort of error has been raised.
   class Error < StandardError; end
 
+  # Error raised if an unsupported compression method is used.
   class CompressionMethodError < Error
     attr_reader :compression_method
 
@@ -16,6 +19,7 @@ module Zip
     end
   end
 
+  # Error raised if there is a problem while decompressing an archive entry.
   class DecompressionError < Error
     attr_reader :zlib_error
 
@@ -29,6 +33,8 @@ module Zip
     end
   end
 
+  # Error raised when trying to extract an archive entry over an
+  # existing file.
   class DestinationExistsError < Error
     def initialize(destination)
       super()
@@ -41,6 +47,8 @@ module Zip
     end
   end
 
+  # Error raised when trying to add an entry to an archive where the
+  # entry name already exists.
   class EntryExistsError < Error
     def initialize(source, name)
       super()
@@ -53,6 +61,7 @@ module Zip
     end
   end
 
+  # Error raised when an entry name is invalid.
   class EntryNameError < Error
     def initialize(name = nil)
       super()
@@ -68,6 +77,8 @@ module Zip
     end
   end
 
+  # Error raised if an entry is larger on extraction than it is advertised
+  # to be.
   class EntrySizeError < Error
     attr_reader :entry
 
@@ -81,12 +92,15 @@ module Zip
     end
   end
 
+  # Error raised if a split archive is read. Rubyzip does not support reading
+  # split archives.
   class SplitArchiveError < Error
     def message
       'Rubyzip cannot extract from split archives at this time.'
     end
   end
 
+  # Error raised if there is not enough metadata for the entry to be streamed.
   class StreamingError < Error
     attr_reader :entry
 

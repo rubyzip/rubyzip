@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class Deflater < Compressor #:nodoc:all
+  class Deflater < Compressor # :nodoc:all
     def initialize(output_stream, level = Zip.default_compression, encrypter = NullEncrypter.new)
       super()
       @output_stream = output_stream

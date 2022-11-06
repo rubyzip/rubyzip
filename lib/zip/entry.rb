@@ -5,6 +5,7 @@ require 'pathname'
 require_relative 'dirtyable'
 
 module Zip
+  # Zip::Entry represents an entry in a Zip archive.
   class Entry
     include Dirtyable
 

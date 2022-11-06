@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class DecryptedIo #:nodoc:all
+  class DecryptedIo # :nodoc:all
     CHUNK_SIZE = 32_768
 
     def initialize(io, decrypter)

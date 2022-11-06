@@ -5,48 +5,49 @@ require 'forwardable'
 require_relative 'file_split'
 
 module Zip
-  # ZipFile is modeled after java.util.zip.ZipFile from the Java SDK.
-  # The most important methods are those inherited from
-  # ZipCentralDirectory for accessing information about the entries in
-  # the archive and methods such as get_input_stream and
-  # get_output_stream for reading from and writing entries to the
+  # Zip::File is modeled after java.util.zip.ZipFile from the Java SDK.
+  # The most important methods are those for accessing information about
+  # the entries in
+  # the archive and methods such as `get_input_stream` and
+  # `get_output_stream` for reading from and writing entries to the
   # archive. The class includes a few convenience methods such as
-  # #extract for extracting entries to the filesystem, and #remove,
-  # #replace, #rename and #mkdir for making simple modifications to
+  # `extract` for extracting entries to the filesystem, and `remove`,
+  # `replace`, `rename` and `mkdir` for making simple modifications to
   # the archive.
   #
-  # Modifications to a zip archive are not committed until #commit or
-  # #close is called. The method #open accepts a block following
-  # the pattern from File.open offering a simple way to
+  # Modifications to a zip archive are not committed until `commit` or
+  # `close` is called. The method `open` accepts a block following
+  # the pattern from ::File.open offering a simple way to
   # automatically close the archive when the block returns.
   #
-  # The following example opens zip archive <code>my.zip</code>
+  # The following example opens zip archive `my.zip`
   # (creating it if it doesn't exist) and adds an entry
-  # <code>first.txt</code> and a directory entry <code>a_dir</code>
+  # `first.txt` and a directory entry `a_dir`
   # to it.
   #
-  #   require 'zip'
+  # ```
+  # require 'zip'
   #
-  #   Zip::File.open("my.zip", create: true) {
-  #    |zipfile|
-  #     zipfile.get_output_stream("first.txt") { |f| f.puts "Hello from ZipFile" }
-  #     zipfile.mkdir("a_dir")
-  #   }
+  # Zip::File.open('my.zip', create: true) do |zipfile|
+  #   zipfile.get_output_stream('first.txt') { |f| f.puts 'Hello from Zip::File' }
+  #   zipfile.mkdir('a_dir')
+  # end
+  # ```
   #
-  # The next example reopens <code>my.zip</code> writes the contents of
-  # <code>first.txt</code> to standard out and deletes the entry from
+  # The next example reopens `my.zip`, writes the contents of
+  # `first.txt` to standard out and deletes the entry from
   # the archive.
   #
-  #   require 'zip'
+  # ```
+  # require 'zip'
   #
-  #   Zip::File.open("my.zip", create: true) {
-  #     |zipfile|
-  #     puts zipfile.read("first.txt")
-  #     zipfile.remove("first.txt")
-  #   }
+  # Zip::File.open('my.zip', create: true) do |zipfile|
+  #   puts zipfile.read('first.txt')
+  #   zipfile.remove('first.txt')
+  # end
   #
-  # ZipFileSystem offers an alternative API that emulates ruby's
-  # interface for accessing the filesystem, ie. the File and Dir classes.
+  # Zip::FileSystem offers an alternative API that emulates ruby's
+  # interface for accessing the filesystem, ie. the ::File and ::Dir classes.
   class File
     extend Forwardable
     extend FileSplit

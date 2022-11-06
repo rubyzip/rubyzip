@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class StreamableDirectory < Entry
+  class StreamableDirectory < Entry # :nodoc:
     def initialize(zipfile, entry, src_path = nil, permission = nil)
       super(zipfile, entry)
 

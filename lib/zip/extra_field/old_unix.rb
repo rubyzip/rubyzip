@@ -2,7 +2,7 @@
 
 module Zip
   # Olf Info-ZIP Extra for UNIX uid/gid and file timestampes
-  class ExtraField::OldUnix < ExtraField::Generic
+  class ExtraField::OldUnix < ExtraField::Generic # :nodoc:
     HEADER_ID = 'UX'
     register_map
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class ExtraField::Generic
+  class ExtraField::Generic # :nodoc:
     def self.register_map
       return unless const_defined?(:HEADER_ID)
 
