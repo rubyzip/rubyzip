@@ -305,6 +305,7 @@ class ZipFileTest < MiniTest::Test
       zf_read = ::Zip::File.new(name)
       entry = zf_read.entries.first
       assert_equal(File.size(src_file), entry.size)
+      refute(entry.zip64?) # No ZIP64 extra as we know the entry size here.
       AssertEntry.assert_contents(
         src_file, zf_read.get_input_stream(entry.name, &:read)
       )
@@ -338,6 +339,7 @@ class ZipFileTest < MiniTest::Test
       zf_read = ::Zip::File.new(name)
       entry = zf_read.entries.first
       assert_equal(File.size(src_file), entry.size)
+      refute(entry.zip64?) # No ZIP64 extra as we know the entry size here.
       AssertEntry.assert_contents(
         src_file, zf_read.get_input_stream(entry.name, &:read)
       )
@@ -367,6 +369,7 @@ class ZipFileTest < MiniTest::Test
     assert_equal(File.size(src_file), entry.size)
     assert_equal(entry.size, entry.compressed_size)
     assert_equal(::Zip::Entry::STORED, entry.compression_method)
+    refute(entry.zip64?) # No ZIP64 extra as we know the entry size here.
     AssertEntry.assert_contents(src_file,
                                 zf_read.get_input_stream(entry_name, &:read))
   end
@@ -424,6 +427,7 @@ class ZipFileTest < MiniTest::Test
       end
 
       assert(dir_entry.directory?)
+      refute(dir_entry.zip64?) # No ZIP64 extra as we know the entry size here.
     end
   end
 
@@ -457,11 +461,12 @@ class ZipFileTest < MiniTest::Test
     end
 
     ::Zip::File.open_buffer(buffer) do |zf|
-      assert(zf.find_entry('dir/').directory?)
-      assert(zf.find_entry('dir').directory?)
+      ['dir/', 'dir', 'folder/', 'folder'].each do |dir|
+        entry = zf.find_entry(dir)
 
-      assert(zf.find_entry('folder/').directory?)
-      assert(zf.find_entry('folder').directory?)
+        assert(entry.directory?)
+        refute(entry.zip64?)
+      end
     end
   end
 
@@ -679,7 +684,6 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_double_commit_zip64
-    ::Zip.write_zip64_support = true
     test_double_commit('test/data/generated/double_commit_test64.zip')
   end
 
