@@ -21,12 +21,14 @@ module Zip
 
     attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
                   :restore_ownership, :restore_permissions, :restore_times,
-                  :size, :unix_gid, :unix_perms, :unix_uid
+                  :unix_gid, :unix_perms, :unix_uid
 
     attr_accessor :crc, :external_file_attributes, :fstype, :gp_flags,
                   :internal_file_attributes, :local_header_offset # :nodoc:
 
     attr_reader :extra, :compression_level, :filepath # :nodoc:
+
+    attr_writer :size # :nodoc:
 
     mark_dirty :comment=, :compressed_size=, :external_file_attributes=,
                :fstype=, :gp_flags=, :name=, :size=,
@@ -67,7 +69,7 @@ module Zip
 
     def initialize(
       zipfile = '', name = '',
-      comment: '', size: 0, compressed_size: 0, crc: 0,
+      comment: '', size: nil, compressed_size: 0, crc: 0,
       compression_method: DEFLATED,
       compression_level: ::Zip.default_compression,
       time: ::Zip::DOSTime.now, extra: ::Zip::ExtraField.new
@@ -85,7 +87,7 @@ module Zip
       @compression_level  = compression_level || ::Zip.default_compression
       @compressed_size    = compressed_size || 0
       @crc                = crc || 0
-      @size               = size || 0
+      @size               = size
       @time               = case time
                             when ::Zip::DOSTime
                               time
@@ -106,6 +108,10 @@ module Zip
 
     def incomplete?
       gp_flags & 8 == 8
+    end
+
+    def size
+      @size || 0
     end
 
     def time(component: :mtime)
@@ -355,13 +361,13 @@ module Zip
        @time.to_binary_dos_date, # @last_mod_date
        @crc,
        zip64 && zip64.compressed_size ? 0xFFFFFFFF : @compressed_size,
-       zip64 && zip64.original_size ? 0xFFFFFFFF : @size,
+       zip64 && zip64.original_size ? 0xFFFFFFFF : (@size || 0),
        name_size,
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
     def write_local_entry(io, rewrite: false) #:nodoc:all
-      prep_zip64_extra(true)
+      prep_local_zip64_extra
       verify_local_header_size! if rewrite
       @local_header_offset = io.tell
 
@@ -531,7 +537,7 @@ module Zip
         @time.to_binary_dos_date, # @last_mod_date
         @crc,
         zip64 && zip64.compressed_size ? 0xFFFFFFFF : @compressed_size,
-        zip64 && zip64.original_size ? 0xFFFFFFFF : @size,
+        zip64 && zip64.original_size ? 0xFFFFFFFF : (@size || 0),
         name_size,
         @extra ? @extra.c_dir_size : 0,
         comment_size,
@@ -546,7 +552,8 @@ module Zip
     end
 
     def write_c_dir_entry(io) #:nodoc:all
-      prep_zip64_extra(false)
+      prep_cdir_zip64_extra
+
       case @fstype
       when ::Zip::FSTYPE_UNIX
         ft = case ftype
@@ -645,6 +652,7 @@ module Zip
                end
 
       @filepath = src_path
+      @size = stat.size
       get_extra_attributes_from_path(@filepath)
     end
 
@@ -769,39 +777,38 @@ module Zip
       end
     end
 
-    # create a zip64 extra information field if we need one
-    def prep_zip64_extra(for_local_header) #:nodoc:all
+    # rubocop:disable Style/GuardClause
+    def prep_local_zip64_extra
       return unless ::Zip.write_zip64_support
+      return if (!zip64? && @size && @size < 0xFFFFFFFF) || !file?
 
-      need_zip64 = @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
-      need_zip64 ||= @local_header_offset >= 0xFFFFFFFF unless for_local_header
-      if need_zip64
+      # Might not know size here, so need ZIP64 just in case.
+      # If we already have a ZIP64 extra (placeholder) then we must fill it in.
+      if zip64? || @size.nil? || @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
         @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
-        @extra.delete('Zip64Placeholder')
-        zip64 = @extra.create('Zip64')
-        if for_local_header
-          # local header always includes size and compressed size
-          zip64.original_size = @size
-          zip64.compressed_size = @compressed_size
-        else
-          # central directory entry entries include whichever fields are necessary
-          zip64.original_size = @size if @size >= 0xFFFFFFFF
-          zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
-          zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
-        end
-      else
-        @extra.delete('Zip64')
+        zip64 = @extra['Zip64'] || @extra.create('Zip64')
 
-        # if this is a local header entry, create a placeholder
-        # so we have room to write a zip64 extra field afterward
-        # (we won't know if it's needed until the file data is written)
-        if for_local_header
-          @extra.create('Zip64Placeholder')
-        else
-          @extra.delete('Zip64Placeholder')
-        end
+        # Local header always includes size and compressed size.
+        zip64.original_size = @size || 0
+        zip64.compressed_size = @compressed_size
       end
     end
+
+    def prep_cdir_zip64_extra
+      return unless ::Zip.write_zip64_support
+
+      if (@size && @size >= 0xFFFFFFFF) || @compressed_size >= 0xFFFFFFFF ||
+         @local_header_offset >= 0xFFFFFFFF
+        @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
+        zip64 = @extra['Zip64'] || @extra.create('Zip64')
+
+        # Central directory entry entries include whichever fields are necessary.
+        zip64.original_size = @size if @size && @size >= 0xFFFFFFFF
+        zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
+        zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
+      end
+    end
+    # rubocop:enable Style/GuardClause
   end
 end
 

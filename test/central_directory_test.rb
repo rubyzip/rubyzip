@@ -88,7 +88,6 @@ class ZipCentralDirectoryTest < MiniTest::Test
   end
 
   def test_write64_to_stream
-    ::Zip.write_zip64_support = true
     entries = [
       ::Zip::Entry.new(
         'file.zip', 'file1-little', comment: 'comment1', size: 200,

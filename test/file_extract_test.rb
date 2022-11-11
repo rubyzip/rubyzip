@@ -89,6 +89,8 @@ class ZipFileExtractTest < MiniTest::Test
   end
 
   def test_extract_incorrect_size
+    Zip.write_zip64_support = false
+
     # The uncompressed size fields in the zip file cannot be trusted. This makes
     # it harder for callers to validate the sizes of the files they are
     # extracting, which can lead to denial of service. See also
@@ -115,6 +117,70 @@ class ZipFileExtractTest < MiniTest::Test
 
       true_size_bytes = [compressed_size, true_size, file_name.size].pack('VVv')
       fake_size_bytes = [compressed_size, fake_size, file_name.size].pack('VVv')
+
+      data = File.binread(real_zip)
+      assert data.include?(true_size_bytes)
+      data.gsub! true_size_bytes, fake_size_bytes
+
+      File.open(fake_zip, 'wb') do |file|
+        file.write data
+      end
+
+      Dir.chdir tmp do
+        ::Zip::File.open(fake_zip) do |zf|
+          a_entry = zf.find_entry(file_name)
+          assert_equal fake_size, a_entry.size
+
+          ::Zip.validate_entry_sizes = false
+          assert_output('', /.+'a'.+1B.+/) do
+            a_entry.extract
+          end
+          assert_equal true_size, File.size(file_name)
+          FileUtils.rm file_name
+
+          ::Zip.validate_entry_sizes = true
+          error = assert_raises ::Zip::EntrySizeError do
+            a_entry.extract
+          end
+          assert_equal(
+            "Entry 'a' should be 1B, but is larger when inflated.",
+            error.message
+          )
+        end
+      end
+    end
+  end
+
+  def test_extract_incorrect_size_zip64
+    # The uncompressed size fields in the zip file cannot be trusted. This makes
+    # it harder for callers to validate the sizes of the files they are
+    # extracting, which can lead to denial of service. See also
+    # https://en.wikipedia.org/wiki/Zip_bomb
+    #
+    # This version of the test ensures that fraudulent sizes in the ZIP64
+    # extensions are caught.
+    Dir.mktmpdir do |tmp|
+      real_zip = File.join(tmp, 'real.zip')
+      fake_zip = File.join(tmp, 'fake.zip')
+      file_name = 'a'
+      true_size = 500_000
+      fake_size = 1
+
+      ::Zip::File.open(real_zip, create: true) do |zf|
+        zf.get_output_stream(file_name) do |os|
+          os.write 'a' * true_size
+        end
+      end
+
+      compressed_size = nil
+      ::Zip::File.open(real_zip) do |zf|
+        a_entry = zf.find_entry(file_name)
+        compressed_size = a_entry.compressed_size
+        assert_equal true_size, a_entry.size
+      end
+
+      true_size_bytes = [0x1, 16, true_size, compressed_size].pack('vvQ<Q<')
+      fake_size_bytes = [0x1, 16, fake_size, compressed_size].pack('vvQ<Q<')
 
       data = File.binread(real_zip)
       assert data.include?(true_size_bytes)

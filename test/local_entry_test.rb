@@ -62,7 +62,8 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_write_entry
-    ::Zip.write_zip64_support = false
+    Zip.write_zip64_support = false
+
     entry = ::Zip::Entry.new(
       'file.zip', 'entry_name', comment: 'my little comment', size: 400,
       extra: 'thisIsSomeExtraInformation', compressed_size: 100, crc: 987_654
@@ -71,15 +72,14 @@ class ZipLocalEntryTest < MiniTest::Test
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
     assert(
-      central_entry.extra['Zip64Placeholder'].nil?,
-      'zip64 placeholder should not be used in central directory'
+      central_entry.extra['Zip64'].nil?,
+      'zip64 should not be used in central directory at this point.'
     )
     compare_local_entry_headers(entry, local_entry)
     compare_c_dir_entry_headers(entry, central_entry)
   end
 
   def test_write_entry_with_zip64
-    ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new(
       'file.zip', 'entry_name', comment: 'my little comment', size: 400,
       extra: 'thisIsSomeExtraInformation', compressed_size: 100, crc: 987_654
@@ -88,16 +88,14 @@ class ZipLocalEntryTest < MiniTest::Test
 
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
-    assert(
-      local_entry.extra['Zip64Placeholder'],
-      'zip64 placeholder should be used in local file header'
-    )
 
-    # This was removed when writing the c_dir_entry, so remove from compare.
-    local_entry.extra.delete('Zip64Placeholder')
     assert(
-      central_entry.extra['Zip64Placeholder'].nil?,
-      'zip64 placeholder should not be used in central directory'
+      local_entry.extra['Zip64'].nil?,
+      'zip64 should not be used in local file header at this point.'
+    )
+    assert(
+      central_entry.extra['Zip64'].nil?,
+      'zip64 should not be used in central directory at this point.'
     )
 
     compare_local_entry_headers(entry, local_entry)
@@ -105,7 +103,6 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_write_64entry
-    ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new(
       'bigfile.zip', 'entry_name', comment: 'my little equine',
       extra: 'malformed extra field because why not', size: 0x9988776655443322,
@@ -119,16 +116,34 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_rewrite_local_header64
-    ::Zip.write_zip64_support = true
     buf1 = StringIO.new
     entry = ::Zip::Entry.new('file.zip', 'entry_name')
     entry.write_local_entry(buf1)
-    refute(entry.zip64?, 'zip64 extra is unnecessarily present')
+    # We don't know how long the entry will be at this point.
+    assert(entry.zip64?, 'zip64 extra should be present')
 
     buf2 = StringIO.new
     entry.size = 0x123456789ABCDEF0
     entry.compressed_size = 0x0123456789ABCDEF
     entry.write_local_entry(buf2, rewrite: true)
+    assert(entry.zip64?)
+    refute_equal(buf1.size, 0)
+    assert_equal(buf1.size, buf2.size) # it can't grow, or we'd clobber file data
+  end
+
+  def test_rewrite_local_header
+    buf1 = StringIO.new
+    entry = ::Zip::Entry.new('file.zip', 'entry_name')
+    entry.write_local_entry(buf1)
+    # We don't know how long the entry will be at this point.
+    assert(entry.zip64?, 'zip64 extra should be present')
+
+    buf2 = StringIO.new
+    entry.size = 0x256
+    entry.compressed_size = 0x128
+    entry.write_local_entry(buf2, rewrite: true)
+    # Zip64 should still be present, even with a small entry size. This
+    # is a rewrite, so header size can't change.
     assert(entry.zip64?)
     refute_equal(buf1.size, 0)
     assert_equal(buf1.size, buf2.size) # it can't grow, or we'd clobber file data
@@ -144,7 +159,6 @@ class ZipLocalEntryTest < MiniTest::Test
   end
 
   def test_read64_local_offset
-    ::Zip.write_zip64_support = true
     entry = ::Zip::Entry.new('file.zip', 'entry_name')
     entry.local_header_offset = 0x0123456789ABCDEF
     ::File.open(CEH_FILE, 'wb') { |f| entry.write_c_dir_entry(f) }

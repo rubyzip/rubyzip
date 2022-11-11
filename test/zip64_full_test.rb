@@ -16,7 +16,6 @@ class Zip64FullTest < MiniTest::Test
   def test_large_zip_file
     skip unless ENV['FULL_ZIP64_TEST'] && !Zip::RUNNING_ON_WINDOWS
 
-    ::Zip.write_zip64_support = true
     first_text = 'starting out small'
     last_text = 'this tests files starting after 4GB in the archive'
     comment_text = 'this is a file comment in a zip64 archive'

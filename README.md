@@ -342,7 +342,7 @@ By default, Zip64 support is enabled for writing. To disable it do this:
 Zip.write_zip64_support = false
 ```
 
-_NOTE_: If you will enable Zip64 writing then you will need zip extractor with Zip64 support to extract archive.
+_NOTE_: If Zip64 write support is enabled then any extractor subsequently used may also require Zip64 support to read from the resultant archive.
 
 ### Block Form
 
