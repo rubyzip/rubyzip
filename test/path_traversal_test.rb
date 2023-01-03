@@ -39,23 +39,31 @@ class PathTraversalTest < MiniTest::Test
   end
 
   def test_leading_slash
-    entries = { '/tmp/moo' => /WARNING: skipped '\/tmp\/moo'/ }
-    in_tmpdir do
+    entries = { '/tmp/moo' => '' }
+    in_tmpdir do |test_path|
+      Dir.mkdir('tmp') # Create 'tmp' dir within test directory.
       extract_paths(['jwilk', 'absolute1.zip'], entries)
+
+      # Check that only the relative file is created.
       refute File.exist?('/tmp/moo')
+      assert File.exist?(File.join(test_path, 'tmp', 'moo'))
     end
   end
 
   def test_multiple_leading_slashes
-    entries = { '//tmp/moo' => /WARNING: skipped '\/\/tmp\/moo'/ }
-    in_tmpdir do
+    entries = { '//tmp/moo' => '' }
+    in_tmpdir do |test_path|
+      Dir.mkdir('tmp') # Create 'tmp' dir within test directory.
       extract_paths(['jwilk', 'absolute2.zip'], entries)
+
+      # Check that only the relative file is created.
       refute File.exist?('/tmp/moo')
+      assert File.exist?(File.join(test_path, 'tmp', 'moo'))
     end
   end
 
   def test_leading_dot_dot
-    entries = { '../moo' => /WARNING: skipped '\.\.\/moo'/ }
+    entries = { '../moo' => /WARNING: skipped extracting '\.\.\/moo'/ }
     in_tmpdir do
       extract_paths(['jwilk', 'relative0.zip'], entries)
       refute File.exist?('../moo')
@@ -65,7 +73,7 @@ class PathTraversalTest < MiniTest::Test
   def test_non_leading_dot_dot_with_existing_folder
     entries = {
       'tmp/'          => '',
-      'tmp/../../moo' => /WARNING: skipped 'tmp\/\.\.\/\.\.\/moo'/
+      'tmp/../../moo' => /WARNING: skipped extracting 'tmp\/\.\.\/\.\.\/moo'/
     }
     in_tmpdir do
       extract_paths('relative1.zip', entries)
@@ -75,7 +83,7 @@ class PathTraversalTest < MiniTest::Test
   end
 
   def test_non_leading_dot_dot_without_existing_folder
-    entries = { 'tmp/../../moo' => /WARNING: skipped 'tmp\/\.\.\/\.\.\/moo'/ }
+    entries = { 'tmp/../../moo' => /WARNING: skipped extracting 'tmp\/\.\.\/\.\.\/moo'/ }
     in_tmpdir do
       extract_paths(['jwilk', 'relative2.zip'], entries)
       refute File.exist?('../moo')
@@ -94,7 +102,7 @@ class PathTraversalTest < MiniTest::Test
   def test_directory_symlink
     # Can't create tmp/moo, because the tmp symlink is skipped.
     entries = {
-      'tmp'     => /WARNING: skipped symlink 'tmp'/,
+      'tmp'     => /WARNING: skipped symlink '.*\/tmp'/,
       'tmp/moo' => :error
     }
     in_tmpdir do
@@ -106,8 +114,8 @@ class PathTraversalTest < MiniTest::Test
   def test_two_directory_symlinks_a
     # Can't create par/moo because the symlinks are skipped.
     entries = {
-      'cur'     => /WARNING: skipped symlink 'cur'/,
-      'par'     => /WARNING: skipped symlink 'par'/,
+      'cur'     => /WARNING: skipped symlink '.*\/cur'/,
+      'par'     => /WARNING: skipped symlink '.*\/par'/,
       'par/moo' => :error
     }
     in_tmpdir do
@@ -121,8 +129,8 @@ class PathTraversalTest < MiniTest::Test
   def test_two_directory_symlinks_b
     # Can't create par/moo, because the symlinks are skipped.
     entries = {
-      'cur'     => /WARNING: skipped symlink 'cur'/,
-      'cur/par' => /WARNING: skipped symlink 'cur\/par'/,
+      'cur'     => /WARNING: skipped symlink '.*\/cur'/,
+      'cur/par' => /WARNING: skipped symlink '.*\/cur\/par'/,
       'par/moo' => :error
     }
     in_tmpdir do
@@ -132,14 +140,29 @@ class PathTraversalTest < MiniTest::Test
     end
   end
 
-  def test_entry_name_with_absolute_path_does_not_extract
-    entries = {
-      '/tmp/'         => /WARNING: skipped '\/tmp\/'/,
-      '/tmp/file.txt' => /WARNING: skipped '\/tmp\/file.txt'/
-    }
-    in_tmpdir do
-      extract_paths(['tuzovakaoff', 'absolutepath.zip'], entries)
+  def test_entry_name_with_absolute_path_does_not_extract_by_accident
+    in_tmpdir do |test_path|
+      zip_path = File.join(TEST_FILE_ROOT, 'tuzovakaoff', 'absolutepath.zip')
+      Zip::File.open(zip_path) do |zip_file|
+        zip_file.each do |entry|
+          entry.extract(entry.name, destination_directory: nil)
+          assert File.exist?(File.join(test_path, entry.name))
+          refute File.exist?(entry.name) unless entry.name == '/tmp/'
+        end
+      end
+    end
+  end
+
+  def test_entry_name_with_absolute_path_extracts_to_cwd_by_default
+    in_tmpdir do |test_path|
+      zip_path = File.join(TEST_FILE_ROOT, 'tuzovakaoff', 'absolutepath.zip')
+      Zip::File.open(zip_path) do |zip_file|
+        zip_file.each(&:extract)
+      end
+
+      # Check that only the relative file is created.
       refute File.exist?('/tmp/file.txt')
+      assert File.exist?(File.join(test_path, 'tmp', 'file.txt'))
     end
   end
 
@@ -148,17 +171,20 @@ class PathTraversalTest < MiniTest::Test
       zip_path = File.join(TEST_FILE_ROOT, 'tuzovakaoff', 'absolutepath.zip')
       Zip::File.open(zip_path) do |zip_file|
         zip_file.each do |entry|
-          entry.extract(File.join(test_path, entry.name))
+          entry.extract(destination_directory: test_path)
         end
       end
+
+      # Check that only the relative file is created.
       refute File.exist?('/tmp/file.txt')
+      assert File.exist?(File.join(test_path, 'tmp', 'file.txt'))
     end
   end
 
   def test_entry_name_with_relative_symlink
     # Doesn't create the symlink path, so can't create path/file.txt.
     entries = {
-      'path'          => /WARNING: skipped symlink 'path'/,
+      'path'          => /WARNING: skipped symlink '.*\/path'/,
       'path/file.txt' => :error
     }
     in_tmpdir do

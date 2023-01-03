@@ -48,7 +48,7 @@ class ZipFileExtractDirectoryTest < MiniTest::Test
     called = false
     extract_test_dir do |entry, dest_path|
       called = true
-      assert_equal(TEST_OUT_NAME, dest_path)
+      assert_equal(File.absolute_path(TEST_OUT_NAME), dest_path)
       assert(entry.directory?)
       true
     end

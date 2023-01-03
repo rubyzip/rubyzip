@@ -5,6 +5,7 @@ require 'test_helper'
 class ZipFileExtractTest < MiniTest::Test
   include CommonZipFileFixture
   EXTRACTED_FILENAME = 'test/data/generated/extEntry'
+  EXTRACTED_FILENAME_ABS = ::File.absolute_path(EXTRACTED_FILENAME)
   ENTRY_TO_EXTRACT, *REMAINING_ENTRIES = TEST_ZIP.entry_names.reverse
 
   def setup
@@ -58,7 +59,7 @@ class ZipFileExtractTest < MiniTest::Test
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
       zf.extract(zf.entries.first, EXTRACTED_FILENAME) do |entry, extract_loc|
         called_correctly = zf.entries.first == entry &&
-                           extract_loc == EXTRACTED_FILENAME
+                           extract_loc == EXTRACTED_FILENAME_ABS
         true
       end
     end
