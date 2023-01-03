@@ -7,12 +7,15 @@ class FileOptionsTest < MiniTest::Test
   TXTPATH = ::File.expand_path(::File.join('data', 'file1.txt'), __dir__).freeze
   TXTPATH_600 = ::File.join(Dir.tmpdir, 'file1.600.txt').freeze
   TXTPATH_755 = ::File.join(Dir.tmpdir, 'file1.755.txt').freeze
-  EXTPATH_1 = ::File.join(Dir.tmpdir, 'extracted_1.txt').freeze
-  EXTPATH_2 = ::File.join(Dir.tmpdir, 'extracted_2.txt').freeze
-  EXTPATH_3 = ::File.join(Dir.tmpdir, 'extracted_3.txt').freeze
   ENTRY_1 = 'entry_1.txt'
   ENTRY_2 = 'entry_2.txt'
   ENTRY_3 = 'entry_3.txt'
+  EXTRACT_1 = 'extracted_1.txt'
+  EXTRACT_2 = 'extracted_2.txt'
+  EXTRACT_3 = 'extracted_3.txt'
+  EXTPATH_1 = ::File.join(Dir.tmpdir, EXTRACT_1).freeze
+  EXTPATH_2 = ::File.join(Dir.tmpdir, EXTRACT_2).freeze
+  EXTPATH_3 = ::File.join(Dir.tmpdir, EXTRACT_3).freeze
 
   def teardown
     ::File.unlink(ZIPPATH) if ::File.exist?(ZIPPATH)
@@ -37,9 +40,9 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH, restore_permissions: true) do |zip|
-      zip.extract(ENTRY_1, EXTPATH_1)
-      zip.extract(ENTRY_2, EXTPATH_2)
-      zip.extract(ENTRY_3, EXTPATH_3)
+      zip.extract(ENTRY_1, EXTRACT_1, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_2, EXTRACT_2, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_3, EXTRACT_3, destination_directory: Dir.tmpdir)
     end
 
     assert_equal(::File.stat(TXTPATH).mode, ::File.stat(EXTPATH_1).mode)
@@ -61,9 +64,9 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH, restore_permissions: false) do |zip|
-      zip.extract(ENTRY_1, EXTPATH_1)
-      zip.extract(ENTRY_2, EXTPATH_2)
-      zip.extract(ENTRY_3, EXTPATH_3)
+      zip.extract(ENTRY_1, EXTRACT_1, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_2, EXTRACT_2, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_3, EXTRACT_3, destination_directory: Dir.tmpdir)
     end
 
     default_perms = (Zip::RUNNING_ON_WINDOWS ? 0o100_644 : 0o100_666) - ::File.umask
@@ -86,9 +89,9 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH) do |zip|
-      zip.extract(ENTRY_1, EXTPATH_1)
-      zip.extract(ENTRY_2, EXTPATH_2)
-      zip.extract(ENTRY_3, EXTPATH_3)
+      zip.extract(ENTRY_1, EXTRACT_1, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_2, EXTRACT_2, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_3, EXTRACT_3, destination_directory: Dir.tmpdir)
     end
 
     assert_equal(::File.stat(TXTPATH).mode, ::File.stat(EXTPATH_1).mode)
@@ -103,8 +106,8 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH, restore_times: true) do |zip|
-      zip.extract(ENTRY_1, EXTPATH_1)
-      zip.extract(ENTRY_2, EXTPATH_2)
+      zip.extract(ENTRY_1, EXTRACT_1, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_2, EXTRACT_2, destination_directory: Dir.tmpdir)
     end
 
     assert_time_equal(::File.mtime(TXTPATH), ::File.mtime(EXTPATH_1))
@@ -118,8 +121,8 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH, restore_times: false) do |zip|
-      zip.extract(ENTRY_1, EXTPATH_1)
-      zip.extract(ENTRY_2, EXTPATH_2)
+      zip.extract(ENTRY_1, EXTRACT_1, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_2, EXTRACT_2, destination_directory: Dir.tmpdir)
     end
 
     assert_time_equal(::Time.now, ::File.mtime(EXTPATH_1))
@@ -133,8 +136,8 @@ class FileOptionsTest < MiniTest::Test
     end
 
     ::Zip::File.open(ZIPPATH) do |zip|
-      zip.extract(ENTRY_1, EXTPATH_1)
-      zip.extract(ENTRY_2, EXTPATH_2)
+      zip.extract(ENTRY_1, EXTRACT_1, destination_directory: Dir.tmpdir)
+      zip.extract(ENTRY_2, EXTRACT_2, destination_directory: Dir.tmpdir)
     end
 
     assert_time_equal(::File.mtime(TXTPATH), ::File.mtime(EXTPATH_1))
@@ -143,20 +146,19 @@ class FileOptionsTest < MiniTest::Test
 
   def test_get_find_consistency
     testzip = ::File.expand_path(::File.join('data', 'globTest.zip'), __dir__)
-    file_f = ::File.expand_path('f_test.txt', Dir.tmpdir)
-    file_g = ::File.expand_path('g_test.txt', Dir.tmpdir)
+    Dir.mktmpdir do |tmp|
+      file_f = ::File.expand_path('f_test.txt', tmp)
+      file_g = ::File.expand_path('g_test.txt', tmp)
 
-    ::Zip::File.open(testzip) do |zip|
-      e1 = zip.find_entry('globTest/food.txt')
-      e1.extract(file_f)
-      e2 = zip.get_entry('globTest/food.txt')
-      e2.extract(file_g)
+      ::Zip::File.open(testzip) do |zip|
+        e1 = zip.find_entry('globTest/food.txt')
+        e1.extract('f_test.txt', destination_directory: tmp)
+        e2 = zip.get_entry('globTest/food.txt')
+        e2.extract('g_test.txt', destination_directory: tmp)
+      end
+
+      assert_time_equal(::File.mtime(file_f), ::File.mtime(file_g))
     end
-
-    assert_time_equal(::File.mtime(file_f), ::File.mtime(file_g))
-  ensure
-    ::File.unlink(file_f)
-    ::File.unlink(file_g)
   end
 
   private
