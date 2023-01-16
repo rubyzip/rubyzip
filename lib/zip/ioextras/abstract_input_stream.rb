@@ -36,7 +36,7 @@ module Zip
                end
 
         if tbuf.nil? || tbuf.empty?
-          return nil if number_of_bytes
+          return nil if number_of_bytes&.positive?
 
           return ''
         end
