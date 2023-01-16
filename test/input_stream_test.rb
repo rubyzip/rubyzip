@@ -189,6 +189,12 @@ class ZipInputStreamTest < MiniTest::Test
     end
   end
 
+  def test_read_with_zero_returns_empty_string
+    ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      assert_equal('', zis.read(0))
+    end
+  end
+
   def test_rewind
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       e = zis.get_next_entry
