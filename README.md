@@ -22,7 +22,7 @@ The public API of some classes has been modernized to use named parameters for o
 
 Version 3.x requires at least Ruby 2.5.
 
-Version 2.x requires at least Ruby 2.4, and is know to work on Ruby 3.1.
+Version 2.x requires at least Ruby 2.4, and is known to work on Ruby 3.1.
 
 It is not recommended to use any versions of Rubyzip earlier than 2.3 due to security issues.
 
