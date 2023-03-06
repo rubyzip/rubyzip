@@ -2,6 +2,8 @@
 
 require 'zip'
 
+puts "Ruby YJIT Enabled: #{RubyVM::YJIT.enabled?}"
+
 driver_name = 'chromedriver'
 Zip::File.open('./chromedriver_linux64.zip') do |zip_file|
   driver = zip_file.get_entry(driver_name)
