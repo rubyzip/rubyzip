@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'zip'
 
 driver_name = 'chromedriver'
