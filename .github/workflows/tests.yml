@@ -63,6 +63,27 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
 
+    - name: Chromedriver non-deterministic test
+      run: |
+        curl "https://chromedriver.storage.googleapis.com/110.0.5481.77/chromedriver_linux64.zip" > chromedriver_linux64.zip
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+        rm -f chromedriver && RUBY_YJIT_ENABLE=true bundle exec ruby test/yjit_test.rb && chmod +x ./chromedriver && ./chromedriver --version
+
     - name: Run the tests
       env:
         RUBYOPT: --enable-yjit -v
