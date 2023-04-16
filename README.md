@@ -18,6 +18,8 @@ The public API of some classes has been modernized to use named parameters for o
 * `InputStream`
 * `OutputStream`
 
+**Please see [Updating to version 3.x](https://github.com/rubyzip/rubyzip/wiki/Updating-to-version-3.x) in the wiki for details.**
+
 ## Requirements
 
 Version 3.x requires at least Ruby 2.5.
