@@ -373,10 +373,10 @@ Please see the table below for what we think the current situation is. Note: an 
 
 | OS/Ruby | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.1 +YJIT | Head | Head +YJIT | JRuby 9.3.2.0 | JRuby Head | Truffleruby 21.3.0 | Truffleruby Head |
 |---------|-----|-----|-----|-----|-----|----------|------|-----------|----------------|------------|--------------------|------------------|
-|Ubuntu 20.04.3| CI | CI | CI | CI | CI | ci | ci | ci | CI | ci | CI | ci |
-|Mac OS 11.6.2| CI | x | x | x | x | ci |  | ci | x |  | x |  |
+|Ubuntu 22.04| CI | CI | CI | CI | CI | ci | ci | ci | CI | ci | CI | ci |
+|Mac OS 12.6.7| CI | x | x | x | x | ci |  | ci | x |  | x |  |
 |Windows 10|  |  | x |  |  |  |  |  |  |  |  |  |
-|Windows Server 2019| CI |  |  |  |  |  |  |  |  |  |  |  |
+|Windows Server 2022| CI |  |  |  |  |  | CI&nbsp;mswin</br>CI&nbsp;ucrt |  |  |  |  |  |
 
 Key: `CI` - tested in CI, should work; `ci` - tested in CI, might fail; `x` - known working; `o` - known failing.
 
