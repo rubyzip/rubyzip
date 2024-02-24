@@ -205,6 +205,27 @@ Any attempt to move about in a zip file opened with `Zip::InputStream` could res
 
 Rubyzip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:
 
+#### Version 2.x
+
+```ruby
+# Writing.
+enc = Zip::TraditionalEncrypter.new('password')
+buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), enc) do |output|
+  output.put_next_entry("my_file.txt")
+  output.write my_data
+end
+
+# Reading.
+dec = Zip::TraditionalDecrypter.new('password')
+Zip::InputStream.open(buffer, 0, dec) do |input|
+  entry = input.get_next_entry
+  puts "Contents of '#{entry.name}':"
+  puts input.read
+end
+```
+
+#### Version 3.x
+
 ```ruby
 # Writing.
 enc = Zip::TraditionalEncrypter.new('password')
