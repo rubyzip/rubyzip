@@ -371,14 +371,18 @@ Rubyzip 2.3 is known to work on MRI 2.4 to 3.1 on Linux and Mac, and JRuby and T
 
 Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 
-| OS/Ruby | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.1 +YJIT | Head | Head +YJIT | JRuby 9.3.2.0 | JRuby Head | Truffleruby 21.3.0 | Truffleruby Head |
-|---------|-----|-----|-----|-----|-----|----------|------|-----------|----------------|------------|--------------------|------------------|
-|Ubuntu 22.04| CI | CI | CI | CI | CI | ci | ci | ci | CI | ci | CI | ci |
-|Mac OS 12.6.7| CI | x | x | x | x | ci |  | ci | x |  | x |  |
+| OS/Ruby | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.2 | 3.3 | Head | JRuby 9.4.6.0 | JRuby Head | Truffleruby 23.1.2 | Truffleruby Head |
+|---------|-----|-----|-----|-----|-----|-----|-----|------|---------------|------------|--------------------|------------------|
+|Ubuntu 22.04| CI | CI | CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
+|Mac OS 12.7.3| CI | x | x | ci | ci | ci | ci | ci | x |  | x |  |
 |Windows 10|  |  | x |  |  |  |  |  |  |  |  |  |
 |Windows Server 2022| CI |  |  |  |  |  | CI&nbsp;mswin</br>CI&nbsp;ucrt |  |  |  |  |  |
 
 Key: `CI` - tested in CI, should work; `ci` - tested in CI, might fail; `x` - known working; `o` - known failing.
+
+Ruby 3.0+ are also tested separately with YJIT turned on.
+
+See [the Actions tab](https://github.com/rubyzip/rubyzip/actions) in GitHub for full details.
 
 Please [raise a PR](https://github.com/rubyzip/rubyzip/pulls) if you know Rubyzip works on a platform/Ruby combination not listed here, or [raise an issue](https://github.com/rubyzip/rubyzip/issues) if you see a failure where we think it should work.
 
