@@ -49,11 +49,12 @@ module Zip
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, offset = 0, decrypter = nil)
+    def initialize(context, dep_offset = 0, dep_decrypter = nil, offset: 0, decrypter: nil)
       super()
+      offset = dep_offset if offset.zero?
       @archive_io    = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
-      @decrypter     = decrypter || ::Zip::NullDecrypter.new
+      @decrypter     = decrypter || dep_decrypter || ::Zip::NullDecrypter.new
       @current_entry = nil
     end
 
