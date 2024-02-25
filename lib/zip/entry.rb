@@ -52,22 +52,33 @@ module Zip
       raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
-    def initialize(*args)
-      name = args[1] || ''
+    def initialize(zipfile = nil, name = nil, *args)
+      name ||= ''
       check_name(name)
 
       set_default_vars_values
       @fstype = ::Zip::RUNNING_ON_WINDOWS ? ::Zip::FSTYPE_FAT : ::Zip::FSTYPE_UNIX
 
-      @zipfile            = args[0] || ''
+      @zipfile            = zipfile || ''
       @name               = name
-      @comment            = args[2] || ''
-      @extra              = args[3] || ''
-      @compressed_size    = args[4] || 0
-      @crc                = args[5] || 0
-      @compression_method = args[6] || ::Zip::Entry::DEFLATED
-      @size               = args[7] || 0
-      @time               = args[8] || ::Zip::DOSTime.now
+
+      if (args_hash = args.first).kind_of?(::Hash)
+        @comment            = args_hash[:comment] || ''
+        @extra              = args_hash[:extra] || ''
+        @compressed_size    = args_hash[:compressed_size] || 0
+        @crc                = args_hash[:crc] || 0
+        @compression_method = args_hash[:compression_method] || ::Zip::Entry::DEFLATED
+        @size               = args_hash[:size] || 0
+        @time               = args_hash[:time] || ::Zip::DOSTime.now
+      else
+        @comment            = args[0] || ''
+        @extra              = args[1] || ''
+        @compressed_size    = args[2] || 0
+        @crc                = args[3] || 0
+        @compression_method = args[4] || ::Zip::Entry::DEFLATED
+        @size               = args[5] || 0
+        @time               = args[6] || ::Zip::DOSTime.now
+      end
 
       @ftype = name_is_directory? ? :directory : :file
       @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
