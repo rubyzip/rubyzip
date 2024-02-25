@@ -24,10 +24,10 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream = false, encrypter = nil)
+    def initialize(file_name, dep_stream = false, dep_encrypter = nil, stream: false, encrypter: nil)
       super()
       @file_name = file_name
-      @output_stream = if stream
+      @output_stream = if (stream || dep_stream)
                          iostream = @file_name.dup
                          iostream.reopen(@file_name)
                          iostream.rewind
@@ -37,7 +37,7 @@ module Zip
                        end
       @entry_set = ::Zip::EntrySet.new
       @compressor = ::Zip::NullCompressor.instance
-      @encrypter = encrypter || ::Zip::NullEncrypter.new
+      @encrypter = encrypter || dep_encrypter || ::Zip::NullEncrypter.new
       @closed = false
       @current_entry = nil
       @comment = nil
@@ -47,19 +47,19 @@ module Zip
     # stream is passed to the block and closed when the block
     # returns.
     class << self
-      def open(file_name, encrypter = nil)
+      def open(file_name, dep_encrypter = nil, encrypter: nil)
         return new(file_name) unless block_given?
 
-        zos = new(file_name, false, encrypter)
+        zos = new(file_name, stream: false, encrypter: (encrypter || dep_encrypter))
         yield zos
       ensure
         zos.close if zos
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io = ::StringIO.new(''), encrypter = nil)
+      def write_buffer(io = ::StringIO.new(''), dep_encrypter = nil, encrypter: nil)
         io.binmode if io.respond_to?(:binmode)
-        zos = new(io, true, encrypter)
+        zos = new(io, stream: true, encrypter: (encrypter || dep_encrypter))
         yield zos
         zos.close_buffer
       end
