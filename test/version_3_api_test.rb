@@ -59,22 +59,30 @@ module Version3APITest
   end
 
   class ZipInputStreamTest < MiniTest::Test
+    include ZipV3Assertions
+
     def test_new_with_old_offset
-      zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, 100)
-      assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
-      zis.close
+      assert_v3_api_warning do
+        zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, 100)
+        assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
+        zis.close
+      end
     end
 
     def test_new_with_new_offset
-      zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, offset: 100)
-      assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
-      zis.close
+      refute_v3_api_warning do
+        zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, offset: 100)
+        assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
+        zis.close
+      end
     end
 
     def test_new_with_clashing_offset
-      zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, 10, offset: 100)
-      assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
-      zis.close
+      assert_v3_api_warning do
+        zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, 10, offset: 100)
+        assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
+        zis.close
+      end
     end
   end
 end

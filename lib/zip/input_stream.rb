@@ -51,6 +51,11 @@ module Zip
     # @param offset [Integer] offset in the IO/StringIO
     def initialize(context, dep_offset = 0, dep_decrypter = nil, offset: 0, decrypter: nil)
       super()
+
+      if !dep_offset.zero? || !dep_decrypter.nil?
+        Zip.warn_about_v3_api('Zip::InputStream.new')
+      end
+
       offset = dep_offset if offset.zero?
       @archive_io    = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
