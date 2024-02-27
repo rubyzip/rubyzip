@@ -34,6 +34,17 @@ require 'zip/streamable_directory'
 require 'zip/errors'
 
 module Zip
+  V3_API_WARNING_MSG = <<~END_MSG
+    You have called '%s' which is changing or deprecated
+    in version 3.0.0. Please see
+      https://github.com/rubyzip/rubyzip/wiki/Updating-to-version-3.x
+    for more information.
+  END_MSG
+
+  def self.warn_about_v3_api(method)
+    warn V3_API_WARNING_MSG % method if ENV['RUBYZIP_V3_API_WARN']
+  end
+
   extend self
   attr_accessor :unicode_names,
                 :on_exists_proc,

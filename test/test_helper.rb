@@ -223,3 +223,23 @@ module ZipEntryData
   TEST_ISDIRECTORY = false
   TEST_TIME = Time.now
 end
+
+module ZipV3Assertions
+  def assert_v3_api_warning
+    begin
+      ENV['RUBYZIP_V3_API_WARN'] = '1'
+      assert_output('', /^You have called/) { yield }
+    ensure
+      ENV.delete('RUBYZIP_V3_API_WARN')
+    end
+  end
+
+  def refute_v3_api_warning
+    begin
+      ENV['RUBYZIP_V3_API_WARN'] = '1'
+      assert_output('', '') { yield }
+    ensure
+      ENV.delete('RUBYZIP_V3_API_WARN')
+    end
+  end
+end

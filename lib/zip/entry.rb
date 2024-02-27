@@ -71,6 +71,8 @@ module Zip
         @size               = args_hash[:size] || 0
         @time               = args_hash[:time] || ::Zip::DOSTime.now
       else
+        Zip.warn_about_v3_api('Zip::Entry.new') unless args.empty?
+
         @comment            = args[0] || ''
         @extra              = args[1] || ''
         @compressed_size    = args[2] || 0
