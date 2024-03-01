@@ -356,7 +356,7 @@ module Zip
         # This zip is probably a non-empty StringIO.
         @create = false
         @cdir.read_from_stream(path_or_io)
-      elsif !@create && ::File.zero?(@name)
+      elsif !@create && ::File.empty?(@name)
         # A file exists, but it is empty, and we've said we're
         # NOT creating a new zip.
         raise Error, "File #{@name} has zero size. Did you mean to pass the create flag?"

@@ -144,8 +144,7 @@ module Zip
               'A password is required to decode this zip file'
       end
 
-      if @current_entry.incomplete? && @current_entry.compressed_size == 0 \
-        && !@complete_entry
+      if @current_entry.incomplete? && @current_entry.compressed_size == 0 && !@complete_entry
         raise StreamingError, @current_entry
       end
 
@@ -166,8 +165,8 @@ module Zip
       return ::Zip::NullDecompressor if @current_entry.nil?
 
       decompressed_size =
-        if @current_entry.incomplete? && @current_entry.crc == 0 \
-           && @current_entry.size == 0 && @complete_entry
+        if @current_entry.incomplete? && @current_entry.crc == 0 &&
+           @current_entry.size == 0 && @complete_entry
           @complete_entry.size
         else
           @current_entry.size

@@ -8,7 +8,7 @@ inherit_from: .rubocop_todo.yml
 # we get errors if our ruby version doesn't match.
 AllCops:
   SuggestExtensions: false
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 3.0
   NewCops: enable
 
 # Allow this in this file because adding the extra lines is pointless.

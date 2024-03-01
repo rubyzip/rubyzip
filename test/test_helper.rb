@@ -12,7 +12,7 @@ require 'gentestfiles'
 TestFiles.create_test_files
 TestZipFile.create_test_zips
 
-::MiniTest.after_run do
+MiniTest.after_run do
   FileUtils.rm_rf('test/data/generated')
 end
 
@@ -137,7 +137,7 @@ module CommonZipFileFixture
   TEST_ZIP.zip_name = 'test/data/generated/5entry_copy.zip'
 
   def setup
-    File.delete(EMPTY_FILENAME) if File.exist?(EMPTY_FILENAME)
+    FileUtils.rm_f(EMPTY_FILENAME)
     FileUtils.cp(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
   end
 end

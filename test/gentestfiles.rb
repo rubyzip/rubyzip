@@ -20,7 +20,7 @@ class TestFiles
 
   class << self
     def create_test_files
-      Dir.mkdir 'test/data/generated' unless Dir.exist?('test/data/generated')
+      FileUtils.mkdir_p 'test/data/generated'
 
       ASCII_TEST_FILES.each_with_index do |filename, index|
         create_random_ascii(filename, 1E4 * (index + 1))

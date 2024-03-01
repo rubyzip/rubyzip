@@ -76,13 +76,13 @@ module Zip
         a_sep_string = "#{$INPUT_RECORD_SEPARATOR}#{$INPUT_RECORD_SEPARATOR}" if a_sep_string.empty?
 
         buffer_index = 0
-        over_limit   = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
+        over_limit   = number_of_bytes && @output_buffer.bytesize >= number_of_bytes
         while (match_index = @output_buffer.index(a_sep_string, buffer_index)).nil? && !over_limit
           buffer_index = [buffer_index, @output_buffer.bytesize - a_sep_string.bytesize].max
           return @output_buffer.empty? ? nil : flush if input_finished?
 
           @output_buffer << produce_input
-          over_limit = (number_of_bytes && @output_buffer.bytesize >= number_of_bytes)
+          over_limit = number_of_bytes && @output_buffer.bytesize >= number_of_bytes
         end
         sep_index = [
           match_index + a_sep_string.bytesize,

@@ -28,7 +28,7 @@ module Zip
 
     mark_dirty :<<, :comment=, :delete
 
-    def initialize(entries = EntrySet.new, comment = '') #:nodoc:
+    def initialize(entries = EntrySet.new, comment = '') # :nodoc:
       super(dirty_on_create: false)
       @entry_set = entries.kind_of?(EntrySet) ? entries : EntrySet.new(entries)
       @comment   = comment
@@ -39,7 +39,7 @@ module Zip
       read_central_directory_entries(io)
     end
 
-    def write_to_stream(io) #:nodoc:
+    def write_to_stream(io) # :nodoc:
       cdir_offset = io.tell
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
       eocd_offset = io.tell
@@ -61,7 +61,7 @@ module Zip
       @size
     end
 
-    def ==(other) #:nodoc:
+    def ==(other) # :nodoc:
       return false unless other.kind_of?(CentralDirectory)
 
       @entry_set.entries.sort == other.entries.sort && comment == other.comment
@@ -69,7 +69,7 @@ module Zip
 
     private
 
-    def write_e_o_c_d(io, offset, cdir_size) #:nodoc:
+    def write_e_o_c_d(io, offset, cdir_size) # :nodoc:
       tmp = [
         END_OF_CD_SIG,
         0, # @numberOfThisDisk
@@ -84,7 +84,7 @@ module Zip
       io << @comment
     end
 
-    def write_64_e_o_c_d(io, offset, cdir_size) #:nodoc:
+    def write_64_e_o_c_d(io, offset, cdir_size) # :nodoc:
       tmp = [
         ZIP64_END_OF_CD_SIG,
         44, # size of zip64 end of central directory record (excludes signature and field itself)
@@ -110,7 +110,7 @@ module Zip
       io << tmp.pack('VVQ<V')
     end
 
-    def unpack_64_e_o_c_d(buffer) #:nodoc:
+    def unpack_64_e_o_c_d(buffer) # :nodoc:
       _, # ZIP64_END_OF_CD_SIG. We know we have this at this point.
       @size_of_zip64_e_o_c_d,
       @version_made_by,
@@ -134,14 +134,14 @@ module Zip
                                end
     end
 
-    def unpack_64_eocd_locator(buffer) #:nodoc:
+    def unpack_64_eocd_locator(buffer) # :nodoc:
       _, # ZIP64_EOCD_LOCATOR_SIG. We know we have this at this point.
       _, zip64_eocd_offset, = buffer.unpack('VVQ<V')
 
       zip64_eocd_offset
     end
 
-    def unpack_e_o_c_d(buffer) #:nodoc:
+    def unpack_e_o_c_d(buffer) # :nodoc:
       _, # END_OF_CD_SIG. We know we have this at this point.
       num_disk,
       num_disk_cdir,
@@ -165,7 +165,7 @@ module Zip
                  end
     end
 
-    def read_central_directory_entries(io) #:nodoc:
+    def read_central_directory_entries(io) # :nodoc:
       # `StringIO` doesn't raise `EINVAL` if you seek beyond the current end,
       # so we need to catch that *and* query `io#eof?` here.
       eof = false
@@ -209,7 +209,7 @@ module Zip
       io.read(e_len)
     end
 
-    def read_eocds(io) #:nodoc:
+    def read_eocds(io) # :nodoc:
       base_location, data = eocd_data(io)
 
       eocd_location = data.rindex([END_OF_CD_SIG].pack('V'))

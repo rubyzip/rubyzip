@@ -65,7 +65,7 @@ module Zip
     @on_exists_proc = false
     @continue_on_exists_proc = false
     @sort_entries = false
-    @default_compression = ::Zlib::DEFAULT_COMPRESSION
+    @default_compression = Zlib::DEFAULT_COMPRESSION
     @write_zip64_support = true
     @warn_invalid_date = true
     @case_insensitive_match = false

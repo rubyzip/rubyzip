@@ -185,12 +185,12 @@ module Zip
 
     # Dynamic checkers
     %w[directory file symlink].each do |k|
-      define_method "#{k}?" do
+      define_method :"#{k}?" do
         file_type_is?(k.to_sym)
       end
     end
 
-    def name_is_directory? #:nodoc:all
+    def name_is_directory? # :nodoc:all
       @name.end_with?('/')
     end
 
@@ -207,7 +207,7 @@ module Zip
       ::File.absolute_path(cleanpath.to_s, root).match?(/([A-Z]:)?#{naive}/i)
     end
 
-    def local_entry_offset #:nodoc:all
+    def local_entry_offset # :nodoc:all
       local_header_offset + @local_header_size
     end
 
@@ -223,7 +223,7 @@ module Zip
       @comment ? @comment.bytesize : 0
     end
 
-    def calculate_local_header_size #:nodoc:all
+    def calculate_local_header_size # :nodoc:all
       LOCAL_ENTRY_STATIC_HEADER_LENGTH + name_size + extra_size
     end
 
@@ -239,12 +239,12 @@ module Zip
             "Local header size changed (#{@local_header_size} -> #{new_size})"
     end
 
-    def cdir_header_size #:nodoc:all
+    def cdir_header_size # :nodoc:all
       CDIR_ENTRY_STATIC_HEADER_LENGTH + name_size +
         (@extra ? @extra.c_dir_size : 0) + comment_size
     end
 
-    def next_header_offset #:nodoc:all
+    def next_header_offset # :nodoc:all
       local_entry_offset + compressed_size
     end
 
@@ -266,7 +266,7 @@ module Zip
 
       raise "unknown file type #{inspect}" unless directory? || file? || symlink?
 
-      __send__("create_#{ftype}", extract_path, &block)
+      __send__(:"create_#{ftype}", extract_path, &block)
       self
     end
 
@@ -275,7 +275,7 @@ module Zip
     end
 
     class << self
-      def read_c_dir_entry(io) #:nodoc:all
+      def read_c_dir_entry(io) # :nodoc:all
         path = if io.respond_to?(:path)
                  io.path
                else
@@ -314,7 +314,7 @@ module Zip
         @extra_length = buf.unpack('VCCvvvvVVVvv')
     end
 
-    def read_local_entry(io) #:nodoc:all
+    def read_local_entry(io) # :nodoc:all
       @dirty = false # No changes at this point.
       @local_header_offset = io.tell
 
@@ -371,7 +371,7 @@ module Zip
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
-    def write_local_entry(io, rewrite: false) #:nodoc:all
+    def write_local_entry(io, rewrite: false) # :nodoc:all
       prep_local_zip64_extra
       verify_local_header_size! if rewrite
       @local_header_offset = io.tell
@@ -463,7 +463,7 @@ module Zip
       end
     end
 
-    def read_c_dir_entry(io) #:nodoc:all
+    def read_c_dir_entry(io) # :nodoc:all
       @dirty = false # No changes at this point.
       static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
       check_c_dir_entry_static_header_length(static_sized_fields_buf)
@@ -556,7 +556,7 @@ module Zip
       ].pack('VCCvvvvvVVVvvvvvVV')
     end
 
-    def write_c_dir_entry(io) #:nodoc:all
+    def write_c_dir_entry(io) # :nodoc:all
       prep_cdir_zip64_extra
 
       case @fstype
@@ -574,7 +574,7 @@ module Zip
              end
 
         unless ft.nil?
-          @external_file_attributes = (ft << 12 | (@unix_perms & 0o7777)) << 16
+          @external_file_attributes = ((ft << 12) | (@unix_perms & 0o7777)) << 16
         end
       end
 
@@ -639,7 +639,7 @@ module Zip
                  if name_is_directory?
                    raise ArgumentError,
                          "entry name '#{newEntry}' indicates directory entry, but " \
-                             "'#{src_path}' is not a directory"
+                         "'#{src_path}' is not a directory"
                  end
                  :file
                when 'directory'
@@ -649,7 +649,7 @@ module Zip
                  if name_is_directory?
                    raise ArgumentError,
                          "entry name '#{newEntry}' indicates directory entry, but " \
-                             "'#{src_path}' is not a directory"
+                         "'#{src_path}' is not a directory"
                  end
                  :symlink
                else
@@ -661,7 +661,7 @@ module Zip
       get_extra_attributes_from_path(@filepath)
     end
 
-    def write_to_zip_output_stream(zip_output_stream) #:nodoc:all
+    def write_to_zip_output_stream(zip_output_stream) # :nodoc:all
       if ftype == :directory
         zip_output_stream.put_next_entry(self)
       elsif @filepath
@@ -749,7 +749,7 @@ module Zip
 
     # apply missing data from the zip64 extra information field, if present
     # (required when file sizes exceed 2**32, but can be used for all files)
-    def parse_zip64_extra(for_local_header) #:nodoc:all
+    def parse_zip64_extra(for_local_header) # :nodoc:all
       return unless zip64?
 
       if for_local_header

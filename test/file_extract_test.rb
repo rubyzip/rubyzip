@@ -38,7 +38,7 @@ class ZipFileExtractTest < MiniTest::Test
 
   def test_extract_exists
     text = 'written text'
-    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(text) }
+    ::File.write(EXTRACTED_FILENAME, text)
 
     assert_raises(::Zip::DestinationExistsError) do
       ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
@@ -53,7 +53,7 @@ class ZipFileExtractTest < MiniTest::Test
 
   def test_extract_exists_overwrite
     text = 'written text'
-    ::File.open(EXTRACTED_FILENAME, 'w') { |f| f.write(text) }
+    ::File.write(EXTRACTED_FILENAME, text)
 
     called_correctly = false
     ::Zip::File.open(TEST_ZIP.zip_name) do |zf|
@@ -123,9 +123,7 @@ class ZipFileExtractTest < MiniTest::Test
       assert data.include?(true_size_bytes)
       data.gsub! true_size_bytes, fake_size_bytes
 
-      File.open(fake_zip, 'wb') do |file|
-        file.write data
-      end
+      File.binwrite(fake_zip, data)
 
       Dir.chdir tmp do
         ::Zip::File.open(fake_zip) do |zf|
@@ -187,9 +185,7 @@ class ZipFileExtractTest < MiniTest::Test
       assert data.include?(true_size_bytes)
       data.gsub! true_size_bytes, fake_size_bytes
 
-      File.open(fake_zip, 'wb') do |file|
-        file.write data
-      end
+      File.binwrite(fake_zip, data)
 
       Dir.chdir tmp do
         ::Zip::File.open(fake_zip) do |zf|

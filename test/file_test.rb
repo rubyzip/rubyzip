@@ -22,7 +22,7 @@ class ZipFileTest < MiniTest::Test
       zf.comment = comment
     end
 
-    ::File.open(EMPTY_FILENAME, 'wb') { |file| file.write buffer.string }
+    ::File.binwrite(EMPTY_FILENAME, buffer.string)
 
     zf_read = ::Zip::File.new(EMPTY_FILENAME)
     assert_equal(comment, zf_read.comment)
@@ -105,7 +105,7 @@ class ZipFileTest < MiniTest::Test
       assert_equal(entry.time, custom_entry_args[:time])
 
       zf.get_output_stream('entry.bin') do |os|
-        os.write(::File.open('test/data/generated/5entry.zip', 'rb').read)
+        os.write(::File.binread('test/data/generated/5entry.zip'))
       end
     end
 
@@ -113,7 +113,7 @@ class ZipFileTest < MiniTest::Test
       assert_equal(count + 3, zf.size)
       assert_equal('Putting stuff in new_entry.txt', zf.read('new_entry.txt'))
       assert_equal('Putting stuff in data/generated/empty.txt', zf.read('test/data/generated/empty.txt'))
-      assert_equal(File.open('test/data/generated/5entry.zip', 'rb').read, zf.read('entry.bin'))
+      assert_equal(File.binread('test/data/generated/5entry.zip'), zf.read('entry.bin'))
     end
   end
 
@@ -693,7 +693,7 @@ class ZipFileTest < MiniTest::Test
     old_name = zf.entries.first
     zf.rename(old_name, new_name)
     buffer = zf.write_buffer(::StringIO.new)
-    File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
+    File.binwrite(TEST_ZIP.zip_name, buffer.string)
     zf_read = ::Zip::File.new(TEST_ZIP.zip_name)
     refute_nil(zf_read.entries.detect { |e| e.name == new_name })
     assert_nil(zf_read.entries.detect { |e| e.name == old_name })

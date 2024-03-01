@@ -29,7 +29,7 @@ class ZipOutputStreamTest < MiniTest::Test
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
-    File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
+    File.binwrite(TEST_ZIP.zip_name, buffer.string)
     assert_test_zip_contents(TEST_ZIP)
   end
 
@@ -50,7 +50,7 @@ class ZipOutputStreamTest < MiniTest::Test
     end
 
     tmp_file.rewind
-    File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write(tmp_file.read) }
+    File.binwrite(TEST_ZIP.zip_name, tmp_file.read)
     tmp_file.unlink
 
     assert_test_zip_contents(TEST_ZIP)
@@ -75,7 +75,7 @@ class ZipOutputStreamTest < MiniTest::Test
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
-    File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
+    File.binwrite(TEST_ZIP.zip_name, buffer.string)
     assert_test_zip_contents(TEST_ZIP)
   end
 

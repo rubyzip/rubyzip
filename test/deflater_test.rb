@@ -49,7 +49,7 @@ class DeflaterTest < MiniTest::Test
   private
 
   def load_file(filename)
-    File.open(filename, 'rb', &:read)
+    File.binread(filename)
   end
 
   def deflate(data, filename)

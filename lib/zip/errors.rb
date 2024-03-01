@@ -43,7 +43,7 @@ module Zip
 
     def message
       "Cannot create file or directory '#{@destination}'. " \
-      'A file already exists with that name.'
+        'A file already exists with that name.'
     end
   end
 
@@ -111,8 +111,8 @@ module Zip
 
     def message
       "The local header of this entry ('#{@entry.name}') does not contain " \
-      'the correct metadata for `Zip::InputStream` to be able to ' \
-      'uncompress it. Please use `Zip::File` instead of `Zip::InputStream`.'
+        'the correct metadata for `Zip::InputStream` to be able to ' \
+        'uncompress it. Please use `Zip::File` instead of `Zip::InputStream`.'
     end
   end
 end
