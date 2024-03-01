@@ -85,4 +85,61 @@ module Version3APITest
       end
     end
   end
+
+  class ZipOutputStreamTest < MiniTest::Test
+    include ZipV3Assertions
+
+    TEST_ZIP = TestZipFile::TEST_ZIP2.clone
+    TEST_ZIP.zip_name = 'test/data/generated/output.zip'
+
+    def test_new
+      refute_v3_api_warning do
+        ::Zip::OutputStream.new(TEST_ZIP.zip_name)
+      end
+
+      refute_v3_api_warning do
+        ::Zip::OutputStream.new(StringIO.new(''), stream: true)
+      end
+
+      assert_v3_api_warning do
+        ::Zip::OutputStream.new(StringIO.new(''), true)
+      end
+
+      refute_v3_api_warning do
+        ::Zip::OutputStream.new(TEST_ZIP.zip_name, stream: false, encrypter: true)
+      end
+
+      assert_v3_api_warning do
+        ::Zip::OutputStream.new(TEST_ZIP.zip_name, false, true)
+      end
+    end
+
+    def test_open
+      refute_v3_api_warning do
+        ::Zip::OutputStream.open(TEST_ZIP.zip_name) {}
+      end
+
+      refute_v3_api_warning do
+        ::Zip::OutputStream.open(TEST_ZIP.zip_name, encrypter: true) {}
+      end
+
+      assert_v3_api_warning do
+        ::Zip::OutputStream.open(TEST_ZIP.zip_name, true) {}
+      end
+    end
+
+    def test_write_buffer
+      refute_v3_api_warning do
+        ::Zip::OutputStream.write_buffer(StringIO.new('')) {}
+      end
+
+      refute_v3_api_warning do
+        ::Zip::OutputStream.write_buffer(StringIO.new(''), encrypter: true) {}
+      end
+
+      assert_v3_api_warning do
+        ::Zip::OutputStream.write_buffer(StringIO.new(''), true) {}
+      end
+    end
+  end
 end

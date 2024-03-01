@@ -26,6 +26,11 @@ module Zip
     # exists it will be overwritten.
     def initialize(file_name, dep_stream = false, dep_encrypter = nil, stream: false, encrypter: nil)
       super()
+
+      if dep_stream || !dep_encrypter.nil?
+        Zip.warn_about_v3_api('Zip::OutputStream.new')
+      end
+
       @file_name = file_name
       @output_stream = if (stream || dep_stream)
                          iostream = @file_name.dup
@@ -50,6 +55,8 @@ module Zip
       def open(file_name, dep_encrypter = nil, encrypter: nil)
         return new(file_name) unless block_given?
 
+        Zip.warn_about_v3_api('Zip::OutputStream.open') unless dep_encrypter.nil?
+
         zos = new(file_name, stream: false, encrypter: (encrypter || dep_encrypter))
         yield zos
       ensure
@@ -58,6 +65,8 @@ module Zip
 
       # Same as #open but writes to a filestream instead
       def write_buffer(io = ::StringIO.new(''), dep_encrypter = nil, encrypter: nil)
+        Zip.warn_about_v3_api('Zip::OutputStream.write_buffer') unless dep_encrypter.nil?
+
         io.binmode if io.respond_to?(:binmode)
         zos = new(io, stream: true, encrypter: (encrypter || dep_encrypter))
         yield zos
