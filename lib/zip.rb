@@ -45,6 +45,10 @@ module Zip
     warn V3_API_WARNING_MSG % method if ENV['RUBYZIP_V3_API_WARN']
   end
 
+  if RUBY_VERSION < '3.0'
+    warn 'RubyZip 3.0 will require Ruby 3.0 or later.' if ENV['RUBYZIP_V3_API_WARN']
+  end
+
   extend self
   attr_accessor :unicode_names,
                 :on_exists_proc,
