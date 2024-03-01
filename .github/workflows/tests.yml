@@ -19,7 +19,7 @@ jobs:
     continue-on-error: ${{ endsWith(matrix.ruby, 'head') || matrix.os == 'windows' }}
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
@@ -37,7 +37,7 @@ jobs:
 
     - name: Coveralls
       if: matrix.os == 'ubuntu' && !endsWith(matrix.ruby, 'head')
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.github_token }}
         flag-name: ${{ matrix.ruby }}
@@ -53,7 +53,7 @@ jobs:
     continue-on-error: true
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
