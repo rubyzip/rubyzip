@@ -630,7 +630,7 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_streaming
-    fname = ::File.join(::File.expand_path(::File.dirname(__FILE__)), '../README.md')
+    fname = ::File.join(__dir__, '../README.md')
     zname = 'test/data/generated/README.zip'
     Zip::File.open(zname, Zip::File::CREATE) do |zipfile|
       zipfile.get_output_stream(File.basename(fname)) do |f|

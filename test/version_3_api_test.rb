@@ -9,13 +9,13 @@ module Version3APITest
       refute_v3_api_warning do
         entry = ::Zip::Entry.new(TEST_ZIPFILE,
                                  TEST_NAME,
-                                 comment: TEST_COMMENT,
-                                 extra: TEST_EXTRA,
-                                 compressed_size: TEST_COMPRESSED_SIZE,
-                                 crc: TEST_CRC,
+                                 comment:            TEST_COMMENT,
+                                 extra:              TEST_EXTRA,
+                                 compressed_size:    TEST_COMPRESSED_SIZE,
+                                 crc:                TEST_CRC,
                                  compression_method: TEST_COMPRESSIONMETHOD,
-                                 size: TEST_SIZE,
-                                 time: TEST_TIME)
+                                 size:               TEST_SIZE,
+                                 time:               TEST_TIME)
 
         assert_equal(TEST_COMMENT, entry.comment)
         assert_equal(TEST_COMPRESSED_SIZE, entry.compressed_size)

@@ -52,6 +52,7 @@ module Zip
       raise ::Zip::EntryNameError, "Illegal ZipEntry name '#{name}', name must not start with /"
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def initialize(zipfile = nil, name = nil, *args)
       name ||= ''
       check_name(name)
@@ -85,6 +86,7 @@ module Zip
       @ftype = name_is_directory? ? :directory : :file
       @extra = ::Zip::ExtraField.new(@extra.to_s) unless @extra.kind_of?(::Zip::ExtraField)
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def encrypted?
       gp_flags & 1 == 1

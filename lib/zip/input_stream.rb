@@ -56,7 +56,7 @@ module Zip
         Zip.warn_about_v3_api('Zip::InputStream.new')
       end
 
-      offset = dep_offset if offset.zero?
+      offset         = dep_offset if offset.zero?
       @archive_io    = get_io(context, offset)
       @decompressor  = ::Zip::NullDecompressor
       @decrypter     = decrypter || dep_decrypter || ::Zip::NullDecrypter.new

@@ -23,11 +23,6 @@ Lint/SuppressedException:
   Exclude:
     - 'test/**/*.rb'
 
-# Allow this "useless" test, as we are testing <=> here.
-Lint/UselessComparison:
-  Exclude:
-    - 'test/entry_test.rb'
-
 # Turn off ABC metrics for the tests and set a workable max given
 # the current state of the code.
 Metrics/AbcSize:

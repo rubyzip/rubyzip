@@ -41,9 +41,8 @@ module Zip
       day    = (0b11111 & bin_dos_date)
       month  = (0b111100000 & bin_dos_date) >> 5
       year   = ((0b1111111000000000 & bin_dos_date) >> 9) + 1980
-      begin
-        local(year, month, day, hour, minute, second)
-      end
+
+      local(year, month, day, hour, minute, second)
     end
   end
 end

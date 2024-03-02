@@ -27,12 +27,10 @@ module Zip
     def initialize(file_name, dep_stream = false, dep_encrypter = nil, stream: false, encrypter: nil)
       super()
 
-      if dep_stream || !dep_encrypter.nil?
-        Zip.warn_about_v3_api('Zip::OutputStream.new')
-      end
+      Zip.warn_about_v3_api('Zip::OutputStream.new') if dep_stream || !dep_encrypter.nil?
 
       @file_name = file_name
-      @output_stream = if (stream || dep_stream)
+      @output_stream = if stream || dep_stream
                          iostream = @file_name.dup
                          iostream.reopen(@file_name)
                          iostream.rewind
