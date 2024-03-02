@@ -130,6 +130,8 @@ module Zip
 
       # Same as #open. But outputs data to a buffer instead of a file
       def add_buffer
+        Zip.warn_about_v3_api('Zip::File.add_buffer')
+
         io = ::StringIO.new('')
         zf = ::Zip::File.new(io, true, true)
         yield zf

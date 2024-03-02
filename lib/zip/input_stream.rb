@@ -107,7 +107,8 @@ module Zip
       end
 
       def open_buffer(filename_or_io, offset = 0)
-        warn 'open_buffer is deprecated!!! Use open instead!'
+        Zip.warn_about_v3_api('Zip::InputStream.open_buffer')
+
         ::Zip::InputStream.open(filename_or_io, offset)
       end
     end

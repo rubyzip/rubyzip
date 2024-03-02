@@ -1,6 +1,16 @@
 require 'test_helper'
 
 module Version3APITest
+  class ZipFileTest
+    include ZipV3Assertions
+
+    def test_add_buffer
+      assert_v3_api_warning do
+        Zip::File.add_buffer {}
+      end
+    end
+  end
+
   class ZipEntryTest < MiniTest::Test
     include ZipEntryData
     include ZipV3Assertions
@@ -82,6 +92,12 @@ module Version3APITest
         zis = ::Zip::InputStream.new(TestZipFile::TEST_ZIP2.zip_name, 10, offset: 100)
         assert_equal(100, zis.instance_variable_get(:@archive_io).pos)
         zis.close
+      end
+    end
+
+    def test_open_buffer
+      assert_v3_api_warning do
+        ::Zip::InputStream.open_buffer(StringIO.new(''))
       end
     end
   end
