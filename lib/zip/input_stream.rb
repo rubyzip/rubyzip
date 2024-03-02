@@ -115,11 +115,6 @@ module Zip
           zio.close if zio
         end
       end
-
-      def open_buffer(filename_or_io, offset: 0) # :nodoc:
-        warn 'open_buffer is deprecated!!! Use open instead!'
-        ::Zip::InputStream.open(filename_or_io, offset: offset)
-      end
     end
 
     protected
