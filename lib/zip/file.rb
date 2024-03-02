@@ -228,18 +228,24 @@ module Zip
       end
 
       # Splits an archive into parts with segment size
-      def split(zip_file_name, segment_size = MAX_SEGMENT_SIZE, delete_zip_file = true, partial_zip_file_name = nil)
+      def split(zip_file_name,
+                dep_segment_size = MAX_SEGMENT_SIZE, dep_delete_zip_file = true, dep_partial_zip_file_name = nil,
+                segment_size: MAX_SEGMENT_SIZE, delete_zip_file: nil, partial_zip_file_name: nil)
         raise Error, "File #{zip_file_name} not found" unless ::File.exist?(zip_file_name)
         raise Errno::ENOENT, zip_file_name unless ::File.readable?(zip_file_name)
 
+        if dep_segment_size != MAX_SEGMENT_SIZE || !dep_delete_zip_file || dep_partial_zip_file_name
+          Zip.warn_about_v3_api('Zip::File.split')
+        end
+
         zip_file_size = ::File.size(zip_file_name)
-        segment_size  = get_segment_size_for_split(segment_size)
+        segment_size  = get_segment_size_for_split(segment_size || dep_segment_size)
         return if zip_file_size <= segment_size
 
         segment_count = get_segment_count_for_split(zip_file_size, segment_size)
         # Checking for correct zip structure
         ::Zip::File.open(zip_file_name) {}
-        partial_zip_file_name = get_partial_zip_file_name(zip_file_name, partial_zip_file_name)
+        partial_zip_file_name = get_partial_zip_file_name(zip_file_name, (partial_zip_file_name || dep_partial_zip_file_name))
         szip_file_index       = 0
         ::File.open(zip_file_name, 'rb') do |zip_file|
           until zip_file.eof?
@@ -247,6 +253,7 @@ module Zip
             save_splited_part(zip_file, partial_zip_file_name, zip_file_size, szip_file_index, segment_size, segment_count)
           end
         end
+        delete_zip_file = delete_zip_file.nil? ? dep_delete_zip_file : delete_zip_file
         ::File.delete(zip_file_name) if delete_zip_file
         szip_file_index
       end

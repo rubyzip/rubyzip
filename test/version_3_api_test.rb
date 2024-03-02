@@ -142,4 +142,35 @@ module Version3APITest
       end
     end
   end
+
+  class ZipFileSplitTest < MiniTest::Test
+    include ZipV3Assertions
+
+    TEST_ZIP = TestZipFile::TEST_ZIP2.clone
+    TEST_ZIP.zip_name = 'large_zip_file.zip'
+
+    def setup
+      FileUtils.cp(TestZipFile::TEST_ZIP2.zip_name, TEST_ZIP.zip_name)
+    end
+
+    def teardown
+      File.delete(TEST_ZIP.zip_name)
+
+      Dir["#{TEST_ZIP.zip_name}.*"].each do |zip_file_name|
+        File.delete(zip_file_name) if File.exist?(zip_file_name)
+      end
+    end
+
+    def test_old_split
+      assert_v3_api_warning do
+        Zip::File.split(TEST_ZIP.zip_name, 65_536, false)
+      end
+    end
+
+    def test_new_split
+      refute_v3_api_warning do
+        Zip::File.split(TEST_ZIP.zip_name, segment_size: 65_536, delete_zip_file: false)
+      end
+    end
+  end
 end
