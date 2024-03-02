@@ -15,12 +15,13 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+        rubygems: '3.2.3'
         bundler-cache: true
 
     - name: Run the tests
@@ -40,7 +41,7 @@ jobs:
     continue-on-error: true
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
