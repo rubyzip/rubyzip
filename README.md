@@ -22,7 +22,7 @@ The public API of some classes has been modernized to use named parameters for o
 
 ## Requirements
 
-Version 3.x requires at least Ruby 2.5.
+Version 3.x requires at least Ruby 3.0.
 
 Version 2.x requires at least Ruby 2.4, and is known to work on Ruby 3.1.
 
