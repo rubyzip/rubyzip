@@ -52,8 +52,9 @@ module Zip
     extend Forwardable
     extend FileSplit
 
-    IO_METHODS = [:tell, :seek, :read, :eof, :close].freeze
+    IO_METHODS = [:tell, :seek, :read, :eof, :close].freeze # :nodoc:
 
+    # The name of this zip archive.
     attr_reader :name
 
     # default -> false.

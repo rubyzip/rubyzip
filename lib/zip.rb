@@ -57,9 +57,9 @@ module Zip
     restore_ownership:   false,
     restore_permissions: true,
     restore_times:       true
-  }.freeze
+  }.freeze # :nodoc:
 
-  def reset!
+  def reset! # :nodoc:
     @_ran_once = false
     @unicode_names = false
     @on_exists_proc = false
@@ -73,6 +73,7 @@ module Zip
     @validate_entry_sizes = true
   end
 
+  # Set options for RubyZip in one block.
   def setup
     yield self unless @_ran_once
     @_ran_once = true

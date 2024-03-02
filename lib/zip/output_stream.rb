@@ -2,6 +2,7 @@
 
 require 'forwardable'
 
+##
 module Zip
   # ZipOutputStream is the basic class for writing zip files. It is
   # possible to create a ZipOutputStream object directly, passing
@@ -20,7 +21,6 @@ module Zip
   #
   # java.util.zip.ZipOutputStream is the original inspiration for this
   # class.
-
   class OutputStream
     extend Forwardable
     include ::Zip::IOExtras::AbstractOutputStream
@@ -47,10 +47,10 @@ module Zip
       @current_entry = nil
     end
 
-    # Same as #initialize but if a block is passed the opened
-    # stream is passed to the block and closed when the block
-    # returns.
     class << self
+      # Same as #initialize but if a block is passed the opened
+      # stream is passed to the block and closed when the block
+      # returns.
       def open(file_name, encrypter: nil)
         return new(file_name) unless block_given?
 
@@ -114,7 +114,7 @@ module Zip
       @current_entry = new_entry
     end
 
-    def copy_raw_entry(entry)
+    def copy_raw_entry(entry) # :nodoc:
       entry = entry.dup
       raise Error, 'zip stream is closed' if @closed
       raise Error, 'entry is not a ZipEntry' unless entry.kind_of?(Entry)
@@ -185,7 +185,7 @@ module Zip
 
     protected
 
-    def finish
+    def finish # :nodoc:
       @compressor.finish
     end
 

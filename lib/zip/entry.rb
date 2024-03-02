@@ -9,16 +9,19 @@ module Zip
   class Entry
     include Dirtyable
 
+    # Constant used to specify that the entry is stored (i.e., not compressed).
     STORED   = ::Zip::COMPRESSION_METHOD_STORE
+
+    # Constant used to specify that the entry is deflated (i.e., compressed).
     DEFLATED = ::Zip::COMPRESSION_METHOD_DEFLATE
 
     # Language encoding flag (EFS) bit
-    EFS = 0b100000000000
+    EFS = 0b100000000000 # :nodoc:
 
     # Compression level flags (used as part of the gp flags).
-    COMPRESSION_LEVEL_SUPERFAST_GPFLAG = 0b110
-    COMPRESSION_LEVEL_FAST_GPFLAG = 0b100
-    COMPRESSION_LEVEL_MAX_GPFLAG = 0b010
+    COMPRESSION_LEVEL_SUPERFAST_GPFLAG = 0b110 # :nodoc:
+    COMPRESSION_LEVEL_FAST_GPFLAG = 0b100      # :nodoc:
+    COMPRESSION_LEVEL_MAX_GPFLAG = 0b010       # :nodoc:
 
     attr_accessor :comment, :compressed_size, :follow_symlinks, :name,
                   :restore_ownership, :restore_permissions, :restore_times,
@@ -35,7 +38,7 @@ module Zip
                :fstype=, :gp_flags=, :name=, :size=,
                :unix_gid=, :unix_perms=, :unix_uid=
 
-    def set_default_vars_values
+    def set_default_vars_values # :nodoc:
       @local_header_offset      = 0
       @local_header_size        = nil # not known until local entry is created or read
       @internal_file_attributes = 1
@@ -63,11 +66,12 @@ module Zip
       @unix_perms          = nil
     end
 
-    def check_name(name)
+    def check_name(name) # :nodoc:
       raise EntryNameError, name if name.start_with?('/')
       raise EntryNameError if name.length > 65_535
     end
 
+    # Create a new Zip::Entry.
     def initialize(
       zipfile = '', name = '',
       comment: '', size: nil, compressed_size: 0, crc: 0,
@@ -103,18 +107,23 @@ module Zip
       set_compression_level_flags
     end
 
+    # Is this entry encrypted?
     def encrypted?
       gp_flags & 1 == 1
     end
 
-    def incomplete?
+    def incomplete? # :nodoc:
       gp_flags & 8 == 8
     end
 
+    # The uncompressed size of the entry.
     def size
       @size || 0
     end
 
+    # Get a timestamp component of this entry.
+    #
+    # Returns modification time by default.
     def time(component: :mtime)
       time =
         if @extra['UniversalTime']
@@ -130,14 +139,19 @@ module Zip
 
     alias mtime time
 
+    # Get the last access time of this entry, if available.
     def atime
       time(component: :atime)
     end
 
+    # Get the creation time of this entry, if available.
     def ctime
       time(component: :ctime)
     end
 
+    # Set a timestamp component of this entry.
+    #
+    # Sets modification time by default.
     def time=(value, component: :mtime)
       @dirty = true
       unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
@@ -152,30 +166,38 @@ module Zip
 
     alias mtime= time=
 
+    # Set the last access time of this entry.
     def atime=(value)
       send(:time=, value, component: :atime)
     end
 
+    # Set the creation time of this entry.
     def ctime=(value)
       send(:time=, value, component: :ctime)
     end
 
+    # Return the compression method for this entry.
+    #
+    # Returns STORED if the entry is a directory or if the compression
+    # level is 0.
     def compression_method
       return STORED if ftype == :directory || @compression_level == 0
 
       @compression_method
     end
 
+    # Set the compression method for this entry.
     def compression_method=(method)
       @dirty = true
       @compression_method = (ftype == :directory ? STORED : method)
     end
 
+    # Does this entry use the ZIP64 extensions?
     def zip64?
       !@extra['Zip64'].nil?
     end
 
-    def file_type_is?(type)
+    def file_type_is?(type) # :nodoc:
       ftype == type
     end
 
@@ -190,14 +212,14 @@ module Zip
       end
     end
 
-    def name_is_directory? # :nodoc:all
+    def name_is_directory? # :nodoc:
       @name.end_with?('/')
     end
 
     # Is the name a relative path, free of `..` patterns that could lead to
     # path traversal attacks? This does NOT handle symlinks; if the path
     # contains symlinks, this check is NOT enough to guarantee safety.
-    def name_safe?
+    def name_safe? # :nodoc:
       cleanpath = Pathname.new(@name).cleanpath
       return false unless cleanpath.relative?
 
@@ -207,29 +229,29 @@ module Zip
       ::File.absolute_path(cleanpath.to_s, root).match?(/([A-Z]:)?#{naive}/i)
     end
 
-    def local_entry_offset # :nodoc:all
+    def local_entry_offset # :nodoc:
       local_header_offset + @local_header_size
     end
 
-    def name_size
+    def name_size # :nodoc:
       @name ? @name.bytesize : 0
     end
 
-    def extra_size
+    def extra_size # :nodoc:
       @extra ? @extra.local_size : 0
     end
 
-    def comment_size
+    def comment_size # :nodoc:
       @comment ? @comment.bytesize : 0
     end
 
-    def calculate_local_header_size # :nodoc:all
+    def calculate_local_header_size # :nodoc:
       LOCAL_ENTRY_STATIC_HEADER_LENGTH + name_size + extra_size
     end
 
     # check before rewriting an entry (after file sizes are known)
     # that we didn't change the header size (and thus clobber file data or something)
-    def verify_local_header_size!
+    def verify_local_header_size! # :nodoc:
       return if @local_header_size.nil?
 
       new_size = calculate_local_header_size
@@ -239,12 +261,12 @@ module Zip
             "Local header size changed (#{@local_header_size} -> #{new_size})"
     end
 
-    def cdir_header_size # :nodoc:all
+    def cdir_header_size # :nodoc:
       CDIR_ENTRY_STATIC_HEADER_LENGTH + name_size +
         (@extra ? @extra.c_dir_size : 0) + comment_size
     end
 
-    def next_header_offset # :nodoc:all
+    def next_header_offset # :nodoc:
       local_entry_offset + compressed_size
     end
 
@@ -270,12 +292,12 @@ module Zip
       self
     end
 
-    def to_s
+    def to_s # :nodoc:
       @name
     end
 
     class << self
-      def read_c_dir_entry(io) # :nodoc:all
+      def read_c_dir_entry(io) # :nodoc:
         path = if io.respond_to?(:path)
                  io.path
                else
@@ -288,7 +310,7 @@ module Zip
         nil
       end
 
-      def read_local_entry(io)
+      def read_local_entry(io) # :nodoc:
         entry = new(io)
         entry.read_local_entry(io)
         entry
@@ -299,7 +321,7 @@ module Zip
       end
     end
 
-    def unpack_local_entry(buf)
+    def unpack_local_entry(buf) # :nodoc:
       @header_signature,
         @version,
         @fstype,
@@ -314,7 +336,7 @@ module Zip
         @extra_length = buf.unpack('VCCvvvvVVVvv')
     end
 
-    def read_local_entry(io) # :nodoc:all
+    def read_local_entry(io) # :nodoc:
       @dirty = false # No changes at this point.
       @local_header_offset = io.tell
 
@@ -356,7 +378,7 @@ module Zip
       @local_header_size = calculate_local_header_size
     end
 
-    def pack_local_entry
+    def pack_local_entry # :nodoc:
       zip64 = @extra['Zip64']
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
@@ -371,7 +393,7 @@ module Zip
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
-    def write_local_entry(io, rewrite: false) # :nodoc:all
+    def write_local_entry(io, rewrite: false) # :nodoc:
       prep_local_zip64_extra
       verify_local_header_size! if rewrite
       @local_header_offset = io.tell
@@ -383,7 +405,7 @@ module Zip
       @local_header_size = io.tell - @local_header_offset
     end
 
-    def unpack_c_dir_entry(buf)
+    def unpack_c_dir_entry(buf) # :nodoc:
       @header_signature,
         @version, # version of encoding software
         @fstype, # filesystem type
@@ -407,7 +429,7 @@ module Zip
         @comment = buf.unpack('VCCvvvvvVVVvvvvvVV')
     end
 
-    def set_ftype_from_c_dir_entry
+    def set_ftype_from_c_dir_entry # :nodoc:
       @ftype = case @fstype
                when ::Zip::FSTYPE_UNIX
                  @unix_perms = (@external_file_attributes >> 16) & 0o7777
@@ -437,25 +459,25 @@ module Zip
                end
     end
 
-    def check_c_dir_entry_static_header_length(buf)
+    def check_c_dir_entry_static_header_length(buf) # :nodoc:
       return unless buf.nil? || buf.bytesize != ::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH
 
       raise Error, 'Premature end of file. Not enough data for zip cdir entry header'
     end
 
-    def check_c_dir_entry_signature
+    def check_c_dir_entry_signature # :nodoc:
       return if @header_signature == ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
 
       raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
     end
 
-    def check_c_dir_entry_comment_size
+    def check_c_dir_entry_comment_size # :nodoc:
       return if @comment && @comment.bytesize == @comment_length
 
       raise ::Zip::Error, 'Truncated cdir zip entry header'
     end
 
-    def read_extra_field(buf, local: false)
+    def read_extra_field(buf, local: false) # :nodoc:
       if @extra.kind_of?(::Zip::ExtraField)
         @extra.merge(buf, local: local) if buf
       else
@@ -463,7 +485,7 @@ module Zip
       end
     end
 
-    def read_c_dir_entry(io) # :nodoc:all
+    def read_c_dir_entry(io) # :nodoc:
       @dirty = false # No changes at this point.
       static_sized_fields_buf = io.read(::Zip::CDIR_ENTRY_STATIC_HEADER_LENGTH)
       check_c_dir_entry_static_header_length(static_sized_fields_buf)
@@ -503,7 +525,7 @@ module Zip
     end
 
     # rubocop:disable Style/GuardClause
-    def set_unix_attributes_on_path(dest_path)
+    def set_unix_attributes_on_path(dest_path) # :nodoc:
       # Ignore setuid/setgid bits by default. Honour if @restore_ownership.
       unix_perms_mask = (@restore_ownership ? 0o7777 : 0o1777)
       if @restore_permissions && @unix_perms
@@ -529,7 +551,7 @@ module Zip
       ::FileUtils.touch(dest_path, mtime: time) if @restore_times
     end
 
-    def pack_c_dir_entry
+    def pack_c_dir_entry # :nodoc:
       zip64 = @extra['Zip64']
       [
         @header_signature,
@@ -556,7 +578,7 @@ module Zip
       ].pack('VCCvvvvvVVVvvvvvVV')
     end
 
-    def write_c_dir_entry(io) # :nodoc:all
+    def write_c_dir_entry(io) # :nodoc:
       prep_cdir_zip64_extra
 
       case @fstype
@@ -585,7 +607,7 @@ module Zip
       io << @comment
     end
 
-    def ==(other)
+    def ==(other) # :nodoc:
       return false unless other.class == self.class
 
       # Compares contents of local entry and exposed fields
@@ -594,7 +616,7 @@ module Zip
       end
     end
 
-    def <=>(other)
+    def <=>(other) # :nodoc:
       to_s <=> other.to_s
     end
 
@@ -661,7 +683,7 @@ module Zip
       get_extra_attributes_from_path(@filepath)
     end
 
-    def write_to_zip_output_stream(zip_output_stream) # :nodoc:all
+    def write_to_zip_output_stream(zip_output_stream) # :nodoc:
       if ftype == :directory
         zip_output_stream.put_next_entry(self)
       elsif @filepath
@@ -674,13 +696,13 @@ module Zip
       end
     end
 
-    def parent_as_string
+    def parent_as_string # :nodoc:
       entry_name  = name.chomp('/')
       slash_index = entry_name.rindex('/')
       slash_index ? entry_name.slice(0, slash_index + 1) : nil
     end
 
-    def get_raw_input_stream(&block)
+    def get_raw_input_stream(&block) # :nodoc:
       if @zipfile.respond_to?(:seek) && @zipfile.respond_to?(:read)
         yield @zipfile
       else
@@ -688,7 +710,7 @@ module Zip
       end
     end
 
-    def clean_up
+    def clean_up # :nodoc:
       @dirty = false # Any changes are written at this point.
     end
 
@@ -749,7 +771,7 @@ module Zip
 
     # apply missing data from the zip64 extra information field, if present
     # (required when file sizes exceed 2**32, but can be used for all files)
-    def parse_zip64_extra(for_local_header) # :nodoc:all
+    def parse_zip64_extra(for_local_header) # :nodoc:
       return unless zip64?
 
       if for_local_header
