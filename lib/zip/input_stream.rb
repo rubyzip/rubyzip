@@ -95,8 +95,14 @@ module Zip
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
-      def open(filename_or_io, offset = 0, decrypter = nil)
-        zio = new(filename_or_io, offset, decrypter)
+      def open(filename_or_io, dep_offset = 0, dep_decrypter = nil, offset: 0, decrypter: nil)
+        if !dep_offset.zero? || !dep_decrypter.nil?
+          Zip.warn_about_v3_api('Zip::InputStream.new')
+        end
+
+        offset = dep_offset if offset.zero?
+
+        zio = new(filename_or_io, offset: offset, decrypter: decrypter || dep_decrypter)
         return zio unless block_given?
 
         begin

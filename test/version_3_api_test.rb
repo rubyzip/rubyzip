@@ -95,6 +95,20 @@ module Version3APITest
       end
     end
 
+    def test_open
+      refute_v3_api_warning do
+        ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) {}
+      end
+
+      refute_v3_api_warning do
+        ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name, decrypter: true) {}
+      end
+
+      assert_v3_api_warning do
+        ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name, 100, nil) {}
+      end
+    end
+
     def test_open_buffer
       assert_v3_api_warning do
         ::Zip::InputStream.open_buffer(StringIO.new(''))
