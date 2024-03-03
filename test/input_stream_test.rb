@@ -1,5 +1,7 @@
 require 'test_helper'
 
+require 'forwardable'
+
 class ZipInputStreamTest < MiniTest::Test
   include AssertEntry
 
