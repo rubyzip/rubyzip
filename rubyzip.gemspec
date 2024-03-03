@@ -5,8 +5,10 @@ require 'zip/version'
 Gem::Specification.new do |s|
   s.name                  = 'rubyzip'
   s.version               = ::Zip::VERSION
-  s.authors               = ['Alexander Simonov']
-  s.email                 = ['alex@simonov.me']
+  s.authors               = ['Robert Haines', 'John Lees-Miller', 'Alexander Simonov']
+  s.email                 = [
+    'hainesr@gmail.com', 'jdleesmiller@gmail.com', 'alex@simonov.me'
+  ]
   s.homepage              = 'http://github.com/rubyzip/rubyzip'
   s.platform              = Gem::Platform::RUBY
   s.summary               = 'rubyzip is a ruby module for reading and writing zip files'
@@ -25,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry', '~> 0.10'
   s.add_development_dependency 'rake', '~> 12.3', '>= 12.3.3'
   s.add_development_dependency 'rubocop', '~> 0.79'
+
   s.post_install_message = <<~ENDBANNER
     RubyZip 3.0 is coming!
     **********************
@@ -36,6 +39,9 @@ Gem::Specification.new do |s|
       * `Zip::Entry`
       * `Zip::InputStream`
       * `Zip::OutputStream`
+
+    See https://github.com/rubyzip/rubyzip/wiki/Updating-to-version-3.x for
+    more information.
 
     Please ensure that your Gemfiles and .gemspecs are suitably restrictive
     to avoid an unexpected breakage when 3.0 is released (e.g. ~> 2.3.0).
