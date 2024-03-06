@@ -449,8 +449,7 @@ See https://github.com/rubyzip/rubyzip/graphs/contributors for a comprehensive l
 
 ## License
 
-Rubyzip is distributed under the same license as ruby. See
-http://www.ruby-lang.org/en/LICENSE.txt
+Rubyzip is distributed under the same license as Ruby. In practice this means you can use it under the terms of the Ruby License or the 2-Clause BSD License. See https://www.ruby-lang.org/en/about/license.txt and LICENSE.md for details.
 
 ## Research notice
 Please note that this repository is participating in a study into sustainability
