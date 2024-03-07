@@ -70,28 +70,40 @@ module Zip
 
     # Opens a zip archive. Pass create: true to create
     # a new archive if it doesn't exist already.
-    def initialize(path_or_io, create: false, buffer: false, **options)
+    def initialize(path_or_io, create: false, buffer: false,
+                   restore_ownership: DEFAULT_RESTORE_OPTIONS[:restore_ownership],
+                   restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
+                   restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
+                   compression_level: ::Zip.default_compression)
       super()
-      options  = DEFAULT_RESTORE_OPTIONS
-                 .merge(compression_level: ::Zip.default_compression)
-                 .merge(options)
+
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @create  = create ? true : false # allow any truthy value to mean true
 
       initialize_cdir(path_or_io, buffer: buffer)
 
-      @restore_ownership   = options[:restore_ownership]
-      @restore_permissions = options[:restore_permissions]
-      @restore_times       = options[:restore_times]
-      @compression_level   = options[:compression_level]
+      @restore_ownership   = restore_ownership
+      @restore_permissions = restore_permissions
+      @restore_times       = restore_times
+      @compression_level   = compression_level
     end
 
     class << self
       # Similar to ::new. If a block is passed the Zip::File object is passed
       # to the block and is automatically closed afterwards, just as with
       # ruby's builtin File::open method.
-      def open(file_name, create: false, **options)
-        zf = ::Zip::File.new(file_name, create: create, **options)
+      def open(file_name, create: false,
+               restore_ownership: DEFAULT_RESTORE_OPTIONS[:restore_ownership],
+               restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
+               restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
+               compression_level: ::Zip.default_compression)
+
+        zf = ::Zip::File.new(file_name, create:              create,
+                                        restore_ownership:   restore_ownership,
+                                        restore_permissions: restore_permissions,
+                                        restore_times:       restore_times,
+                                        compression_level:   compression_level)
+
         return zf unless block_given?
 
         begin
@@ -105,7 +117,12 @@ module Zip
       # stream, and outputs data to a buffer.
       # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
-      def open_buffer(io = ::StringIO.new, create: false, **options)
+      def open_buffer(io = ::StringIO.new, create: false,
+                      restore_ownership: DEFAULT_RESTORE_OPTIONS[:restore_ownership],
+                      restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
+                      restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
+                      compression_level: ::Zip.default_compression)
+
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise 'Zip::File.open_buffer expects a String or IO-like argument' \
                 "(responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
@@ -113,7 +130,12 @@ module Zip
 
         io = ::StringIO.new(io) if io.kind_of?(::String)
 
-        zf = ::Zip::File.new(io, create: create, buffer: true, **options)
+        zf = ::Zip::File.new(io, create: create, buffer: true,
+                                 restore_ownership:   restore_ownership,
+                                 restore_permissions: restore_permissions,
+                                 restore_times:       restore_times,
+                                 compression_level:   compression_level)
+
         return zf unless block_given?
 
         yield zf
