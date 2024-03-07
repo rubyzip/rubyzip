@@ -176,6 +176,11 @@ module Zip
       send(:time=, value, component: :ctime)
     end
 
+    # Does this entry return time fields with accurate timezone information?
+    def absolute_time?
+      @extra.member?('UniversalTime') || @extra.member?('NTFS')
+    end
+
     # Return the compression method for this entry.
     #
     # Returns STORED if the entry is a directory or if the compression

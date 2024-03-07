@@ -340,4 +340,12 @@ class ZipEntryTest < MiniTest::Test
     entry.gather_fileinfo_from_srcpath('test/data/mimetype')
     assert_equal(entry.time, File.stat('test/data/mimetype').mtime)
   end
+
+  def test_absolute_time
+    entry = ::Zip::Entry.new
+    refute(entry.absolute_time?)
+
+    entry.time = Time.now
+    assert(entry.absolute_time?)
+  end
 end
