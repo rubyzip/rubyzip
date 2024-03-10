@@ -521,7 +521,7 @@ module Zip
       keys_equal = %w[compression_method crc compressed_size size name extra filepath].all? do |k|
         other.__send__(k.to_sym) == __send__(k.to_sym)
       end
-      keys_equal && time.dos_equals(other.time)
+      keys_equal && time == other.time
     end
 
     def <=>(other)

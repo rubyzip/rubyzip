@@ -269,4 +269,15 @@ module Version3APITest
       end
     end
   end
+
+  class ZipDOSTimeTest < MiniTest::Test
+    include ZipV3Assertions
+
+    def test_dos_equals
+      assert_v3_api_warning do
+        time = ::Zip::DOSTime.now
+        assert(time.dos_equals(time))
+      end
+    end
+  end
 end
