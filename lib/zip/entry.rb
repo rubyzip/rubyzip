@@ -189,6 +189,8 @@ module Zip
     # NB: The caller is responsible for making sure dest_path is safe, if it
     # is passed.
     def extract(dest_path = nil, &block)
+      Zip.warn_about_v3_api('Zip::Entry#extract')
+
       if dest_path.nil? && !name_safe?
         warn "WARNING: skipped '#{@name}' as unsafe."
         return self
@@ -200,6 +202,28 @@ module Zip
       raise "unknown file type #{inspect}" unless directory? || file? || symlink?
 
       __send__("create_#{@ftype}", dest_path, &block)
+      self
+    end
+
+    # Extracts this entry to a file at `entry_path`, with
+    # `destination_directory` as the base location in the filesystem.
+    #
+    # NB: The caller is responsible for making sure `destination_directory` is
+    # safe, if it is passed.
+    def extract_v3(entry_path = @name, destination_directory: '.', &block)
+      dest_dir = ::File.absolute_path(destination_directory || '.')
+      extract_path = ::File.absolute_path(::File.join(dest_dir, entry_path))
+
+      unless extract_path.start_with?(dest_dir)
+        warn "WARNING: skipped extracting '#{@name}' to '#{extract_path}' as unsafe."
+        return self
+      end
+
+      block ||= proc { ::Zip.on_exists_proc }
+
+      raise "unknown file type #{inspect}" unless directory? || file? || symlink?
+
+      __send__(:"create_#{ftype}", extract_path, &block)
       self
     end
 

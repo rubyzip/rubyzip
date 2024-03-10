@@ -371,9 +371,23 @@ module Zip
 
     # Extracts entry to file dest_path.
     def extract(entry, dest_path, &block)
+      Zip.warn_about_v3_api('Zip::File#extract')
+
       block ||= proc { ::Zip.on_exists_proc }
       found_entry = get_entry(entry)
       found_entry.extract(dest_path, &block)
+    end
+
+    # Extracts `entry` to a file at `entry_path`, with `destination_directory`
+    # as the base location in the filesystem.
+    #
+    # NB: The caller is responsible for making sure `destination_directory` is
+    # safe, if it is passed.
+    def extract_v3(entry, entry_path = nil, destination_directory: '.', &block)
+      block ||= proc { ::Zip.on_exists_proc }
+      found_entry = get_entry(entry)
+      entry_path ||= found_entry.name
+      found_entry.extract_v3(entry_path, destination_directory: destination_directory, &block)
     end
 
     # Commits changes that has been made since the previous commit to
