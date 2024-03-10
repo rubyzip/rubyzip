@@ -280,26 +280,45 @@ module Zip
     # specified. If a block is passed the stream object is passed to the block and
     # the stream is automatically closed afterwards just as with ruby's builtin
     # File.open method.
-    def get_output_stream(entry, permission_int = nil, comment = nil,
-                          extra = nil, compressed_size = nil, crc = nil,
-                          compression_method = nil, size = nil, time = nil,
+    # rubocop:disable Metrics/ParameterLists, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+    def get_output_stream(entry,
+                          dep_permission_int = nil, dep_comment = nil,
+                          dep_extra = nil, dep_compressed_size = nil, dep_crc = nil,
+                          dep_compression_method = nil, dep_size = nil, dep_time = nil,
+                          permission_int: nil, comment: nil,
+                          extra: nil, compressed_size: nil, crc: nil,
+                          compression_method: nil, size: nil, time: nil,
                           &a_proc)
+
+      unless dep_permission_int.nil? && dep_comment.nil? && dep_extra.nil? &&
+             dep_compressed_size.nil? && dep_crc.nil? && dep_compression_method.nil? &&
+             dep_size.nil? && dep_time.nil?
+        Zip.warn_about_v3_api('Zip::File#get_output_stream')
+      end
 
       new_entry =
         if entry.kind_of?(Entry)
           entry
         else
-          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
+          Entry.new(@name, entry.to_s,
+                    comment:            (comment || dep_comment),
+                    extra:              (extra || dep_extra),
+                    compressed_size:    (compressed_size || dep_compressed_size),
+                    crc:                (crc || dep_crc),
+                    compression_method: (compression_method || dep_compression_method),
+                    size:               (size || dep_size),
+                    time:               (time || dep_time))
         end
       if new_entry.directory?
         raise ArgumentError,
               "cannot open stream to directory entry - '#{new_entry}'"
       end
-      new_entry.unix_perms = permission_int
+      new_entry.unix_perms = (permission_int || dep_permission_int)
       zip_streamable_entry = StreamableStream.new(new_entry)
       @entry_set << zip_streamable_entry
       zip_streamable_entry.get_output_stream(&a_proc)
     end
+    # rubocop:enable Metrics/ParameterLists, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
     # Returns the name of the zip archive
     def to_s

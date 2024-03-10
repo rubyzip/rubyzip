@@ -2,10 +2,8 @@ require 'test_helper'
 
 module Version3APITest
   class ZipFileTest < MiniTest::Test
+    include CommonZipFileFixture
     include ZipV3Assertions
-
-    TEST_ZIP = TestZipFile::TEST_ZIP2.clone
-    TEST_ZIP.zip_name = 'test/data/generated/file.zip'
 
     def test_new
       assert_v3_api_warning do
@@ -61,6 +59,20 @@ module Version3APITest
     def test_add_buffer
       assert_v3_api_warning do
         Zip::File.add_buffer {}
+      end
+    end
+
+    def test_get_output_stream
+      refute_v3_api_warning do
+        zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
+        zf.get_output_stream('myFile') { |os| os.write 'myFile contains just this' }
+        zf.close
+      end
+
+      assert_v3_api_warning do
+        zf = ::Zip::File.new(EMPTY_FILENAME, create: true)
+        zf.get_output_stream('myFile', 0o644) { |os| os.write 'myFile contains just this' }
+        zf.close
       end
     end
   end
