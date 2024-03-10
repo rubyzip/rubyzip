@@ -73,12 +73,17 @@ module Zip
 
     # Opens a zip archive. Pass true as the second parameter to create
     # a new archive if it doesn't exist already.
-    def initialize(path_or_io, create = false, buffer = false, options = {})
+    def initialize(path_or_io, dep_create = false, dep_buffer = false,
+                   create: false, buffer: false, **options)
       super()
+
+      Zip.warn_about_v3_api('File#new') if dep_create || dep_buffer
+
       options  = DEFAULT_OPTIONS.merge(options)
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
       @comment = ''
-      @create  = create ? true : false # allow any truthy value to mean true
+      @create  = create || dep_create ? true : false # allow any truthy value to mean true
+      buffer ||= dep_buffer
 
       if ::File.size?(@name.to_s)
         # There is a file, which exists, that is associated with this zip.
@@ -117,8 +122,10 @@ module Zip
       # Similar to ::new. If a block is passed the Zip::File object is passed
       # to the block and is automatically closed afterwards, just as with
       # ruby's builtin File::open method.
-      def open(file_name, create = false, options = {})
-        zf = ::Zip::File.new(file_name, create, false, options)
+      def open(file_name, dep_create = false, create: false, **options)
+        Zip.warn_about_v3_api('Zip::File.open') if dep_create
+
+        zf = ::Zip::File.new(file_name, create: (dep_create || create), buffer: false, **options)
         return zf unless block_given?
 
         begin
@@ -142,7 +149,7 @@ module Zip
       # stream, and outputs data to a buffer.
       # (This can be used to extract data from a
       # downloaded zip archive without first saving it to disk.)
-      def open_buffer(io, options = {})
+      def open_buffer(io, **options)
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise "Zip::File.open_buffer expects a String or IO-like argument (responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
         end
@@ -152,7 +159,7 @@ module Zip
         # https://github.com/rubyzip/rubyzip/issues/119
         io.binmode if io.respond_to?(:binmode)
 
-        zf = ::Zip::File.new(io, true, true, options)
+        zf = ::Zip::File.new(io, create: true, buffer: true, **options)
         return zf unless block_given?
 
         yield zf

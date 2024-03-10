@@ -1,8 +1,62 @@
 require 'test_helper'
 
 module Version3APITest
-  class ZipFileTest
+  class ZipFileTest < MiniTest::Test
     include ZipV3Assertions
+
+    TEST_ZIP = TestZipFile::TEST_ZIP2.clone
+    TEST_ZIP.zip_name = 'test/data/generated/file.zip'
+
+    def test_new
+      assert_v3_api_warning do
+        file = ::Zip::File.new(TEST_ZIP.zip_name, true, false, restore_times: true) {}
+        assert(file.restore_times)
+        refute(file.restore_permissions)
+      end
+
+      assert_v3_api_warning do
+        string_io = StringIO.new(File.read('test/data/rubycode.zip'))
+        file = ::Zip::File.new(string_io, false, true, restore_times: true) {}
+        assert(file.restore_times)
+        refute(file.restore_permissions)
+      end
+
+      refute_v3_api_warning do
+        file = ::Zip::File.new(TEST_ZIP.zip_name, create: true, restore_times: true) {}
+        assert(file.restore_times)
+        refute(file.restore_permissions)
+      end
+
+      refute_v3_api_warning do
+        string_io = StringIO.new(File.read('test/data/rubycode.zip'))
+        file = ::Zip::File.new(string_io, buffer: true, restore_times: true) {}
+        assert(file.restore_times)
+        refute(file.restore_permissions)
+      end
+    end
+
+    def test_open
+      refute_v3_api_warning do
+        file = ::Zip::File.open('test/data/rubycode.zip', restore_permissions: true)
+        assert(file.restore_permissions)
+        refute(file.restore_times)
+        file.close
+      end
+
+      assert_v3_api_warning do
+        file = ::Zip::File.open(TEST_ZIP.zip_name, true, restore_permissions: true)
+        assert(file.restore_permissions)
+        refute(file.restore_times)
+        file.close
+      end
+
+      refute_v3_api_warning do
+        file = ::Zip::File.open(TEST_ZIP.zip_name, create: true, restore_permissions: true)
+        assert(file.restore_permissions)
+        refute(file.restore_times)
+        file.close
+      end
+    end
 
     def test_add_buffer
       assert_v3_api_warning do
