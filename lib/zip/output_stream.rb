@@ -62,7 +62,7 @@ module Zip
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io = ::StringIO.new(''), dep_encrypter = nil, encrypter: nil)
+      def write_buffer(io = ::StringIO.new, dep_encrypter = nil, encrypter: nil)
         Zip.warn_about_v3_api('Zip::OutputStream.write_buffer') unless dep_encrypter.nil?
 
         io.binmode if io.respond_to?(:binmode)

@@ -177,7 +177,7 @@ module Version3APITest
 
     def test_open_buffer
       assert_v3_api_warning do
-        ::Zip::InputStream.open_buffer(StringIO.new(''))
+        ::Zip::InputStream.open_buffer(StringIO.new)
       end
     end
   end
@@ -194,11 +194,11 @@ module Version3APITest
       end
 
       refute_v3_api_warning do
-        ::Zip::OutputStream.new(StringIO.new(''), stream: true)
+        ::Zip::OutputStream.new(StringIO.new, stream: true)
       end
 
       assert_v3_api_warning do
-        ::Zip::OutputStream.new(StringIO.new(''), true)
+        ::Zip::OutputStream.new(StringIO.new, true)
       end
 
       refute_v3_api_warning do
@@ -226,15 +226,15 @@ module Version3APITest
 
     def test_write_buffer
       refute_v3_api_warning do
-        ::Zip::OutputStream.write_buffer(StringIO.new('')) {}
+        ::Zip::OutputStream.write_buffer(StringIO.new) {}
       end
 
       refute_v3_api_warning do
-        ::Zip::OutputStream.write_buffer(StringIO.new(''), encrypter: true) {}
+        ::Zip::OutputStream.write_buffer(StringIO.new, encrypter: true) {}
       end
 
       assert_v3_api_warning do
-        ::Zip::OutputStream.write_buffer(StringIO.new(''), true) {}
+        ::Zip::OutputStream.write_buffer(StringIO.new, true) {}
       end
     end
   end

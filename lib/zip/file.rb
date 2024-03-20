@@ -140,7 +140,7 @@ module Zip
       def add_buffer
         Zip.warn_about_v3_api('Zip::File.add_buffer')
 
-        io = ::StringIO.new('')
+        io = ::StringIO.new
         zf = ::Zip::File.new(io, true, true)
         yield zf
         zf.write_buffer(io)
@@ -411,7 +411,7 @@ module Zip
     end
 
     # Write buffer write changes to buffer and return
-    def write_buffer(io = ::StringIO.new(''))
+    def write_buffer(io = ::StringIO.new)
       return unless commit_required?
 
       ::Zip::OutputStream.write_buffer(io) do |zos|

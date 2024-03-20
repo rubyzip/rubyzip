@@ -503,7 +503,7 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
     old_name = zf.entries.first
     zf.rename(old_name, new_name)
-    io = ::StringIO.new('')
+    io = ::StringIO.new
     buffer = zf.write_buffer(io)
     File.open(TEST_ZIP.zip_name, 'wb') { |f| f.write buffer.string }
     zf_read = ::Zip::File.new(TEST_ZIP.zip_name)

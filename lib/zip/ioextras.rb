@@ -6,14 +6,14 @@ module Zip
 
     class << self
       def copy_stream(ostream, istream)
-        ostream.write(istream.read(CHUNK_SIZE, '')) until istream.eof?
+        ostream.write(istream.read(CHUNK_SIZE, ''.b)) until istream.eof?
       end
 
       def copy_stream_n(ostream, istream, nbytes)
         toread = nbytes
         while toread > 0 && !istream.eof?
           tr = toread > CHUNK_SIZE ? CHUNK_SIZE : toread
-          ostream.write(istream.read(tr, ''))
+          ostream.write(istream.read(tr, ''.b))
           toread -= tr
         end
       end
