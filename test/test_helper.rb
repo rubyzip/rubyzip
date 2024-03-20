@@ -146,7 +146,7 @@ module CrcTest
     attr_accessor :buffer
 
     def initialize
-      @buffer = ''
+      @buffer = ''.b
     end
 
     def <<(data)

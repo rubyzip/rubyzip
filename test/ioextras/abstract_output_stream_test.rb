@@ -8,7 +8,7 @@ class AbstractOutputStreamTest < MiniTest::Test
     attr_accessor :buffer
 
     def initialize
-      @buffer = ''
+      @buffer = ''.b
     end
 
     def <<(data)
@@ -58,12 +58,12 @@ class AbstractOutputStreamTest < MiniTest::Test
     assert_equal("hello world. You ok out there?\nI sure hope so!\n", @output_stream.buffer)
 
     $, = 'X'
-    @output_stream.buffer = ''
+    @output_stream.buffer = ''.b
     @output_stream.print('monkey', 'duck', 'zebra')
     assert_equal("monkeyXduckXzebra\n", @output_stream.buffer)
 
     $\ = nil
-    @output_stream.buffer = ''
+    @output_stream.buffer = ''.b
     @output_stream.print(20)
     assert_equal('20', @output_stream.buffer)
   end
@@ -87,19 +87,19 @@ class AbstractOutputStreamTest < MiniTest::Test
     @output_stream.puts('hello', 'world')
     assert_equal("\nhello\nworld\n", @output_stream.buffer)
 
-    @output_stream.buffer = ''
+    @output_stream.buffer = ''.b
     @output_stream.puts("hello\n", "world\n")
     assert_equal("hello\nworld\n", @output_stream.buffer)
 
-    @output_stream.buffer = ''
+    @output_stream.buffer = ''.b
     @output_stream.puts(%W[hello\n world\n])
     assert_equal("hello\nworld\n", @output_stream.buffer)
 
-    @output_stream.buffer = ''
+    @output_stream.buffer = ''.b
     @output_stream.puts(%W[hello\n world\n], 'bingo')
     assert_equal("hello\nworld\nbingo\n", @output_stream.buffer)
 
-    @output_stream.buffer = ''
+    @output_stream.buffer = ''.b
     @output_stream.puts(16, 20, 50, 'hello')
     assert_equal("16\n20\n50\nhello\n", @output_stream.buffer)
   end

@@ -134,7 +134,7 @@ class ZipInputStreamTest < MiniTest::Test
       assert_equal(TestZipFile::TEST_ZIP2.entry_names[0], e.name)
 
       # Do a little reading
-      buf = ''
+      buf = ''.b
       buf << zis.read(100)
       assert_equal(100, zis.pos)
       buf << (zis.gets || '')
@@ -143,7 +143,7 @@ class ZipInputStreamTest < MiniTest::Test
 
       zis.rewind
 
-      buf2 = ''
+      buf2 = ''.b
       buf2 << zis.read(100)
       buf2 << (zis.gets || '')
       buf2 << (zis.gets || '')
