@@ -1,5 +1,17 @@
 # X.X.X (Next)
 
+# 2.4
+
+- Ensure compatibility with `--enable-frozen-string-literal`.
+- Ensure `File.open_buffer` doesn't rewrite unchanged data. This is a backport of the fix on the 3.x branch.
+- Enable use of the version 3 calling style (mainly named parameters) wherever possible, while retaining version 2.x compatibility.
+- Add (switchable) warning messages to methods that are changed or removed in version 3.x.
+
+Tooling:
+
+- Switch to using GitHub Actions (from Travis).
+- Update Rubocop versions and configuration.
+
 # 2.3.2 (2021-07-05)
 
 - This is a dummy release to warn about breaking changes coming in version 3.0. This updated version uses the Gem `post_install_message` instead of printing to `STDERR`.
