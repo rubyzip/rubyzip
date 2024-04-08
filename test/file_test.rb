@@ -104,23 +104,45 @@ class ZipFileTest < MiniTest::Test
   end
 
   def test_open_buffer_with_string
-    string = File.read('test/data/rubycode.zip')
+    data = File.read('test/data/rubycode.zip', mode: 'rb')
+    string = data.dup
+
     ::Zip::File.open_buffer string do |zf|
       assert zf.entries.map(&:name).include?('zippedruby1.rb')
     end
+
+    # Ensure the buffer hasn't changed.
+    assert_equal(data, string)
   end
 
   def test_open_buffer_with_stringio
-    string_io = StringIO.new File.read('test/data/rubycode.zip')
+    data = File.read('test/data/rubycode.zip', mode: 'rb')
+    string_io = StringIO.new(data.dup)
+
     ::Zip::File.open_buffer string_io do |zf|
       assert zf.entries.map(&:name).include?('zippedruby1.rb')
     end
+
+    # Ensure the buffer hasn't changed.
+    assert_equal(data, string_io.string)
   end
 
   def test_close_buffer_with_stringio
     string_io = StringIO.new File.read('test/data/rubycode.zip')
     zf = ::Zip::File.open_buffer string_io
     assert_nil zf.close
+  end
+
+  def test_open_buffer_without_block_write_buffer_does_nothing
+    data = File.read('test/data/rubycode.zip', mode: 'rb')
+    string_io = StringIO.new(data.dup)
+
+    zf = ::Zip::File.open_buffer(string_io)
+    assert zf.entries.map(&:name).include?('zippedruby1.rb')
+
+    # Ensure the buffer isn't changed.
+    zf.write_buffer(string_io)
+    assert_equal(data, string_io.string)
   end
 
   def test_open_buffer_no_op_does_not_change_file
