@@ -39,7 +39,11 @@ Gem::Specification.new do |s|
       * `Zip::Entry`
       * `Zip::InputStream`
       * `Zip::OutputStream`
+      * `Zip::DOSTime`
 
+    Run your test suite with the `RUBYZIP_V3_API_WARN` environment
+    variable set to see warnings about usage of the old API. This will
+    help you to identify any changes that you need to make to your code.
     See https://github.com/rubyzip/rubyzip/wiki/Updating-to-version-3.x for
     more information.
 
