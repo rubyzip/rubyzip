@@ -141,7 +141,7 @@ class ZipFileTest < MiniTest::Test
     assert zf.entries.map(&:name).include?('zippedruby1.rb')
 
     # Ensure the buffer isn't changed.
-    zf.write_buffer(string_io)
+    assert_same string_io, zf.write_buffer(string_io)
     assert_equal(data, string_io.string)
   end
 

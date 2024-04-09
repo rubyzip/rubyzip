@@ -412,7 +412,7 @@ module Zip
 
     # Write buffer write changes to buffer and return
     def write_buffer(io = ::StringIO.new)
-      return unless commit_required?
+      return io unless commit_required?
 
       ::Zip::OutputStream.write_buffer(io) do |zos|
         @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
