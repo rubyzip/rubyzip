@@ -571,7 +571,7 @@ module Zip
           raise "unknown @file_type #{@ftype}"
         end
       else
-        zis = ::Zip::InputStream.new(@zipfile, local_header_offset)
+        zis = ::Zip::InputStream.new(@zipfile, offset: local_header_offset)
         zis.instance_variable_set(:@complete_entry, self)
         zis.get_next_entry
         if block_given?
