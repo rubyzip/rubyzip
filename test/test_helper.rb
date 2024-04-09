@@ -225,16 +225,18 @@ end
 
 module ZipV3Assertions
   def assert_v3_api_warning
+    env_save = ENV['RUBYZIP_V3_API_WARN']
     ENV['RUBYZIP_V3_API_WARN'] = '1'
     assert_output('', /^You have called/) { yield }
   ensure
-    ENV.delete('RUBYZIP_V3_API_WARN')
+    ENV['RUBYZIP_V3_API_WARN'] = env_save
   end
 
   def refute_v3_api_warning
+    env_save = ENV['RUBYZIP_V3_API_WARN']
     ENV['RUBYZIP_V3_API_WARN'] = '1'
     assert_output('', '') { yield }
   ensure
-    ENV.delete('RUBYZIP_V3_API_WARN')
+    ENV['RUBYZIP_V3_API_WARN'] = env_save
   end
 end
