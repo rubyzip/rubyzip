@@ -35,18 +35,22 @@ require 'zip/errors'
 
 module Zip
   V3_API_WARNING_MSG = <<~END_MSG
-    You have called '%s' which is changing or deprecated
-    in version 3.0.0. Please see
+    You have called '%s' (from %s).
+    This method is changing or deprecated in version 3.0.0. Please see
       https://github.com/rubyzip/rubyzip/wiki/Updating-to-version-3.x
     for more information.
   END_MSG
 
   def self.warn_about_v3_api(method)
-    warn V3_API_WARNING_MSG % method if ENV['RUBYZIP_V3_API_WARN']
+    return unless ENV['RUBYZIP_V3_API_WARN']
+
+    loc = caller_locations(2, 1)[0]
+    from = "#{loc.path.split('/').last}:#{loc.lineno}"
+    warn format(V3_API_WARNING_MSG, method, from)
   end
 
-  if RUBY_VERSION < '3.0'
-    warn 'RubyZip 3.0 will require Ruby 3.0 or later.' if ENV['RUBYZIP_V3_API_WARN']
+  if ENV['RUBYZIP_V3_API_WARN'] && RUBY_VERSION < '3.0'
+    warn 'RubyZip 3.0 will require Ruby 3.0 or later.'
   end
 
   extend self
