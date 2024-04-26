@@ -4,9 +4,11 @@ module Zip
   class DecryptedIo # :nodoc:all
     CHUNK_SIZE = 32_768
 
-    def initialize(io, decrypter)
+    def initialize(io, decrypter, compressed_size)
       @io = io
       @decrypter = decrypter
+      @offset = io.tell
+      @compressed_size = compressed_size
     end
 
     def read(length = nil, outbuf = +'')
@@ -16,6 +18,10 @@ module Zip
         break if input_finished?
 
         buffer << produce_input
+      end
+
+      if @decrypter.kind_of?(::Zip::AESDecrypter) && input_finished?
+        @decrypter.check_integrity(@io.read(::Zip::AESEncryption::AUTHENTICATION_CODE_LENGTH))
       end
 
       outbuf.replace(buffer.slice!(0...(length || buffer.bytesize)))
@@ -31,12 +37,17 @@ module Zip
       @buffer ||= +''
     end
 
+    def pos
+      @io.tell - @offset
+    end
+
     def input_finished?
-      @io.eof
+      @io.eof || pos >= @compressed_size
     end
 
     def produce_input
-      @decrypter.decrypt(@io.read(CHUNK_SIZE))
+      chunk_size = [CHUNK_SIZE, @compressed_size - pos].min
+      @decrypter.decrypt(@io.read(chunk_size))
     end
   end
 end
