@@ -203,6 +203,10 @@ module Zip
       !@extra['Zip64'].nil?
     end
 
+    def aes?
+      !@extra['AES'].nil?
+    end
+
     def file_type_is?(type) # :nodoc:
       ftype == type
     end
@@ -382,6 +386,7 @@ module Zip
 
       read_extra_field(extra, local: true)
       parse_zip64_extra(true)
+      parse_aes_extra
       @local_header_size = calculate_local_header_size
     end
 
@@ -511,6 +516,7 @@ module Zip
       check_c_dir_entry_comment_size
       set_ftype_from_c_dir_entry
       parse_zip64_extra(false)
+      parse_aes_extra
     end
 
     def file_stat(path) # :nodoc:
@@ -798,6 +804,20 @@ module Zip
           @size, @compressed_size, @local_header_offset
         )
       end
+    end
+
+    def parse_aes_extra # :nodoc:
+      return unless aes?
+
+      if @extra['AES'].vendor_id != 'AE'
+        raise Error, "Unsupported encryption method #{@extra['AES'].vendor_id}"
+      end
+
+      unless ::Zip::AESEncryption::VERSIONS.include? @extra['AES'].vendor_version
+        raise Error, "Unsupported encryption style #{@extra['AES'].vendor_version}"
+      end
+
+      @compression_method = @extra['AES'].compression_method if ftype != :directory
     end
 
     # For DEFLATED compression *only*: set the general purpose flags 1 and 2 to
