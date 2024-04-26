@@ -55,8 +55,8 @@ module Zip
       data.unpack('C*').map { |x| encode x }.pack('C*')
     end
 
-    def data_descriptor(crc32, compressed_size, uncomprssed_size)
-      [0x08074b50, crc32, compressed_size, uncomprssed_size].pack('VVVV')
+    def data_descriptor(crc32, compressed_size, uncompressed_size)
+      [0x08074b50, crc32, compressed_size, uncompressed_size].pack('VVVV')
     end
 
     def reset!

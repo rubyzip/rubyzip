@@ -22,7 +22,7 @@ module Zip
       data
     end
 
-    def data_descriptor(_crc32, _compressed_size, _uncomprssed_size)
+    def data_descriptor(_crc32, _compressed_size, _uncompressed_size)
       ''
     end
 
