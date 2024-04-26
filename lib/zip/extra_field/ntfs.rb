@@ -25,7 +25,7 @@ module Zip
       size, content = initial_parse(binstr)
       (size && content) || return
 
-      content = content[4..-1]
+      content = content[4..]
       tags = parse_tags(content)
 
       tag1 = tags[1]
@@ -86,7 +86,7 @@ module Zip
     end
 
     def from_ntfs_time(ntfs_time)
-      ::Zip::DOSTime.at(ntfs_time / WINDOWS_TICK - SEC_TO_UNIX_EPOCH)
+      ::Zip::DOSTime.at((ntfs_time / WINDOWS_TICK) - SEC_TO_UNIX_EPOCH)
     end
 
     def to_ntfs_time(time)

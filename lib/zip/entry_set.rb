@@ -61,12 +61,12 @@ module Zip
     end
 
     def glob(pattern, flags = ::File::FNM_PATHNAME | ::File::FNM_DOTMATCH | ::File::FNM_EXTGLOB)
-      entries.map do |entry|
+      entries.filter_map do |entry|
         next nil unless ::File.fnmatch(pattern, entry.name.chomp('/'), flags)
 
         yield(entry) if block_given?
         entry
-      end.compact
+      end
     end
 
     protected

@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '2.6'
+        ruby-version: '3.0'
         bundler-cache: true
 
     - name: Rubocop

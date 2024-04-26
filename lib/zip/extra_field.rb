@@ -21,8 +21,8 @@ module Zip
     def extra_field_type_unknown(binstr, len, index, local)
       self['Unknown'] ||= Unknown.new
 
-      if !len || len + 4 > binstr[index..-1].bytesize
-        self['Unknown'].merge(binstr[index..-1], local: local)
+      if !len || len + 4 > binstr[index..].bytesize
+        self['Unknown'].merge(binstr[index..], local: local)
         return
       end
 

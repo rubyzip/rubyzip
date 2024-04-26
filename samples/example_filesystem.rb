@@ -7,7 +7,7 @@ require 'zip/filesystem'
 
 EXAMPLE_ZIP = 'filesystem.zip'
 
-File.delete(EXAMPLE_ZIP) if File.exist?(EXAMPLE_ZIP)
+FileUtils.rm_f(EXAMPLE_ZIP)
 
 Zip::File.open(EXAMPLE_ZIP, create: true) do |zf|
   zf.file.open('file1.txt', 'w') { |os| os.write 'first file1.txt' }

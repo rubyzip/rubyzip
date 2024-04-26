@@ -22,7 +22,7 @@ The public API of some classes has been modernized to use named parameters for o
 
 ## Requirements
 
-Version 3.x requires at least Ruby 2.5.
+Version 3.x requires at least Ruby 3.0.
 
 Version 2.x requires at least Ruby 2.4, and is known to work on Ruby 3.1.
 
@@ -205,6 +205,27 @@ Any attempt to move about in a zip file opened with `Zip::InputStream` could res
 
 Rubyzip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:
 
+#### Version 2.x
+
+```ruby
+# Writing.
+enc = Zip::TraditionalEncrypter.new('password')
+buffer = Zip::OutputStream.write_buffer(::StringIO.new(''), enc) do |output|
+  output.put_next_entry("my_file.txt")
+  output.write my_data
+end
+
+# Reading.
+dec = Zip::TraditionalDecrypter.new('password')
+Zip::InputStream.open(buffer, 0, dec) do |input|
+  entry = input.get_next_entry
+  puts "Contents of '#{entry.name}':"
+  puts input.read
+end
+```
+
+#### Version 3.x
+
 ```ruby
 # Writing.
 enc = Zip::TraditionalEncrypter.new('password')
@@ -338,11 +359,13 @@ end
 
 ### Zip64 Support
 
-By default, Zip64 support is enabled for writing. To disable it do this:
+Since version 3.0, Zip64 support is enabled for writing by default. To disable it do this:
 
 ```ruby
 Zip.write_zip64_support = false
 ```
+
+Prior to version 3.0, Zip64 support is disabled for writing by default.
 
 _NOTE_: If Zip64 write support is enabled then any extractor subsequently used may also require Zip64 support to read from the resultant archive.
 
@@ -371,14 +394,18 @@ Rubyzip 2.3 is known to work on MRI 2.4 to 3.1 on Linux and Mac, and JRuby and T
 
 Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 
-| OS/Ruby | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.1 +YJIT | Head | Head +YJIT | JRuby 9.3.2.0 | JRuby Head | Truffleruby 21.3.0 | Truffleruby Head |
-|---------|-----|-----|-----|-----|-----|----------|------|-----------|----------------|------------|--------------------|------------------|
-|Ubuntu 22.04| CI | CI | CI | CI | CI | ci | ci | ci | CI | ci | CI | ci |
-|Mac OS 12.6.7| CI | x | x | x | x | ci |  | ci | x |  | x |  |
+| OS/Ruby | 2.5 | 2.6 | 2.7 | 3.0 | 3.1 | 3.2 | 3.3 | Head | JRuby 9.4.6.0 | JRuby Head | Truffleruby 23.1.2 | Truffleruby Head |
+|---------|-----|-----|-----|-----|-----|-----|-----|------|---------------|------------|--------------------|------------------|
+|Ubuntu 22.04| CI | CI | CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
+|Mac OS 12.7.3| CI | x | x | ci | ci | ci | ci | ci | x |  | x |  |
 |Windows 10|  |  | x |  |  |  |  |  |  |  |  |  |
 |Windows Server 2022| CI |  |  |  |  |  | CI&nbsp;mswin</br>CI&nbsp;ucrt |  |  |  |  |  |
 
 Key: `CI` - tested in CI, should work; `ci` - tested in CI, might fail; `x` - known working; `o` - known failing.
+
+Ruby 3.0+ are also tested separately with YJIT turned on.
+
+See [the Actions tab](https://github.com/rubyzip/rubyzip/actions) in GitHub for full details.
 
 Please [raise a PR](https://github.com/rubyzip/rubyzip/pulls) if you know Rubyzip works on a platform/Ruby combination not listed here, or [raise an issue](https://github.com/rubyzip/rubyzip/issues) if you see a failure where we think it should work.
 
@@ -422,8 +449,7 @@ See https://github.com/rubyzip/rubyzip/graphs/contributors for a comprehensive l
 
 ## License
 
-Rubyzip is distributed under the same license as ruby. See
-http://www.ruby-lang.org/en/LICENSE.txt
+Rubyzip is distributed under the same license as Ruby. In practice this means you can use it under the terms of the Ruby License or the 2-Clause BSD License. See https://www.ruby-lang.org/en/about/license.txt and LICENSE.md for details.
 
 ## Research notice
 Please note that this repository is participating in a study into sustainability

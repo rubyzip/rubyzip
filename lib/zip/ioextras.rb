@@ -12,7 +12,7 @@ module Zip
       def copy_stream_n(ostream, istream, nbytes)
         toread = nbytes
         while toread > 0 && !istream.eof?
-          tr = toread > CHUNK_SIZE ? CHUNK_SIZE : toread
+          tr = [toread, CHUNK_SIZE].min
           ostream.write(istream.read(tr, +''))
           toread -= tr
         end

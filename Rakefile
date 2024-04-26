@@ -19,7 +19,7 @@ RDoc::Task.new do |rdoc|
   rdoc.rdoc_files.include('README.md', 'lib/**/*.rb')
   rdoc.options << '--markup=markdown'
   rdoc.options << '--tab-width=2'
-  rdoc.options << "-t Rubyzip version #{::Zip::VERSION}"
+  rdoc.options << "-t Rubyzip version #{Zip::VERSION}"
 end
 
 RuboCop::RakeTask.new

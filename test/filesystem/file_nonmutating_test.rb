@@ -406,7 +406,7 @@ class FileNonmutatingTest < MiniTest::Test
 
       zf.file.foreach('test/data/file1.txt') do |l|
         # Ruby replaces \n with \r\n automatically on windows
-        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
+        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub("\r\n", "\n") : l
         assert_equal(ref[index], newline)
         index = index.next
       end
@@ -420,7 +420,7 @@ class FileNonmutatingTest < MiniTest::Test
 
       zf.file.foreach('test/data/file1.txt', ' ') do |l|
         # Ruby replaces \n with \r\n automatically on windows
-        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub(/\r\n/, "\n") : l
+        newline = Zip::RUNNING_ON_WINDOWS ? l.gsub("\r\n", "\n") : l
         assert_equal(ref[index], newline)
         index = index.next
       end
@@ -486,7 +486,7 @@ class FileNonmutatingTest < MiniTest::Test
       zip_file = zf.file.readlines('test/data/file1.txt')
 
       # Ruby replaces \n with \r\n automatically on windows
-      zip_file.each { |l| l.gsub!(/\r\n/, "\n") } if Zip::RUNNING_ON_WINDOWS
+      zip_file.each { |l| l.gsub!("\r\n", "\n") } if Zip::RUNNING_ON_WINDOWS
 
       assert_equal(orig_file, zip_file)
     end
@@ -498,7 +498,7 @@ class FileNonmutatingTest < MiniTest::Test
 
       # Ruby replaces \n with \r\n automatically on windows
       zip_file = if Zip::RUNNING_ON_WINDOWS
-                   zf.file.read('test/data/file1.txt').gsub(/\r\n/, "\n")
+                   zf.file.read('test/data/file1.txt').gsub("\r\n", "\n")
                  else
                    zf.file.read('test/data/file1.txt')
                  end

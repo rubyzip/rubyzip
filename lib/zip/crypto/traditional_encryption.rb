@@ -28,7 +28,7 @@ module Zip
 
     def update_keys(num)
       @key0 = ~Zlib.crc32(num, ~@key0)
-      @key1 = ((@key1 + (@key0 & 0xff)) * 134_775_813 + 1) & 0xffffffff
+      @key1 = (((@key1 + (@key0 & 0xff)) * 134_775_813) + 1) & 0xffffffff
       @key2 = ~Zlib.crc32((@key1 >> 24).chr, ~@key2)
     end
 

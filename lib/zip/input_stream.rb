@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+##
 module Zip
   # InputStream is the basic class for reading zip entries in a
   # zip file. It is possible to create a InputStream object directly,
@@ -39,9 +40,8 @@ module Zip
   #
   # java.util.zip.ZipInputStream is the original inspiration for this
   # class.
-
   class InputStream
-    CHUNK_SIZE = 32_768
+    CHUNK_SIZE = 32_768 # :nodoc:
 
     include ::Zip::IOExtras::AbstractInputStream
 
@@ -60,6 +60,7 @@ module Zip
       @complete_entry = nil
     end
 
+    # Close this InputStream. All further IO will raise an IOError.
     def close
       @archive_io.close
     end
@@ -78,7 +79,7 @@ module Zip
       open_entry
     end
 
-    # Rewinds the stream to the beginning of the current entry
+    # Rewinds the stream to the beginning of the current entry.
     def rewind
       return if @current_entry.nil?
 
@@ -114,16 +115,11 @@ module Zip
           zio.close if zio
         end
       end
-
-      def open_buffer(filename_or_io, offset: 0)
-        warn 'open_buffer is deprecated!!! Use open instead!'
-        ::Zip::InputStream.open(filename_or_io, offset: offset)
-      end
     end
 
     protected
 
-    def get_io(io_or_file, offset = 0)
+    def get_io(io_or_file, offset = 0) # :nodoc:
       if io_or_file.respond_to?(:seek)
         io = io_or_file.dup
         io.seek(offset, ::IO::SEEK_SET)
@@ -135,7 +131,7 @@ module Zip
       end
     end
 
-    def open_entry
+    def open_entry # :nodoc:
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
       return if @current_entry.nil?
 
@@ -144,8 +140,7 @@ module Zip
               'A password is required to decode this zip file'
       end
 
-      if @current_entry.incomplete? && @current_entry.compressed_size == 0 \
-        && !@complete_entry
+      if @current_entry.incomplete? && @current_entry.compressed_size == 0 && !@complete_entry
         raise StreamingError, @current_entry
       end
 
@@ -155,19 +150,19 @@ module Zip
       @current_entry
     end
 
-    def get_decrypted_io
+    def get_decrypted_io # :nodoc:
       header = @archive_io.read(@decrypter.header_bytesize)
       @decrypter.reset!(header)
 
       ::Zip::DecryptedIo.new(@archive_io, @decrypter)
     end
 
-    def get_decompressor
+    def get_decompressor # :nodoc:
       return ::Zip::NullDecompressor if @current_entry.nil?
 
       decompressed_size =
-        if @current_entry.incomplete? && @current_entry.crc == 0 \
-           && @current_entry.size == 0 && @complete_entry
+        if @current_entry.incomplete? && @current_entry.crc == 0 &&
+           @current_entry.size == 0 && @complete_entry
           @complete_entry.size
         else
           @current_entry.size
@@ -183,11 +178,11 @@ module Zip
       decompressor_class.new(@decrypted_io, decompressed_size)
     end
 
-    def produce_input
+    def produce_input # :nodoc:
       @decompressor.read(CHUNK_SIZE)
     end
 
-    def input_finished?
+    def input_finished? # :nodoc:
       @decompressor.eof
     end
   end

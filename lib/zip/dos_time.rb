@@ -16,6 +16,14 @@ module Zip
     # bits 5-8 month (1-12)
     # bits 9-15 year (four digit year minus 1980)
 
+    attr_writer :absolute_time # :nodoc:
+
+    def absolute_time?
+      # If absolute time is not set, we can assume it is an absolute time
+      # because times do have timezone information by default.
+      @absolute_time.nil? ? true : @absolute_time
+    end
+
     def to_binary_dos_time
       (sec / 2) +
         (min << 5) +
@@ -53,7 +61,9 @@ module Zip
       month  = (0b111100000 & bin_dos_date) >> 5
       year   = ((0b1111111000000000 & bin_dos_date) >> 9) + 1980
 
-      local(year, month, day, hour, minute, second)
+      time = local(year, month, day, hour, minute, second)
+      time.absolute_time = false
+      time
     end
 
     if defined? JRUBY_VERSION && Gem::Version.new(JRUBY_VERSION) < '9.2.18.0'

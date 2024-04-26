@@ -7,13 +7,7 @@ module Zip
     DATA_BUFFER_SIZE = 8192
 
     def get_segment_size_for_split(segment_size)
-      if MIN_SEGMENT_SIZE > segment_size
-        MIN_SEGMENT_SIZE
-      elsif MAX_SEGMENT_SIZE < segment_size
-        MAX_SEGMENT_SIZE
-      else
-        segment_size
-      end
+      segment_size.clamp(MIN_SEGMENT_SIZE, MAX_SEGMENT_SIZE)
     end
 
     def get_partial_zip_file_name(zip_file_name, partial_zip_file_name)

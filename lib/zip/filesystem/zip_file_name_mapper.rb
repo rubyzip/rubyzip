@@ -74,7 +74,7 @@ module Zip
       private
 
       def expand_to_entry(path)
-        expand_path(path)[1..-1]
+        expand_path(path)[1..]
       end
     end
   end

@@ -58,15 +58,15 @@ module Zip
     restore_ownership:   false,
     restore_permissions: true,
     restore_times:       true
-  }.freeze
+  }.freeze # :nodoc:
 
-  def reset!
+  def reset! # :nodoc:
     @_ran_once = false
     @unicode_names = false
     @on_exists_proc = false
     @continue_on_exists_proc = false
     @sort_entries = false
-    @default_compression = ::Zlib::DEFAULT_COMPRESSION
+    @default_compression = Zlib::DEFAULT_COMPRESSION
     @write_zip64_support = true
     @warn_invalid_date = true
     @case_insensitive_match = false
@@ -74,6 +74,7 @@ module Zip
     @validate_entry_sizes = true
   end
 
+  # Set options for RubyZip in one block.
   def setup
     yield self unless @_ran_once
     @_ran_once = true

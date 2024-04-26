@@ -64,7 +64,7 @@ module Zip
     end
   end
 
-  class File
+  class File # :nodoc:
     include FileSystem
   end
 end

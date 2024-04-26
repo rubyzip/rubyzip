@@ -12,7 +12,7 @@ class ZipSettingsTest < MiniTest::Test
     super
 
     Dir.rmdir(TEST_OUT_NAME) if File.directory? TEST_OUT_NAME
-    File.delete(TEST_OUT_NAME) if File.exist? TEST_OUT_NAME
+    FileUtils.rm_f(TEST_OUT_NAME)
   end
 
   def teardown

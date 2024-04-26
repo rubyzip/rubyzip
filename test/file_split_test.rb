@@ -15,10 +15,10 @@ class ZipFileSplitTest < MiniTest::Test
 
   def teardown
     File.delete(TEST_ZIP.zip_name)
-    File.delete(UNSPLITTED_FILENAME) if File.exist?(UNSPLITTED_FILENAME)
+    FileUtils.rm_f(UNSPLITTED_FILENAME)
 
     Dir["#{TEST_ZIP.zip_name}.*"].each do |zip_file_name|
-      File.delete(zip_file_name) if File.exist?(zip_file_name)
+      FileUtils.rm_f(zip_file_name)
     end
   end
 
@@ -33,7 +33,7 @@ class ZipFileSplitTest < MiniTest::Test
 
     return if result.nil?
 
-    Dir["#{TEST_ZIP.zip_name}.*"].sort.each_with_index do |zip_file_name, index|
+    Dir["#{TEST_ZIP.zip_name}.*"].each_with_index do |zip_file_name, index|
       File.open(zip_file_name, 'rb') do |zip_file|
         zip_file.read([::Zip::SPLIT_FILE_SIGNATURE].pack('V').size) if index.zero?
         File.open(UNSPLITTED_FILENAME, 'ab') do |file|
