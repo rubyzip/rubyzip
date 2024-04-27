@@ -27,7 +27,7 @@ module Zip
     end
 
     def gp_flags
-      0
+      0x0001
     end
   end
 
