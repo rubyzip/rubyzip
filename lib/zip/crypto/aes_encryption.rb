@@ -8,22 +8,53 @@ module Zip
     BLOCK_SIZE = 16
     AUTHENTICATION_CODE_LENGTH = 10
 
+    VERSION_AE_1 = 0x01
+    VERSION_AE_2 = 0x02
+
+    VERSIONS = [
+      VERSION_AE_1,
+      VERSION_AE_2
+    ]
+
+    STRENGTH_128_BIT = 0x01
+    STRENGTH_192_BIT = 0x02
+    STRENGTH_256_BIT = 0x03
+
+    STRENGTHS = [
+      STRENGTH_128_BIT,
+      STRENGTH_192_BIT,
+      STRENGTH_256_BIT
+    ]
+
+    BITS = {
+      STRENGTH_128_BIT => 128,
+      STRENGTH_192_BIT => 192,
+      STRENGTH_256_BIT => 256
+    }
+
+    KEY_LENGTHS = {
+      STRENGTH_128_BIT => 16,
+      STRENGTH_192_BIT => 24,
+      STRENGTH_256_BIT => 32,
+    }
+
+    SALT_LENGTHS = {
+      STRENGTH_128_BIT => 8,
+      STRENGTH_192_BIT => 12,
+      STRENGTH_256_BIT => 16,
+    }
+
     def initialize(password, strength)
       @password = password
       @strength = strength
-
-      n = @strength + 1
-      @headers = {
-        bits: 64 * n,
-        key_length: 8 * n,
-        mac_length: 8 * n,
-        salt_length: 4 * n
-      }
+      @bits = BITS[@strength]
+      @key_length = KEY_LENGTHS[@strength]
+      @salt_length = SALT_LENGTHS[@strength]
       @counter = 0
     end
 
     def header_bytesize
-      @headers[:salt_length] + VERIFIER_LENGTH
+      @salt_length + VERIFIER_LENGTH
     end
 
     def gp_flags
@@ -51,17 +82,21 @@ module Zip
     end
 
     def reset!(header)
-      raise RuntimeError, "Unsupported encryption AES-#{@headers[:bits]}" unless [0x01, 0x02, 0x03].include? @strength
+      raise Error, "Unsupported encryption AES-#{@headers[:bits]}" unless STRENGTHS.include? @strength
 
-      @cipher = OpenSSL::Cipher::AES.new(@headers[:bits], :CTR)
+      salt = header[0..@salt_length - 1]
+      pwd_verify = header[-VERIFIER_LENGTH..-1]
+      key_material = OpenSSL::PKCS5.pbkdf2_hmac_sha1(@password, salt, 1000, 2 * @key_length + VERIFIER_LENGTH)
+      enc_key = key_material[0..@key_length - 1]
+      enc_hmac_key = key_material[@key_length..2 * @key_length - 1]
+      enc_pwd_verify = key_material[-VERIFIER_LENGTH..-1]
+
+      raise Error, 'Bad password' if enc_pwd_verify != pwd_verify
+
+      @counter = 0
+      @cipher = OpenSSL::Cipher::AES.new(@bits, :CTR)
       @cipher.decrypt
-      salt = header[0..@headers[:salt_length] - 1]
-      pwv = header[-VERIFIER_LENGTH..-1]
-      key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(@password, salt, 1000, @headers[:key_length] + @headers[:mac_length] + VERIFIER_LENGTH)
-
-      raise RuntimeError, 'Incorrect password' if key[-VERIFIER_LENGTH..-1] != pwv
-
-      @cipher.key = key[0..@headers[:key_length] - 1]
+      @cipher.key = enc_key
     end
   end
 end

@@ -798,11 +798,11 @@ module Zip
       return unless aes?
 
       if @extra['AES'].vendor_id != 'AE'
-        raise RuntimeError, "Unsupported encryption method #{@extra['AES'].vendor_id}"
+        raise Error, "Unsupported encryption method #{@extra['AES'].vendor_id}"
       end
 
-      unless [1, 2].include? @extra['AES'].vendor_version
-        raise RuntimeError, "Unsupported encryption style #{@extra['AES'].vendor_version}"
+      unless ::Zip::AESEncryption::VERSIONS.include? @extra['AES'].vendor_version
+        raise Error, "Unsupported encryption style #{@extra['AES'].vendor_version}"
       end
 
       @compression_method = @extra['AES'].compression_method if ftype != :directory
