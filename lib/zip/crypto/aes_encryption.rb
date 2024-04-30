@@ -50,7 +50,6 @@ module Zip
       @bits = BITS[@strength]
       @key_length = KEY_LENGTHS[@strength]
       @salt_length = SALT_LENGTHS[@strength]
-      @counter = 0
     end
 
     def header_bytesize
@@ -66,16 +65,20 @@ module Zip
     include AESEncryption
 
     def decrypt(encrypted_data)
-      amount_to_read = encrypted_data.size
-      decrypted_data = +''
+      @hmac.update(encrypted_data)
 
-      while amount_to_read > 0
+      idx = 0
+      decrypted_data = +''
+      amount_to_read = encrypted_data.size
+
+      while amount_to_read.positive?
         @cipher.iv = [@counter + 1].pack('Vx12')
-        begin_index = BLOCK_SIZE * @counter
-        end_index = BLOCK_SIZE * @counter + [BLOCK_SIZE, amount_to_read].min - 1
-        decrypted_data << @cipher.update(encrypted_data[begin_index..end_index])
+        begin_index = BLOCK_SIZE * idx
+        end_index = begin_index + [BLOCK_SIZE, amount_to_read].min
+        decrypted_data << @cipher.update(encrypted_data[begin_index...end_index])
         amount_to_read -= BLOCK_SIZE
         @counter += 1
+        idx += 1
       end
 
       decrypted_data
@@ -84,12 +87,18 @@ module Zip
     def reset!(header)
       raise Error, "Unsupported encryption AES-#{@bits}" unless STRENGTHS.include? @strength
 
-      salt = header[0..@salt_length - 1]
-      pwd_verify = header[-VERIFIER_LENGTH..-1]
-      key_material = OpenSSL::PKCS5.pbkdf2_hmac_sha1(@password, salt, 1000, 2 * @key_length + VERIFIER_LENGTH)
-      enc_key = key_material[0..@key_length - 1]
-      enc_hmac_key = key_material[@key_length..2 * @key_length - 1]
-      enc_pwd_verify = key_material[-VERIFIER_LENGTH..-1]
+      salt = header[0...@salt_length]
+      pwd_verify = header[-VERIFIER_LENGTH..]
+      key_material = OpenSSL::KDF.pbkdf2_hmac(
+        @password,
+        salt:       salt,
+        iterations: 1000,
+        length:     (2 * @key_length) + VERIFIER_LENGTH,
+        hash:       'sha1'
+      )
+      enc_key = key_material[0...@key_length]
+      enc_hmac_key = key_material[@key_length...(2 * @key_length)]
+      enc_pwd_verify = key_material[-VERIFIER_LENGTH..]
 
       raise Error, 'Bad password' if enc_pwd_verify != pwd_verify
 
@@ -97,6 +106,11 @@ module Zip
       @cipher = OpenSSL::Cipher::AES.new(@bits, :CTR)
       @cipher.decrypt
       @cipher.key = enc_key
+      @hmac = OpenSSL::HMAC.new(enc_hmac_key, OpenSSL::Digest::SHA1.new)
+    end
+
+    def check_integrity(auth_code)
+      raise Error, 'Integrity fault' if @hmac.digest[0...AUTHENTICATION_CODE_LENGTH] != auth_code
     end
   end
 end
