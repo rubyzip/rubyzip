@@ -82,7 +82,7 @@ module Zip
     end
 
     def reset!(header)
-      raise Error, "Unsupported encryption AES-#{@headers[:bits]}" unless STRENGTHS.include? @strength
+      raise Error, "Unsupported encryption AES-#{@bits}" unless STRENGTHS.include? @strength
 
       salt = header[0..@salt_length - 1]
       pwd_verify = header[-VERIFIER_LENGTH..-1]
