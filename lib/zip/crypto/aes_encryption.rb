@@ -14,7 +14,7 @@ module Zip
     VERSIONS = [
       VERSION_AE_1,
       VERSION_AE_2
-    ]
+    ].freeze
 
     STRENGTH_128_BIT = 0x01
     STRENGTH_192_BIT = 0x02
@@ -24,25 +24,25 @@ module Zip
       STRENGTH_128_BIT,
       STRENGTH_192_BIT,
       STRENGTH_256_BIT
-    ]
+    ].freeze
 
     BITS = {
       STRENGTH_128_BIT => 128,
       STRENGTH_192_BIT => 192,
       STRENGTH_256_BIT => 256
-    }
+    }.freeze
 
     KEY_LENGTHS = {
       STRENGTH_128_BIT => 16,
       STRENGTH_192_BIT => 24,
-      STRENGTH_256_BIT => 32,
-    }
+      STRENGTH_256_BIT => 32
+    }.freeze
 
     SALT_LENGTHS = {
       STRENGTH_128_BIT => 8,
       STRENGTH_192_BIT => 12,
-      STRENGTH_256_BIT => 16,
-    }
+      STRENGTH_256_BIT => 16
+    }.freeze
 
     def initialize(password, strength)
       @password = password

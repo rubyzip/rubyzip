@@ -794,7 +794,7 @@ module Zip
       end
     end
 
-    def parse_aes_extra #:nodoc:all
+    def parse_aes_extra # :nodoc:
       return unless aes?
 
       if @extra['AES'].vendor_id != 'AE'

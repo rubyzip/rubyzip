@@ -28,13 +28,15 @@ module Zip
 
       size, content = initial_parse(binstr)
       # size: 0 for central directory. 4 for local header
-      return if !size || size == 0
+      return if !size || size.zero?
 
-      @vendor_version, @vendor_id, @encryption_strength, @compression_method = content.unpack('va2Cv')
+      @vendor_version, @vendor_id,
+        @encryption_strength, @compression_method = content.unpack('va2Cv')
     end
 
     def pack_for_local
-      [@vendor_version, @vendor_id, @encryption_strength, @compression_method].pack('va2Cv')
+      [@vendor_version, @vendor_id,
+       @encryption_strength, @compression_method].pack('va2Cv')
     end
 
     def pack_for_c_dir
