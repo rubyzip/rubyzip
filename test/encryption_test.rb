@@ -4,8 +4,12 @@ require 'test_helper'
 
 class EncryptionTest < MiniTest::Test
   ENCRYPT_ZIP_TEST_FILE = 'test/data/zipWithEncryption.zip'
+  AES_128_ZIP_TEST_FILE = 'test/data/zip-aes-128.zip'
+  AES_256_ZIP_TEST_FILE = 'test/data/zip-aes-256.zip'
   INPUT_FILE1 = 'test/data/file1.txt'
   INPUT_FILE2 = 'test/data/file2.txt'
+  INPUT_FILE3 = 'test/data/zip-aes-128.txt'
+  INPUT_FILE4 = 'test/data/zip-aes-256.txt'
 
   def setup
     Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
@@ -63,6 +67,34 @@ class EncryptionTest < MiniTest::Test
       assert_equal 'file2.txt', entry.name
       assert_equal 41_234, entry.size
       assert_equal ::File.read(INPUT_FILE2), zis.read
+    end
+  end
+
+  def test_aes_128_decrypt
+    Zip::InputStream.open(
+      AES_128_ZIP_TEST_FILE,
+      decrypter: Zip::AESDecrypter.new('password', Zip::AESEncryption::STRENGTH_128_BIT)
+    ) do |zis|
+      entry = zis.get_next_entry
+      assert_equal 'a', entry.name
+      assert_equal 1, entry.size
+      assert_equal ::File.read(INPUT_FILE3), zis.read
+    end
+  end
+
+  def test_aes_256_decrypt
+    Zip::InputStream.open(
+      AES_256_ZIP_TEST_FILE,
+      decrypter: Zip::AESDecrypter.new('password', Zip::AESEncryption::STRENGTH_256_BIT)
+    ) do |zis|
+      entry = zis.get_next_entry
+      assert_equal 'a', entry.name
+      assert_equal 0, entry.size
+      assert_equal '', zis.read
+      entry = zis.get_next_entry
+      assert_equal 'b', entry.name
+      assert_equal 1, entry.size
+      assert_equal ::File.read(INPUT_FILE4), zis.read
     end
   end
 end
