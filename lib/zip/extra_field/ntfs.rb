@@ -51,7 +51,7 @@ module Zip
       # reserved 0 and tag 1
       s = [0, 1].pack('Vv')
 
-      tag1 = ''.force_encoding(Encoding::BINARY)
+      tag1 = ''.b
       if @mtime
         tag1 << [to_ntfs_time(@mtime)].pack('Q<')
         if @atime
