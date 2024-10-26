@@ -1,5 +1,21 @@
 # 3.0.0 (Next)
 
+- Fix `File#write_buffer` to always return the given `io`.
+- Add `Entry#absolute_time?` and `DOSTime#absolute_time?` methods.
+- Use explicit named parameters for `File` methods.
+- Ensure that entries can be extracted safely without path traversal. [#540](https://github.com/rubyzip/rubyzip/issues/540)
+- Enable Zip64 by default.
+- Rename `GPFBit3Error` to `StreamingError`.
+- Ensure that `Entry.ftype` is correct via `InputStream`. [#533](https://github.com/rubyzip/rubyzip/issues/533)
+- Add `Entry#zip64?` as a better way detect Zip64 entries.
+- Implement `Zip::FileSystem::ZipFsFile#symlink?`.
+- Remove `File::add_buffer` from the API.
+- Fix `OutputStream#put_next_entry` to preserve `StreamableStream`s. [#503](https://github.com/rubyzip/rubyzip/issues/503)
+- Ensure `File.open_buffer` doesn't rewrite unchanged data.
+- Add `CentralDirectory#count_entries` and `File::count_entries`.
+- Fix reading unknown extra fields. [#505](https://github.com/rubyzip/rubyzip/issues/505)
+- Fix reading zip files with max length file comment. [#508](https://github.com/rubyzip/rubyzip/issues/508)
+- Fix reading zip64 files with max length file comment. [#509](https://github.com/rubyzip/rubyzip/issues/509)
 - Don't silently alter zip files opened with `Zip::sort_entries`. [#329](https://github.com/rubyzip/rubyzip/issues/329)
 - Use named parameters for optional arguments in the public API.
 - Raise an error if entry names exceed 65,535 characters. [#247](https://github.com/rubyzip/rubyzip/issues/247)
@@ -23,6 +39,13 @@
 
 Tooling/internal:
 
+- Only use the Zip64 CDIR end locator if needed.
+- Prevent unnecessary Zip64 data being stored.
+- Abstract marking various things as 'dirty' into `Dirtyable` for reuse.
+- Properly test `File#mkdir`.
+- Remove unused private method `File#directory?`.
+- Expose the `EntrySet` more cleanly through `CentralDirectory`.
+- `Zip::File` no longer subclasses `Zip::CentralDirectory`.
 - Configure Coveralls to not report a failure on minor decreases of test coverage. [#491](https://github.com/rubyzip/rubyzip/issues/491)
 - Extract the file splitting code out into its own module.
 - Refactor, and tidy up, the `Zip::Filesystem` classes for improved maintainability.
