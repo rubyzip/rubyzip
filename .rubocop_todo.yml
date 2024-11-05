@@ -13,6 +13,7 @@ Gemspec/DevelopmentDependencies:
 Lint/MissingSuper:
   Exclude:
     - 'lib/zip/extra_field.rb'
+    - 'lib/zip/extra_field/aes.rb'
     - 'lib/zip/extra_field/ntfs.rb'
     - 'lib/zip/extra_field/old_unix.rb'
     - 'lib/zip/extra_field/universal_time.rb'
@@ -60,6 +61,7 @@ Naming/AccessorMethodName:
 Style/ClassAndModuleChildren:
   Exclude:
     - 'lib/zip/extra_field/generic.rb'
+    - 'lib/zip/extra_field/aes.rb'
     - 'lib/zip/extra_field/ntfs.rb'
     - 'lib/zip/extra_field/old_unix.rb'
     - 'lib/zip/extra_field/universal_time.rb'
