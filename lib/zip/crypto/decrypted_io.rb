@@ -18,7 +18,7 @@ module Zip
         buffer << produce_input
       end
 
-      outbuf.replace(buffer.slice!(0...(length || output_buffer.bytesize)))
+      outbuf.replace(buffer.slice!(0...(length || buffer.bytesize)))
     end
 
     private
