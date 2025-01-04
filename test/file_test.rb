@@ -139,10 +139,6 @@ class ZipFileTest < MiniTest::Test
 
     zf = ::Zip::File.open_buffer(string_io)
     assert zf.entries.map(&:name).include?('zippedruby1.rb')
-
-    # Ensure the buffer isn't changed.
-    assert_same string_io, zf.write_buffer(string_io)
-    assert_equal(data, string_io.string)
   end
 
   def test_open_buffer_no_op_does_not_change_file
@@ -512,6 +508,25 @@ class ZipFileTest < MiniTest::Test
     zf_read.close
 
     zf.close
+  end
+
+  def test_always_write_buffer
+    new_name = 'renamedFirst'
+    zf = ::Zip::File.new(TEST_ZIP.zip_name)
+    old_name = zf.entries.first
+    zf.rename(old_name, new_name)
+    io = ::StringIO.new
+    buffer = zf.write_buffer(io)
+    io.rewind
+
+    other_io = StringIO.new
+    Zip::File.open_buffer(io.string) do |z|
+      z.write_buffer(other_io)
+    end
+    other_io.rewind
+
+    assert_equal io.size, other_io.size
+    assert_equal io.string, other_io.string
   end
 
   # This test tests that after commit, you
