@@ -25,7 +25,7 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-        rubygems: '3.2.3'
+        rubygems: '3.5.23'
         bundler-cache: true
 
     - name: Run the tests
