@@ -1,6 +1,6 @@
 # X.X.X (Next)
 
-# 2.4
+# 2.4 (2025-01-04)
 
 - Ensure compatibility with `--enable-frozen-string-literal`.
 - Ensure `File.open_buffer` doesn't rewrite unchanged data. This is a backport of the fix on the 3.x branch.
@@ -11,6 +11,7 @@ Tooling:
 
 - Switch to using GitHub Actions (from Travis).
 - Update Rubocop versions and configuration.
+- Update actions with latest rubies.
 
 # 2.3.2 (2021-07-05)
 
