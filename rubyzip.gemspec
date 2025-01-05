@@ -16,11 +16,12 @@ Gem::Specification.new do |s|
   s.require_paths         = ['lib']
   s.license               = 'BSD 2-Clause'
   s.metadata              = {
-    'bug_tracker_uri'   => 'https://github.com/rubyzip/rubyzip/issues',
-    'changelog_uri'     => "https://github.com/rubyzip/rubyzip/blob/v#{s.version}/Changelog.md",
-    'documentation_uri' => "https://www.rubydoc.info/gems/rubyzip/#{s.version}",
-    'source_code_uri'   => "https://github.com/rubyzip/rubyzip/tree/v#{s.version}",
-    'wiki_uri'          => 'https://github.com/rubyzip/rubyzip/wiki'
+    'bug_tracker_uri'       => 'https://github.com/rubyzip/rubyzip/issues',
+    'changelog_uri'         => "https://github.com/rubyzip/rubyzip/blob/v#{s.version}/Changelog.md",
+    'documentation_uri'     => "https://www.rubydoc.info/gems/rubyzip/#{s.version}",
+    'source_code_uri'       => "https://github.com/rubyzip/rubyzip/tree/v#{s.version}",
+    'wiki_uri'              => 'https://github.com/rubyzip/rubyzip/wiki',
+    'rubygems_mfa_required' => 'true'
   }
   s.required_ruby_version = '>= 2.4'
   s.add_development_dependency 'minitest', '~> 5.4'
