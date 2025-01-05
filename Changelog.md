@@ -1,6 +1,6 @@
 # X.X.X (Next)
 
-# 2.4 (2025-01-04)
+# 2.4.0 (2025-01-05)
 
 - Ensure compatibility with `--enable-frozen-string-literal`.
 - Ensure `File.open_buffer` doesn't rewrite unchanged data. This is a backport of the fix on the 3.x branch.

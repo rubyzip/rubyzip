@@ -1,6 +1,12 @@
 require 'test_helper'
 
 class ConstantsTest < MiniTest::Test
+  def test_version_number_format
+    # Should at least start with MAJoR.MINOR.PATCH, but
+    # allow for additional version information after that.
+    assert_match(/\A\d+\.\d+\.\d+/, Zip::VERSION)
+  end
+
   def test_compression_methods
     assert_equal(0, Zip::COMPRESSION_METHOD_STORE)
     assert_equal(1, Zip::COMPRESSION_METHOD_SHRINK)
