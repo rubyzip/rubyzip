@@ -1,6 +1,16 @@
 # X.X.X (Next)
 
-# 2.4.0 (2025-01-05)
+# 2.4.1 (2025-01-05)
+
+*This is a re-release of version 2.4 with a full version number string. We need to move to version 2.4.1 due to the canonical version number 2.4 now being taken in Rubygems.*
+
+Tooling:
+
+- Opt-in for MFA requirement explicitly on 2.4 branch.
+
+# 2.4 (2025-01-04) - Yanked
+
+*Yanked due to incorrect version number format (2.4 vs 2.4.0).*
 
 - Ensure compatibility with `--enable-frozen-string-literal`.
 - Ensure `File.open_buffer` doesn't rewrite unchanged data. This is a backport of the fix on the 3.x branch.
