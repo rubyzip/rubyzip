@@ -61,6 +61,29 @@ Tooling/internal:
 - Update rubocop again and run it in CI. [#444](https://github.com/rubyzip/rubyzip/pull/444)
 - Fix a test that was incorrect on big-endian architectures. [#445](https://github.com/rubyzip/rubyzip/pull/445)
 
+# 2.4.1 (2025-01-05)
+
+*This is a re-release of version 2.4 with a full version number string. We need to move to version 2.4.1 due to the canonical version number 2.4 now being taken in Rubygems.*
+
+Tooling:
+
+- Opt-in for MFA requirement explicitly on 2.4 branch.
+
+# 2.4 (2025-01-04) - Yanked
+
+*Yanked due to incorrect version number format (2.4 vs 2.4.0).*
+
+- Ensure compatibility with `--enable-frozen-string-literal`.
+- Ensure `File.open_buffer` doesn't rewrite unchanged data. This is a backport of the fix on the 3.x branch.
+- Enable use of the version 3 calling style (mainly named parameters) wherever possible, while retaining version 2.x compatibility.
+- Add (switchable) warning messages to methods that are changed or removed in version 3.x.
+
+Tooling:
+
+- Switch to using GitHub Actions (from Travis).
+- Update Rubocop versions and configuration.
+- Update actions with latest rubies.
+
 # 2.3.2 (2021-07-05)
 
 - A "dummy" release to warn about breaking changes coming in version 3.0. This updated version uses the Gem `post_install_message` instead of printing to `STDERR`.
