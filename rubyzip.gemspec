@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 3.0'
 
   s.add_development_dependency 'minitest', '~> 5.22.0'
-  s.add_development_dependency 'rake', '~> 13.1.0'
+  s.add_development_dependency 'rake', '~> 13.2.0'
   s.add_development_dependency 'rdoc', '~> 6.6.2'
   s.add_development_dependency 'rubocop', '~> 1.61.0'
   s.add_development_dependency 'rubocop-performance', '~> 1.20.0'
