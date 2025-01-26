@@ -39,6 +39,11 @@
 
 Tooling/internal:
 
+- Update the README with new Ruby version compatability information.
+- Fix various issues with JRuby tests.
+- Update gem dependency versions.
+- Add Ruby 3.4 to the CI.
+- Fix mispelled variable names in the crypto classes.
 - Only use the Zip64 CDIR end locator if needed.
 - Prevent unnecessary Zip64 data being stored.
 - Abstract marking various things as 'dirty' into `Dirtyable` for reuse.
