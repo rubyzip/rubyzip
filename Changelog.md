@@ -1,5 +1,6 @@
 # 3.0.0 (Next)
 
+- Fix de facto regression for input streams.
 - Fix `File#write_buffer` to always return the given `io`.
 - Add `Entry#absolute_time?` and `DOSTime#absolute_time?` methods.
 - Use explicit named parameters for `File` methods.
@@ -39,6 +40,7 @@
 
 Tooling/internal:
 
+- Add a test to ensure correct version number format.
 - Update the README with new Ruby version compatability information.
 - Fix various issues with JRuby tests.
 - Update gem dependency versions.
