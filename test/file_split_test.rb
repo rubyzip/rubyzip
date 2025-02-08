@@ -5,6 +5,7 @@ require 'test_helper'
 class ZipFileSplitTest < MiniTest::Test
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
   TEST_ZIP.zip_name = 'large_zip_file.zip'
+  TEST_ZIP_FIRST_SEGMENT = 'large_zip_file.zip.001'
   EXTRACTED_FILENAME = 'test/data/generated/extEntrySplit'
   UNSPLITTED_FILENAME = 'test/data/generated/unsplitted.zip'
   ENTRY_TO_EXTRACT = TEST_ZIP.entry_names.first
@@ -57,6 +58,14 @@ class ZipFileSplitTest < MiniTest::Test
       assert(File.exist?(EXTRACTED_FILENAME))
       AssertEntry.assert_contents(EXTRACTED_FILENAME,
                                   entry.get_input_stream(&:read))
+    end
+  end
+
+  def test_raise_error_on_open_split_zip
+    ::Zip::File.split(TEST_ZIP.zip_name, segment_size: 65_536, delete_original: false)
+
+    assert_raises(::Zip::SplitArchiveError) do
+      ::Zip::InputStream.open(TEST_ZIP_FIRST_SEGMENT, &:get_next_entry)
     end
   end
 end

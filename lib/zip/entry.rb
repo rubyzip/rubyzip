@@ -113,7 +113,7 @@ module Zip
     end
 
     def incomplete? # :nodoc:
-      gp_flags & 8 == 8
+      (gp_flags & 8 == 8) && (crc == 0 || size == 0 || compressed_size == 0)
     end
 
     # The uncompressed size of the entry.
@@ -343,23 +343,24 @@ module Zip
 
     def read_local_entry(io) # :nodoc:
       @dirty = false # No changes at this point.
-      @local_header_offset = io.tell
+      current_offset = io.tell
 
-      static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
+      read_local_header_fields(io)
 
-      unless static_sized_fields_buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
-        raise Error, 'Premature end of file. Not enough data for zip entry local header'
+      if @header_signature == SPLIT_FILE_SIGNATURE
+        raise SplitArchiveError if current_offset.zero?
+
+        # Rewind, skipping the data descriptor, then try to read the local header again.
+        current_offset += 16
+        io.seek(current_offset)
+        read_local_header_fields(io)
       end
-
-      unpack_local_entry(static_sized_fields_buf)
 
       unless @header_signature == LOCAL_ENTRY_SIGNATURE
-        if @header_signature == SPLIT_FILE_SIGNATURE
-          raise SplitArchiveError
-        end
-
-        raise Error, "Zip local header magic not found at location '#{local_header_offset}'"
+        raise Error, "Zip local header magic not found at location '#{current_offset}'"
       end
+
+      @local_header_offset = current_offset
 
       set_time(@last_mod_date, @last_mod_time)
 
@@ -720,6 +721,16 @@ module Zip
     end
 
     private
+
+    def read_local_header_fields(io) # :nodoc:
+      static_sized_fields_buf = io.read(::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH) || ''
+
+      unless static_sized_fields_buf.bytesize == ::Zip::LOCAL_ENTRY_STATIC_HEADER_LENGTH
+        raise Error, 'Premature end of file. Not enough data for zip entry local header'
+      end
+
+      unpack_local_entry(static_sized_fields_buf)
+    end
 
     def set_time(binary_dos_date, binary_dos_time)
       @time = ::Zip::DOSTime.parse_binary_dos_format(binary_dos_date, binary_dos_time)
