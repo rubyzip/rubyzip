@@ -1,4 +1,4 @@
-# 3.0.0 (Next)
+# 3.0.0 (2025-07-28)
 
 - Fix de facto regression for input streams.
 - Fix `File#write_buffer` to always return the given `io`.
@@ -40,6 +40,7 @@
 
 Tooling/internal:
 
+- No longer test setting `$\` in tests.
 - Add a test to ensure correct version number format.
 - Update the README with new Ruby version compatability information.
 - Fix various issues with JRuby tests.

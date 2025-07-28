@@ -394,10 +394,10 @@ Rubyzip 2.3 is known to work on MRI 2.4 to 3.4 on Linux and Mac, and JRuby and T
 
 Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 
-| OS/Ruby | 3.0 | 3.1 | 3.2 | 3.3 | 3.4 | Head | JRuby 9.4.9.0 | JRuby Head | Truffleruby 24.1.1 | Truffleruby Head |
+| OS/Ruby | 3.0 | 3.1 | 3.2 | 3.3 | 3.4 | Head | JRuby 10.0.1.0 | JRuby Head | Truffleruby 24.2.1 | Truffleruby Head |
 |---------|-----|-----|-----|-----|-----|------|---------------|------------|--------------------|------------------|
-|Ubuntu 22.04| CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
-|Mac OS 14.7.2| CI | CI | CI | CI | CI | ci | x |  | x |  |
+|Ubuntu 24.04| CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
+|Mac OS 14.7.6| CI | CI | CI | CI | CI | ci | x |  | x |  |
 |Windows Server 2022| CI |  |  |  | CI&nbsp;mswin</br>CI&nbsp;ucrt |  |  |  |  |  |
 
 Key: `CI` - tested in CI, should work; `ci` - tested in CI, might fail; `x` - known working; `o` - known failing.
