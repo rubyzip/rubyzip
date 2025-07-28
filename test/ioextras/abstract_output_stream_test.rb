@@ -21,12 +21,6 @@ class AbstractOutputStreamTest < MiniTest::Test
 
   def setup
     @output_stream = TestOutputStream.new
-
-    @save_output_sep = $OUTPUT_RECORD_SEPARATOR
-  end
-
-  def teardown
-    $OUTPUT_RECORD_SEPARATOR = @save_output_sep
   end
 
   def test_write
@@ -42,7 +36,6 @@ class AbstractOutputStreamTest < MiniTest::Test
   end
 
   def test_print
-    $OUTPUT_RECORD_SEPARATOR = nil # record separator set to nil
     @output_stream.print('hello')
     assert_equal('hello', @output_stream.buffer)
 
@@ -52,14 +45,6 @@ class AbstractOutputStreamTest < MiniTest::Test
     @output_stream.print(' You ok ', 'out ', 'there?')
     assert_equal('hello world. You ok out there?', @output_stream.buffer)
 
-    $OUTPUT_RECORD_SEPARATOR = "\n"
-    @output_stream.print
-    assert_equal("hello world. You ok out there?\n", @output_stream.buffer)
-
-    @output_stream.print('I sure hope so!')
-    assert_equal("hello world. You ok out there?\nI sure hope so!\n", @output_stream.buffer)
-
-    $OUTPUT_RECORD_SEPARATOR = nil
     @output_stream.buffer = +''
     @output_stream.print(20)
     assert_equal('20', @output_stream.buffer)
