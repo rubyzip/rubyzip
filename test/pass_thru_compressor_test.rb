@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require_relative 'helpers/crc_tests'
 
 class PassThruCompressorTest < Minitest::Test
   include CrcTests

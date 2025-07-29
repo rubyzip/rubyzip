@@ -3,6 +3,8 @@
 require 'fileutils'
 
 require 'test_helper'
+require_relative 'helpers/assert_entry'
+require_relative 'helpers/common_zipfile_fixtures'
 
 class ZipFileExtractTest < Minitest::Test
   include CommonZipFileFixture

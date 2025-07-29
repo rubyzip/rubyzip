@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'assert_entry'
+
 module CommonZipFileFixture
   include AssertEntry
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require_relative 'helpers/crc_tests'
 
 class DeflaterTest < Minitest::Test
   include CrcTests

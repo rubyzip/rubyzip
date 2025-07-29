@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require_relative 'helpers/assert_entry'
 
 class BasicZipFileTest < Minitest::Test
   include AssertEntry

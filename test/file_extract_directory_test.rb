@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require_relative 'helpers/common_zipfile_fixtures'
 
 class ZipFileExtractDirectoryTest < Minitest::Test
   include CommonZipFileFixture
