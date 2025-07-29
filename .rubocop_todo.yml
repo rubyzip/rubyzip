@@ -122,4 +122,4 @@ Style/SafeNavigation:
     - 'test/file_extract_test.rb'
     - 'test/filesystem/file_nonmutating_test.rb'
     - 'test/filesystem/file_stat_test.rb'
-    - 'test/test_helper.rb'
+    - 'test/helpers/assert_entry.rb'

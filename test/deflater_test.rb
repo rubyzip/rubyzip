@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class DeflaterTest < Minitest::Test
-  include CrcTest
+  include CrcTests
 
   DEFLATER_TEST_FILE = 'test/data/generated/deflatertest.bin'
   BEST_COMP_FILE = 'test/data/generated/compressiontest_best_compression.bin'

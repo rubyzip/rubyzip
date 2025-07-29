@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class PassThruCompressorTest < Minitest::Test
-  include CrcTest
+  include CrcTests
 
   def test_size
     File.open('test/data/generated/dummy.txt', 'wb') do |file|
