@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipCentralDirectoryEntryTest < MiniTest::Test
+class ZipCentralDirectoryEntryTest < Minitest::Test
   def test_read_from_stream
     File.open('test/data/testDirectory.bin', 'rb') do |file|
       entry = ::Zip::Entry.read_c_dir_entry(file)

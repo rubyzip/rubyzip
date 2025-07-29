@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipSettingsTest < MiniTest::Test
+class ZipSettingsTest < Minitest::Test
   # TODO: Refactor out into common test module
   include CommonZipFileFixture
 

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipExtraFieldTest < MiniTest::Test
+class ZipExtraFieldTest < Minitest::Test
   def test_new
     extra_pure = ::Zip::ExtraField.new('')
     extra_withstr = ::Zip::ExtraField.new('foo')

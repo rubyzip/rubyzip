@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'zip/filesystem'
 
-class FileNonmutatingTest < MiniTest::Test
+class FileNonmutatingTest < Minitest::Test
   def setup
     @zipsha = Digest::SHA1.file('test/data/zipWithDirs.zip')
     @zip_file = ::Zip::File.new('test/data/zipWithDirs.zip')

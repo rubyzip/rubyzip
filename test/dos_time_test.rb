@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'zip/dos_time'
 
-class DOSTimeTest < MiniTest::Test
+class DOSTimeTest < Minitest::Test
   def setup
     @dos_time = Zip::DOSTime.new(2022, 1, 1, 12, 0, 0)
   end

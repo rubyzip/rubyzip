@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipOutputStreamTest < MiniTest::Test
+class ZipOutputStreamTest < Minitest::Test
   include AssertEntry
 
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone

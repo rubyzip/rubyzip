@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipCentralDirectoryTest < MiniTest::Test
+class ZipCentralDirectoryTest < Minitest::Test
   def teardown
     ::Zip.reset!
   end

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class StoredSupportTest < MiniTest::Test
+class StoredSupportTest < Minitest::Test
   STORED_ZIP_TEST_FILE = 'test/data/zipWithStoredCompression.zip'
   ENCRYPTED_STORED_ZIP_TEST_FILE =
     'test/data/zipWithStoredCompressionAndEncryption.zip'

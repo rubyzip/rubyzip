@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class BasicZipFileTest < MiniTest::Test
+class BasicZipFileTest < Minitest::Test
   include AssertEntry
 
   def setup

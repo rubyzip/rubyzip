@@ -5,7 +5,7 @@ require 'test_helper'
 # Test zip64 support for real by actually exceeding the 32-bit
 # size/offset limits. This test does not, of course, run with the
 # normal unit tests! ;)
-class Zip64FullTest < MiniTest::Test
+class Zip64FullTest < Minitest::Test
   HUGE_ZIP = 'huge.zip'
 
   def teardown

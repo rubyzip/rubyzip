@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-class PassThruDecompressorTest < MiniTest::Test
+class PassThruDecompressorTest < Minitest::Test
   include DecompressorTests
 
   def setup

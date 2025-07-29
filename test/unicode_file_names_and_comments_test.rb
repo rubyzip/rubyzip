@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipUnicodeFileNamesAndComments < MiniTest::Test
+class ZipUnicodeFileNamesAndComments < Minitest::Test
   FILENAME = File.join(File.dirname(__FILE__), 'test1.zip')
 
   def teardown

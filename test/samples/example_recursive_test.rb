@@ -4,7 +4,7 @@ require 'test_helper'
 require 'fileutils'
 require_relative '../../samples/example_recursive'
 
-class ExampleRecursiveTest < MiniTest::Test
+class ExampleRecursiveTest < Minitest::Test
   DIRECTORY_TO_ZIP  = 'test/data/globTest'
   OUTPUT_DIRECTORY  = 'test/data/example_recursive.zip'
   TEMP_DIRECTORY    = 'test/data/tmp'

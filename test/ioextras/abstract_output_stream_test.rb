@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'zip/ioextras'
 
-class AbstractOutputStreamTest < MiniTest::Test
+class AbstractOutputStreamTest < Minitest::Test
   class TestOutputStream
     include ::Zip::IOExtras::AbstractOutputStream
 

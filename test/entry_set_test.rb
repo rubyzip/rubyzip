@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipEntrySetTest < MiniTest::Test
+class ZipEntrySetTest < Minitest::Test
   ZIP_ENTRIES = [
     ::Zip::Entry.new('zipfile.zip', 'name1', comment: 'comment1'),
     ::Zip::Entry.new('zipfile.zip', 'name3', comment: 'comment1'),

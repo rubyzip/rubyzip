@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class DeflaterTest < MiniTest::Test
+class DeflaterTest < Minitest::Test
   include CrcTest
 
   DEFLATER_TEST_FILE = 'test/data/generated/deflatertest.bin'

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class PathTraversalTest < MiniTest::Test
+class PathTraversalTest < Minitest::Test
   TEST_FILE_ROOT = File.absolute_path('test/data/path_traversal')
 
   def setup

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class AESDecrypterTest < MiniTest::Test
+class AESDecrypterTest < Minitest::Test
   def setup
     @decrypter256 = ::Zip::AESDecrypter.new('password', ::Zip::AESEncryption::STRENGTH_256_BIT)
     @decrypter128 = ::Zip::AESDecrypter.new('password', ::Zip::AESEncryption::STRENGTH_128_BIT)

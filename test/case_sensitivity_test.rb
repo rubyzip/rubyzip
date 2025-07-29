@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipCaseSensitivityTest < MiniTest::Test
+class ZipCaseSensitivityTest < Minitest::Test
   include CommonZipFileFixture
 
   SRC_FILES = [

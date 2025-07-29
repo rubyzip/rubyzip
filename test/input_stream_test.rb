@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipInputStreamTest < MiniTest::Test
+class ZipInputStreamTest < Minitest::Test
   include AssertEntry
 
   class IOLike

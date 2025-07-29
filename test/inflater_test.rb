@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-class InflaterTest < MiniTest::Test
+class InflaterTest < Minitest::Test
   include DecompressorTests
 
   def setup

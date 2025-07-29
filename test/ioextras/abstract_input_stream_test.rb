@@ -3,7 +3,7 @@
 require 'test_helper'
 require 'zip/ioextras'
 
-class AbstractInputStreamTest < MiniTest::Test
+class AbstractInputStreamTest < Minitest::Test
   # AbstractInputStream subclass that provides a read method
 
   TEST_LINES = [

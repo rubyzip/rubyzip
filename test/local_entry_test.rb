@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipLocalEntryTest < MiniTest::Test
+class ZipLocalEntryTest < Minitest::Test
   CEH_FILE = 'test/data/generated/centralEntryHeader.bin'
   LEH_FILE = 'test/data/generated/localEntryHeader.bin'
 

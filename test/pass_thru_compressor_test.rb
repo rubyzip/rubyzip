@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class PassThruCompressorTest < MiniTest::Test
+class PassThruCompressorTest < Minitest::Test
   include CrcTest
 
   def test_size

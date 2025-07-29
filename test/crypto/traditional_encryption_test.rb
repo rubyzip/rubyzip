@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class TraditionalEncrypterTest < MiniTest::Test
+class TraditionalEncrypterTest < Minitest::Test
   def setup
     @mtime = ::Zip::DOSTime.new(2014, 12, 17, 15, 56, 24)
     @encrypter = ::Zip::TraditionalEncrypter.new('password')
@@ -48,7 +48,7 @@ class TraditionalEncrypterTest < MiniTest::Test
   end
 end
 
-class TraditionalDecrypterTest < MiniTest::Test
+class TraditionalDecrypterTest < Minitest::Test
   def setup
     @decrypter = ::Zip::TraditionalDecrypter.new('password')
   end

@@ -4,7 +4,7 @@ require 'fileutils'
 
 require 'test_helper'
 
-class ZipFileTest < MiniTest::Test
+class ZipFileTest < Minitest::Test
   include CommonZipFileFixture
   include ZipEntryData
 

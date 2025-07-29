@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'simplecov'
 require 'minitest/autorun'
-require 'minitest/unit'
 require 'fileutils'
 require 'tmpdir'
 require 'digest/sha1'
@@ -12,9 +10,11 @@ require 'gentestfiles'
 TestFiles.create_test_files
 TestZipFile.create_test_zips
 
-MiniTest.after_run do
+Minitest.after_run do
   FileUtils.rm_rf('test/data/generated')
 end
+
+Minitest::Test.make_my_diffs_pretty!
 
 module DecompressorTests
   # expects @ref_text, @ref_lines and @decompressor

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipExtraFieldUnknownTest < MiniTest::Test
+class ZipExtraFieldUnknownTest < Minitest::Test
   def test_new
     extra = ::Zip::ExtraField::Unknown.new
     assert_empty(extra.to_c_dir_bin)

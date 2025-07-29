@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ZipEntryTest < MiniTest::Test
+class ZipEntryTest < Minitest::Test
   include ZipEntryData
 
   def teardown
