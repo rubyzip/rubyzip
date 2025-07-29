@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
 
 class Zip64SupportTest < Minitest::Test
   TEST_FILE = File.join(File.dirname(__FILE__), 'data', 'zip64-sample.zip')

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
+
 class DecompressorTest < Minitest::Test
   TEST_COMPRESSION_METHOD = 255
 

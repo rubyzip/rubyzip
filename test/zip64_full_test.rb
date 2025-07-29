@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
 
 # Test zip64 support for real by actually exceeding the 32-bit
 # size/offset limits. This test does not, of course, run with the

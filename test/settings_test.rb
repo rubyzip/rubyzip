@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
 require_relative 'helpers/common_zipfile_fixtures'
 
 class ZipSettingsTest < Minitest::Test

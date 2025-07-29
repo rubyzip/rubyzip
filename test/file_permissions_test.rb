@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
 
 class FilePermissionsTest < Minitest::Test
   ZIPNAME = File.join(File.dirname(__FILE__), 'umask.zip')

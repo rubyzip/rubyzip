@@ -2,7 +2,7 @@
 
 require 'fileutils'
 
-require 'test_helper'
+require_relative 'test_helper'
 require_relative 'helpers/assert_entry'
 require_relative 'helpers/common_zipfile_fixtures'
 require_relative 'helpers/zip_entry_data'

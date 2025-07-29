@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative '../test_helper'
+
 require 'zip/ioextras'
 
 class AbstractOutputStreamTest < Minitest::Test

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
 
 class ZipUnicodeFileNamesAndComments < Minitest::Test
   FILENAME = File.join(File.dirname(__FILE__), 'test1.zip')

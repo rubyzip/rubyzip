@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'test_helper'
+require_relative 'test_helper'
 
 class ZipCentralDirectoryEntryTest < Minitest::Test
   def test_read_from_stream
