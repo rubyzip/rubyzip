@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'minitest/autorun'
-require 'fileutils'
-require 'tmpdir'
-require 'digest/sha1'
 require 'zip'
 require 'gentestfiles'
 
