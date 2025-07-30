@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'zip/version'
 
 class VersionTest < MiniTest::Test
   def test_version
