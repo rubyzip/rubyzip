@@ -230,7 +230,7 @@ module Zip
       return false unless cleanpath.relative?
 
       root = ::File::SEPARATOR
-      naive = ::File.join(root, cleanpath.to_s)
+      naive = Regexp.escape(::File.join(root, cleanpath.to_s))
       # Allow for Windows drive mappings at the root.
       ::File.absolute_path(cleanpath.to_s, root).match?(/([A-Z]:)?#{naive}/i)
     end
