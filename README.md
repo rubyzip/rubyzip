@@ -386,11 +386,11 @@ You can set multiple settings at the same time by using a block:
 
 Rubyzip is known to run on a number of platforms and under a number of different Ruby versions.
 
-### Version 2.3.x
+### Version 2.4.x
 
-Rubyzip 2.3 is known to work on MRI 2.4 to 3.4 on Linux and Mac, and JRuby and Truffleruby on Linux. There are known issues with Windows which have been fixed on the development branch. Please [let us know](https://github.com/rubyzip/rubyzip/pulls) if you know Rubyzip 2.3 works on a platform/Ruby combination not listed here, or [raise an issue](https://github.com/rubyzip/rubyzip/issues) if you see a failure where we think it should work.
+Rubyzip 2.4 is known to work on MRI 2.4 to 3.4 on Linux and Mac, and JRuby and Truffleruby on Linux. There are known issues with Windows which have been fixed on the development branch. Please [let us know](https://github.com/rubyzip/rubyzip/pulls) if you know Rubyzip 2.4 works on a platform/Ruby combination not listed here, or [raise an issue](https://github.com/rubyzip/rubyzip/issues) if you see a failure where we think it should work.
 
-### Next (version 3.0.0)
+### Version 3.x
 
 Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 

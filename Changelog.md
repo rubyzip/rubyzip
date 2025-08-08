@@ -1,3 +1,10 @@
+# 3.0.1 (2025-08-08)
+
+- Restore `Zip::File`'s `Enumerable` status. [#641](https://github.com/rubyzip/rubyzip/issues/641)
+- Escape filename pattern when matching in `Entry#name_safe?`. [#639](https://github.com/rubyzip/rubyzip/pull/639)
+- Eagerly require gem version. [#637](https://github.com/rubyzip/rubyzip/pull/637)
+- Fix direct `require` of `Entry` by requiring `constants`. [#636](https://github.com/rubyzip/rubyzip/pull/636)
+
 # 3.0.0 (2025-07-28)
 
 - Fix de facto regression for input streams.
