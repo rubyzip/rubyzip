@@ -49,6 +49,7 @@ module Zip
   # Zip::FileSystem offers an alternative API that emulates ruby's
   # interface for accessing the filesystem, ie. the ::File and ::Dir classes.
   class File
+    include Enumerable
     extend Forwardable
     extend FileSplit
 
