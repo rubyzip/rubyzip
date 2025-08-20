@@ -14,10 +14,12 @@ module Zip
 
       def print(*params)
         self << params.join << $OUTPUT_RECORD_SEPARATOR.to_s
+        nil
       end
 
       def printf(a_format_string, *params)
         self << format(a_format_string, *params)
+        nil
       end
 
       def putc(an_object)
