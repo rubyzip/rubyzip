@@ -146,6 +146,48 @@ class ZipOutputStreamTest < MiniTest::Test
     end
   end
 
+  def test_print_deflated
+    buffer = Zip::OutputStream.write_buffer do |zos|
+      zos.put_next_entry('print_test')
+      output = zos.print 'hello,', ' world'
+      assert_nil(output)
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('print_test', entry.name)
+      assert_equal('hello, world', zis.read)
+    end
+  end
+
+  def test_printf_deflated
+    buffer = Zip::OutputStream.write_buffer do |zos|
+      zos.put_next_entry('printf_test')
+      output = zos.printf('hello, %s', 'world')
+      assert_nil(output)
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('printf_test', entry.name)
+      assert_equal('hello, world', zis.read)
+    end
+  end
+
+  def test_write_deflated
+    buffer = Zip::OutputStream.write_buffer do |zos|
+      zos.put_next_entry('write_test')
+      output = zos.write 'hello, world'
+      assert_equal(12, output)
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      assert_equal('hello, world', zis.read)
+    end
+  end
+
   def assert_i_o_error_in_closed_stream
     assert_raises(IOError) do
       zos = ::Zip::OutputStream.new('test/data/generated/test_putOnClosedStream.zip')
