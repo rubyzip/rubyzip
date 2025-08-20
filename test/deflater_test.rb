@@ -14,6 +14,15 @@ class DeflaterTest < MiniTest::Test
     Zip.reset!
   end
 
+  # Remove this test when JRuby#3962 is fixed.
+  def test_deflate_strategy
+    if defined?(JRUBY_VERSION)
+      assert_equal(Zlib::SYNC_FLUSH, Zip::ZLIB_FLUSHING_STRATEGY)
+    else
+      assert_equal(Zlib::NO_FLUSH, Zip::ZLIB_FLUSHING_STRATEGY)
+    end
+  end
+
   def test_output_operator
     txt = load_file('test/data/file2.txt')
     deflate(txt, DEFLATER_TEST_FILE)

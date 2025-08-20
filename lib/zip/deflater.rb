@@ -15,7 +15,9 @@ module Zip
       val   = data.to_s
       @crc  = Zlib.crc32(val, @crc)
       @size += val.bytesize
-      buffer = @zlib_deflater.deflate(data, Zlib::SYNC_FLUSH)
+
+      # When JRuby#3962 is fixed, we can remove the flushing parameter here.
+      buffer = @zlib_deflater.deflate(data, Zip::ZLIB_FLUSHING_STRATEGY)
       return @output_stream if buffer.empty?
 
       @output_stream << @encrypter.encrypt(buffer)

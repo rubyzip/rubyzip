@@ -60,6 +60,10 @@ module Zip
     restore_times:       true
   }.freeze # :nodoc:
 
+  # :nodoc:
+  # Remove this when JRuby#3962 is fixed.
+  ZLIB_FLUSHING_STRATEGY = defined?(JRUBY_VERSION) ? Zlib::SYNC_FLUSH : Zlib::NO_FLUSH
+
   def reset! # :nodoc:
     @_ran_once = false
     @unicode_names = false
