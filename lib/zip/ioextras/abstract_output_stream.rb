@@ -13,7 +13,13 @@ module Zip
       end
 
       def print(*params)
-        self << params.join << $OUTPUT_RECORD_SEPARATOR.to_s
+        self << params.join
+
+        # Deflate doesn't like `nil`s or empty strings!
+        unless $OUTPUT_RECORD_SEPARATOR.nil? || $OUTPUT_RECORD_SEPARATOR.empty?
+          self << $OUTPUT_RECORD_SEPARATOR
+        end
+
         nil
       end
 
