@@ -256,4 +256,23 @@ class ZipInputStreamTest < MiniTest::Test
       assert(zis.eof?)
     end
   end
+
+  def test_sysread
+    Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      zis.get_next_entry
+
+      # Read with no buffer specified.
+      buffer = zis.sysread(20)
+      assert_equal("#!/usr/bin/env ruby\n", buffer)
+
+      # Read with a buffer specified.
+      buffer = +''
+      zis.sysread(17, buffer)
+      assert_equal("\n$VERBOSE = true\n", buffer)
+
+      # Read with no length specified. This should read the rest of the entry.
+      buffer = zis.sysread
+      assert_equal(123_665, buffer.bytesize)
+    end
+  end
 end
