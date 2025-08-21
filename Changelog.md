@@ -1,3 +1,10 @@
+# 3.0.2 (2025-08-21)
+
+- Fix `InputStream#sysread` to handle frozen string literals. [#643](https://github.com/rubyzip/rubyzip/pull/643)
+- Ensure that we don't flush too often when deflating. [#322](https://github.com/rubyzip/rubyzip/issues/322)
+- Stop `print` causing Zlib errors. [#642](https://github.com/rubyzip/rubyzip/issues/642)
+- Ensure that `print` and `printf` return `nil`.
+
 # 3.0.1 (2025-08-08)
 
 - Restore `Zip::File`'s `Enumerable` status. [#641](https://github.com/rubyzip/rubyzip/issues/641)
