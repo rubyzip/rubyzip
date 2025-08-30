@@ -6,10 +6,12 @@ class EncryptionTest < MiniTest::Test
   ENCRYPT_ZIP_TEST_FILE = 'test/data/zipWithEncryption.zip'
   AES_128_ZIP_TEST_FILE = 'test/data/zip-aes-128.zip'
   AES_256_ZIP_TEST_FILE = 'test/data/zip-aes-256.zip'
+  AES_KEKA_ZIP_TEST_FILE = 'test/data/aes-keka.zip'
   INPUT_FILE1 = 'test/data/file1.txt'
   INPUT_FILE2 = 'test/data/file2.txt'
   INPUT_FILE3 = 'test/data/zip-aes-128.txt'
   INPUT_FILE4 = 'test/data/zip-aes-256.txt'
+  INPUT_FILE5 = 'test/data/mimetype'
 
   def setup
     Zip.default_compression = ::Zlib::DEFAULT_COMPRESSION
@@ -95,6 +97,23 @@ class EncryptionTest < MiniTest::Test
       assert_equal 'b', entry.name
       assert_equal 1, entry.size
       assert_equal ::File.read(INPUT_FILE4), zis.read
+    end
+  end
+
+  def test_aes_decrypt_keka
+    Zip::InputStream.open(
+      AES_KEKA_ZIP_TEST_FILE,
+      decrypter: Zip::AESDecrypter.new('swordfish', Zip::AESEncryption::STRENGTH_256_BIT)
+    ) do |zis|
+      entry = zis.get_next_entry
+      assert_equal 'file2.txt', entry.name
+      assert_equal 41_234, entry.size
+      assert_equal ::File.read(INPUT_FILE2), zis.read
+
+      entry = zis.get_next_entry
+      assert_equal 'mimetype', entry.name
+      assert_equal 20, entry.size
+      assert_equal ::File.read(INPUT_FILE5), zis.read
     end
   end
 end
