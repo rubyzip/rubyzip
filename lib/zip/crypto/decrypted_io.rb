@@ -47,6 +47,8 @@ module Zip
 
     def produce_input
       chunk_size = [CHUNK_SIZE, @compressed_size - pos].min
+      return '' unless chunk_size.positive?
+
       @decrypter.decrypt(@io.read(chunk_size))
     end
   end
