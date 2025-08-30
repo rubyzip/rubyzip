@@ -81,6 +81,9 @@ module Zip
         idx += 1
       end
 
+      # JRuby requires finalization of the cipher. This is a bug, as noted in
+      # jruby/jruby-openssl#182 and jruby/jruby-openssl#183.
+      decrypted_data << @cipher.final if defined?(JRUBY_VERSION)
       decrypted_data
     end
 
