@@ -201,11 +201,11 @@ end
 
 Any attempt to move about in a zip file opened with `Zip::InputStream` could result in the incorrect entry being accessed and/or Zlib buffer errors. If you need random access in a zip file, use `Zip::File`.
 
-### Password Protection (Experimental)
+### Password Protection (experimental)
 
-Rubyzip supports reading/writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). AES encryption is not yet supported. It can be used with buffer streams, e.g.:
+Rubyzip supports reading zip files with AES encryption (version 3.1 and later), and reading and writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). Encryption is currently only available with the stream API, with either files or buffers, e.g.:
 
-#### Version 2.x
+#### Version 2.x (ZipCrypto only)
 
 ```ruby
 # Writing.
@@ -224,9 +224,17 @@ Zip::InputStream.open(buffer, 0, dec) do |input|
 end
 ```
 
-#### Version 3.x
+#### Version 3.x (AES reading and ZipCrypto read/write)
 
 ```ruby
+# Reading AES, version 3.1 and later.
+dec = Zip::AESDecrypter.new('password', Zip::AESEncryption::STRENGTH_256_BIT)
+Zip::InputStream.open('aes-encrypted-file.zip', decrypter: dec) do |input|
+  entry = input.get_next_entry
+  puts "Contents of '#{entry.name}':"
+  puts input.read
+end
+
 # Writing.
 enc = Zip::TraditionalEncrypter.new('password')
 buffer = Zip::OutputStream.write_buffer(encrypter: enc) do |output|
@@ -243,7 +251,7 @@ Zip::InputStream.open(buffer, decrypter: dec) do |input|
 end
 ```
 
-_This is an experimental feature and the interface for encryption may change in future versions._
+_This is an evolving feature and the interface for encryption may change in future versions._
 
 ## Known issues
 
