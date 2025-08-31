@@ -203,6 +203,7 @@ module Zip
       !@extra['Zip64'].nil?
     end
 
+    # Is this entry encrypted with AES encryption?
     def aes?
       !@extra['AES'].nil?
     end
