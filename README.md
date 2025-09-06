@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/rubyzip.svg)](http://badge.fury.io/rb/rubyzip)
 [![Tests](https://github.com/rubyzip/rubyzip/actions/workflows/tests.yml/badge.svg)](https://github.com/rubyzip/rubyzip/actions/workflows/tests.yml)
 [![Linter](https://github.com/rubyzip/rubyzip/actions/workflows/lint.yml/badge.svg)](https://github.com/rubyzip/rubyzip/actions/workflows/lint.yml)
-[![Code Climate](https://codeclimate.com/github/rubyzip/rubyzip.svg)](https://codeclimate.com/github/rubyzip/rubyzip)
+[![Maintainability](https://qlty.sh/gh/rubyzip/projects/rubyzip/maintainability.svg)](https://qlty.sh/gh/rubyzip/projects/rubyzip)
 [![Coverage Status](https://img.shields.io/coveralls/rubyzip/rubyzip.svg)](https://coveralls.io/r/rubyzip/rubyzip?branch=master)
 
 Rubyzip is a ruby library for reading and writing zip files.
