@@ -1,3 +1,11 @@
+# 3.1.0 (2025-09-06)
+
+- Support AES decryption. [#579](https://github.com/rubyzip/rubyzip/pull/579) and [#645](https://github.com/rubyzip/rubyzip/pull/645)
+
+Tooling/internal:
+
+- Add various useful zip specification documents to the repo for ease of finding them in the future. These are not included in the gem release.
+
 # 3.0.2 (2025-08-21)
 
 - Fix `InputStream#sysread` to handle frozen string literals. [#643](https://github.com/rubyzip/rubyzip/pull/643)
