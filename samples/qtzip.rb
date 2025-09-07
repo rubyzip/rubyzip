@@ -14,7 +14,7 @@ a = Qt::Application.new(ARGV)
 
 class ZipDialog < ZipDialogUI
   def initialize
-    super()
+    super
     connect(child('add_button'), SIGNAL('clicked()'),
             self, SLOT('add_files()'))
     connect(child('extract_button'), SIGNAL('clicked()'),

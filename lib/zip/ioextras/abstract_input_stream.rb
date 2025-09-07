@@ -117,11 +117,12 @@ module Zip
 
       alias each each_line
 
-      def eof
+      def eof?
         @output_buffer.empty? && input_finished?
       end
 
-      alias eof? eof
+      # Alias for compatibility. Remove for version 4.
+      alias eof eof?
     end
   end
 end

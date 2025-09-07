@@ -27,7 +27,7 @@ module Zip
 
       def unix_mode_cmp(filename, mode)
         e = find_entry(filename)
-        e.fstype == FSTYPE_UNIX && ((e.external_file_attributes >> 16) & mode) != 0
+        e.fstype == FSTYPE_UNIX && (e.external_file_attributes >> 16).anybits?(mode)
       rescue Errno::ENOENT
         false
       end
@@ -102,10 +102,11 @@ module Zip
         @mapped_zip.get_entry(filename).size
       end
 
-      # Returns nil for not found and nil for directories
+      # Returns nil for not found and nil for directories.
+      # We disable the cop here for compatibility with `::File.size?`.
       def size?(filename)
         entry = @mapped_zip.find_entry(filename)
-        entry.nil? || entry.directory? ? nil : entry.size
+        entry.nil? || entry.directory? ? nil : entry.size # rubocop:disable Style/ReturnNilInPredicateMethodDefinition
       end
 
       def chown(owner, group, *filenames)

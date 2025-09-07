@@ -3,7 +3,7 @@
 module Zip
   class StreamableStream < DelegateClass(Entry) # :nodoc:all
     def initialize(entry)
-      super(entry)
+      super
       @temp_file = Tempfile.new(::File.basename(name))
       @temp_file.binmode
     end

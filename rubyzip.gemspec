@@ -31,9 +31,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest', '~> 5.25'
   s.add_development_dependency 'rake', '~> 13.2'
   s.add_development_dependency 'rdoc', '~> 6.11'
-  s.add_development_dependency 'rubocop', '~> 1.61.0'
-  s.add_development_dependency 'rubocop-performance', '~> 1.20.0'
-  s.add_development_dependency 'rubocop-rake', '~> 0.6.0'
+  s.add_development_dependency 'rubocop', '~> 1.80.2'
+  s.add_development_dependency 'rubocop-performance', '~> 1.26.0'
+  s.add_development_dependency 'rubocop-rake', '~> 0.7.1'
   s.add_development_dependency 'simplecov', '~> 0.22.0'
   s.add_development_dependency 'simplecov-lcov', '~> 0.8'
 end

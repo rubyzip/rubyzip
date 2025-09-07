@@ -8,11 +8,12 @@ module Zip
       nil
     end
 
-    def eof
+    def eof?
       true
     end
 
-    alias eof? eof
+    # Alias for compatibility. Remove for version 4.
+    alias eof eof?
   end
 end
 

@@ -111,9 +111,9 @@ class ZipEntryTest < MiniTest::Test
   end
 
   def test_compare
-    assert_equal(0, (::Zip::Entry.new('zf.zip', 'a') <=> ::Zip::Entry.new('zf.zip', 'a')))
-    assert_equal(1, (::Zip::Entry.new('zf.zip', 'b') <=> ::Zip::Entry.new('zf.zip', 'a')))
-    assert_equal(-1, (::Zip::Entry.new('zf.zip', 'a') <=> ::Zip::Entry.new('zf.zip', 'b')))
+    assert_equal(0, ::Zip::Entry.new('zf.zip', 'a') <=> ::Zip::Entry.new('zf.zip', 'a'))
+    assert_equal(1, ::Zip::Entry.new('zf.zip', 'b') <=> ::Zip::Entry.new('zf.zip', 'a'))
+    assert_equal(-1, ::Zip::Entry.new('zf.zip', 'a') <=> ::Zip::Entry.new('zf.zip', 'b'))
 
     entries = [
       ::Zip::Entry.new('zf.zip', '5'),

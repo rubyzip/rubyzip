@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 
+require 'fileutils'
+
 require 'test_helper'
 
 class ZipFileExtractTest < MiniTest::Test
   include CommonZipFileFixture
+
   EXTRACTED_FILENAME = 'test/data/generated/extEntry'
   EXTRACTED_FILENAME_ABS = ::File.absolute_path(EXTRACTED_FILENAME)
   ENTRY_TO_EXTRACT, *REMAINING_ENTRIES = TEST_ZIP.entry_names.reverse
 
   def setup
     super
-    ::File.delete(EXTRACTED_FILENAME) if ::File.exist?(EXTRACTED_FILENAME)
+    FileUtils.rm_f(EXTRACTED_FILENAME)
   end
 
   def teardown

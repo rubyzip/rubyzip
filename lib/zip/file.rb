@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'fileutils'
 require 'forwardable'
 
 require_relative 'file_split'
@@ -98,7 +99,6 @@ module Zip
                restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
                restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
                compression_level: ::Zip.default_compression)
-
         zf = ::Zip::File.new(file_name, create:              create,
                                         restore_ownership:   restore_ownership,
                                         restore_permissions: restore_permissions,
@@ -123,7 +123,6 @@ module Zip
                       restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
                       restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
                       compression_level: ::Zip.default_compression)
-
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise 'Zip::File.open_buffer expects a String or IO-like argument' \
                 "(responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
@@ -191,7 +190,6 @@ module Zip
                           extra: nil, compressed_size: nil, crc: nil,
                           compression_method: nil, compression_level: nil,
                           size: nil, time: nil, &a_proc)
-
       new_entry =
         if entry.kind_of?(Entry)
           entry
@@ -412,7 +410,7 @@ module Zip
           ::File.chmod(@file_permissions, name) unless @create
         end
       ensure
-        ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
+        FileUtils.rm_f(tmp_filename)
       end
     end
   end

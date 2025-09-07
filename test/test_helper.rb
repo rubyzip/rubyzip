@@ -55,7 +55,7 @@ module AssertEntry
       expected = file.read
       actual = zis.read
       if expected != actual
-        if (expected && actual) && (expected.length > 400 || actual.length > 400)
+        if expected && actual && (expected.length > 400 || actual.length > 400)
           entry_filename = "#{entry_name}.zipEntry"
           File.open(entry_filename, 'wb') { |entryfile| entryfile << actual }
           raise("File '#{filename}' is different from '#{entry_filename}'")
