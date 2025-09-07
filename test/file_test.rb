@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'fileutils'
+
 require 'test_helper'
 
 class ZipFileTest < MiniTest::Test
@@ -513,7 +515,7 @@ class ZipFileTest < MiniTest::Test
 
   def test_rename_with_each
     zf_name = 'test_rename_zip.zip'
-    ::File.unlink(zf_name) if ::File.exist?(zf_name)
+    FileUtils.rm_f(zf_name)
     arr = []
     arr_renamed = []
     ::Zip::File.open(zf_name, create: true) do |zf|
@@ -537,7 +539,7 @@ class ZipFileTest < MiniTest::Test
     zf = ::Zip::File.open(zf_name)
     assert_equal(zf.entries.map(&:name), arr_renamed)
     zf.close
-    ::File.unlink(zf_name) if ::File.exist?(zf_name)
+    FileUtils.rm_f(zf_name)
   end
 
   def test_rename_to_existing_entry

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'fileutils'
+
 require 'test_helper'
 
 class FileOptionsTest < MiniTest::Test
@@ -18,12 +20,12 @@ class FileOptionsTest < MiniTest::Test
   EXTPATH_3 = ::File.join(Dir.tmpdir, EXTRACT_3).freeze
 
   def teardown
-    ::File.unlink(ZIPPATH) if ::File.exist?(ZIPPATH)
-    ::File.unlink(EXTPATH_1) if ::File.exist?(EXTPATH_1)
-    ::File.unlink(EXTPATH_2) if ::File.exist?(EXTPATH_2)
-    ::File.unlink(EXTPATH_3) if ::File.exist?(EXTPATH_3)
-    ::File.unlink(TXTPATH_600) if ::File.exist?(TXTPATH_600)
-    ::File.unlink(TXTPATH_755) if ::File.exist?(TXTPATH_755)
+    FileUtils.rm_f(ZIPPATH)
+    FileUtils.rm_f(EXTPATH_1)
+    FileUtils.rm_f(EXTPATH_2)
+    FileUtils.rm_f(EXTPATH_3)
+    FileUtils.rm_f(TXTPATH_600)
+    FileUtils.rm_f(TXTPATH_755)
   end
 
   def test_restore_permissions_true

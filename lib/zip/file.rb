@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'fileutils'
 require 'forwardable'
 
 require_relative 'file_split'
@@ -409,7 +410,7 @@ module Zip
           ::File.chmod(@file_permissions, name) unless @create
         end
       ensure
-        ::File.unlink(tmp_filename) if ::File.exist?(tmp_filename)
+        FileUtils.rm_f(tmp_filename)
       end
     end
   end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'fileutils'
+
 require 'test_helper'
 
 class ZipFileExtractTest < MiniTest::Test
@@ -11,7 +13,7 @@ class ZipFileExtractTest < MiniTest::Test
 
   def setup
     super
-    ::File.delete(EXTRACTED_FILENAME) if ::File.exist?(EXTRACTED_FILENAME)
+    FileUtils.rm_f(EXTRACTED_FILENAME)
   end
 
   def teardown
