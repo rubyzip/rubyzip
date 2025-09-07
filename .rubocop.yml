@@ -1,8 +1,13 @@
-require:
+plugins:
   - rubocop-performance
   - rubocop-rake
 
 inherit_from: .rubocop_todo.yml
+
+# When excluding files, use merge mode so we preserve default Rubocop config.
+inherit_mode:
+  merge:
+    - Exclude
 
 # Set this to the minimum supported ruby in the gemspec. Otherwise
 # we get errors if our ruby version doesn't match.
@@ -10,6 +15,8 @@ AllCops:
   SuggestExtensions: false
   TargetRubyVersion: 3.0
   NewCops: enable
+  Exclude:
+    - 'test/data/*'
 
 # Allow this in this file because adding the extra lines is pointless.
 Layout/EmptyLineBetweenDefs:
