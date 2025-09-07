@@ -102,10 +102,11 @@ class ZipEntrySetTest < MiniTest::Test
     assert_equal(ZIP_ENTRIES, @zip_entry_set.entries)
   end
 
+  # In this test we really are testing `#each`, hence the need to disable the cop.
   def test_entries_sorted_in_each
     ::Zip.sort_entries = true
     arr = []
-    @zip_entry_set.each do |entry|
+    @zip_entry_set.each do |entry| # rubocop:disable Style/MapIntoArray
       arr << entry
     end
     assert_equal(ZIP_ENTRIES.sort, arr)
@@ -113,7 +114,7 @@ class ZipEntrySetTest < MiniTest::Test
     # Ensure `each` above hasn't permanently altered the ordering.
     ::Zip.sort_entries = false
     arr = []
-    @zip_entry_set.each do |entry|
+    @zip_entry_set.each do |entry| # rubocop:disable Style/MapIntoArray
       arr << entry
     end
     assert_equal(ZIP_ENTRIES, arr)

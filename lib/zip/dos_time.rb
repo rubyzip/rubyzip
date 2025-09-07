@@ -21,7 +21,7 @@ module Zip
     def absolute_time?
       # If absolute time is not set, we can assume it is an absolute time
       # because times do have timezone information by default.
-      @absolute_time.nil? ? true : @absolute_time
+      @absolute_time.nil? || @absolute_time
     end
 
     def to_binary_dos_time

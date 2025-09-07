@@ -10,7 +10,7 @@ require 'zip'
 
 class MainApp < Gtk::Window
   def initialize
-    super()
+    super
     set_usize(400, 256)
     set_title('rubyzip')
     signal_connect(Gtk::Window::SIGNAL_DESTROY) { Gtk.main_quit }
