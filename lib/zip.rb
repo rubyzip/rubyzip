@@ -44,6 +44,7 @@ require 'zip/errors'
 # ::Dir APIs then `require 'zip/filesystem'` and see FileSystem.
 module Zip
   extend self
+
   attr_accessor :unicode_names,
                 :on_exists_proc,
                 :continue_on_exists_proc,
