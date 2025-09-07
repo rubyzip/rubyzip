@@ -21,11 +21,12 @@ module Zip
       outbuf.replace(@buffer.slice!(0...(length || @buffer.bytesize)))
     end
 
-    def eof
+    def eof?
       @buffer.empty? && input_finished?
     end
 
-    alias eof? eof
+    # Alias for compatibility. Remove for version 4.
+    alias eof eof?
 
     private
 

@@ -36,7 +36,8 @@ module Zip
         ((year - 1980) << 9)
     end
 
-    def dos_equals(other)
+    # Deprecated. Remove for version 4.
+    def dos_equals(other) # rubocop:disable Naming/PredicateMethod
       warn 'Zip::DOSTime#dos_equals is deprecated. Use `==` instead.'
       self == other
     end

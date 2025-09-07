@@ -12,7 +12,7 @@ module Zip
     end
 
     def read(length = nil, outbuf = +'')
-      return (length.nil? || length.zero? ? '' : nil) if eof
+      return (length.nil? || length.zero? ? '' : nil) if eof?
 
       while length.nil? || (buffer.bytesize < length)
         break if input_finished?
@@ -29,7 +29,7 @@ module Zip
 
     private
 
-    def eof
+    def eof?
       buffer.empty? && input_finished?
     end
 
