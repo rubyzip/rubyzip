@@ -12,7 +12,7 @@ class ZipInputStreamTest < MiniTest::Test
       @file = File.new(path, mode)
     end
 
-    delegate ::Zip::File::IO_METHODS => :@file
+    delegate [:tell, :seek, :read, :eof?, :close] => :@file
   end
 
   def test_new

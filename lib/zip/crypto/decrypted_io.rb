@@ -42,7 +42,7 @@ module Zip
     end
 
     def input_finished?
-      @io.eof || pos >= @compressed_size
+      @io.eof? || pos >= @compressed_size
     end
 
     def produce_input

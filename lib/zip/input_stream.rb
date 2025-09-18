@@ -196,7 +196,7 @@ module Zip
     end
 
     def input_finished? # :nodoc:
-      @decompressor.eof
+      @decompressor.eof?
     end
   end
 end
