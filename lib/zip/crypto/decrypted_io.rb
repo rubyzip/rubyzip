@@ -8,30 +8,27 @@ module Zip
       @io = io
       @decrypter = decrypter
       @bytes_remaining = compressed_size
+      @buffer = +''
     end
 
     def read(length = nil, outbuf = +'')
       return (length.nil? || length.zero? ? '' : nil) if eof?
 
-      while length.nil? || (buffer.bytesize < length)
+      while length.nil? || (@buffer.bytesize < length)
         break if input_finished?
 
-        buffer << produce_input
+        @buffer << produce_input
       end
 
       @decrypter.check_integrity!(@io) if input_finished?
 
-      outbuf.replace(buffer.slice!(0...(length || buffer.bytesize)))
+      outbuf.replace(@buffer.slice!(0...(length || @buffer.bytesize)))
     end
 
     private
 
     def eof?
-      buffer.empty? && input_finished?
-    end
-
-    def buffer
-      @buffer ||= +''
+      @buffer.empty? && input_finished?
     end
 
     def input_finished?
