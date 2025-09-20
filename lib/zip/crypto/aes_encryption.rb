@@ -112,7 +112,8 @@ module Zip
       @hmac = OpenSSL::HMAC.new(enc_hmac_key, OpenSSL::Digest.new('SHA1'))
     end
 
-    def check_integrity(auth_code)
+    def check_integrity!(io)
+      auth_code = io.read(AUTHENTICATION_CODE_LENGTH)
       raise Error, 'Integrity fault' if @hmac.digest[0...AUTHENTICATION_CODE_LENGTH] != auth_code
     end
   end
