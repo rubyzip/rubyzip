@@ -7,8 +7,7 @@ module Zip
     def initialize(io, decrypter, compressed_size)
       @io = io
       @decrypter = decrypter
-      @offset = io.tell
-      @compressed_size = compressed_size
+      @bytes_remaining = compressed_size
     end
 
     def read(length = nil, outbuf = +'')
@@ -35,18 +34,15 @@ module Zip
       @buffer ||= +''
     end
 
-    def pos
-      @io.tell - @offset
-    end
-
     def input_finished?
-      @io.eof? || pos >= @compressed_size
+      !@bytes_remaining.positive?
     end
 
     def produce_input
-      chunk_size = [CHUNK_SIZE, @compressed_size - pos].min
+      chunk_size = [@bytes_remaining, CHUNK_SIZE].min
       return '' unless chunk_size.positive?
 
+      @bytes_remaining -= chunk_size
       @decrypter.decrypt(@io.read(chunk_size))
     end
   end
