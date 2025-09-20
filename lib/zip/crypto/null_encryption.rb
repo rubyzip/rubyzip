@@ -28,16 +28,6 @@ module Zip
 
     def reset!; end
   end
-
-  class NullDecrypter < Decrypter # :nodoc:
-    include NullEncryption
-
-    def decrypt(data)
-      data
-    end
-
-    def reset!(_header); end
-  end
 end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
