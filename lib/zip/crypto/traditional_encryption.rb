@@ -86,6 +86,8 @@ module Zip
       end
     end
 
+    def check_integrity!(_io); end
+
     private
 
     def decode(num)

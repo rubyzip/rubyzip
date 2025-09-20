@@ -20,9 +20,7 @@ module Zip
         buffer << produce_input
       end
 
-      if @decrypter.kind_of?(::Zip::AESDecrypter) && input_finished?
-        @decrypter.check_integrity(@io.read(::Zip::AESEncryption::AUTHENTICATION_CODE_LENGTH))
-      end
+      @decrypter.check_integrity!(@io) if input_finished?
 
       outbuf.replace(buffer.slice!(0...(length || buffer.bytesize)))
     end
