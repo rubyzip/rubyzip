@@ -18,7 +18,7 @@ jobs:
           - { os: windows-latest, ruby: ucrt  }
           - { os: windows-latest, ruby: mswin }
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ endsWith(matrix.ruby, 'head') || matrix.os == 'windows' }}
+    continue-on-error: ${{ endsWith(matrix.ruby, 'head') || startsWith(matrix.os, 'windows') }}
     steps:
     - name: Checkout rubyzip code
       uses: actions/checkout@v4
