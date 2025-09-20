@@ -55,7 +55,7 @@ module Zip
       super()
       @archive_io = get_io(context, offset)
       @decompressor = ::Zip::NullDecompressor
-      @decrypter = decrypter || ::Zip::NullDecrypter.new
+      @decrypter = decrypter
       @current_entry = nil
       @complete_entry = nil
     end
@@ -146,9 +146,7 @@ module Zip
 
     def assemble_io # :nodoc:
       io = if @current_entry.encrypted?
-             if @decrypter.kind_of?(NullDecrypter)
-               raise Error, 'A password is required to decode this zip file'
-             end
+             raise Error, 'A password is required to decode this zip file.' if @decrypter.nil?
 
              get_decrypted_io
            else
