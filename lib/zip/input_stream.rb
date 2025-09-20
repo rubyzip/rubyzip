@@ -135,19 +135,27 @@ module Zip
       @current_entry = ::Zip::Entry.read_local_entry(@archive_io)
       return if @current_entry.nil?
 
-      if @current_entry.encrypted? && @decrypter.kind_of?(NullDecrypter)
-        raise Error,
-              'A password is required to decode this zip file'
-      end
-
       if @current_entry.incomplete? && @current_entry.compressed_size == 0 && !@complete_entry
         raise StreamingError, @current_entry
       end
 
-      @decrypted_io = get_decrypted_io
-      @decompressor = get_decompressor
+      @decompressor = assemble_io
       flush
       @current_entry
+    end
+
+    def assemble_io # :nodoc:
+      io = if @current_entry.encrypted?
+             if @decrypter.kind_of?(NullDecrypter)
+               raise Error, 'A password is required to decode this zip file'
+             end
+
+             get_decrypted_io
+           else
+             @archive_io
+           end
+
+      get_decompressor(io)
     end
 
     def get_decrypted_io # :nodoc:
@@ -170,7 +178,7 @@ module Zip
       ::Zip::DecryptedIo.new(@archive_io, @decrypter, compressed_size)
     end
 
-    def get_decompressor # :nodoc:
+    def get_decompressor(io) # :nodoc:
       return ::Zip::NullDecompressor if @current_entry.nil?
 
       decompressed_size =
@@ -188,7 +196,7 @@ module Zip
         raise ::Zip::CompressionMethodError, @current_entry.compression_method
       end
 
-      decompressor_class.new(@decrypted_io, decompressed_size)
+      decompressor_class.new(io, decompressed_size)
     end
 
     def produce_input # :nodoc:
