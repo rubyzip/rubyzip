@@ -189,6 +189,32 @@ class ZipOutputStreamTest < Minitest::Test
     end
   end
 
+  def test_zip64_default_usage
+    buffer = Zip::OutputStream.write_buffer do |zos|
+      zos.put_next_entry('write_test')
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      assert(entry.zip64?)
+    end
+  end
+
+  def test_zip64_default_usage_file
+    ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+      zos.put_next_entry('write_test')
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(TEST_ZIP.zip_name) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      assert(entry.zip64?)
+    end
+  end
+
   def assert_i_o_error_in_closed_stream
     assert_raises(IOError) do
       zos = ::Zip::OutputStream.new('test/data/generated/test_putOnClosedStream.zip')
