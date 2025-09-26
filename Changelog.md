@@ -1,3 +1,16 @@
+# 3.1.1 (2025-09-26)
+
+- Improve the IO pipeline when decompressing. [#649](https://github.com/rubyzip/rubyzip/pull/649) (which also fixes [#647](https://github.com/rubyzip/rubyzip/issues/647))
+
+Tooling/internal:
+
+- Improve the `DecryptedIo` class with various updates and optimizations.
+- Remove the `NullDecrypter` class.
+- Properly convert the test suite to use minitest.
+- Move all test helper code into separate files.
+- Updates to the Actions CI, including new OS versions.
+- Update rubocop versions and fix resultant cop failures. [#646](https://github.com/rubyzip/rubyzip/pull/646)
+
 # 3.1.0 (2025-09-06)
 
 - Support AES decryption. [#579](https://github.com/rubyzip/rubyzip/pull/579) and [#645](https://github.com/rubyzip/rubyzip/pull/645)
