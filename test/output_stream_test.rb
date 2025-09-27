@@ -9,6 +9,10 @@ class ZipOutputStreamTest < Minitest::Test
   TEST_ZIP = TestZipFile::TEST_ZIP2.clone
   TEST_ZIP.zip_name = 'test/data/generated/output.zip'
 
+  def teardown
+    ::Zip.reset!
+  end
+
   def test_new
     zos = ::Zip::OutputStream.new(TEST_ZIP.zip_name)
     zos.comment = TEST_ZIP.comment
@@ -212,6 +216,34 @@ class ZipOutputStreamTest < Minitest::Test
       entry = zis.get_next_entry
       assert_equal('write_test', entry.name)
       assert(entry.zip64?)
+    end
+  end
+
+  def test_zip64_off_by_default
+    Zip.write_zip64_support = false
+    buffer = Zip::OutputStream.write_buffer do |zos|
+      zos.put_next_entry('write_test')
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      refute(entry.zip64?)
+    end
+  end
+
+  def test_zip64_off_by_default_file
+    Zip.write_zip64_support = false
+    ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+      zos.put_next_entry('write_test')
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(TEST_ZIP.zip_name) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      refute(entry.zip64?)
     end
   end
 
