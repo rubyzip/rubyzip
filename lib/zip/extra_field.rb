@@ -61,6 +61,13 @@ module Zip
       result
     end
 
+    # Remove any extra fields that indicate they can be safely suppressed.
+    def suppress_fields!
+      reject! do |_, v|
+        v.suppress?
+      end
+    end
+
     def to_local_bin
       ordered_values.map! { |v| v.to_local_bin.force_encoding('BINARY') }.join
     end

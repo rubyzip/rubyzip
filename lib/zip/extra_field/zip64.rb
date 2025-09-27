@@ -56,6 +56,13 @@ module Zip
     end
     private :extract
 
+    # We can suppress the zip64 extra field unless we know the size is large or
+    # the relative header offset is large (for central directory entries).
+    def suppress?
+      !(@original_size && @original_size >= 0xFFFFFFFF) ||
+        (@relative_header_offset && @relative_header_offset >= 0xFFFFFFFF)
+    end
+
     def pack_for_local
       # Local header entries must contain original size and compressed size;
       # other fields do not apply.

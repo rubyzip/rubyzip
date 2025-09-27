@@ -24,6 +24,12 @@ module Zip
       [binstr[2, 2].unpack1('v'), binstr[4..]]
     end
 
+    # Default strategy is to suppress all extra fields if we're asked to.
+    # Specific extra field types can override this if they need to be kept.
+    def suppress?
+      true
+    end
+
     def to_local_bin
       s = pack_for_local
       (self.class.const_get(:HEADER_ID) + [s.bytesize].pack('v')) << s
