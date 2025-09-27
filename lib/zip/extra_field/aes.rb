@@ -33,6 +33,11 @@ module Zip
         @encryption_strength, @compression_method = content.unpack('va2Cv')
     end
 
+    # We can never suppress the AES extra field as it is needed to read the file.
+    def suppress?
+      false
+    end
+
     def pack_for_local
       [@vendor_version, @vendor_id,
        @encryption_strength, @compression_method].pack('va2Cv')

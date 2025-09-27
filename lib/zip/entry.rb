@@ -406,9 +406,17 @@ module Zip
        @extra ? @extra.local_size : 0].pack('VvvvvvVVVvv')
     end
 
-    def write_local_entry(io, rewrite: false) # :nodoc:
+    def write_local_entry(io, suppress_extra_fields: false, rewrite: false) # :nodoc:
       prep_local_zip64_extra
-      verify_local_header_size! if rewrite
+
+      # If we are rewriting the local header, then we verify that we haven't changed
+      # its size. At this point we have to keep extra fields if they are present.
+      if rewrite
+        verify_local_header_size!
+      elsif suppress_extra_fields
+        @extra.suppress_fields!
+      end
+
       @local_header_offset = io.tell
 
       io << pack_local_entry
@@ -586,7 +594,7 @@ module Zip
       ].pack('VCCvvvvvVVVvvvvvVV')
     end
 
-    def write_c_dir_entry(io) # :nodoc:
+    def write_c_dir_entry(io, suppress_extra_fields: false) # :nodoc:
       prep_cdir_zip64_extra
 
       case @fstype
@@ -608,6 +616,7 @@ module Zip
         end
       end
 
+      @extra.suppress_fields! if suppress_extra_fields
       io << pack_c_dir_entry
 
       io << @name
