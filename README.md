@@ -180,7 +180,7 @@ Zip::File.open('foo.zip') do |zip_file|
 end
 ```
 
-### Notes on `Zip::InputStream`
+### Reading a Zip file with `Zip::InputStream`
 
 `Zip::InputStream` can be used for faster reading of zip file content because it does not read the Central directory up front.
 
@@ -190,14 +190,14 @@ There is one exception where it can not work however, and this is if the file do
 
 If `Zip::InputStream` finds such an entry in the zip archive it will raise an exception (`Zip::StreamingError`).
 
-`Zip::InputStream` is not designed to be used for random access in a zip file. When performing any operations on an entry that you are accessing via `Zip::InputStream.get_next_entry` then you should complete any such operations before the next call to `get_next_entry`.
+`Zip::InputStream` is not designed to be used for random access in a zip file. When performing any operations on an entry that you are accessing via `Zip::InputStream#get_next_entry` then you should complete any such operations before the next call to `get_next_entry`.
 
 ```ruby
-zip_stream = Zip::InputStream.new(File.open('file.zip'))
-
-while entry = zip_stream.get_next_entry
-  # All required operations on `entry` go here.
-end
+Zip::InputStream.open('file.zip') do |zip_stream|
+  while entry = zip_stream.get_next_entry
+    # All required operations on `entry` go here.
+  end
+end # The `InputStream` is closed at the end of the block.
 ```
 
 Any attempt to move about in a zip file opened with `Zip::InputStream` could result in the incorrect entry being accessed and/or Zlib buffer errors. If you need random access in a zip file, use `Zip::File`.
