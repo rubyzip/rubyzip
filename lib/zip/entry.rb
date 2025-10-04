@@ -436,10 +436,7 @@ module Zip
         _, # diskNumberStart
         @internal_file_attributes,
         @external_file_attributes,
-        @local_header_offset,
-        @name,
-        @extra,
-        @comment = buf.unpack('VCCvvvvvVVVvvvvvVV')
+        @local_header_offset = buf.unpack('VCCvvvvvVVVvvvvvVV')
     end
 
     def set_ftype_from_c_dir_entry # :nodoc:
@@ -585,10 +582,7 @@ module Zip
         zip64 && zip64.disk_start_number ? 0xFFFF : 0, # disk number start
         @internal_file_attributes, # file type (binary=0, text=1)
         @external_file_attributes, # native filesystem attributes
-        zip64 && zip64.relative_header_offset ? 0xFFFFFFFF : @local_header_offset,
-        @name,
-        @extra,
-        @comment
+        zip64 && zip64.relative_header_offset ? 0xFFFFFFFF : @local_header_offset
       ].pack('VCCvvvvvVVVvvvvvVV')
     end
 
