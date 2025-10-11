@@ -247,9 +247,11 @@ class ZipOutputStreamTest < Minitest::Test
     end
   end
 
-  def test_zip64_suppressed
+  def test_zip64_and_ut_suppressed
     buffer = Zip::OutputStream.write_buffer(suppress_extra_fields: true) do |zos|
-      zos.put_next_entry('write_test')
+      entry = ::Zip::Entry.new(nil, 'write_test')
+      entry.atime = Time.now
+      zos.put_next_entry(entry)
       zos.write 'hello, world!'
     end
 
@@ -257,12 +259,31 @@ class ZipOutputStreamTest < Minitest::Test
       entry = zis.get_next_entry
       assert_equal('write_test', entry.name)
       refute(entry.zip64?)
+      refute(entry.absolute_time?)
     end
   end
 
-  def test_zip64_suppressed_file
+  def test_only_zip64_suppressed
+    buffer = Zip::OutputStream.write_buffer(suppress_extra_fields: :zip64) do |zos|
+      entry = ::Zip::Entry.new(nil, 'write_test')
+      entry.atime = Time.now
+      zos.put_next_entry(entry)
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      refute(entry.zip64?)
+      assert(entry.absolute_time?)
+    end
+  end
+
+  def test_zip64_and_ut_suppressed_file
     ::Zip::OutputStream.open(TEST_ZIP.zip_name, suppress_extra_fields: true) do |zos|
-      zos.put_next_entry('write_test')
+      entry = ::Zip::Entry.new(nil, 'write_test')
+      entry.atime = Time.now
+      zos.put_next_entry(entry)
       zos.write 'hello, world!'
     end
 
@@ -270,12 +291,30 @@ class ZipOutputStreamTest < Minitest::Test
       entry = zis.get_next_entry
       assert_equal('write_test', entry.name)
       refute(entry.zip64?)
+      refute(entry.absolute_time?)
     end
   end
 
-  def test_zip64_not_suppressed_with_large_size
+  def test_only_zip64_suppressed_file
+    ::Zip::OutputStream.open(TEST_ZIP.zip_name, suppress_extra_fields: :zip64) do |zos|
+      entry = ::Zip::Entry.new(nil, 'write_test')
+      entry.atime = Time.now
+      zos.put_next_entry(entry)
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(TEST_ZIP.zip_name) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      refute(entry.zip64?)
+      assert(entry.absolute_time?)
+    end
+  end
+
+  def test_ut_but_not_zip64_suppressed_with_large_size
     buffer = ::Zip::OutputStream.write_buffer(suppress_extra_fields: true) do |zos|
       entry = ::Zip::Entry.new(nil, 'write_test', size: 0x1_0000_0000)
+      entry.atime = Time.now
       zos.put_next_entry(entry)
       zos.write 'hello, world!'
     end
@@ -284,12 +323,30 @@ class ZipOutputStreamTest < Minitest::Test
       entry = zis.get_next_entry
       assert_equal('write_test', entry.name)
       assert(entry.zip64?)
+      refute(entry.absolute_time?)
     end
   end
 
-  def test_zip64_not_suppressed_with_large_size_file
+  def test_only_zip64_not_ut_suppressed_with_large_size
+    buffer = ::Zip::OutputStream.write_buffer(suppress_extra_fields: :zip64) do |zos|
+      entry = ::Zip::Entry.new(nil, 'write_test', size: 0x1_0000_0000)
+      entry.atime = Time.now
+      zos.put_next_entry(entry)
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(buffer) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      assert(entry.zip64?)
+      assert(entry.absolute_time?)
+    end
+  end
+
+  def test_ut_but_not_zip64_suppressed_with_large_size_file
     ::Zip::OutputStream.open(TEST_ZIP.zip_name, suppress_extra_fields: true) do |zos|
       entry = ::Zip::Entry.new(nil, 'write_test', size: 0x1_0000_0000)
+      entry.atime = Time.now
       zos.put_next_entry(entry)
       zos.write 'hello, world!'
     end
@@ -298,6 +355,23 @@ class ZipOutputStreamTest < Minitest::Test
       entry = zis.get_next_entry
       assert_equal('write_test', entry.name)
       assert(entry.zip64?)
+      refute(entry.absolute_time?)
+    end
+  end
+
+  def test_only_zip64_not_ut_suppressed_with_large_size_file
+    ::Zip::OutputStream.open(TEST_ZIP.zip_name, suppress_extra_fields: :zip64) do |zos|
+      entry = ::Zip::Entry.new(nil, 'write_test', size: 0x1_0000_0000)
+      entry.atime = Time.now
+      zos.put_next_entry(entry)
+      zos.write 'hello, world!'
+    end
+
+    Zip::InputStream.open(TEST_ZIP.zip_name) do |zis|
+      entry = zis.get_next_entry
+      assert_equal('write_test', entry.name)
+      assert(entry.zip64?)
+      assert(entry.absolute_time?)
     end
   end
 
