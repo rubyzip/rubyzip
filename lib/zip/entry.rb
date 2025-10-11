@@ -414,7 +414,7 @@ module Zip
       if rewrite
         verify_local_header_size!
       elsif suppress_extra_fields
-        @extra.suppress_fields!
+        @extra.suppress_fields!(suppress_extra_fields)
       end
 
       @local_header_offset = io.tell
@@ -616,7 +616,7 @@ module Zip
         end
       end
 
-      @extra.suppress_fields! if suppress_extra_fields
+      @extra.suppress_fields!(suppress_extra_fields) if suppress_extra_fields
       io << pack_c_dir_entry
 
       io << @name

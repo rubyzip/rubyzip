@@ -62,9 +62,9 @@ module Zip
     end
 
     # Remove any extra fields that indicate they can be safely suppressed.
-    def suppress_fields!
-      reject! do |_, v|
-        v.suppress?
+    def suppress_fields!(fields)
+      reject! do |k, v|
+        v.suppress? if fields == true || [*fields].include?(k)
       end
     end
 

@@ -121,4 +121,55 @@ class ZipExtraFieldTest < Minitest::Test
       end
     end
   end
+
+  def test_suppress_fields
+    str = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit".b
+    extra = Zip::ExtraField.new(str)
+    extra.merge("\x01\x99\a\x00\x01\x00AE\x80\b\x00".b) # AES
+    extra.create(:iunix)
+    extra.create(:ntfs)
+    extra.create(:zip64)
+    extra.merge('foo')
+
+    # Check no errors are caused by these no-op calls.
+    extra.suppress_fields!(false)
+    extra.suppress_fields!(nil)
+    extra.suppress_fields!([])
+    extra.suppress_fields!(:non_existent_field)
+
+    assert(extra.member?(:aes))
+    assert(extra.member?(:iunix))
+    assert(extra.member?(:ntfs))
+    assert(extra.member?(:universaltime))
+    assert(extra.member?(:unknown))
+    assert(extra.member?(:zip64))
+
+    # Suppress only the zip64 field.
+    extra.suppress_fields!(:zip64)
+    assert(extra.member?(:aes))
+    assert(extra.member?(:iunix))
+    assert(extra.member?(:ntfs))
+    assert(extra.member?(:universaltime))
+    assert(extra.member?(:unknown))
+    refute(extra.member?(:zip64))
+
+    # Suppress a mix of fields, including a non-suppressible field.
+    extra.suppress_fields!([:aes, :iunix, :universaltime])
+    assert(extra.member?(:aes))
+    refute(extra.member?(:iunix))
+    assert(extra.member?(:ntfs))
+    refute(extra.member?(:universaltime))
+    assert(extra.member?(:unknown))
+    refute(extra.member?(:zip64))
+
+    # Suppress all suppressible fields that are left.
+    extra.suppress_fields!(true)
+    assert(extra.member?(:aes))
+    refute(extra.member?(:iunix))
+    refute(extra.member?(:ntfs))
+    refute(extra.member?(:universaltime))
+    refute(extra.member?(:unknown))
+    refute(extra.member?(:zip64))
+    assert_equal(1, extra.keys.size)
+  end
 end
