@@ -112,9 +112,9 @@ module Zip
       def chown(owner, group, *filenames)
         filenames.each do |filename|
           e = find_entry(filename)
-          e.extra.create('IUnix') unless e.extra.member?('IUnix')
-          e.extra['IUnix'].uid = owner
-          e.extra['IUnix'].gid = group
+          e.extra.create(:iunix) unless e.extra.member?(:iunix)
+          e.extra[:iunix].uid = owner
+          e.extra[:iunix].gid = group
         end
         filenames.size
       end

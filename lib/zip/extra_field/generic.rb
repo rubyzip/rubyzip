@@ -9,7 +9,7 @@ module Zip
     end
 
     def self.name
-      @name ||= to_s.split('::')[-1]
+      @name ||= to_s.split('::').last.downcase.to_sym
     end
 
     # return field [size, content] or false

@@ -19,14 +19,14 @@ module Zip
     end
 
     def extra_field_type_unknown(binstr, len, index, local)
-      self['Unknown'] ||= Unknown.new
+      self[:unknown] ||= Unknown.new
 
       if !len || len + 4 > binstr[index..].bytesize
-        self['Unknown'].merge(binstr[index..], local: local)
+        self[:unknown].merge(binstr[index..], local: local)
         return
       end
 
-      self['Unknown'].merge(binstr[index, len + 4], local: local)
+      self[:unknown].merge(binstr[index, len + 4], local: local)
     end
 
     def merge(binstr, local: false)
@@ -57,7 +57,7 @@ module Zip
     # signature/size does not prevent known fields from being read back in.
     def ordered_values
       result = []
-      each { |k, v| k == 'Unknown' ? result.push(v) : result.unshift(v) }
+      each { |k, v| k == :unknown ? result.push(v) : result.unshift(v) }
       result
     end
 

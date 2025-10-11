@@ -72,7 +72,7 @@ class ZipLocalEntryTest < Minitest::Test
     write_to_file(LEH_FILE, CEH_FILE, entry)
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
     assert(
-      central_entry.extra['Zip64'].nil?,
+      central_entry.extra[:zip64].nil?,
       'zip64 should not be used in central directory at this point.'
     )
     compare_local_entry_headers(entry, local_entry)
@@ -90,11 +90,11 @@ class ZipLocalEntryTest < Minitest::Test
     local_entry, central_entry = read_from_file(LEH_FILE, CEH_FILE)
 
     assert(
-      local_entry.extra['Zip64'].nil?,
+      local_entry.extra[:zip64].nil?,
       'zip64 should not be used in local file header at this point.'
     )
     assert(
-      central_entry.extra['Zip64'].nil?,
+      central_entry.extra[:zip64].nil?,
       'zip64 should not be used in central directory at this point.'
     )
 

@@ -12,23 +12,23 @@ class ZipExtraFieldTest < Minitest::Test
     assert_instance_of(::Zip::ExtraField, extra_withstr)
     assert_instance_of(::Zip::ExtraField, extra_withstr_local)
 
-    assert_equal('foo', extra_withstr['Unknown'].to_c_dir_bin)
-    assert_equal('foo', extra_withstr_local['Unknown'].to_local_bin)
+    assert_equal('foo', extra_withstr[:unknown].to_c_dir_bin)
+    assert_equal('foo', extra_withstr_local[:unknown].to_local_bin)
   end
 
   def test_unknownfield
     extra = ::Zip::ExtraField.new('foo')
-    assert_equal('foo', extra['Unknown'].to_c_dir_bin)
+    assert_equal('foo', extra[:unknown].to_c_dir_bin)
 
     extra.merge('a')
-    assert_equal('fooa', extra['Unknown'].to_c_dir_bin)
+    assert_equal('fooa', extra[:unknown].to_c_dir_bin)
 
     extra.merge('barbaz')
-    assert_equal('fooabarbaz', extra['Unknown'].to_c_dir_bin)
+    assert_equal('fooabarbaz', extra[:unknown].to_c_dir_bin)
 
     extra.merge('bar', local: true)
-    assert_equal('bar', extra['Unknown'].to_local_bin)
-    assert_equal('fooabarbaz', extra['Unknown'].to_c_dir_bin)
+    assert_equal('bar', extra[:unknown].to_local_bin)
+    assert_equal('fooabarbaz', extra[:unknown].to_c_dir_bin)
   end
 
   def test_bad_header_id
@@ -44,11 +44,11 @@ class ZipExtraFieldTest < Minitest::Test
   def test_ntfs
     str = +"\x0A\x00 \x00\x00\x00\x00\x00\x01\x00\x18\x00\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01\xC0\x81\x17\xE8B\xCE\xCF\x01"
     extra = ::Zip::ExtraField.new(str)
-    assert(extra.member?('NTFS'))
+    assert(extra.member?(:ntfs))
     t = ::Zip::DOSTime.at(1_410_496_497.405178)
-    assert_equal(t, extra['NTFS'].mtime)
-    assert_equal(t, extra['NTFS'].atime)
-    assert_equal(t, extra['NTFS'].ctime)
+    assert_equal(t, extra[:ntfs].mtime)
+    assert_equal(t, extra[:ntfs].atime)
+    assert_equal(t, extra[:ntfs].ctime)
 
     assert_equal(str.force_encoding('BINARY'), extra.to_local_bin)
   end
@@ -57,10 +57,10 @@ class ZipExtraFieldTest < Minitest::Test
     str = "UT\x5\0\x3\250$\r@Ux\0\0"
     extra1 = ::Zip::ExtraField.new('')
     extra2 = ::Zip::ExtraField.new(str)
-    assert(!extra1.member?('UniversalTime'))
-    assert(extra2.member?('UniversalTime'))
+    assert(!extra1.member?(:universaltime))
+    assert(extra2.member?(:universaltime))
     extra1.merge(str)
-    assert_equal(extra1['UniversalTime'].mtime, extra2['UniversalTime'].mtime)
+    assert_equal(extra1[:universaltime].mtime, extra2[:universaltime].mtime)
   end
 
   def test_length
@@ -90,13 +90,13 @@ class ZipExtraFieldTest < Minitest::Test
     extra3 = ::Zip::ExtraField.new(str)
     assert_equal(extra1, extra2)
 
-    extra2['UniversalTime'].mtime = ::Zip::DOSTime.now
+    extra2[:universaltime].mtime = ::Zip::DOSTime.now
     assert(extra1 != extra2)
 
-    extra3.create('IUnix')
+    extra3.create(:iunix)
     assert(extra1 != extra3)
 
-    extra1.create('IUnix')
+    extra1.create(:iunix)
     assert_equal(extra1, extra3)
   end
 
@@ -106,8 +106,8 @@ class ZipExtraFieldTest < Minitest::Test
         entry = zf.get_entry(file)
 
         assert_instance_of(::Zip::ExtraField, entry.extra)
-        assert_equal(1_000, entry.extra['IUnix'].uid)
-        assert_equal(1_000, entry.extra['IUnix'].gid)
+        assert_equal(1_000, entry.extra[:iunix].uid)
+        assert_equal(1_000, entry.extra[:iunix].gid)
       end
     end
   end
@@ -116,8 +116,8 @@ class ZipExtraFieldTest < Minitest::Test
     ::Zip::File.open('test/data/osx-archive.zip') do |zf|
       zf.each do |entry|
         # Check that there is only one occurance of the 'ux' extra field.
-        assert_equal(0, entry.extra['Unknown'].to_c_dir_bin.rindex('ux'))
-        assert_equal(0, entry.extra['Unknown'].to_local_bin.rindex('ux'))
+        assert_equal(0, entry.extra[:unknown].to_c_dir_bin.rindex('ux'))
+        assert_equal(0, entry.extra[:unknown].to_local_bin.rindex('ux'))
       end
     end
   end

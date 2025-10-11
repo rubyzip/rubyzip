@@ -36,8 +36,8 @@ module Zip
 
         def gid
           e = find_entry
-          if e.extra.member? 'IUnix'
-            e.extra['IUnix'].gid || 0
+          if e.extra.member? :iunix
+            e.extra[:iunix].gid || 0
           else
             0
           end
@@ -45,8 +45,8 @@ module Zip
 
         def uid
           e = find_entry
-          if e.extra.member? 'IUnix'
-            e.extra['IUnix'].uid || 0
+          if e.extra.member? :iunix
+            e.extra[:iunix].uid || 0
           else
             0
           end

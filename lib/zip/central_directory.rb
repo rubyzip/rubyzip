@@ -182,7 +182,7 @@ module Zip
         next unless entry
 
         offset = if entry.zip64?
-                   entry.extra['Zip64'].relative_header_offset
+                   entry.extra[:zip64].relative_header_offset
                  else
                    entry.local_header_offset
                  end

@@ -127,10 +127,10 @@ module Zip
     # Returns modification time by default.
     def time(component: :mtime)
       time =
-        if @extra['UniversalTime']
-          @extra['UniversalTime'].send(component)
-        elsif @extra['NTFS']
-          @extra['NTFS'].send(component)
+        if @extra[:universaltime]
+          @extra[:universaltime].send(component)
+        elsif @extra[:ntfs]
+          @extra[:ntfs].send(component)
         end
 
       # Standard time field in central directory has local time
@@ -155,13 +155,13 @@ module Zip
     # Sets modification time by default.
     def time=(value, component: :mtime)
       @dirty = true
-      unless @extra.member?('UniversalTime') || @extra.member?('NTFS')
-        @extra.create('UniversalTime')
+      unless @extra.member?(:universaltime) || @extra.member?(:ntfs)
+        @extra.create(:universaltime)
       end
 
       value = DOSTime.from_time(value)
       comp = "#{component}=" unless component.to_s.end_with?('=')
-      (@extra['UniversalTime'] || @extra['NTFS']).send(comp, value)
+      (@extra[:universaltime] || @extra[:ntfs]).send(comp, value)
       @time = value if component == :mtime
     end
 
@@ -179,7 +179,7 @@ module Zip
 
     # Does this entry return time fields with accurate timezone information?
     def absolute_time?
-      @extra.member?('UniversalTime') || @extra.member?('NTFS')
+      @extra.member?(:universaltime) || @extra.member?(:ntfs)
     end
 
     # Return the compression method for this entry.
@@ -200,12 +200,12 @@ module Zip
 
     # Does this entry use the ZIP64 extensions?
     def zip64?
-      !@extra['Zip64'].nil?
+      !@extra[:zip64].nil?
     end
 
     # Is this entry encrypted with AES encryption?
     def aes?
-      !@extra['AES'].nil?
+      !@extra[:aes].nil?
     end
 
     def file_type_is?(type) # :nodoc:
@@ -392,7 +392,7 @@ module Zip
     end
 
     def pack_local_entry # :nodoc:
-      zip64 = @extra['Zip64']
+      zip64 = @extra[:zip64]
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
        @gp_flags, # @gp_flags
@@ -566,7 +566,7 @@ module Zip
     end
 
     def pack_c_dir_entry # :nodoc:
-      zip64 = @extra['Zip64']
+      zip64 = @extra[:zip64]
       [
         @header_signature,
         @version, # version of encoding software
@@ -799,9 +799,9 @@ module Zip
       return unless zip64?
 
       if for_local_header
-        @size, @compressed_size = @extra['Zip64'].parse(@size, @compressed_size)
+        @size, @compressed_size = @extra[:zip64].parse(@size, @compressed_size)
       else
-        @size, @compressed_size, @local_header_offset = @extra['Zip64'].parse(
+        @size, @compressed_size, @local_header_offset = @extra[:zip64].parse(
           @size, @compressed_size, @local_header_offset
         )
       end
@@ -810,15 +810,15 @@ module Zip
     def parse_aes_extra # :nodoc:
       return unless aes?
 
-      if @extra['AES'].vendor_id != 'AE'
-        raise Error, "Unsupported encryption method #{@extra['AES'].vendor_id}"
+      if @extra[:aes].vendor_id != 'AE'
+        raise Error, "Unsupported encryption method #{@extra[:aes].vendor_id}"
       end
 
-      unless ::Zip::AESEncryption::VERSIONS.include? @extra['AES'].vendor_version
-        raise Error, "Unsupported encryption style #{@extra['AES'].vendor_version}"
+      unless ::Zip::AESEncryption::VERSIONS.include? @extra[:aes].vendor_version
+        raise Error, "Unsupported encryption style #{@extra[:aes].vendor_version}"
       end
 
-      @compression_method = @extra['AES'].compression_method if ftype != :directory
+      @compression_method = @extra[:aes].compression_method if ftype != :directory
     end
 
     # For DEFLATED compression *only*: set the general purpose flags 1 and 2 to
@@ -851,7 +851,7 @@ module Zip
       # If we already have a ZIP64 extra (placeholder) then we must fill it in.
       if zip64? || @size.nil? || @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
         @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
-        zip64 = @extra['Zip64'] || @extra.create('Zip64')
+        zip64 = @extra[:zip64] || @extra.create(:zip64)
 
         # Local header always includes size and compressed size.
         zip64.original_size = @size || 0
@@ -865,7 +865,7 @@ module Zip
       if (@size && @size >= 0xFFFFFFFF) || @compressed_size >= 0xFFFFFFFF ||
          @local_header_offset >= 0xFFFFFFFF
         @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
-        zip64 = @extra['Zip64'] || @extra.create('Zip64')
+        zip64 = @extra[:zip64] || @extra.create(:zip64)
 
         # Central directory entry entries include whichever fields are necessary.
         zip64.original_size = @size if @size && @size >= 0xFFFFFFFF
