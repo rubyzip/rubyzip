@@ -18,6 +18,7 @@ Lint/MissingSuper:
     - 'lib/zip/extra_field/old_unix.rb'
     - 'lib/zip/extra_field/universal_time.rb'
     - 'lib/zip/extra_field/unix.rb'
+    - 'lib/zip/extra_field/unknown.rb'
     - 'lib/zip/extra_field/zip64.rb'
     - 'lib/zip/extra_field/zip64_placeholder.rb'
 

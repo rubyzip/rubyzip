@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'generic'
+
 module Zip
   # A class to hold unknown extra fields so that they are preserved.
-  class ExtraField::Unknown # :nodoc:
+  class ExtraField::Unknown < ExtraField::Generic # :nodoc:
     def initialize
       @local_bin = +''
       @cdir_bin = +''
