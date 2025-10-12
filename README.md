@@ -67,6 +67,43 @@ Zip::File.open(zipfile_name, create: true) do |zipfile|
 end
 ```
 
+### Creating a Zip file with `Zip::OutputStream`
+
+```ruby
+require 'rubygems'
+require 'zip'
+
+Zip::OutputStream.open('archive.zip') do |zos|
+  # Quick.
+  zos.put_next_entry('greeting.txt')
+  zos << 'Hello, World!'
+
+  # More control.
+  # You MUST NOT make any calls on your `Entry` after calling `put_next_entry`.
+  entry = Zip::Entry.new(nil, 'parting.txt')
+  entry.atime = Time.now
+  zos.put_next_entry(entry)
+  zos.write('TTFN')
+end
+```
+
+You can generate a Zip archive in memory using `Zip::OutputStream.write_buffer`.
+
+If you wish to suppress extra fields from being added to your entries, you can do so by passing the `suppress_extra_fields` parameter to `open` or `write_buffer`, e.g.:
+
+```ruby
+# Suppress all extra fields.
+Zip::OutputStream.open('archive.zip', suppress_extra_fields: true)
+
+# Suppress an individual extra field.
+Zip::OutputStream.open('archive.zip', suppress_extra_fields: :zip64)
+
+# Suppress multiple extra fields.
+Zip::OutputStream.open('archive.zip', suppress_extra_fields: [:ntfs, :zip64])
+```
+
+Note that there are some extra fields that cannot be suppressed at all (e.g. `:aes`), and some which will only be suppressed if it is safe to do so (e.g. `:zip64`).
+
 ### Zipping a directory recursively
 
 Copy from [here](https://github.com/rubyzip/rubyzip/blob/9d891f7353e66052283562d3e252fe380bb4b199/samples/example_recursive.rb)
