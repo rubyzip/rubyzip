@@ -76,7 +76,8 @@ module Zip
                    restore_ownership: DEFAULT_RESTORE_OPTIONS[:restore_ownership],
                    restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
                    restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
-                   compression_level: ::Zip.default_compression)
+                   compression_level: ::Zip.default_compression,
+                   suppress_extra_fields: false)
       super()
 
       @name    = path_or_io.respond_to?(:path) ? path_or_io.path : path_or_io
@@ -84,10 +85,11 @@ module Zip
 
       initialize_cdir(path_or_io, buffer: buffer)
 
-      @restore_ownership   = restore_ownership
-      @restore_permissions = restore_permissions
-      @restore_times       = restore_times
-      @compression_level   = compression_level
+      @restore_ownership     = restore_ownership
+      @restore_permissions   = restore_permissions
+      @restore_times         = restore_times
+      @compression_level     = compression_level
+      @suppress_extra_fields = suppress_extra_fields
     end
 
     class << self
@@ -98,12 +100,14 @@ module Zip
                restore_ownership: DEFAULT_RESTORE_OPTIONS[:restore_ownership],
                restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
                restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
-               compression_level: ::Zip.default_compression)
-        zf = ::Zip::File.new(file_name, create:              create,
-                                        restore_ownership:   restore_ownership,
-                                        restore_permissions: restore_permissions,
-                                        restore_times:       restore_times,
-                                        compression_level:   compression_level)
+               compression_level: ::Zip.default_compression,
+               suppress_extra_fields: false)
+        zf = ::Zip::File.new(file_name, create:                create,
+                                        restore_ownership:     restore_ownership,
+                                        restore_permissions:   restore_permissions,
+                                        restore_times:         restore_times,
+                                        compression_level:     compression_level,
+                                        suppress_extra_fields: suppress_extra_fields)
 
         return zf unless block_given?
 
@@ -122,7 +126,8 @@ module Zip
                       restore_ownership: DEFAULT_RESTORE_OPTIONS[:restore_ownership],
                       restore_permissions: DEFAULT_RESTORE_OPTIONS[:restore_permissions],
                       restore_times: DEFAULT_RESTORE_OPTIONS[:restore_times],
-                      compression_level: ::Zip.default_compression)
+                      compression_level: ::Zip.default_compression,
+                      suppress_extra_fields: false)
         unless IO_METHODS.map { |method| io.respond_to?(method) }.all? || io.kind_of?(String)
           raise 'Zip::File.open_buffer expects a String or IO-like argument' \
                 "(responds to #{IO_METHODS.join(', ')}). Found: #{io.class}"
@@ -131,10 +136,11 @@ module Zip
         io = ::StringIO.new(io) if io.kind_of?(::String)
 
         zf = ::Zip::File.new(io, create: create, buffer: true,
-                                 restore_ownership:   restore_ownership,
-                                 restore_permissions: restore_permissions,
-                                 restore_times:       restore_times,
-                                 compression_level:   compression_level)
+                                 restore_ownership:     restore_ownership,
+                                 restore_permissions:   restore_permissions,
+                                 restore_times:         restore_times,
+                                 compression_level:     compression_level,
+                                 suppress_extra_fields: suppress_extra_fields)
 
         return zf unless block_given?
 
@@ -286,7 +292,7 @@ module Zip
       return if name.kind_of?(StringIO) || !commit_required?
 
       on_success_replace do |tmp_file|
-        ::Zip::OutputStream.open(tmp_file) do |zos|
+        ::Zip::OutputStream.open(tmp_file, suppress_extra_fields: @suppress_extra_fields) do |zos|
           @cdir.each do |e|
             e.write_to_zip_output_stream(zos)
             e.clean_up
@@ -302,7 +308,7 @@ module Zip
     def write_buffer(io = ::StringIO.new)
       return io unless commit_required?
 
-      ::Zip::OutputStream.write_buffer(io) do |zos|
+      ::Zip::OutputStream.write_buffer(io, suppress_extra_fields: @suppress_extra_fields) do |zos|
         @cdir.each { |e| e.write_to_zip_output_stream(zos) }
         zos.comment = comment
       end
