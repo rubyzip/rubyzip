@@ -89,16 +89,21 @@ end
 
 You can generate a Zip archive in memory using `Zip::OutputStream.write_buffer`.
 
-If you wish to suppress extra fields from being added to your entries, you can do so by passing the `suppress_extra_fields` parameter to `open` or `write_buffer`, e.g.:
+### Suppressing extra fields
+
+If you wish to suppress extra fields from being added to your entries, you can do so by passing the `suppress_extra_fields` parameter to any of the archive opening calls within `Zip::File` or `Zip::OutputStream`, e.g.:
 
 ```ruby
 # Suppress all extra fields.
+Zip::File.open('archive.zip', create: true, suppress_extra_fields: true)
 Zip::OutputStream.open('archive.zip', suppress_extra_fields: true)
 
 # Suppress an individual extra field.
+Zip::File.open('archive.zip', create: true, suppress_extra_fields: :zip64)
 Zip::OutputStream.open('archive.zip', suppress_extra_fields: :zip64)
 
 # Suppress multiple extra fields.
+Zip::File.open('archive.zip', create: true, suppress_extra_fields: [:ntfs, :zip64])
 Zip::OutputStream.open('archive.zip', suppress_extra_fields: [:ntfs, :zip64])
 ```
 
