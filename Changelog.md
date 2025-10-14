@@ -1,3 +1,14 @@
+# 3.2.0 (2025-10-14)
+
+- Add option to suppress extra fields. [#653](https://github.com/rubyzip/rubyzip/pull/653) (fixes [#34](https://github.com/rubyzip/rubyzip/issues/34), [#398](https://github.com/rubyzip/rubyzip/issues/398) and [#648](https://github.com/rubyzip/rubyzip/issues/648))
+
+Tooling/internal:
+
+- Entry: clean up reading and writing the Central Directory headers.
+- Improve Zip64 tests for `OutputStream`.
+- Extra fields: use symbols as indices as opposed to strings.
+- Ensure that `Unknown` extra field has a superclass.
+
 # 3.1.1 (2025-09-26)
 
 - Improve the IO pipeline when decompressing. [#649](https://github.com/rubyzip/rubyzip/pull/649) (which also fixes [#647](https://github.com/rubyzip/rubyzip/issues/647))
