@@ -19,6 +19,8 @@ jobs:
           - { os: windows-latest, ruby: mswin }
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ endsWith(matrix.ruby, 'head') || startsWith(matrix.os, 'windows') }}
+    env:
+      BUNDLE_WITHOUT: benchmark
     steps:
     - name: Checkout rubyzip code
       uses: actions/checkout@v4
@@ -53,6 +55,8 @@ jobs:
         ruby: ['3.3', '3.4', head]
     runs-on: ${{ matrix.os }}-latest
     continue-on-error: true
+    env:
+      BUNDLE_WITHOUT: benchmark
     steps:
     - name: Checkout rubyzip code
       uses: actions/checkout@v4

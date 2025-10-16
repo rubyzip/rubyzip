@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      BUNDLE_WITHOUT: benchmark
     steps:
     - name: Checkout rubyzip code
       uses: actions/checkout@v4
