@@ -677,7 +677,7 @@ module Zip
                when 'file'
                  if name_is_directory?
                    raise ArgumentError,
-                         "entry name '#{newEntry}' indicates directory entry, but " \
+                         "entry name '#{@name}' indicates a directory entry, but " \
                          "'#{src_path}' is not a directory"
                  end
                  :file
@@ -687,7 +687,7 @@ module Zip
                when 'link'
                  if name_is_directory?
                    raise ArgumentError,
-                         "entry name '#{newEntry}' indicates directory entry, but " \
+                         "entry name '#{@name}' indicates a directory entry, but " \
                          "'#{src_path}' is not a directory"
                  end
                  :symlink
