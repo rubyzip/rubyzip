@@ -1,3 +1,11 @@
+# 3.2.1 (2025-10-24)
+
+- Fix `Entry#gather_fileinfo_from_srcpath` error messages. [#654](https://github.com/rubyzip/rubyzip/issues/654)
+
+Tooling/internal:
+
+- Add some simple benchmarks for reading the cdir.
+
 # 3.2.0 (2025-10-14)
 
 - Add option to suppress extra fields. [#653](https://github.com/rubyzip/rubyzip/pull/653) (fixes [#34](https://github.com/rubyzip/rubyzip/issues/34), [#398](https://github.com/rubyzip/rubyzip/issues/398) and [#648](https://github.com/rubyzip/rubyzip/issues/648))
