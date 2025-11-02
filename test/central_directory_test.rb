@@ -45,11 +45,25 @@ class ZipCentralDirectoryTest < Minitest::Test
     end
   end
 
+  def test_read_file_with_cdir_headers_in_payload
+    ::File.open('test/data/zipWithCDirHeadersInPayload.zip', 'rb') do |f|
+      cdir = ::Zip::CentralDirectory.new
+      cdir.read_from_stream(f) # Should not raise anything.
+
+      entry = cdir.entries.first
+      entry.get_input_stream do |is|
+        content = is.read
+        assert_equal("PK\x06\x06\nPK\x06\x07", content)
+      end
+    end
+  end
+
   def test_count_entries
     [
       ['test/data/osx-archive.zip', 4],
       ['test/data/zip64-sample.zip', 2],
       ['test/data/max_length_file_comment.zip', 1],
+      ['test/data/zipWithCDirHeadersInPayload.zip', 1],
       ['test/data/100000-files.zip', 100_000]
     ].each do |filename, num_entries|
       cdir = ::Zip::CentralDirectory.new

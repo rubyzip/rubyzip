@@ -143,28 +143,27 @@ module Zip
       zip64_eocd_offset
     end
 
-    def unpack_e_o_c_d(buffer) # :nodoc:
+    # Unpack the EOCD and return a boolean indicating whether this header is
+    # complete without needing Zip64 extensions.
+    def unpack_e_o_c_d(buffer) # :nodoc: # rubocop:disable Naming/PredicateMethod
       _, # END_OF_CD_SIG. We know we have this at this point.
-      num_disk,
-      num_disk_cdir,
-      num_cdir_disk,
-      num_entries,
-      size_in_bytes,
-      cdir_offset,
+      @number_of_this_disk,
+      @number_of_disk_with_start_of_cdir,
+      @total_number_of_entries_in_cdir_on_this_disk,
+      @size,
+      @size_in_bytes,
+      @cdir_offset,
       comment_length = buffer.unpack('VvvvvVVv')
-
-      @number_of_this_disk = num_disk unless num_disk == 0xFFFF
-      @number_of_disk_with_start_of_cdir = num_disk_cdir unless num_disk_cdir == 0xFFFF
-      @total_number_of_entries_in_cdir_on_this_disk = num_cdir_disk unless num_cdir_disk == 0xFFFF
-      @size = num_entries unless num_entries == 0xFFFF
-      @size_in_bytes = size_in_bytes unless size_in_bytes == 0xFFFFFFFF
-      @cdir_offset = cdir_offset unless cdir_offset == 0xFFFFFFFF
 
       @comment = if comment_length.positive?
                    buffer.slice(STATIC_EOCD_SIZE, comment_length)
                  else
                    ''
                  end
+
+      !([@number_of_this_disk, @number_of_disk_with_start_of_cdir,
+         @total_number_of_entries_in_cdir_on_this_disk, @size].any?(0xFFFF) ||
+         @size_in_bytes == 0xFFFFFFFF || @cdir_offset == 0xFFFFFFFF)
     end
 
     def read_central_directory_entries(io) # :nodoc:
@@ -217,30 +216,37 @@ module Zip
       eocd_location = data.rindex([END_OF_CD_SIG].pack('V'))
       raise Error, 'Zip end of central directory signature not found' unless eocd_location
 
-      zip64_eocd_locator = data.rindex([ZIP64_EOCD_LOCATOR_SIG].pack('V'))
+      # Parse the EOCD and return if it is complete without Zip64 extensions.
+      return if unpack_e_o_c_d(data.slice(eocd_location..-1))
 
-      if zip64_eocd_locator
-        zip64_eocd_location = data.rindex([ZIP64_END_OF_CD_SIG].pack('V'))
-
-        zip64_eocd_data =
-          if zip64_eocd_location
-            data.slice(zip64_eocd_location..zip64_eocd_locator)
-          else
-            zip64_eocd_location = unpack_64_eocd_locator(
-              data.slice(zip64_eocd_locator..eocd_location)
-            )
-            unless zip64_eocd_location
-              raise Error, 'Zip64 end of central directory signature not found'
-            end
-
-            io.seek(zip64_eocd_location, IO::SEEK_SET)
-            io.read(base_location + zip64_eocd_locator - zip64_eocd_location)
-          end
-
-        unpack_64_e_o_c_d(zip64_eocd_data)
+      # Need to read in the Zip64 EOCD locator and then the Zip64 EOCD.
+      zip64_eocd_locator = data.rindex([ZIP64_EOCD_LOCATOR_SIG].pack('V'), eocd_location)
+      unless zip64_eocd_locator
+        raise Error, 'Zip64 end of central directory locator signature expected but not found'
       end
 
-      unpack_e_o_c_d(data.slice(eocd_location..-1))
+      # Do we already have the Zip64 EOCD in the data we've read?
+      zip64_eocd_location = data.rindex([ZIP64_END_OF_CD_SIG].pack('V'), zip64_eocd_locator)
+
+      zip64_eocd_data =
+        if zip64_eocd_location
+          # Yes.
+          data.slice(zip64_eocd_location..zip64_eocd_locator)
+        else
+          # No. Read its location from the locator and then read it in.
+          zip64_eocd_location = unpack_64_eocd_locator(
+            data.slice(zip64_eocd_locator..eocd_location)
+          )
+          unless zip64_eocd_location
+            raise Error, 'Zip64 end of central directory signature not found'
+          end
+
+          io.seek(zip64_eocd_location, IO::SEEK_SET)
+          io.read(base_location + zip64_eocd_locator - zip64_eocd_location)
+        end
+
+      # Finally, unpack the Zip64 EOCD.
+      unpack_64_e_o_c_d(zip64_eocd_data)
     end
 
     def eocd_data(io)
