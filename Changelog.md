@@ -1,3 +1,12 @@
+# 3.2.2 (2025-11-02)
+
+- Fix reading EOCDs when header signatures are in an Entry payload. [#656](https://github.com/rubyzip/rubyzip/issues/656)
+
+Tooling/internal:
+
+- Stop using macos-13 runners in GitHub Actions.
+- Update YJIT GitHub Actions runners.
+
 # 3.2.1 (2025-10-24)
 
 - Fix `Entry#gather_fileinfo_from_srcpath` error messages. [#654](https://github.com/rubyzip/rubyzip/issues/654)
