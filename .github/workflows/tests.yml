@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        ruby: ['3.3', '3.4', head]
+        ruby: ['3.3', '3.4', '4.0', head]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     env:
