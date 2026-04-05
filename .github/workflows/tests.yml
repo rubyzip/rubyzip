@@ -23,7 +23,7 @@ jobs:
       BUNDLE_WITHOUT: benchmark
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
@@ -59,7 +59,7 @@ jobs:
       BUNDLE_WITHOUT: benchmark
     steps:
     - name: Checkout rubyzip code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Install and set up ruby
       uses: ruby/setup-ruby@v1
