@@ -751,7 +751,7 @@ module Zip
 
     def create_file(dest_path, _continue_on_exists_proc = proc { Zip.continue_on_exists_proc })
       if ::File.exist?(dest_path) && !yield(self, dest_path)
-        raise ::Zip::DestinationExistsError, dest_path
+        raise DestinationExistsError, dest_path
       end
 
       ::File.open(dest_path, 'wb') do |os|
@@ -763,8 +763,8 @@ module Zip
             bytes_written += buf.bytesize
             next unless bytes_written > size && !warned
 
-            error = ::Zip::EntrySizeError.new(self)
-            raise error if ::Zip.validate_entry_sizes
+            error = EntrySizeError.new(self)
+            raise error if Zip.validate_entry_sizes
 
             warn "WARNING: #{error.message}"
             warned = true
