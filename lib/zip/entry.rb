@@ -758,8 +758,7 @@ module Zip
         get_input_stream do |is|
           bytes_written = 0
           warned = false
-          buf = +''
-          while (buf = is.sysread(::Zip::Decompressor::CHUNK_SIZE, buf))
+          while (buf = is.sysread(Decompressor::CHUNK_SIZE))
             os << buf
             bytes_written += buf.bytesize
             next unless bytes_written > size && !warned
