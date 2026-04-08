@@ -5,20 +5,20 @@ module Zip
     def initialize(*args)
       super
 
-      @buffer = +''
+      @buffer = +''.b
       @zlib_inflater = ::Zlib::Inflate.new(-Zlib::MAX_WBITS)
     end
 
-    def read(length = nil, outbuf = +'')
-      return (length.nil? || length.zero? ? '' : nil) if eof?
+    def read(maxlen = nil)
+      return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
 
-      while length.nil? || (@buffer.bytesize < length)
+      while maxlen.nil? || (@buffer.bytesize < maxlen)
         break if input_finished?
 
         @buffer << produce_input
       end
 
-      outbuf.replace(@buffer.slice!(0...(length || @buffer.bytesize)))
+      @buffer.slice!(0...(maxlen || @buffer.bytesize))
     end
 
     def eof?

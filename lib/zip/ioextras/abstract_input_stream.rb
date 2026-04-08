@@ -13,42 +13,44 @@ module Zip
         super
         @lineno        = 0
         @pos           = 0
-        @output_buffer = +''
+        @output_buffer = +''.b
       end
 
       attr_accessor :lineno
       attr_reader :pos
 
-      def read(number_of_bytes = nil, buf = +'')
+      def read(maxlen = nil, out_string = nil) # rubocop:disable Metrics/PerceivedComplexity
+        return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
+
         tbuf = if @output_buffer.bytesize > 0
-                 if number_of_bytes && number_of_bytes <= @output_buffer.bytesize
-                   @output_buffer.slice!(0, number_of_bytes)
+                 if maxlen && maxlen <= @output_buffer.bytesize
+                   @output_buffer.slice!(0, maxlen)
                  else
-                   number_of_bytes -= @output_buffer.bytesize if number_of_bytes
-                   rbuf = sysread(number_of_bytes, buf)
+                   maxlen -= @output_buffer.bytesize if maxlen
+                   rbuf = @decompressor.read(maxlen)
                    out  = @output_buffer
                    out << rbuf if rbuf
-                   @output_buffer = ''
+                   @output_buffer = +''.b
                    out
                  end
                else
-                 sysread(number_of_bytes, buf)
+                 @decompressor.read(maxlen)
                end
 
         if tbuf.nil? || tbuf.empty?
-          return nil if number_of_bytes&.positive?
+          return nil if maxlen&.positive?
 
           return ''
         end
 
         @pos += tbuf.length
 
-        if buf
-          buf.replace(tbuf)
+        if out_string.nil?
+          tbuf.force_encoding(Encoding::ASCII_8BIT)
         else
-          buf = tbuf
+          encoding = out_string.encoding
+          out_string.replace(tbuf).force_encoding(encoding)
         end
-        buf
       end
 
       def readlines(a_sep_string = $INPUT_RECORD_SEPARATOR)
@@ -98,7 +100,7 @@ module Zip
 
       def flush
         ret_val        = @output_buffer
-        @output_buffer = +''
+        @output_buffer = +''.b
         ret_val
       end
 
