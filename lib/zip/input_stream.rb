@@ -89,9 +89,21 @@ module Zip
       open_entry
     end
 
-    # Modeled after IO.sysread
-    def sysread(length = nil, outbuf = +'')
-      @decompressor.read(length, outbuf)
+    # Modelled after IO#sysread.
+    #
+    # This method should not be used with other input stream-reader methods,
+    # such as #read, #readline, #gets.
+    def sysread(maxlen, out_string = nil)
+      return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
+
+      output = @decompressor.read(maxlen)
+
+      if out_string.nil?
+        output.force_encoding(Encoding::ASCII_8BIT)
+      else
+        encoding = out_string.encoding
+        out_string.replace(output).force_encoding(encoding)
+      end
     end
 
     # Returns the size of the current entry, or `nil` if there isn't one.

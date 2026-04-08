@@ -258,22 +258,92 @@ class ZipInputStreamTest < Minitest::Test
     end
   end
 
-  def test_sysread
+  def test_sysread_text_deflated
     Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       zis.get_next_entry
 
       # Read with no buffer specified.
+      # No buffer means the returned string should be ASCII-8BIT encoded.
       buffer = zis.sysread(20)
       assert_equal("#!/usr/bin/env ruby\n", buffer)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
 
       # Read with a buffer specified.
+      # The buffer's encoding should be preserved and the read data should be forced to that encoding.
       buffer = +''
-      zis.sysread(17, buffer)
+      output = zis.sysread(17, buffer)
       assert_equal("\n$VERBOSE = true\n", buffer)
+      assert_same(buffer, output)
+      assert_equal(Encoding::UTF_8, buffer.encoding)
 
-      # Read with no length specified. This should read the rest of the entry.
-      buffer = zis.sysread
-      assert_equal(123_665, buffer.bytesize)
+      # Read with an ASCII-8BIT encoded buffer specified.
+      buffer = +''.b
+      zis.sysread(20, buffer)
+      assert_equal("\nrequire 'rubyunit'\n", buffer)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+    end
+  end
+
+  def test_sysread_text_stored
+    Zip::InputStream.open('test/data/zipWithStoredCompression.zip') do |zis|
+      zis.get_next_entry
+
+      buffer = zis.sysread(24)
+      assert_equal("\nAUTOMAKE_OPTIONS = gnu\n", buffer)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+
+      buffer = +''
+      zis.sysread(23, buffer)
+      assert_equal("\nEXTRA_DIST = test.zip\n", buffer)
+      assert_equal(Encoding::UTF_8, buffer.encoding)
+
+      buffer = +''.b
+      zis.sysread(14, buffer)
+      assert_equal("\nCXXFLAGS= -g\n", buffer)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+    end
+  end
+
+  def test_sysread_text_stored_encrypted
+    Zip::InputStream.open(
+      'test/data/zipWithStoredCompressionAndEncryption.zip',
+      decrypter: Zip::TraditionalDecrypter.new('password')
+    ) do |zis|
+      zis.get_next_entry
+
+      buffer = zis.sysread(24)
+      assert_equal("\nAUTOMAKE_OPTIONS = gnu\n", buffer)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+
+      buffer = +''
+      zis.sysread(23, buffer)
+      assert_equal("\nEXTRA_DIST = test.zip\n", buffer)
+      assert_equal(Encoding::UTF_8, buffer.encoding)
+
+      buffer = +''.b
+      zis.sysread(14, buffer)
+      assert_equal("\nCXXFLAGS= -g\n", buffer)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+    end
+  end
+
+  def test_sysread_binary_stored
+    Zip::InputStream.open('test/data/bin_stored.zip') do |zis|
+      zis.get_next_entry
+
+      buffer = zis.sysread(8)
+      assert_equal([255, 254, 253, 252, 255, 254, 253, 252], buffer.bytes)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+
+      buffer = +''
+      zis.sysread(8, buffer)
+      assert_equal([255, 254, 253, 252, 255, 254, 253, 252], buffer.bytes)
+      assert_equal(Encoding::UTF_8, buffer.encoding)
+
+      buffer = +''.b
+      zis.sysread(8, buffer)
+      assert_equal([255, 254, 253, 252, 255, 254, 253, 252], buffer.bytes)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
     end
   end
 end

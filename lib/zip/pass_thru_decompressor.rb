@@ -7,15 +7,15 @@ module Zip
       @read_so_far = 0
     end
 
-    def read(length = nil, outbuf = +'')
-      return (length.nil? || length.zero? ? '' : nil) if eof?
+    def read(maxlen = nil)
+      return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
 
-      if length.nil? || (@read_so_far + length) > decompressed_size
-        length = decompressed_size - @read_so_far
+      if maxlen.nil? || (@read_so_far + maxlen) > decompressed_size
+        maxlen = decompressed_size - @read_so_far
       end
 
-      @read_so_far += length
-      input_stream.read(length, outbuf)
+      @read_so_far += maxlen
+      input_stream.read(maxlen)
     end
 
     def eof?
