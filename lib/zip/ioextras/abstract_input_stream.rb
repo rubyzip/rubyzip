@@ -3,7 +3,7 @@
 module Zip
   module IOExtras # :nodoc:
     # Implements many of the convenience methods of IO
-    # such as gets, getc, readline and readlines
+    # such as gets, getc, read, readline and readlines
     # depends on: input_finished?, produce_input and read
     module AbstractInputStream # :nodoc:
       include Enumerable
@@ -27,14 +27,14 @@ module Zip
                    @output_buffer.slice!(0, maxlen)
                  else
                    maxlen -= @output_buffer.bytesize if maxlen
-                   rbuf = @decompressor.read(maxlen)
+                   rbuf = produce_input(maxlen)
                    out  = @output_buffer
                    out << rbuf if rbuf
                    @output_buffer = +''.b
                    out
                  end
                else
-                 @decompressor.read(maxlen)
+                 produce_input(maxlen)
                end
 
         if tbuf.nil? || tbuf.empty?
