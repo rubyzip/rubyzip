@@ -23,14 +23,10 @@ class AbstractInputStreamTest < Minitest::Test
       @read_ptr = 0
     end
 
-    def sysread(chars_to_read, _buf = nil)
-      ret_val = @contents[@read_ptr, chars_to_read]
-      @read_ptr += chars_to_read
+    def produce_input(maxlen = 100)
+      ret_val = @contents[@read_ptr, maxlen]
+      @read_ptr += ret_val ? ret_val.length : 0
       ret_val
-    end
-
-    def produce_input
-      sysread(100)
     end
 
     def input_finished?

@@ -96,7 +96,7 @@ module Zip
     def sysread(maxlen, out_string = nil)
       return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
 
-      output = @decompressor.read(maxlen)
+      output = produce_input(maxlen)
 
       if out_string.nil?
         output.force_encoding(Encoding::ASCII_8BIT)
@@ -209,8 +209,8 @@ module Zip
       decompressor_class.new(io, decompressed_size)
     end
 
-    def produce_input # :nodoc:
-      @decompressor.read(CHUNK_SIZE)
+    def produce_input(maxlen = CHUNK_SIZE) # :nodoc:
+      @decompressor.read(maxlen)
     end
 
     def input_finished? # :nodoc:
