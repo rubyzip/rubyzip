@@ -99,9 +99,7 @@ module Zip
       end
 
       def flush
-        ret_val        = @output_buffer
-        @output_buffer = +''.b
-        ret_val
+        @output_buffer.slice!(0..)
       end
 
       def readline(a_sep_string = $INPUT_RECORD_SEPARATOR)
