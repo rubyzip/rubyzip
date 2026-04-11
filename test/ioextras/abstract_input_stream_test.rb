@@ -203,6 +203,40 @@ class AbstractInputStreamTest < Minitest::Test
     io = TestAbstractInputStream.new(TEST_STRING)
 
     assert_equal(TEST_LINES, io.readlines)
+    assert_predicate(io, :eof?)
+    assert_equal(3, io.lineno)
+
+    # readlines should return an empty array if we're already at the end of the stream.
+    assert_equal([], io.readlines)
+    assert_equal(3, io.lineno)
+  end
+
+  def test_readlines_with_nil_separator
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal([TEST_STRING], io.readlines(nil))
+    assert_predicate(io, :eof?)
+    assert_equal(1, io.lineno)
+  end
+
+  def test_readlines_with_chomp
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_LINES.map(&:chomp), io.readlines(chomp: true))
+    assert_predicate(io, :eof?)
+    assert_equal(3, io.lineno)
+  end
+
+  def test_readlines_with_limit
+    io = TestAbstractInputStream.new(TEST_STRING)
+    expected_chunks = [
+      'Hello wo', "rld\n", 'this is ', 'the seco',
+      "nd line\n", 'this is ', 'the last', ' line'
+    ]
+
+    assert_equal(expected_chunks, io.readlines(8))
+    assert_predicate(io, :eof?)
+    assert_equal(expected_chunks.length, io.lineno)
   end
 
   def test_readline
