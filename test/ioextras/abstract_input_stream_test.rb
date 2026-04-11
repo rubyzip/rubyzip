@@ -35,10 +35,6 @@ class AbstractInputStreamTest < Minitest::Test
     end
   end
 
-  def setup
-    @io = TestAbstractInputStream.new(TEST_STRING)
-  end
-
   def test_gets
     io = line_tests
 
@@ -90,8 +86,10 @@ class AbstractInputStreamTest < Minitest::Test
   end
 
   def test_gets_multi_char_seperator
-    assert_equal('Hell', @io.gets('ll'))
-    assert_equal("o world#{$INPUT_RECORD_SEPARATOR}this is the second l", @io.gets('d l'))
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal('Hell', io.gets('ll'))
+    assert_equal("o world#{$INPUT_RECORD_SEPARATOR}this is the second l", io.gets('d l'))
   end
 
   def test_gets_multi_char_seperator_and_chomp
@@ -130,15 +128,19 @@ class AbstractInputStreamTest < Minitest::Test
   end
 
   def test_each_line
+    io = TestAbstractInputStream.new(TEST_STRING)
+
     line_num = 0
-    @io.each_line do |line|
+    io.each_line do |line|
       assert_equal(TEST_LINES[line_num], line)
       line_num += 1
     end
   end
 
   def test_readlines
-    assert_equal(TEST_LINES, @io.readlines)
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_LINES, io.readlines)
   end
 
   def test_readline
