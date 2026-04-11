@@ -40,15 +40,11 @@ class AbstractInputStreamTest < Minitest::Test
   end
 
   def test_gets
-    assert_equal(TEST_LINES[0], @io.gets)
-    assert_equal(1, @io.lineno)
-    assert_equal(TEST_LINES[0].length, @io.pos)
-    assert_equal(TEST_LINES[1], @io.gets)
-    assert_equal(2, @io.lineno)
-    assert_equal(TEST_LINES[2], @io.gets)
-    assert_equal(3, @io.lineno)
-    assert_nil(@io.gets)
-    assert_equal(4, @io.lineno)
+    io = line_tests
+
+    # gets should return nil if we're already at the end of the stream.
+    assert_nil(io.gets)
+    assert_equal(4, io.lineno)
   end
 
   def test_gets_with_nil_separator
@@ -148,11 +144,27 @@ class AbstractInputStreamTest < Minitest::Test
   end
 
   def test_readline
-    test_gets
-    begin
-      @io.readline
-      raise 'EOFError expected'
-    rescue EOFError
-    end
+    io = line_tests(method_name: :readline)
+
+    # readline should raise EOFError if we're already at the end of the stream.
+    assert_raises(EOFError) { io.readline }
+    assert_equal(3, io.lineno)
+  end
+
+  private
+
+  def line_tests(method_name: :gets)
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_LINES[0], io.send(method_name))
+    assert_equal(1, io.lineno)
+    assert_equal(TEST_LINES[0].length, io.pos)
+    assert_equal(TEST_LINES[1], io.send(method_name))
+    assert_equal(2, io.lineno)
+    assert_equal(TEST_LINES[2], io.send(method_name))
+    assert_equal(3, io.lineno)
+    assert_predicate(io, :eof?)
+
+    io
   end
 end
