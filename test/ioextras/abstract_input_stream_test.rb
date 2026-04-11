@@ -80,11 +80,7 @@ class AbstractInputStreamTest < Minitest::Test
   end
 
   def test_gets_with_chomp
-    io = TestAbstractInputStream.new(TEST_STRING)
-
-    assert_equal(TEST_LINES[0].chomp, io.gets(chomp: true))
-    assert_equal(TEST_LINES[1].chomp, io.gets(chomp: true))
-    assert_equal(TEST_LINES[2].chomp, io.gets(chomp: true))
+    line_tests_with_chomp
   end
 
   def test_gets_with_nil_separator_and_chomp
@@ -151,6 +147,10 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(3, io.lineno)
   end
 
+  def test_readline_with_chomp
+    line_tests_with_chomp(method_name: :readline)
+  end
+
   private
 
   def line_tests(method_name: :gets)
@@ -166,5 +166,13 @@ class AbstractInputStreamTest < Minitest::Test
     assert_predicate(io, :eof?)
 
     io
+  end
+
+  def line_tests_with_chomp(method_name: :gets)
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_LINES[0].chomp, io.send(method_name, chomp: true))
+    assert_equal(TEST_LINES[1].chomp, io.send(method_name, chomp: true))
+    assert_equal(TEST_LINES[2], io.send(method_name, chomp: true))
   end
 end
