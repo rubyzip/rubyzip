@@ -53,10 +53,8 @@ module Zip
         end
       end
 
-      def readlines(a_sep_string = $INPUT_RECORD_SEPARATOR)
-        ret_val = []
-        each_line(a_sep_string) { |line| ret_val << line }
-        ret_val
+      def readlines(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
+        each(sep, limit, chomp: chomp).to_a
       end
 
       def gets(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
