@@ -24,6 +24,7 @@ class AbstractInputStreamTest < Minitest::Test
     end
 
     def produce_input(maxlen = 100)
+      maxlen ||= @contents.length
       ret_val = @contents[@read_ptr, maxlen]
       @read_ptr += ret_val ? ret_val.length : 0
       ret_val
@@ -50,9 +51,62 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(4, @io.lineno)
   end
 
+  def test_gets_with_nil_separator
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_STRING, io.gets(nil))
+    assert_equal(1, io.lineno)
+    assert_equal(TEST_STRING.length, io.pos)
+    assert_predicate(io, :eof?)
+    assert_nil(io.gets(nil))
+    assert_equal(2, io.lineno)
+  end
+
+  def test_gets_with_empty_string_separator
+    paragraphs = TEST_LINES.join($INPUT_RECORD_SEPARATOR)
+    io = TestAbstractInputStream.new(paragraphs)
+
+    assert_equal("#{TEST_LINES[0]}#{$INPUT_RECORD_SEPARATOR}", io.gets(''))
+    assert_equal(1, io.lineno)
+    assert_equal(TEST_LINES[0].length + $INPUT_RECORD_SEPARATOR.length, io.pos)
+
+    assert_equal("#{TEST_LINES[1]}#{$INPUT_RECORD_SEPARATOR}", io.gets(''))
+    assert_equal(2, io.lineno)
+    length = TEST_LINES[0].length + TEST_LINES[1].length + ($INPUT_RECORD_SEPARATOR.length * 2)
+    assert_equal(length, io.pos)
+
+    assert_equal(TEST_LINES[2], io.gets(''))
+    assert_equal(3, io.lineno)
+    assert_equal(paragraphs.length, io.pos)
+
+    assert_predicate(io, :eof?)
+    assert_nil(io.gets(''))
+  end
+
+  def test_gets_with_chomp
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_LINES[0].chomp, io.gets(chomp: true))
+    assert_equal(TEST_LINES[1].chomp, io.gets(chomp: true))
+    assert_equal(TEST_LINES[2].chomp, io.gets(chomp: true))
+  end
+
+  def test_gets_with_nil_separator_and_chomp
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal(TEST_STRING, io.gets(nil, chomp: true))
+  end
+
   def test_gets_multi_char_seperator
     assert_equal('Hell', @io.gets('ll'))
     assert_equal("o world#{$INPUT_RECORD_SEPARATOR}this is the second l", @io.gets('d l'))
+  end
+
+  def test_gets_multi_char_seperator_and_chomp
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    assert_equal('He', io.gets('ll', chomp: true))
+    assert_equal("o world#{$INPUT_RECORD_SEPARATOR}this is the secon", io.gets('d l', chomp: true))
   end
 
   LONG_LINES = [

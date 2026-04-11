@@ -59,39 +59,39 @@ module Zip
         ret_val
       end
 
-      def gets(a_sep_string = $INPUT_RECORD_SEPARATOR, number_of_bytes = nil)
+      def gets(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
         @lineno = @lineno.next
 
-        if number_of_bytes.respond_to?(:to_int)
-          number_of_bytes = number_of_bytes.to_int
-          a_sep_string = a_sep_string.to_str if a_sep_string
-        elsif a_sep_string.respond_to?(:to_int)
-          number_of_bytes = a_sep_string.to_int
-          a_sep_string    = $INPUT_RECORD_SEPARATOR
-        else
-          number_of_bytes = nil
-          a_sep_string = a_sep_string.to_str if a_sep_string
+        if sep.nil?
+          return eof? ? nil : read(limit)
         end
 
-        return read(number_of_bytes) if a_sep_string.nil?
-
-        a_sep_string = "#{$INPUT_RECORD_SEPARATOR}#{$INPUT_RECORD_SEPARATOR}" if a_sep_string.empty?
+        if sep.respond_to?(:to_int)
+          limit = sep.to_int
+          sep   = $INPUT_RECORD_SEPARATOR
+        elsif sep&.empty?
+          sep = "#{$INPUT_RECORD_SEPARATOR}#{$INPUT_RECORD_SEPARATOR}"
+        end
 
         buffer_index = 0
-        over_limit   = number_of_bytes && @output_buffer.bytesize >= number_of_bytes
-        while (match_index = @output_buffer.index(a_sep_string, buffer_index)).nil? && !over_limit
-          buffer_index = [buffer_index, @output_buffer.bytesize - a_sep_string.bytesize].max
-          return @output_buffer.empty? ? nil : flush if input_finished?
+        while (sep_index = @output_buffer.index(sep, buffer_index)).nil?
+          break if limit && @output_buffer.bytesize >= limit
 
+          if input_finished?
+            return nil if @output_buffer.empty?
+
+            @pos += @output_buffer.bytesize
+            return @output_buffer.slice!(0..)
+          end
+
+          buffer_index = [buffer_index, @output_buffer.bytesize - sep.bytesize].max
           @output_buffer << produce_input
-          over_limit = number_of_bytes && @output_buffer.bytesize >= number_of_bytes
         end
-        sep_index = [
-          match_index + a_sep_string.bytesize,
-          number_of_bytes || @output_buffer.bytesize
-        ].min
-        @pos += sep_index
-        @output_buffer.slice!(0...sep_index)
+
+        limit ||= @output_buffer.bytesize
+        cut_index = sep_index ? [sep_index + sep.bytesize, limit].min : limit
+        @pos += cut_index
+        chomp ? @output_buffer.slice!(0, cut_index).chomp(sep) : @output_buffer.slice!(0, cut_index)
       end
 
       def ungetc(byte)
