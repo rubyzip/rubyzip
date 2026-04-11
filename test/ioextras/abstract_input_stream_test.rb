@@ -115,14 +115,14 @@ class AbstractInputStreamTest < Minitest::Test
     'rest'
   ].freeze
 
-  def test_gets_mulit_char_seperator_split
+  def test_gets_multi_char_seperator_split
     io = TestAbstractInputStream.new(LONG_LINES.join)
     assert_equal(LONG_LINES[0], io.gets("\r\n"))
     assert_equal(LONG_LINES[1], io.gets("\r\n"))
     assert_equal(LONG_LINES[2], io.gets("\r\n"))
   end
 
-  def test_gets_with_sep_and_index
+  def test_gets_with_sep_and_limit
     io = TestAbstractInputStream.new(LONG_LINES.join)
     assert_equal('x', io.gets("\r\n", 1))
     assert_equal("#{'x' * 47}\r", io.gets("\r\n", 48))
@@ -130,7 +130,7 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal('yy', io.gets(nil, 2))
   end
 
-  def test_gets_with_index
+  def test_gets_with_limit
     assert_equal(TEST_LINES[0], @io.gets(100))
     assert_equal('this', @io.gets(4))
   end
