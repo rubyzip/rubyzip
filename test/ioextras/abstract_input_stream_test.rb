@@ -127,13 +127,75 @@ class AbstractInputStreamTest < Minitest::Test
     assert_nil(io.gets(8))
   end
 
-  def test_each_line
+  def test_each
     io = TestAbstractInputStream.new(TEST_STRING)
 
-    line_num = 0
-    io.each_line do |line|
-      assert_equal(TEST_LINES[line_num], line)
-      line_num += 1
+    io.each_with_index do |line, index|
+      assert_equal(TEST_LINES[index], line)
+    end
+
+    assert_predicate(io, :eof?)
+    assert_equal(3, io.lineno)
+  end
+
+  def test_each_with_nil_separator
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    io.each(nil) do |line|
+      assert_equal(TEST_STRING, line)
+    end
+
+    assert_predicate(io, :eof?)
+    assert_equal(1, io.lineno)
+  end
+
+  def test_each_returns_an_enumerator
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    enum = io.each
+    assert_instance_of(Enumerator, enum)
+
+    enum.with_index do |line, index|
+      assert_equal(TEST_LINES[index], line)
+    end
+
+    assert_predicate(io, :eof?)
+    assert_equal(3, io.lineno)
+  end
+
+  def test_each_with_chomp
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    io.each(chomp: true).with_index do |line, index|
+      assert_equal(TEST_LINES[index].chomp, line)
+    end
+
+    assert_predicate(io, :eof?)
+    assert_equal(3, io.lineno)
+  end
+
+  def test_each_with_limit
+    io = TestAbstractInputStream.new(TEST_STRING)
+    expected_chunks = [
+      'Hello wo', "rld\n", 'this is ', 'the seco',
+      "nd line\n", 'this is ', 'the last', ' line'
+    ]
+
+    io.each_with_index(8) do |chunk, index|
+      assert_equal(expected_chunks[index], chunk)
+    end
+
+    assert_predicate(io, :eof?)
+    assert_equal(expected_chunks.length, io.lineno)
+  end
+
+  def test_each_at_eof
+    io = TestAbstractInputStream.new(TEST_STRING)
+    io.read
+    assert_predicate(io, :eof?)
+
+    io.each do |line|
+      flunk "Should not yield any lines at EOF, but yielded #{line.inspect}"
     end
   end
 

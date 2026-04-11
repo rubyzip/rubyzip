@@ -111,13 +111,15 @@ module Zip
         gets(sep, limit, chomp: chomp)
       end
 
-      def each_line(a_sep_string = $INPUT_RECORD_SEPARATOR)
-        loop { yield readline(a_sep_string) }
-      rescue EOFError
-        # We just need to catch this; we don't need to handle it.
+      def each(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
+        return to_enum(:each, sep, limit, chomp: chomp) unless block_given?
+
+        while (line = gets(sep, limit, chomp: chomp))
+          yield line
+        end
       end
 
-      alias each each_line
+      alias each_line each
 
       def eof?
         @output_buffer.empty? && input_finished?
