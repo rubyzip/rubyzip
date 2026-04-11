@@ -60,10 +60,11 @@ module Zip
       end
 
       def gets(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
-        @lineno = @lineno.next
-
         if sep.nil?
-          return eof? ? nil : read(limit)
+          return nil if eof?
+
+          @lineno = @lineno.next
+          return read(limit)
         end
 
         if sep.respond_to?(:to_int)
@@ -80,6 +81,7 @@ module Zip
           if input_finished?
             return nil if @output_buffer.empty?
 
+            @lineno = @lineno.next
             @pos += @output_buffer.bytesize
             return @output_buffer.slice!(0..)
           end
@@ -90,6 +92,7 @@ module Zip
 
         limit ||= @output_buffer.bytesize
         cut_index = sep_index ? [sep_index + sep.bytesize, limit].min : limit
+        @lineno = @lineno.next
         @pos += cut_index
         chomp ? @output_buffer.slice!(0, cut_index).chomp(sep) : @output_buffer.slice!(0, cut_index)
       end
