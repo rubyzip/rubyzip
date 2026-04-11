@@ -40,7 +40,7 @@ class AbstractInputStreamTest < Minitest::Test
 
     # gets should return nil if we're already at the end of the stream.
     assert_nil(io.gets)
-    assert_equal(4, io.lineno)
+    assert_equal(3, io.lineno)
   end
 
   def test_gets_with_nil_separator
@@ -51,7 +51,7 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(TEST_STRING.length, io.pos)
     assert_predicate(io, :eof?)
     assert_nil(io.gets(nil))
-    assert_equal(2, io.lineno)
+    assert_equal(1, io.lineno)
   end
 
   def test_gets_with_empty_string_separator
