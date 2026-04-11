@@ -123,8 +123,10 @@ class AbstractInputStreamTest < Minitest::Test
   end
 
   def test_gets_with_limit
-    assert_equal(TEST_LINES[0], @io.gets(100))
-    assert_equal('this', @io.gets(4))
+    io = line_tests_with_limit
+
+    assert_predicate(io, :eof?)
+    assert_nil(io.gets(8))
   end
 
   def test_each_line
@@ -151,6 +153,13 @@ class AbstractInputStreamTest < Minitest::Test
     line_tests_with_chomp(method_name: :readline)
   end
 
+  def test_readline_with_limit
+    io = line_tests_with_limit(method_name: :readline)
+
+    assert_predicate(io, :eof?)
+    assert_raises(EOFError) { io.readline(8) }
+  end
+
   private
 
   def line_tests(method_name: :gets)
@@ -174,5 +183,18 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(TEST_LINES[0].chomp, io.send(method_name, chomp: true))
     assert_equal(TEST_LINES[1].chomp, io.send(method_name, chomp: true))
     assert_equal(TEST_LINES[2], io.send(method_name, chomp: true))
+  end
+
+  def line_tests_with_limit(method_name: :gets)
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    [
+      'Hello wo', "rld\n", 'this is ', 'the seco',
+      "nd line\n", 'this is ', 'the last', ' line'
+    ].each do |chunk|
+      assert_equal(chunk, io.send(method_name, 8))
+    end
+
+    io
   end
 end
