@@ -102,11 +102,10 @@ module Zip
         @output_buffer.slice!(0..)
       end
 
-      def readline(a_sep_string = $INPUT_RECORD_SEPARATOR)
-        ret_val = gets(a_sep_string)
-        raise EOFError unless ret_val
+      def readline(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
+        raise EOFError if eof?
 
-        ret_val
+        gets(sep, limit, chomp: chomp)
       end
 
       def each_line(a_sep_string = $INPUT_RECORD_SEPARATOR)
