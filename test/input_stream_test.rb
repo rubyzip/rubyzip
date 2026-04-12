@@ -229,9 +229,9 @@ class ZipInputStreamTest < Minitest::Test
   def test_mix_read_and_gets
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       zis.get_next_entry
-      assert_equal('#!/usr/bin/env ruby', zis.gets.chomp)
+      assert_equal('#!/usr/bin/env ruby', zis.gets(chomp: true))
       assert_equal(false, zis.eof?)
-      assert_equal('', zis.gets.chomp)
+      assert_equal('', zis.gets(chomp: true))
       assert_equal(false, zis.eof?)
       assert_equal('$VERBOSE =', zis.read(10))
       assert_equal(false, zis.eof?)
@@ -241,9 +241,9 @@ class ZipInputStreamTest < Minitest::Test
   def test_ungetc
     ::Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       zis.get_next_entry
-      first_line = zis.gets.chomp
+      first_line = zis.gets(chomp: true)
       first_line.reverse.bytes.each { |b| zis.ungetc(b) }
-      assert_equal('#!/usr/bin/env ruby', zis.gets.chomp)
+      assert_equal('#!/usr/bin/env ruby', zis.gets(chomp: true))
       assert_equal('$VERBOSE =', zis.read(10))
     end
   end
