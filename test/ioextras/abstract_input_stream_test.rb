@@ -14,6 +14,12 @@ class AbstractInputStreamTest < Minitest::Test
   ].freeze
   TEST_STRING = TEST_LINES.join
 
+  LONG_LINES = [
+    "#{'x' * 48}\r\n",
+    "#{'y' * 49}\r\n",
+    'rest'
+  ].freeze
+
   class TestAbstractInputStream
     include ::Zip::IOExtras::AbstractInputStream
 
@@ -98,12 +104,6 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal('He', io.gets('ll', chomp: true))
     assert_equal("o world#{$INPUT_RECORD_SEPARATOR}this is the secon", io.gets('d l', chomp: true))
   end
-
-  LONG_LINES = [
-    "#{'x' * 48}\r\n",
-    "#{'y' * 49}\r\n",
-    'rest'
-  ].freeze
 
   def test_gets_multi_char_seperator_split
     io = TestAbstractInputStream.new(LONG_LINES.join)
