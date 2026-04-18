@@ -41,6 +41,80 @@ class AbstractInputStreamTest < Minitest::Test
     end
   end
 
+  def read_without_arguments
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    result = io.read
+    assert_equal(TEST_STRING, result)
+    assert_equal(TEST_STRING.length, io.pos)
+    assert_equal(Encoding::ASCII_8BIT, result.encoding)
+    assert_predicate(io, :eof?)
+    assert_equal('', io.read)
+    assert_equal(TEST_STRING.length, io.pos)
+  end
+
+  def test_read_with_maxlen
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    result = io.read(5)
+    assert_equal(TEST_STRING[0, 5], result)
+    assert_equal(5, io.pos)
+    assert_equal(Encoding::ASCII_8BIT, result.encoding)
+
+    result = io.read(0)
+    assert_equal('', result)
+    assert_equal(5, io.pos)
+
+    result = io.read(6)
+    assert_equal(TEST_STRING[5, 6], result)
+    assert_equal(11, io.pos)
+    assert_equal(Encoding::ASCII_8BIT, result.encoding)
+
+    result = io.read(100)
+    assert_equal(TEST_STRING[11, 100], result)
+    assert_equal(TEST_STRING.length, io.pos)
+    assert_equal(Encoding::ASCII_8BIT, result.encoding)
+
+    assert_predicate(io, :eof?)
+    assert_nil(io.read(1))
+    assert_equal('', io.read(0))
+    assert_equal(TEST_STRING.length, io.pos)
+  end
+
+  def test_read_with_outstring
+    io = TestAbstractInputStream.new(TEST_STRING)
+
+    out_string = +''
+    result = io.read(5, out_string)
+    assert_equal(TEST_STRING[0, 5], result)
+    assert_equal(TEST_STRING[0, 5], out_string)
+    assert_same(result, out_string)
+    assert_equal(5, io.pos)
+    assert_equal(Encoding::UTF_8, result.encoding)
+
+    result = io.read(6, out_string)
+    assert_equal(TEST_STRING[5, 6], result)
+    assert_equal(TEST_STRING[5, 6], out_string)
+    assert_same(result, out_string)
+    assert_equal(11, io.pos)
+    assert_equal(Encoding::UTF_8, result.encoding)
+
+    out_string = +''.b
+    result = io.read(6, out_string)
+    assert_equal(TEST_STRING[11, 6], result)
+    assert_equal(TEST_STRING[11, 6], out_string)
+    assert_same(result, out_string)
+    assert_equal(17, io.pos)
+    assert_equal(Encoding::ASCII_8BIT, result.encoding)
+
+    result = io.read(nil, out_string)
+    assert_equal(TEST_STRING[17..], result)
+    assert_equal(TEST_STRING[17..], out_string)
+    assert_same(result, out_string)
+    assert_equal(TEST_STRING.length, io.pos)
+    assert_equal(Encoding::ASCII_8BIT, result.encoding)
+  end
+
   def test_gets
     io = line_tests
 
