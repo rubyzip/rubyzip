@@ -91,7 +91,14 @@ module Zip
 
     # Modelled after IO#sysread.
     #
-    # This method should not be used with other input stream-reader methods,
+    # Reads up to maxlen bytes from the stream; returns a string
+    # (either a new string or the given out_string).
+    # Its encoding is the unchanged encoding of out_string, if out_string is
+    # given; ASCII-8BIT, otherwise. Output contains maxlen bytes from the
+    # stream, if available; otherwise contains all available bytes, if any
+    # available; otherwise is an empty string.
+    #
+    # This method should not be used with buffered input stream-reader methods,
     # such as #read, #readline, #gets.
     def sysread(maxlen, out_string = nil)
       return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
