@@ -1,6 +1,6 @@
 BSD 2-Clause License
 
-Copyright (c) 2002-2025, The Rubyzip Developers
+Copyright (c) 2002-2026, The Rubyzip Developers
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
