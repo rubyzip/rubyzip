@@ -1,3 +1,13 @@
+# 3.3.0 (2026-05-02)
+
+- Refactor `InputStream` and `AbstractInputStream`.
+ [#661](https://github.com/rubyzip/rubyzip/pull/661)
+
+Tooling/internal:
+
+- Update Actions to use checkout@v5.
+- Add Ruby4.0 to the CI matrix. [#659](https://github.com/rubyzip/rubyzip/pull/659)
+
 # 3.2.2 (2025-11-02)
 
 - Fix reading EOCDs when header signatures are in an Entry payload. [#656](https://github.com/rubyzip/rubyzip/issues/656)
