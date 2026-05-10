@@ -40,8 +40,11 @@ gem install rubyzip
 Or in your Gemfile:
 
 ```ruby
-gem 'rubyzip'
+gem 'rubyzip', require: 'zip' # For versions before 3.4.
+gem 'rubyzip'                 # For version 3.4 and after.
 ```
+
+From version 3.4 onwards, you can `require` either 'zip' or 'rubyzip' to use this library. Before version 3.4 you need to `require 'zip'` explicitly.
 
 ## Usage
 
