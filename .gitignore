@@ -6,6 +6,7 @@ Gemfile.lock
 +samples/*.zip.*
 samples/zipdialogui.rb
 coverage
+doc/zip/APPNOTE.TXT
 html/
 pkg/
 .ruby-gemset
