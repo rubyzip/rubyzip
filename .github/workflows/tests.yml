@@ -14,6 +14,7 @@ jobs:
           - { os: macos-latest, ruby: '3.3' }
           - { os: windows-2022, ruby: '3.0' }
           - { os: windows-2025, ruby: '3.3' }
+          - { os: windows-2025, ruby: '4.0' }
           # Windows head builds.
           - { os: windows-latest, ruby: ucrt  }
           - { os: windows-latest, ruby: mswin }

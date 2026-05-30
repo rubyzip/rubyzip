@@ -448,11 +448,12 @@ Rubyzip 2.4 is known to work on MRI 2.4 to 3.4 on Linux and Mac, and JRuby and T
 
 Please see the table below for what we think the current situation is. Note: an empty cell means "unknown", not "does not work".
 
-| OS/Ruby | 3.0 | 3.1 | 3.2 | 3.3 | 3.4 | Head | JRuby 10.0.1.0 | JRuby Head | Truffleruby 24.2.1 | Truffleruby Head |
-|---------|-----|-----|-----|-----|-----|------|---------------|------------|--------------------|------------------|
-|Ubuntu 24.04| CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
-|Mac OS 14.7.6| CI | CI | CI | CI | CI | ci | x |  | x |  |
-|Windows Server 2022| CI |  |  |  | CI&nbsp;mswin</br>CI&nbsp;ucrt |  |  |  |  |  |
+| OS/Ruby | 3.0 | 3.1 | 3.2 | 3.3 | 3.4 | 4.0 | Head | JRuby 10.0.1.0 | JRuby Head | Truffleruby 34.0.1 | Truffleruby Head |
+|---------|-----|-----|-----|-----|-----|-----|------|----------------|------------|-------------------|------------------|
+|Ubuntu 24.04| CI | CI | CI | CI | CI | CI | ci | CI | ci | CI | ci |
+|Mac OS 15.7.7| CI | x | x | CI | CI | CI | ci | x |  | x |  |
+|Windows Server 2022| CI |  |  |  |  |  |  |  |  |  |  |
+|Windows Server 2025|  |  |  | CI |  | CI | CI&nbsp;mswin</br>CI&nbsp;ucrt |  |  |  |  |
 
 Key: `CI` - tested in CI, should work; `ci` - tested in CI, might fail; `x` - known working; `o` - known failing.
 
