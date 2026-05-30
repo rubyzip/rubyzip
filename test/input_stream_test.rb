@@ -258,6 +258,38 @@ class ZipInputStreamTest < Minitest::Test
     end
   end
 
+  # Remove the default value for InputStream#sysread(maxlen) for version 4
+  # and remove this test.
+  def test_sysread_with_no_maxlen_deflated
+    Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      zis.get_next_entry
+
+      # Read with no maxlen specified. Should read the entire entry.
+      buffer = zis.sysread
+      assert_equal(123_702, buffer.length)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+
+      # Now at EOF, should return empty string.
+      assert_empty(zis.sysread)
+    end
+  end
+
+  # Remove the default value for InputStream#sysread(maxlen) for version 4
+  # and remove this test.
+  def test_sysread_with_no_maxlen_stored
+    Zip::InputStream.open('test/data/zipWithStoredCompression.zip') do |zis|
+      zis.get_next_entry
+
+      # Read with no maxlen specified. Should read the entire entry.
+      buffer = zis.sysread
+      assert_equal(1327, buffer.length)
+      assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
+
+      # Now at EOF, should return empty string.
+      assert_empty(zis.sysread)
+    end
+  end
+
   def test_sysread_text_deflated
     Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
       zis.get_next_entry

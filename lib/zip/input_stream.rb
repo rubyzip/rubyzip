@@ -100,7 +100,8 @@ module Zip
     #
     # This method should not be used with buffered input stream-reader methods,
     # such as #read, #readline, #gets.
-    def sysread(maxlen, out_string = nil)
+    def sysread(maxlen = nil, out_string = nil)
+      # Remove the default value for maxlen for version 4.
       return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
 
       output = produce_input(maxlen)
