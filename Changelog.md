@@ -1,3 +1,7 @@
+# 3.3.1 (2026-05-30)
+
+- Reinstate default param for `InputStream#sysread`. [#663](https://github.com/rubyzip/rubyzip/issues/663)
+
 # 3.3.0 (2026-05-02)
 
 - Refactor `InputStream` and `AbstractInputStream`.
