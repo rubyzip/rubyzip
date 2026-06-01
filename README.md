@@ -11,6 +11,10 @@ Rubyzip is a ruby library for reading and writing zip files.
 
 ## Important notes
 
+### Reporting security issues with this library
+
+If you think you have found a security issue with this library, please don't submit a public issue or PR. Email me directly at hainesr@gmail.com with as much information as you can provide - steps for replication are particularly helpful if you can - and we'll get it sorted ASAP. Thank you.
+
 ### Updating to version 3.0
 
 The public API of some classes has been modernized to use named parameters for optional arguments. Please check your usage of the following Rubyzip classes:
