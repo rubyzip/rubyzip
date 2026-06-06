@@ -120,7 +120,10 @@ class ZipCentralDirectoryTest < Minitest::Test
     end
 
     assert_equal(0x10000, cdir_readback.size)
-    assert_equal(Zip::VERSION_NEEDED_TO_EXTRACT_ZIP64, cdir_readback.instance_variable_get(:@version_needed_for_extract))
+
+    # Consider reinstating the instance variable below at some point,
+    # but for now it's best not to expose it only for testing purposes.
+    # assert_equal(Zip::VERSION_NEEDED_TO_EXTRACT_ZIP64, cdir_readback.instance_variable_get(:@version_needed_for_extract))
   end
 
   def test_equality

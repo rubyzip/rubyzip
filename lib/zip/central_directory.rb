@@ -114,18 +114,18 @@ module Zip
 
     def unpack_64_e_o_c_d(buffer) # :nodoc:
       _, # ZIP64_END_OF_CD_SIG. We know we have this at this point.
-      @size_of_zip64_e_o_c_d,
-      @version_made_by,
-      @version_needed_for_extract,
-      @number_of_this_disk,
-      @number_of_disk_with_start_of_cdir,
-      @total_number_of_entries_in_cdir_on_this_disk,
+      size_of_zip64_e_o_c_d,
+      _version_made_by,
+      _version_needed_for_extract,
+      _number_of_this_disk,
+      _number_of_disk_with_start_of_cdir,
+      _total_number_of_entries_in_cdir_on_this_disk,
       @size,
       @size_in_bytes,
       @cdir_offset = buffer.unpack('VQ<vvVVQ<Q<Q<Q<')
 
       zip64_extensible_data_size =
-        @size_of_zip64_e_o_c_d - ZIP64_STATIC_EOCD_SIZE + 12
+        size_of_zip64_e_o_c_d - ZIP64_STATIC_EOCD_SIZE + 12
       @zip64_extensible_data = if zip64_extensible_data_size.zero?
                                  ''
                                else
@@ -147,9 +147,9 @@ module Zip
     # complete without needing Zip64 extensions.
     def unpack_e_o_c_d(buffer) # :nodoc: # rubocop:disable Naming/PredicateMethod
       _, # END_OF_CD_SIG. We know we have this at this point.
-      @number_of_this_disk,
-      @number_of_disk_with_start_of_cdir,
-      @total_number_of_entries_in_cdir_on_this_disk,
+      number_of_this_disk,
+      number_of_disk_with_start_of_cdir,
+      total_number_of_entries_in_cdir_on_this_disk,
       @size,
       @size_in_bytes,
       @cdir_offset,
@@ -161,8 +161,8 @@ module Zip
                    ''
                  end
 
-      !([@number_of_this_disk, @number_of_disk_with_start_of_cdir,
-         @total_number_of_entries_in_cdir_on_this_disk, @size].any?(0xFFFF) ||
+      !([number_of_this_disk, number_of_disk_with_start_of_cdir,
+         total_number_of_entries_in_cdir_on_this_disk, @size].any?(0xFFFF) ||
          @size_in_bytes == 0xFFFFFFFF || @cdir_offset == 0xFFFFFFFF)
     end
 
