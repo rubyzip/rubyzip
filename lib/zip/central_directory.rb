@@ -121,8 +121,10 @@ module Zip
       _number_of_disk_with_start_of_cdir,
       _total_number_of_entries_in_cdir_on_this_disk,
       @size,
-      @size_in_bytes,
+      size_in_bytes,
       @cdir_offset = buffer.unpack('VQ<vvVVQ<Q<Q<Q<')
+
+      validate_size!(@size, size_in_bytes)
 
       zip64_extensible_data_size =
         size_of_zip64_e_o_c_d - ZIP64_STATIC_EOCD_SIZE + 12
@@ -145,15 +147,21 @@ module Zip
 
     # Unpack the EOCD and return a boolean indicating whether this header is
     # complete without needing Zip64 extensions.
-    def unpack_e_o_c_d(buffer) # :nodoc: # rubocop:disable Naming/PredicateMethod
+    def unpack_e_o_c_d(buffer) # :nodoc:
       _, # END_OF_CD_SIG. We know we have this at this point.
       number_of_this_disk,
       number_of_disk_with_start_of_cdir,
       total_number_of_entries_in_cdir_on_this_disk,
       @size,
-      @size_in_bytes,
+      size_in_bytes,
       @cdir_offset,
       comment_length = buffer.unpack('VvvvvVVv')
+
+      complete = !([number_of_this_disk, number_of_disk_with_start_of_cdir,
+                    total_number_of_entries_in_cdir_on_this_disk, @size].any?(0xFFFF) ||
+                    size_in_bytes == 0xFFFFFFFF || @cdir_offset == 0xFFFFFFFF)
+
+      validate_size!(@size, size_in_bytes) if complete
 
       @comment = if comment_length.positive?
                    buffer.slice(STATIC_EOCD_SIZE, comment_length)
@@ -161,9 +169,7 @@ module Zip
                    ''
                  end
 
-      !([number_of_this_disk, number_of_disk_with_start_of_cdir,
-         total_number_of_entries_in_cdir_on_this_disk, @size].any?(0xFFFF) ||
-         @size_in_bytes == 0xFFFFFFFF || @cdir_offset == 0xFFFFFFFF)
+      complete
     end
 
     def read_central_directory_entries(io) # :nodoc:
@@ -257,6 +263,15 @@ module Zip
       end
 
       [io.tell, io.read]
+    end
+
+    def validate_size!(size, size_in_bytes)
+      return if size * CDIR_ENTRY_STATIC_HEADER_LENGTH <= size_in_bytes
+
+      error = EntryNumberMismatchError.new(size, size_in_bytes)
+      raise error if Zip.validate_declared_number_of_entries
+
+      warn error.message
     end
   end
 end

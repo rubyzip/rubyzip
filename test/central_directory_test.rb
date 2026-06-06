@@ -58,6 +58,44 @@ class ZipCentralDirectoryTest < Minitest::Test
     end
   end
 
+  def test_warn_file_with_too_high_number_of_entries_declared
+    ::File.open('test/data/zipWithTooBigCDirSizeField.zip', 'rb') do |f|
+      cdir = ::Zip::CentralDirectory.new
+
+      assert_output('', /Zip consistency problem:/) do
+        cdir.read_from_stream(f) # Should not raise anything, but should warn.
+      end
+    end
+
+    ::File.open('test/data/zipWithTooBigCDirSizeField64.zip', 'rb') do |f|
+      cdir = ::Zip::CentralDirectory.new
+
+      assert_output('', /Zip consistency problem:/) do
+        cdir.read_from_stream(f) # Should not raise anything, but should warn.
+      end
+    end
+  end
+
+  def test_error_file_with_too_high_number_of_entries_declared
+    Zip.validate_declared_number_of_entries = true
+
+    ::File.open('test/data/zipWithTooBigCDirSizeField.zip', 'rb') do |f|
+      cdir = ::Zip::CentralDirectory.new
+
+      assert_raises(::Zip::EntryNumberMismatchError) do
+        cdir.read_from_stream(f)
+      end
+    end
+
+    ::File.open('test/data/zipWithTooBigCDirSizeField64.zip', 'rb') do |f|
+      cdir = ::Zip::CentralDirectory.new
+
+      assert_raises(::Zip::EntryNumberMismatchError) do
+        cdir.read_from_stream(f)
+      end
+    end
+  end
+
   def test_count_entries
     [
       ['test/data/osx-archive.zip', 4],

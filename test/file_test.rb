@@ -265,7 +265,9 @@ class ZipFileTest < Minitest::Test
       ['test/data/max_length_file_comment.zip', 1],
       ['test/data/100000-files.zip', 100_000]
     ].each do |filename, num_entries|
-      assert_equal(num_entries, ::Zip::File.count_entries(filename))
+      assert_output('', '') do
+        assert_equal(num_entries, ::Zip::File.count_entries(filename))
+      end
 
       ::File.open(filename, 'rb') do |f|
         assert_equal(num_entries, ::Zip::File.count_entries(f))
@@ -274,6 +276,28 @@ class ZipFileTest < Minitest::Test
         s = StringIO.new(f.read)
         assert_equal(num_entries, ::Zip::File.count_entries(s))
       end
+    end
+  end
+
+  def test_warn_count_entries_with_too_high_number_of_entries_declared
+    assert_output('', /Zip consistency problem:/) do
+      Zip::File.count_entries('test/data/zipWithTooBigCDirSizeField.zip')
+    end
+
+    assert_output('', /Zip consistency problem:/) do
+      Zip::File.count_entries('test/data/zipWithTooBigCDirSizeField64.zip')
+    end
+  end
+
+  def test_error_count_entries_with_too_high_number_of_entries_declared
+    Zip.validate_declared_number_of_entries = true
+
+    assert_raises(::Zip::EntryNumberMismatchError) do
+      Zip::File.count_entries('test/data/zipWithTooBigCDirSizeField.zip')
+    end
+
+    assert_raises(::Zip::EntryNumberMismatchError) do
+      Zip::File.count_entries('test/data/zipWithTooBigCDirSizeField64.zip')
     end
   end
 

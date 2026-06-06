@@ -109,6 +109,22 @@ module Zip
     end
   end
 
+  class EntryNumberMismatchError < Error
+    # Create a new EntryNumberMismatchError with the specified size and size in bytes.
+    def initialize(size, size_in_bytes)
+      super()
+      @size = size
+      @size_in_bytes = size_in_bytes
+    end
+
+    # The message returned by this error.
+    def message
+      "Zip consistency problem: an impossibly high number of entries (#{@size}) " \
+        'is declared in this file, compared to the size of the central directory ' \
+        "(#{@size_in_bytes} bytes)."
+    end
+  end
+
   # Error raised if a split archive is read. Rubyzip does not support reading
   # split archives.
   class SplitArchiveError < Error

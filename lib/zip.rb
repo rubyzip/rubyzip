@@ -54,7 +54,8 @@ module Zip
                 :warn_invalid_date,
                 :case_insensitive_match,
                 :force_entry_names_encoding,
-                :validate_entry_sizes
+                :validate_entry_sizes,
+                :validate_declared_number_of_entries
 
   DEFAULT_RESTORE_OPTIONS = {
     restore_ownership:   false,
@@ -78,6 +79,7 @@ module Zip
     @case_insensitive_match = false
     @force_entry_names_encoding = nil
     @validate_entry_sizes = true
+    @validate_declared_number_of_entries = false # Set this to `true` in v4.0.0?
   end
 
   # Set options for RubyZip in one block.

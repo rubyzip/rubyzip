@@ -370,7 +370,19 @@ Some zip files might have an invalid date format, which will raise a warning. Yo
 Zip.warn_invalid_date = false
 ```
 
-### Size Validation
+### Validating Declared Number of Entries
+
+When reading a zip file it is potentially dangerous to trust what it tells you about how many entries it contains. A malformed zip file could claim a high number of entries in an attempt to waste internal resources, or crash the processing application.
+
+By default rubyzip will warn if the number of declared entries is impossible based on the actual size of the Central Directory headers. You can set this check to raise an error:
+
+```ruby
+Zip.validate_declared_number_of_entries = true
+```
+
+It is likely that the default behaviour for this check will be changed to raise an error in version 4.
+
+### Entry Size Validation
 
 By default (in rubyzip >= 2.0), rubyzip's `extract` method checks that an entry's reported uncompressed size is not (significantly) smaller than its actual size. This is to help you protect your application against [zip bombs](https://en.wikipedia.org/wiki/Zip_bomb). Before `extract`ing an entry, you should check that its size is in the range you expect. For example, if your application supports processing up to 100 files at once, each up to 10MiB, your zip extraction code might look like:
 
