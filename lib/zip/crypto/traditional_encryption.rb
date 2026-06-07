@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module Zip
   module TraditionalEncryption # :nodoc:
     def initialize(password)
@@ -44,7 +46,7 @@ module Zip
     def header(mtime)
       [].tap do |header|
         (header_bytesize - 2).times do
-          header << Random.rand(0..255)
+          header << SecureRandom.rand(0..255)
         end
         header << (mtime.to_binary_dos_time & 0xff)
         header << (mtime.to_binary_dos_time >> 8)

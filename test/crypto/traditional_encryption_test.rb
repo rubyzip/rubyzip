@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 require_relative '../test_helper'
 
 class TraditionalEncrypterTest < Minitest::Test
@@ -19,14 +21,14 @@ class TraditionalEncrypterTest < Minitest::Test
   def test_header
     @encrypter.reset!
     exepected = [239, 57, 234, 154, 246, 80, 83, 221, 74, 200, 121, 91].pack('C*')
-    Random.stub(:rand, 1) do
+    SecureRandom.stub(:rand, 1) do
       assert_equal exepected, @encrypter.header(@mtime)
     end
   end
 
   def test_encrypt
     @encrypter.reset!
-    Random.stub(:rand, 1) { @encrypter.header(@mtime) }
+    SecureRandom.stub(:rand, 1) { @encrypter.header(@mtime) }
     assert_raises(NoMethodError) { @encrypter.encrypt(nil) }
     assert_raises(NoMethodError) { @encrypter.encrypt(1) }
     assert_equal '', @encrypter.encrypt('')
@@ -35,13 +37,13 @@ class TraditionalEncrypterTest < Minitest::Test
 
   def test_reset!
     @encrypter.reset!
-    Random.stub(:rand, 1) { @encrypter.header(@mtime) }
+    SecureRandom.stub(:rand, 1) { @encrypter.header(@mtime) }
     [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].map(&:chr).each do |c|
       assert_equal c, @encrypter.encrypt('a')
     end
     assert_equal 56.chr, @encrypter.encrypt('a')
     @encrypter.reset!
-    Random.stub(:rand, 1) { @encrypter.header(@mtime) }
+    SecureRandom.stub(:rand, 1) { @encrypter.header(@mtime) }
     [100, 218, 7, 114, 226, 82, 62, 93, 224, 62].map(&:chr).each do |c|
       assert_equal c, @encrypter.encrypt('a')
     end
