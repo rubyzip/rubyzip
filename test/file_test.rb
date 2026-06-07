@@ -265,7 +265,7 @@ class ZipFileTest < Minitest::Test
       ['test/data/max_length_file_comment.zip', 1],
       ['test/data/100000-files.zip', 100_000]
     ].each do |filename, num_entries|
-      assert_output('', '') do
+      assert_silent do
         assert_equal(num_entries, ::Zip::File.count_entries(filename))
       end
 

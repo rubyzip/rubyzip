@@ -76,7 +76,7 @@ class ZipSettingsTest < Minitest::Test
     test_file = File.join(File.dirname(__FILE__), 'data', 'WarnInvalidDate.zip')
     Zip.warn_invalid_date = false
 
-    assert_output('', '') do
+    assert_silent do
       ::Zip::File.open(test_file) {} # Do nothing with the open file.
     end
   end
