@@ -186,7 +186,7 @@ module Zip
       @entry_set = EntrySet.new
       @size.times do
         entry = Entry.read_c_dir_entry(io)
-        next unless entry
+        break unless entry
 
         offset = if entry.zip64?
                    entry.extra[:zip64].relative_header_offset
