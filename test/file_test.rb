@@ -141,7 +141,7 @@ class ZipFileTest < Minitest::Test
   end
 
   def test_new_with_io_opened_non_binary_mode
-    File.open('test/data/test.xls') do |io|
+    File.open('test/data/test.xlsx') do |io|
       refute(io.binmode?) # We open in non-binmode on purpose.
       Zip::File.new(io, buffer: true) do |zip_io|
         # left empty on purpose
@@ -916,7 +916,7 @@ class ZipFileTest < Minitest::Test
   end
 
   def test_open_xls_does_not_raise_type_error
-    ::Zip::File.open('test/data/test.xls')
+    ::Zip::File.open('test/data/test.xlsx')
   end
 
   def test_find_get_entry
