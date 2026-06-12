@@ -199,4 +199,21 @@ class PathTraversalTest < Minitest::Test
       assert File.exist?('~tilde~')
     end
   end
+
+  def test_prevent_breakout_of_declared_destination_directory
+    dest_dir = 'out'
+    in_tmpdir do |test_path|
+      Dir.mkdir(dest_dir)
+      Zip::File.open(File.join(TEST_FILE_ROOT, 'out_evil.zip')) do |zf|
+        zf.each do |e|
+          assert_output('', /WARNING: skipped extracting '\.\.\/out_evil\//) do
+            e.extract(destination_directory: dest_dir)
+          end
+        end
+      end
+
+      escaped = File.join(test_path, 'out_evil', 'breakout.txt')
+      refute File.exist?(escaped)
+    end
+  end
 end
