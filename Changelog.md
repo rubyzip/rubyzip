@@ -1,3 +1,20 @@
+# 3.4.0 (2026-06-14)
+
+- Prevent entries from being extracted outside specified directory. [#664](https://github.com/rubyzip/rubyzip/issues/664). Thanks to @connorshea for additional reporting on this.
+- Use `SecureRandom` in place of insecure `Random`.
+- Stop reading the central directory on first error.
+- Add a check on number of declared entries in a zip file. Thanks to @connorshea for reporting this.
+- Add note to README re reporting security issues privately.
+- Add lib/rubyzip.rb for Bundler auto-require. [#660](https://github.com/rubyzip/rubyzip/pull/660)
+
+Tooling/internal:
+
+- Replace the test Excel spreadsheet fixture.
+- Use `assert_silent` shorthand when expecting no output from a test.
+- Clean up CentralDirectory instance variables.
+- Add Ruby 4.0 to the Windows CI and update CI matrix in the README.
+- List ZIP docs that we store here and link to online versions. [#657](https://github.com/rubyzip/rubyzip/issues/657)
+
 # 3.3.1 (2026-05-30)
 
 - Reinstate default param for `InputStream#sysread`. [#663](https://github.com/rubyzip/rubyzip/issues/663)
