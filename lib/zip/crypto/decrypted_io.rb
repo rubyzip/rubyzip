@@ -9,10 +9,13 @@ module Zip
       @decrypter = decrypter
       @bytes_remaining = compressed_size
       @buffer = +''.b
+      # Ensures that integrity is only checked once,
+      # even if read is called multiple times after the input has finished.
+      @integrity_verified = false
     end
 
     def read(maxlen = nil)
-      return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
+      return (maxlen.nil? || maxlen.zero? ? ''.b : nil) if eof?
 
       while maxlen.nil? || (@buffer.bytesize < maxlen)
         break if input_finished?
@@ -20,7 +23,10 @@ module Zip
         @buffer << produce_input
       end
 
-      @decrypter.check_integrity!(@io) if input_finished?
+      if input_finished? && !@integrity_verified
+        @decrypter.check_integrity!(@io) 
+        @integrity_verified = true
+      end
 
       @buffer.slice!(0...(maxlen || @buffer.bytesize))
     end
@@ -37,7 +43,7 @@ module Zip
 
     def produce_input
       chunk_size = [@bytes_remaining, CHUNK_SIZE].min
-      return '' unless chunk_size.positive?
+      return ''.b unless chunk_size.positive?
 
       @bytes_remaining -= chunk_size
       @decrypter.decrypt(@io.read(chunk_size))
