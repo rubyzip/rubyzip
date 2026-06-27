@@ -1,3 +1,7 @@
+# 3.4.1 (2026-06-27)
+
+- Fixed `DecryptedIo` to only perform integrity once. [#665](https://github.com/rubyzip/rubyzip/pull/665)
+
 # 3.4.0 (2026-06-14)
 
 - Prevent entries from being extracted outside specified directory. [#664](https://github.com/rubyzip/rubyzip/issues/664). Thanks to @connorshea for additional reporting on this.

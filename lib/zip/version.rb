@@ -2,5 +2,5 @@
 
 module Zip
   # The version of the Rubyzip library.
-  VERSION = '3.4.0'
+  VERSION = '3.4.1'
 end
