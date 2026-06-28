@@ -23,8 +23,8 @@ class AbstractInputStreamTest < Minitest::Test
   class TestAbstractInputStream
     include ::Zip::IOExtras::AbstractInputStream
 
-    def initialize(string)
-      super()
+    def initialize(string, encoding: nil)
+      super(encoding: encoding)
       @contents = string
       @read_ptr = 0
     end
@@ -115,6 +115,17 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(Encoding::ASCII_8BIT, result.encoding)
   end
 
+  def test_read_with_utf8_encoding
+    io = TestAbstractInputStream.new(TEST_STRING, encoding: Encoding::UTF_8)
+    assert_equal(Encoding::UTF_8, io.read&.encoding)
+  end
+
+  def test_read_with_encoding_and_outstring
+    io = TestAbstractInputStream.new(TEST_STRING, encoding: Encoding::UTF_8)
+    out_string = +''.b
+    assert_equal(io.read(5, out_string).encoding, Encoding::BINARY)
+  end
+
   def test_gets
     io = line_tests
 
@@ -201,6 +212,11 @@ class AbstractInputStreamTest < Minitest::Test
     assert_nil(io.gets(8))
   end
 
+  def test_gets_with_utf8_encoding
+    io = TestAbstractInputStream.new(TEST_STRING, encoding: Encoding::UTF_8)
+    assert_equal(io.gets&.encoding, Encoding::UTF_8)
+  end
+
   def test_each
     io = TestAbstractInputStream.new(TEST_STRING)
 
@@ -285,6 +301,15 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(3, io.lineno)
   end
 
+  def test_readlines_with_utf8_encoding
+    io = TestAbstractInputStream.new(TEST_STRING, encoding: Encoding::UTF_8)
+    lines = io.readlines
+    assert_equal(TEST_LINES, lines)
+    lines.each do |line|
+      assert_equal(Encoding::UTF_8, line.encoding)
+    end
+  end
+
   def test_readlines_with_nil_separator
     io = TestAbstractInputStream.new(TEST_STRING)
 
@@ -330,6 +355,19 @@ class AbstractInputStreamTest < Minitest::Test
 
     assert_predicate(io, :eof?)
     assert_raises(EOFError) { io.readline(8) }
+  end
+
+  def test_readline_with_utf8_encoding
+    io = TestAbstractInputStream.new(TEST_STRING, encoding: Encoding::UTF_8)
+    assert_equal(io.readline.encoding, Encoding::UTF_8)
+  end
+
+  def test_set_encoding
+    io = TestAbstractInputStream.new(TEST_STRING)
+    assert_equal(Encoding::ASCII_8BIT, io.read(1).encoding)
+    io.set_encoding(Encoding::UTF_8)
+    assert_equal(Encoding::UTF_8, io.read(1).encoding)
+    assert_equal(Encoding::UTF_8, io.gets&.encoding)
   end
 
   private

@@ -51,8 +51,9 @@ module Zip
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param offset [Integer] offset in the IO/StringIO
-    def initialize(context, offset: 0, decrypter: nil)
-      super()
+    # @param encoding [Encoding] encoding of the decompressed stream
+    def initialize(context, offset: 0, decrypter: nil, encoding: Encoding::ASCII_8BIT)
+      super(encoding: encoding)
       @archive_io = get_io(context, offset)
       @decompressor = ::Zip::NullDecompressor
       @decrypter = decrypter
@@ -107,7 +108,7 @@ module Zip
       output = produce_input(maxlen)
 
       if out_string.nil?
-        output.force_encoding(Encoding::ASCII_8BIT)
+        output.force_encoding(@encoding)
       else
         encoding = out_string.encoding
         out_string.replace(output).force_encoding(encoding)

@@ -378,4 +378,12 @@ class ZipInputStreamTest < Minitest::Test
       assert_equal(Encoding::ASCII_8BIT, buffer.encoding)
     end
   end
+
+  def test_set_encoding
+    Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
+      zis.set_encoding(Encoding::BINARY)
+      zis.get_next_entry
+      assert_equal(Encoding::BINARY, zis.readline.encoding)
+    end
+  end
 end
