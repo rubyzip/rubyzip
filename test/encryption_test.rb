@@ -112,6 +112,26 @@ class EncryptionTest < Minitest::Test
     end
   end
 
+  def test_aes_256_entry_decrypt
+    zip_file = Zip::File.new("#{DATA_DIR}/#{AES_256_ZIP_TEST_FILE}")
+    entries = zip_file.entries
+    assert_equal 2, entries.size # Ensure central directory can be read when zip is encrypted
+
+    decrypter = Zip::AESDecrypter.new('password', Zip::AESEncryption::STRENGTH_256_BIT)
+
+    [INPUT_FILE3, INPUT_FILE4].each do |entry_name|
+      entry = zip_file.find_entry(entry_name)
+      assert entry
+      assert entry.encrypted?
+
+      entry.get_input_stream(decrypter: decrypter) do |entry_stream|
+        input_file_stream = ::File.open("#{DATA_DIR}/#{entry_name}", 'rb')
+        assert_equal input_file_stream.read(2), entry_stream.read(2)
+        assert_equal input_file_stream.read, entry_stream.read
+      end
+    end
+  end
+
   def test_aes_decrypt_keka
     Zip::InputStream.open(
       "#{DATA_DIR}/#{AES_KEKA_ZIP_TEST_FILE}",
