@@ -638,8 +638,9 @@ module Zip
     end
 
     # Returns an IO like object for the given ZipEntry.
+    # Optional decrypter can be provided for an encrypted entry
     # Warning: may behave weird with symlinks.
-    def get_input_stream(&block)
+    def get_input_stream(decrypter: nil, &block)
       if ftype == :directory
         yield ::Zip::NullInputStream if block
         ::Zip::NullInputStream
@@ -656,7 +657,7 @@ module Zip
           raise "unknown @file_type #{ftype}"
         end
       else
-        zis = ::Zip::InputStream.new(@zipfile, offset: local_header_offset)
+        zis = ::Zip::InputStream.new(@zipfile, offset: local_header_offset, decrypter: decrypter)
         zis.instance_variable_set(:@complete_entry, self)
         zis.get_next_entry
         if block
