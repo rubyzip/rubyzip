@@ -301,6 +301,25 @@ Zip::InputStream.open(buffer, decrypter: dec) do |input|
 end
 ```
 
+#### Passing a decrypter to an individual `Entry`
+
+You can also decrypt an `Entry` by passing a decrypter into `Zip::Entry#get_input_stream`. This allows you to decrypt files from a Zip file with different passwords.
+
+```ruby
+Zip::File.open('aes-encrypted-file.zip') do |zip|
+  entries = [['file1.txt', 'password1'], ['file2.txt', 'password2']]
+
+  entries.each do |entry_name, password|
+    entry = zip.find_entry(entry_name)
+    dec = Zip::AESDecrypter.new(password, Zip::AESEncryption::STRENGTH_256_BIT)
+    zis = entry.get_input_stream(decrypter: dec)
+
+    puts "Contents of '#{entry.name}':"
+    puts zis.read
+  end
+end
+```
+
 _This is an evolving feature and the interface for encryption may change in future versions._
 
 ## Known issues

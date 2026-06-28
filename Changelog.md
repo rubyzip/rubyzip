@@ -1,3 +1,7 @@
+# 3.5.0 (TBC)
+
+- Support passing decrypter to encrypted entry via get_input_stream. [#667](https://github.com/rubyzip/rubyzip/pull/667)
+
 # 3.4.1 (2026-06-27)
 
 - Fixed `DecryptedIo` to only perform integrity once. [#665](https://github.com/rubyzip/rubyzip/pull/665)
