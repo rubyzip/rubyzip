@@ -9,11 +9,17 @@ module Zip
       include Enumerable
       include FakeIO
 
-      def initialize # :nodoc:
-        super
+      # Creates a new input stream wrapper.
+      #
+      # `encoding` sets the forced encoding used for strings returned by
+      # #read, #gets, and related methods. If `nil`, defaults to
+      # `Encoding::ASCII_8BIT`.
+      def initialize(encoding: nil)
+        super()
         @lineno        = 0
         @pos           = 0
         @output_buffer = +''.b
+        @encoding      = encoding || Encoding::ASCII_8BIT
       end
 
       # Returns (or sets) the current line number in the decompressed
@@ -24,6 +30,10 @@ module Zip
       # Returns the current position (in bytes) in the decompressed (possibly
       # decrypted) data stream.
       attr_reader :pos
+
+      # Returns the forced encoding of the decompressed
+      # (and possibly decrypted) data stream
+      attr_reader :encoding
 
       # Reads bytes from the stream decompressed (possibly decrypted) data
       # stream. If `maxlen` is `nil`, reads all bytes; otherwise, reads up to
@@ -60,7 +70,7 @@ module Zip
         @pos += tbuf.length
 
         if out_string.nil?
-          tbuf.force_encoding(Encoding::ASCII_8BIT)
+          tbuf.force_encoding(@encoding)
         else
           encoding = out_string.encoding
           out_string.replace(tbuf).force_encoding(encoding)
@@ -133,7 +143,7 @@ module Zip
 
             @lineno = @lineno.next
             @pos += @output_buffer.bytesize
-            return @output_buffer.slice!(0..)
+            return @output_buffer.slice!(0..).force_encoding(@encoding)
           end
 
           buffer_index = [buffer_index, @output_buffer.bytesize - sep.bytesize].max
@@ -144,7 +154,8 @@ module Zip
         cut_index = sep_index ? [sep_index + sep.bytesize, limit].min : limit
         @lineno = @lineno.next
         @pos += cut_index
-        chomp ? @output_buffer.slice!(0, cut_index).chomp(sep) : @output_buffer.slice!(0, cut_index)
+        data = chomp ? @output_buffer.slice!(0, cut_index).chomp(sep) : @output_buffer.slice!(0, cut_index)
+        data&.force_encoding(@encoding)
       end
 
       def ungetc(byte) # :nodoc:
@@ -205,6 +216,12 @@ module Zip
 
       # Alias for compatibility. Remove for version 4.
       alias eof eof? # :nodoc:
+
+      # Sets the forced encoding for the decompressed
+      # (and possibly decrypted) data stream.
+      def set_encoding(encoding)
+        @encoding = encoding
+      end
     end
   end
 end
