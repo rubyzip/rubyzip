@@ -367,7 +367,7 @@ Zip.continue_on_exists_proc = true
 
 ### Non-ASCII Names
 
-If you want to store non-english names and want to open them on Windows(pre 7) you need to set this option:
+To store non-English filenames as UTF-8 (decoded correctly by Windows 7 or later and other modern tools), set this option:
 
 ```ruby
 Zip.unicode_names = true
