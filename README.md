@@ -201,7 +201,7 @@ On Posix file systems the default file permissions applied to a new archive
 are (0666 - umask), which mimics the behavior of standard tools such as `touch`.
 
 On Windows the default file permissions are set to 0644 as suggested by the
-[Ruby File documentation](http://ruby-doc.org/core-2.2.2/File.html).
+[Ruby File documentation](https://docs.ruby-lang.org/en/master/File.html#class-file-file-permissions).
 
 When modifying a zip archive the file permissions of the archive are preserved.
 
