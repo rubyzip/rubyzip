@@ -1,5 +1,6 @@
-# 3.5.0 (TBC)
+# 3.5.0 (2026-08-18)
 
+- Fix the link to Ruby doc in README to the latest version. [#670](https://github.com/rubyzip/rubyzip/pull/670)
 - Support passing decrypter to encrypted entry via get_input_stream. [#667](https://github.com/rubyzip/rubyzip/pull/667)
 
 # 3.4.1 (2026-06-27)
