@@ -220,7 +220,7 @@ module Zip
       # Sets the forced encoding for the decompressed
       # (and possibly decrypted) data stream. Follows the IO#set_encoding
       # interface, hence the non-standard method name.
-      def set_encoding(encoding) # rubocop:disable Naming/AccessorMethodName
+      def set_encoding(encoding)
         @encoding = encoding
       end
     end
