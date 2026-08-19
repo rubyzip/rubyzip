@@ -2,11 +2,11 @@
 
 require_relative '../test_helper'
 
-require 'zip/ioextras'
+require 'zip/ioextras/fake_io'
 
 class FakeIOTest < Minitest::Test
   class FakeIOUsingClass
-    include ::Zip::IOExtras::FakeIO
+    include Zip::IOExtras::FakeIO
   end
 
   def test_kind_of?
