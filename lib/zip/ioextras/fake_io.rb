@@ -16,6 +16,20 @@ module Zip
         @external_encoding = Encoding::ASCII_8BIT
       end
 
+      def set_encoding(ext_enc, int_enc = nil)
+        if ext_enc.kind_of?(String) && ext_enc.include?(':')
+          _ext_enc, int_enc = ext_enc.split(':', 2)
+        end
+
+        begin
+          @internal_encoding = Encoding.find(int_enc) if int_enc
+        rescue ArgumentError
+          warn "warning: Unsupported encoding #{int_enc} ignored"
+        end
+
+        @external_encoding = Encoding::ASCII_8BIT
+      end
+
       # Implement kind_of? in order to pretend to be an IO object.
       def kind_of?(object)
         object == IO || super

@@ -120,4 +120,66 @@ class FakeIOTest < Minitest::Test
     assert_equal(Encoding::ASCII_8BIT, obj.external_encoding)
     assert_equal(Encoding::UTF_32LE, obj.internal_encoding)
   end
+
+  def test_set_encoding_with_external_encoding
+    obj = FakeIOUsingClass.new
+    obj.set_encoding(Encoding::UTF_8)
+
+    assert_equal(Encoding::ASCII_8BIT, obj.external_encoding)
+    assert_nil(obj.internal_encoding)
+  end
+
+  def test_set_encoding_with_external_encoding_as_string
+    obj = FakeIOUsingClass.new
+    obj.set_encoding('UTF-8')
+
+    assert_equal(Encoding::ASCII_8BIT, obj.external_encoding)
+    assert_nil(obj.internal_encoding)
+  end
+
+  def test_set_encoding_with_bad_external_encoding
+    obj = FakeIOUsingClass.new
+
+    assert_silent do
+      obj.set_encoding('BAD_ENCODING')
+    end
+  end
+
+  def test_set_encoding_with_external_and_internal_encoding
+    obj = FakeIOUsingClass.new
+    obj.set_encoding(Encoding::UTF_8, Encoding::UTF_16LE)
+
+    assert_equal(Encoding::ASCII_8BIT, obj.external_encoding)
+    assert_equal(Encoding::UTF_16LE, obj.internal_encoding)
+  end
+
+  def test_set_encoding_with_external_and_internal_encoding_as_strings
+    obj = FakeIOUsingClass.new
+    obj.set_encoding('UTF-8', 'UTF-16LE')
+
+    assert_equal(Encoding::ASCII_8BIT, obj.external_encoding)
+    assert_equal(Encoding::UTF_16LE, obj.internal_encoding)
+  end
+
+  def test_set_encoding_with_bad_internal_encoding
+    obj = FakeIOUsingClass.new
+    assert_output('', /warning: Unsupported encoding BAD_ENCODING ignored/) do
+      obj.set_encoding(Encoding::UTF_8, 'BAD_ENCODING')
+    end
+  end
+
+  def test_set_encoding_with_external_and_internal_encoding_as_single_string
+    obj = FakeIOUsingClass.new
+    obj.set_encoding('UTF-8:UTF-16LE')
+
+    assert_equal(Encoding::ASCII_8BIT, obj.external_encoding)
+    assert_equal(Encoding::UTF_16LE, obj.internal_encoding)
+  end
+
+  def test_set_encoding_with_bad_external_and_internal_encoding_as_single_string
+    obj = FakeIOUsingClass.new
+    assert_output('', /warning: Unsupported encoding BAD_ENCODING! ignored/) do
+      obj.set_encoding('BAD_ENCODING:BAD_ENCODING!')
+    end
+  end
 end
