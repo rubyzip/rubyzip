@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'fake_io'
+
 module Zip
   module IOExtras # :nodoc:
     # Implements many of the output convenience methods of IO.
