@@ -2,8 +2,21 @@
 
 module Zip
   module IOExtras # :nodoc:
-    # Implements kind_of? in order to pretend to be an IO object
     module FakeIO # :nodoc:
+      attr_reader :external_encoding, :internal_encoding
+
+      def initialize(**opts)
+        @internal_encoding = Encoding.find(opts[:internal_encoding]) if opts[:internal_encoding]
+
+        if opts[:encoding].kind_of?(String)
+          _ext, int = opts[:encoding].split(':', 2)
+          @internal_encoding = Encoding.find(int) unless @internal_encoding || int.nil?
+        end
+
+        @external_encoding = Encoding::ASCII_8BIT
+      end
+
+      # Implement kind_of? in order to pretend to be an IO object.
       def kind_of?(object)
         object == IO || super
       end
