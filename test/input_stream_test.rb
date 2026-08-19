@@ -380,8 +380,8 @@ class ZipInputStreamTest < Minitest::Test
   end
 
   def test_set_encoding
-    Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name) do |zis|
-      zis.set_encoding(Encoding::BINARY)
+    Zip::InputStream.open(TestZipFile::TEST_ZIP2.zip_name, internal_encoding: Encoding::UTF_8) do |zis|
+      zis.set_encoding(Encoding::UTF_8, Encoding::BINARY)
       zis.get_next_entry
       assert_equal(Encoding::BINARY, zis.readline.encoding)
     end

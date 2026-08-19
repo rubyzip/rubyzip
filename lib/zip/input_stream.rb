@@ -51,9 +51,10 @@ module Zip
     #
     # @param context [String||IO||StringIO] file path or IO/StringIO object
     # @param offset [Integer] offset in the IO/StringIO
-    # @param encoding [Encoding] encoding of the decompressed stream
-    def initialize(context, offset: 0, decrypter: nil, encoding: Encoding::ASCII_8BIT)
-      super(encoding: encoding)
+    # This method also accepts the standard IO encoding options:
+    # `external_encoding:`, `internal_encoding:` and `encoding:`.
+    def initialize(context, offset: 0, decrypter: nil, **opts)
+      super(**opts)
       @archive_io = get_io(context, offset)
       @decompressor = ::Zip::NullDecompressor
       @decrypter = decrypter
@@ -108,7 +109,7 @@ module Zip
       output = produce_input(maxlen)
 
       if out_string.nil?
-        output.force_encoding(@encoding)
+        output.force_encoding(@internal_encoding || @external_encoding)
       else
         encoding = out_string.encoding
         out_string.replace(output).force_encoding(encoding)
@@ -126,8 +127,8 @@ module Zip
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
-      def open(filename_or_io, offset: 0, decrypter: nil)
-        zio = new(filename_or_io, offset: offset, decrypter: decrypter)
+      def open(filename_or_io, offset: 0, decrypter: nil, **opts)
+        zio = new(filename_or_io, offset: offset, decrypter: decrypter, **opts)
         return zio unless block_given?
 
         begin
