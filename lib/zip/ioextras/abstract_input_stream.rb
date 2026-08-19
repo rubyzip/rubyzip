@@ -13,15 +13,13 @@ module Zip
 
       # Creates a new input stream wrapper.
       #
-      # `encoding` sets the forced encoding used for strings returned by
-      # #read, #gets, and related methods. If `nil`, defaults to
-      # `Encoding::ASCII_8BIT`.
-      def initialize(encoding: nil)
-        super()
+      # This method accepts the standard IO encoding options:
+      # `external_encoding:`, `internal_encoding:` and `encoding:`.
+      def initialize(**opts)
+        super
         @lineno        = 0
         @pos           = 0
         @output_buffer = +''.b
-        @encoding      = encoding || Encoding::ASCII_8BIT
       end
 
       # Returns (or sets) the current line number in the decompressed
@@ -33,10 +31,6 @@ module Zip
       # decrypted) data stream.
       attr_reader :pos
 
-      # Returns the forced encoding of the decompressed
-      # (and possibly decrypted) data stream
-      attr_reader :encoding
-
       # Reads bytes from the stream decompressed (possibly decrypted) data
       # stream. If `maxlen` is `nil`, reads all bytes; otherwise, reads up to
       # `maxlen` bytes. If `maxlen` is zero, returns an empty string.
@@ -45,7 +39,7 @@ module Zip
       # containing the bytes read. The string's encoding is the unchanged
       # encoding of `out_string`, if `out_string` is given; `ASCII-8BIT`,
       # otherwise.
-      def read(maxlen = nil, out_string = nil) # rubocop:disable Metrics/PerceivedComplexity
+      def read(maxlen = nil, out_string = nil) # rubocop:disable Metrics/PerceivedComplexity,Metrics/CyclomaticComplexity
         return (maxlen.nil? || maxlen.zero? ? '' : nil) if eof?
 
         tbuf = if @output_buffer.bytesize > 0
@@ -72,7 +66,7 @@ module Zip
         @pos += tbuf.length
 
         if out_string.nil?
-          tbuf.force_encoding(@encoding)
+          tbuf.force_encoding(@internal_encoding || @external_encoding)
         else
           encoding = out_string.encoding
           out_string.replace(tbuf).force_encoding(encoding)
@@ -121,7 +115,7 @@ module Zip
       #
       # Optional keyword argument `chomp` specifies whether line separators
       # are to be omitted.
-      def gets(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false)
+      def gets(sep = $INPUT_RECORD_SEPARATOR, limit = nil, chomp: false) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
         if sep.nil?
           return nil if eof?
 
@@ -136,6 +130,8 @@ module Zip
           sep = "#{$INPUT_RECORD_SEPARATOR}#{$INPUT_RECORD_SEPARATOR}"
         end
 
+        encoding = @internal_encoding || @external_encoding
+
         buffer_index = 0
         while (sep_index = @output_buffer.index(sep, buffer_index)).nil?
           break if limit && @output_buffer.bytesize >= limit
@@ -145,7 +141,7 @@ module Zip
 
             @lineno = @lineno.next
             @pos += @output_buffer.bytesize
-            return @output_buffer.slice!(0..).force_encoding(@encoding)
+            return @output_buffer.slice!(0..).force_encoding(encoding)
           end
 
           buffer_index = [buffer_index, @output_buffer.bytesize - sep.bytesize].max
@@ -156,8 +152,9 @@ module Zip
         cut_index = sep_index ? [sep_index + sep.bytesize, limit].min : limit
         @lineno = @lineno.next
         @pos += cut_index
-        data = chomp ? @output_buffer.slice!(0, cut_index).chomp(sep) : @output_buffer.slice!(0, cut_index)
-        data&.force_encoding(@encoding)
+        data = @output_buffer.slice!(0, cut_index)
+        data&.chomp!(sep) if chomp
+        data&.force_encoding(encoding)
       end
 
       def ungetc(byte) # :nodoc:
@@ -218,13 +215,6 @@ module Zip
 
       # Alias for compatibility. Remove for version 4.
       alias eof eof? # :nodoc:
-
-      # Sets the forced encoding for the decompressed
-      # (and possibly decrypted) data stream. Follows the IO#set_encoding
-      # interface, hence the non-standard method name.
-      def set_encoding(encoding)
-        @encoding = encoding
-      end
     end
   end
 end
