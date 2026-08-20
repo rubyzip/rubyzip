@@ -15,6 +15,10 @@ class ZipOutputStreamTest < Minitest::Test
 
   def test_new
     zos = ::Zip::OutputStream.new(TEST_ZIP.zip_name)
+
+    assert_equal(Encoding::ASCII_8BIT, zos.external_encoding)
+    assert_nil(zos.internal_encoding)
+
     zos.comment = TEST_ZIP.comment
     write_test_zip(zos)
     zos.close
@@ -23,6 +27,9 @@ class ZipOutputStreamTest < Minitest::Test
 
   def test_open
     ::Zip::OutputStream.open(TEST_ZIP.zip_name) do |zos|
+      assert_equal(Encoding::ASCII_8BIT, zos.external_encoding)
+      assert_nil(zos.internal_encoding)
+
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -45,6 +52,9 @@ class ZipOutputStreamTest < Minitest::Test
 
   def test_write_buffer
     buffer = ::Zip::OutputStream.write_buffer(::StringIO.new) do |zos|
+      assert_equal(Encoding::ASCII_8BIT, zos.external_encoding)
+      assert_nil(zos.internal_encoding)
+
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end
@@ -54,6 +64,9 @@ class ZipOutputStreamTest < Minitest::Test
 
   def test_write_buffer_binmode
     buffer = ::Zip::OutputStream.write_buffer(::StringIO.new) do |zos|
+      assert_equal(Encoding::ASCII_8BIT, zos.external_encoding)
+      assert_nil(zos.internal_encoding)
+
       zos.comment = TEST_ZIP.comment
       write_test_zip(zos)
     end

@@ -29,8 +29,8 @@ module Zip
 
     # Opens the indicated zip file. If a file with that name already
     # exists it will be overwritten.
-    def initialize(file_name, stream: false, encrypter: nil, suppress_extra_fields: false)
-      super()
+    def initialize(file_name, stream: false, encrypter: nil, suppress_extra_fields: false, **opts)
+      super(**opts)
       @file_name = file_name
       @output_stream = if stream
                          iostream = Zip::RUNNING_ON_WINDOWS ? @file_name : @file_name.dup
@@ -52,27 +52,28 @@ module Zip
       # Same as #initialize but if a block is passed the opened
       # stream is passed to the block and closed when the block
       # returns.
-      def open(file_name, encrypter: nil, suppress_extra_fields: false)
+      def open(file_name, encrypter: nil, suppress_extra_fields: false, **opts)
         unless block_given?
           return new(
             file_name,
             encrypter:             encrypter,
-            suppress_extra_fields: suppress_extra_fields
+            suppress_extra_fields: suppress_extra_fields,
+            **opts
           )
         end
 
         zos = new(file_name, stream: false, encrypter: encrypter,
-                  suppress_extra_fields: suppress_extra_fields)
+                  suppress_extra_fields: suppress_extra_fields, **opts)
         yield zos
       ensure
         zos.close if zos
       end
 
       # Same as #open but writes to a filestream instead
-      def write_buffer(io = ::StringIO.new, encrypter: nil, suppress_extra_fields: false)
+      def write_buffer(io = ::StringIO.new, encrypter: nil, suppress_extra_fields: false, **opts)
         io.binmode if io.respond_to?(:binmode)
         zos = new(io, stream: true, encrypter: encrypter,
-                  suppress_extra_fields: suppress_extra_fields)
+                  suppress_extra_fields: suppress_extra_fields, **opts)
         yield zos
         zos.close_buffer
       end
