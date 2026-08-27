@@ -16,6 +16,18 @@ module Zip
     # bits 5-8 month (1-12)
     # bits 9-15 year (four digit year minus 1980)
 
+    # The MS-DOS date field is seven bits of "year minus 1980", so only
+    # 1980-01-01 00:00:00 through 2107-12-31 23:59:58 can be represented.
+    # Times outside that are clamped rather than allowed to wrap: the real
+    # time is still carried in the universal time (UT) extra field, but the
+    # DOS fields have to stay in range for readers that only look at those.
+    DOS_EPOCH_YEAR = 1980
+    DOS_MAX_YEAR = 2107
+    DOS_MIN_DATE = 0x0021 # 1980-01-01
+    DOS_MAX_DATE = 0xff9f # 2107-12-31
+    DOS_MIN_TIME = 0x0000 # 00:00:00
+    DOS_MAX_TIME = 0xbf7d # 23:59:58
+
     attr_writer :absolute_time # :nodoc:
 
     def absolute_time?
@@ -25,15 +37,21 @@ module Zip
     end
 
     def to_binary_dos_time
+      return DOS_MIN_TIME if year < DOS_EPOCH_YEAR
+      return DOS_MAX_TIME if year > DOS_MAX_YEAR
+
       (sec / 2) +
         (min << 5) +
         (hour << 11)
     end
 
     def to_binary_dos_date
+      return DOS_MIN_DATE if year < DOS_EPOCH_YEAR
+      return DOS_MAX_DATE if year > DOS_MAX_YEAR
+
       day +
         (month << 5) +
-        ((year - 1980) << 9)
+        ((year - DOS_EPOCH_YEAR) << 9)
     end
 
     # Deprecated. Remove for version 4.

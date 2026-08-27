@@ -62,6 +62,35 @@ class DOSTimeTest < Minitest::Test
     assert(dos_time.absolute_time?)
   end
 
+  def test_binary_dos_fields_are_clamped_to_the_representable_range
+    # The DOS date field holds "year - 1980" in seven bits, so only
+    # 1980-01-01 00:00:00 .. 2107-12-31 23:59:58 fits. Out-of-range years
+    # used to wrap, writing a valid-looking but wrong date.
+    assert_equal(0x0021, Zip::DOSTime.local(1980, 1, 1, 0, 0, 0).to_binary_dos_date)
+    assert_equal(0x0000, Zip::DOSTime.local(1980, 1, 1, 0, 0, 0).to_binary_dos_time)
+    assert_equal(0xff9f, Zip::DOSTime.local(2107, 12, 31, 23, 59, 58).to_binary_dos_date)
+    assert_equal(0xbf7d, Zip::DOSTime.local(2107, 12, 31, 23, 59, 58).to_binary_dos_time)
+
+    # below the epoch: clamp to the floor, do not wrap into the future
+    [1970, 1979].each do |year|
+      dos_time = Zip::DOSTime.local(year, 6, 15, 12, 30, 30)
+      assert_equal(0x0021, dos_time.to_binary_dos_date, "year #{year} date")
+      assert_equal(0x0000, dos_time.to_binary_dos_time, "year #{year} time")
+    end
+
+    # above the last representable year: clamp to the ceiling
+    dos_time = Zip::DOSTime.local(2108, 6, 15, 12, 30, 30)
+    assert_equal(0xff9f, dos_time.to_binary_dos_date)
+    assert_equal(0xbf7d, dos_time.to_binary_dos_time)
+
+    # every clamped value still has to fit the 16-bit field
+    [1970, 1979, 1980, 2022, 2107, 2108].each do |year|
+      dos_time = Zip::DOSTime.local(year, 6, 15, 12, 30, 30)
+      assert_includes(0..0xffff, dos_time.to_binary_dos_date, "year #{year}")
+      assert_includes(0..0xffff, dos_time.to_binary_dos_time, "year #{year}")
+    end
+  end
+
   def test_local
     dos_time = Zip::DOSTime.local(2022, 1, 1, 12, 0, 0)
     assert(dos_time.absolute_time?)
