@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'openssl'
-
 module Zip
   module AESEncryption # :nodoc:
     VERIFIER_LENGTH = 2
@@ -45,6 +43,11 @@ module Zip
     }.freeze
 
     def initialize(password, strength)
+      # Loaded here rather than at the top of the file so that `require 'zip'`
+      # does not pull in openssl. Only AES-encrypted archives need it, and it
+      # is the single largest cost of loading this library.
+      require 'openssl'
+
       @password = password
       @strength = strength
       @bits = BITS[@strength]
