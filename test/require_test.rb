@@ -6,9 +6,17 @@ class RequireTest < Minitest::Test
   # Guards the deferred `require 'openssl'` in Zip::AESEncryption#initialize.
   # These run in a subprocess because the test suite has already loaded
   # openssl by way of the AES tests.
+
+  # Interpreter options set in the environment are inherited by the
+  # subprocess, where they can both add noise to its output and preload
+  # libraries -- either of which invalidates what is measured here. Our own
+  # CI runs the suite with `RUBYOPT=-v`, which makes every subprocess print
+  # its version banner ahead of the script's own output.
+  CLEAN_ENV = { 'RUBYOPT' => nil }.freeze
+
   def subprocess(script)
     lib = File.expand_path('../lib', __dir__)
-    IO.popen([RbConfig.ruby, '-I', lib, '-e', script], &:read)
+    IO.popen(CLEAN_ENV, [RbConfig.ruby, '-I', lib, '-e', script], &:read)
   end
 
   def openssl_loaded
