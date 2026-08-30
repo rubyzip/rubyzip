@@ -24,8 +24,8 @@ module Zip
       return if !size || size == 0
 
       atime, mtime, uid, gid = content.unpack('VVvv')
-      @uid ||= uid
-      @gid ||= gid
+      @uid = uid unless uid.nil?
+      @gid = gid unless gid.nil?
       @atime ||= atime
       @mtime ||= mtime # rubocop:disable Naming/MemoizedInstanceVariableName
     end
