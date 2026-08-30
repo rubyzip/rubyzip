@@ -53,7 +53,13 @@ module Zip
       # stream is passed to the block and closed when the block
       # returns.
       def open(file_name, encrypter: nil, suppress_extra_fields: false)
-        return new(file_name) unless block_given?
+        unless block_given?
+          return new(
+            file_name,
+            encrypter:             encrypter,
+            suppress_extra_fields: suppress_extra_fields
+          )
+        end
 
         zos = new(file_name, stream: false, encrypter: encrypter,
                   suppress_extra_fields: suppress_extra_fields)
