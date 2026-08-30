@@ -7,8 +7,8 @@ module Zip
     register_map
 
     def initialize(binstr = nil)
-      @uid = 0
-      @gid = 0
+      @uid = nil
+      @gid = nil
       @atime = nil
       @mtime = nil
       binstr && merge(binstr)
