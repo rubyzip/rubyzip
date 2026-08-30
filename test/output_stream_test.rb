@@ -29,6 +29,20 @@ class ZipOutputStreamTest < Minitest::Test
     assert_test_zip_contents(TEST_ZIP)
   end
 
+  def test_open_without_block_forwards_options
+    encrypter = ::Zip::TraditionalEncrypter.new('password')
+    zos = ::Zip::OutputStream.open(
+      TEST_ZIP.zip_name,
+      encrypter:             encrypter,
+      suppress_extra_fields: true
+    )
+
+    assert_same encrypter, zos.instance_variable_get(:@encrypter)
+    assert_equal true, zos.instance_variable_get(:@suppress_extra_fields)
+  ensure
+    zos&.close
+  end
+
   def test_write_buffer
     buffer = ::Zip::OutputStream.write_buffer(::StringIO.new) do |zos|
       zos.comment = TEST_ZIP.comment
