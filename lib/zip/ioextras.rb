@@ -13,8 +13,11 @@ module Zip
         toread = nbytes
         while toread > 0 && !istream.eof?
           tr = [toread, CHUNK_SIZE].min
-          ostream.write(istream.read(tr, +''))
-          toread -= tr
+          chunk = istream.read(tr, +'')
+          break if !chunk || chunk.empty?
+
+          ostream.write(chunk)
+          toread -= chunk.bytesize
         end
       end
     end
