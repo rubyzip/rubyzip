@@ -64,7 +64,7 @@ class ZipExtraFieldTest < Minitest::Test
   end
 
   def test_length
-    str = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit"
+    str = "UT\x5\0\x3\250$\r@Ux\x04\x00\xE8\x03\xE8\x03Te\0\0testit"
     extra = ::Zip::ExtraField.new(str)
     assert_equal(extra.local_size, extra.to_local_bin.size)
     assert_equal(extra.c_dir_size, extra.to_c_dir_bin.size)
@@ -74,7 +74,7 @@ class ZipExtraFieldTest < Minitest::Test
   end
 
   def test_to_s
-    str = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit"
+    str = "UT\x5\0\x3\250$\r@Ux\x04\x00\xE8\x03\xE8\x03Te\0\0testit"
     extra = ::Zip::ExtraField.new(str)
     assert_instance_of(String, extra.to_s)
 
@@ -93,10 +93,10 @@ class ZipExtraFieldTest < Minitest::Test
     extra2[:universaltime].mtime = ::Zip::DOSTime.now
     assert(extra1 != extra2)
 
-    extra3.create(:iunix)
+    extra3.merge("Ux\x04\x00\xE8\x03\xE8\x03") # Add an IUnix extra field to extra3.
     assert(extra1 != extra3)
 
-    extra1.create(:iunix)
+    extra1.merge("Ux\x04\x00\xE8\x03\xE8\x03") # Add an IUnix extra field to extra1.
     assert_equal(extra1, extra3)
   end
 
@@ -126,7 +126,7 @@ class ZipExtraFieldTest < Minitest::Test
     str = "UT\x5\0\x3\250$\r@Ux\0\0Te\0\0testit".b
     extra = Zip::ExtraField.new(str)
     extra.merge("\x01\x99\a\x00\x01\x00AE\x80\b\x00".b) # AES
-    extra.create(:iunix)
+    extra.merge("Ux\x04\x00\xE8\x03\xE8\x03") # IUnix
     extra.create(:ntfs)
     extra.create(:zip64)
     extra.merge('foo')
