@@ -1,3 +1,16 @@
+# 3.6.0 (2026-09-01)
+
+- Forward options from OutputStream.open without a block. [#674](https://github.com/rubyzip/rubyzip/pull/674)
+- Clamp DOS date and time to the range the fields can hold. [#671](https://github.com/rubyzip/rubyzip/pull/671)
+
+Tooling/internal:
+
+- Unix owner ids no longer default to 0 (root).
+- Legacy Unix owner ids no longer default to 0 (root).
+- Handle short reads in `copy_stream_n`. [#675](https://github.com/rubyzip/rubyzip/pull/675)
+- Retain required Zip64 offset fields. [#676](https://github.com/rubyzip/rubyzip/pull/676)
+- Load openssl only when AES encryption is used. [#672](https://github.com/rubyzip/rubyzip/pull/672)
+
 # 3.5.0 (2026-08-18)
 
 - Fix the link to Ruby doc in README to the latest version. [#670](https://github.com/rubyzip/rubyzip/pull/670)
