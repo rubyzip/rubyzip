@@ -44,17 +44,6 @@ class EncryptionTest < Minitest::Test
       assert_equal 1_327, entry.size
       assert_equal content, zis.read
     end
-
-    error = assert_raises(Zip::DecompressionError) do
-      Zip::InputStream.open(
-        encrypted_zip,
-        decrypter: Zip::TraditionalDecrypter.new("#{password}wrong")
-      ) do |zis|
-        zis.get_next_entry
-        assert_equal content, zis.read
-      end
-    end
-    assert_match(/Zlib error \('.+'\) while inflating\./, error.message)
   end
 
   def test_decrypt
@@ -72,6 +61,19 @@ class EncryptionTest < Minitest::Test
       assert_equal 41_234, entry.size
       assert_equal ::File.read("#{DATA_DIR}/#{INPUT_FILE2}"), zis.read
     end
+  end
+
+  def test_decrypt_with_wrong_password
+    error = assert_raises(Zip::DecompressionError) do
+      Zip::InputStream.open(
+        "#{DATA_DIR}/#{ENCRYPT_ZIP_TEST_FILE}",
+        decrypter: Zip::TraditionalDecrypter.new('wrong_password')
+      ) do |zis|
+        zis.get_next_entry
+        zis.read
+      end
+    end
+    assert_match(/Zlib error \('.+'\) while inflating\./, error.message)
   end
 
   def test_aes_128_decrypt
