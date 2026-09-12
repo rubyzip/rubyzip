@@ -875,7 +875,8 @@ module Zip
       # Might not know size here, so need ZIP64 just in case.
       # If we already have a ZIP64 extra (placeholder) then we must fill it in.
       if zip64? || @size.nil? || @size >= 0xFFFFFFFF || @compressed_size >= 0xFFFFFFFF
-        @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
+        @version_needed_to_extract =
+          [@version_needed_to_extract, VERSION_NEEDED_TO_EXTRACT_ZIP64].max
         zip64 = @extra[:zip64] || @extra.create(:zip64)
 
         # Local header always includes size and compressed size.
@@ -889,7 +890,8 @@ module Zip
 
       if (@size && @size >= 0xFFFFFFFF) || @compressed_size >= 0xFFFFFFFF ||
          @local_header_offset >= 0xFFFFFFFF
-        @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
+        @version_needed_to_extract =
+          [@version_needed_to_extract, VERSION_NEEDED_TO_EXTRACT_ZIP64].max
         zip64 = @extra[:zip64] || @extra.create(:zip64)
 
         # Central directory entry entries include whichever fields are necessary.
