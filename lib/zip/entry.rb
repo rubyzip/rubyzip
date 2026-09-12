@@ -208,6 +208,21 @@ module Zip
       !@extra[:aes].nil?
     end
 
+    # Called by `AESEncrypter#prepare_entry` before the local header is first
+    # written, so the extra field is in place before its size is measured.
+    # Directories have no content to encrypt, so they are left untouched.
+    def prep_aes_extra(vendor_version, strength) # :nodoc:
+      return if directory?
+
+      @version_needed_to_extract =
+        [@version_needed_to_extract, Zip::VERSION_NEEDED_TO_EXTRACT_AES].max
+      aes = @extra[:aes] || @extra.create(:aes)
+      aes.vendor_version = vendor_version
+      aes.vendor_id = 'AE'
+      aes.encryption_strength = strength
+      aes.compression_method = compression_method
+    end
+
     def file_type_is?(type) # :nodoc:
       ftype == type
     end
