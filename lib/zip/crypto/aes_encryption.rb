@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module Zip
   module AESEncryption # :nodoc:
     VERIFIER_LENGTH = 2
@@ -62,6 +64,85 @@ module Zip
     def gp_flags
       0x0001
     end
+
+    private
+
+    # Derive the encryption key, HMAC key and password-verification value
+    # from the password and a salt, as specified by the WinZip AES format.
+    def derive_keys(salt)
+      raise Error, "Unsupported encryption AES-#{@bits}" unless STRENGTHS.include? @strength
+
+      key_material = OpenSSL::KDF.pbkdf2_hmac(
+        @password,
+        salt:       salt,
+        iterations: 1000,
+        length:     (2 * @key_length) + VERIFIER_LENGTH,
+        hash:       'sha1'
+      )
+
+      [
+        key_material[0...@key_length],
+        key_material[@key_length...(2 * @key_length)],
+        key_material[-VERIFIER_LENGTH..]
+      ]
+    end
+  end
+
+  class AESEncrypter < Encrypter # :nodoc:
+    include AESEncryption
+
+    def header(_mtime)
+      @salt + @pwd_verify
+    end
+
+    def encrypt(data)
+      idx = 0
+      encrypted_data = +''
+      amount_to_write = data.size
+
+      while amount_to_write.positive?
+        @cipher.iv = [@counter + 1].pack('Vx12')
+        begin_index = BLOCK_SIZE * idx
+        end_index = begin_index + [BLOCK_SIZE, amount_to_write].min
+        encrypted_data << @cipher.update(data[begin_index...end_index])
+        amount_to_write -= BLOCK_SIZE
+        @counter += 1
+        idx += 1
+      end
+
+      # JRuby requires finalization of the cipher. This is a bug, as noted in
+      # jruby/jruby-openssl#182 and jruby/jruby-openssl#183.
+      encrypted_data << @cipher.final if defined?(JRUBY_VERSION)
+      @hmac.update(encrypted_data)
+      encrypted_data
+    end
+
+    def data_descriptor(*)
+      ''
+    end
+
+    def trailer
+      @hmac.digest[0...AUTHENTICATION_CODE_LENGTH]
+    end
+
+    def crc(_computed_crc)
+      0
+    end
+
+    def reset!
+      @salt = SecureRandom.random_bytes(@salt_length)
+      enc_key, enc_hmac_key, @pwd_verify = derive_keys(@salt)
+
+      @counter = 0
+      @cipher = OpenSSL::Cipher::AES.new(@bits, :CTR)
+      @cipher.encrypt
+      @cipher.key = enc_key
+      @hmac = OpenSSL::HMAC.new(enc_hmac_key, OpenSSL::Digest.new('SHA1'))
+    end
+
+    def prepare_entry(entry)
+      entry.prep_aes_extra(AESEncryption::VERSION_AE_2, @strength)
+    end
   end
 
   class AESDecrypter < Decrypter # :nodoc:
@@ -91,20 +172,9 @@ module Zip
     end
 
     def reset!(header)
-      raise Error, "Unsupported encryption AES-#{@bits}" unless STRENGTHS.include? @strength
-
       salt = header[0...@salt_length]
       pwd_verify = header[-VERIFIER_LENGTH..]
-      key_material = OpenSSL::KDF.pbkdf2_hmac(
-        @password,
-        salt:       salt,
-        iterations: 1000,
-        length:     (2 * @key_length) + VERIFIER_LENGTH,
-        hash:       'sha1'
-      )
-      enc_key = key_material[0...@key_length]
-      enc_hmac_key = key_material[@key_length...(2 * @key_length)]
-      enc_pwd_verify = key_material[-VERIFIER_LENGTH..]
+      enc_key, enc_hmac_key, enc_pwd_verify = derive_keys(salt)
 
       raise Error, 'Bad password' if enc_pwd_verify != pwd_verify
 
