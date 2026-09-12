@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
+require 'securerandom'
 
 class AESDecrypterTest < Minitest::Test
   def setup
@@ -36,5 +37,113 @@ class AESDecrypterTest < Minitest::Test
     header = [118, 221, 166, 27, 165, 141, 24, 122, 227, 197, 52, 135, 222, 67, 221, 92, 231, 117].pack('C*')
     @decrypter256.reset!(header)
     assert_equal 'b', @decrypter256.decrypt([135].map(&:chr).join)
+  end
+end
+
+class AESEncrypterTest < Minitest::Test
+  STRENGTHS = [
+    Zip::AESEncryption::STRENGTH_128_BIT,
+    Zip::AESEncryption::STRENGTH_192_BIT,
+    Zip::AESEncryption::STRENGTH_256_BIT
+  ].freeze
+
+  def setup
+    @password = 'password'
+  end
+
+  def test_header_bytesize
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    encrypter.reset!
+    assert_equal 18, encrypter.header_bytesize
+    assert_equal 18, encrypter.header('ignored').bytesize
+  end
+
+  def test_gp_flags
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    assert_equal 1, encrypter.gp_flags
+  end
+
+  def test_data_descriptor_and_crc_are_suppressed
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    assert_equal '', encrypter.data_descriptor(12_345, 100, 100)
+    assert_equal 0, encrypter.crc(12_345)
+  end
+
+  def test_reset_generates_a_fresh_salt_each_time
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+
+    encrypter.reset!
+    first_header = encrypter.header('ignored')
+
+    encrypter.reset!
+    second_header = encrypter.header('ignored')
+
+    refute_equal first_header, second_header
+  end
+
+  def test_encrypt_decrypt_round_trip
+    plaintext = 'the quick brown fox jumps over the lazy dog' * 100
+
+    STRENGTHS.each do |strength|
+      encrypter = Zip::AESEncrypter.new(@password, strength)
+      encrypter.reset!
+      header = encrypter.header('ignored')
+      ciphertext = encrypter.encrypt(plaintext)
+      trailer = encrypter.trailer
+
+      decrypter = Zip::AESDecrypter.new(@password, strength)
+      decrypter.reset!(header)
+      decrypted = decrypter.decrypt(ciphertext)
+      decrypter.check_integrity!(StringIO.new(trailer))
+
+      assert_equal plaintext, decrypted
+    end
+  end
+
+  def test_encrypt_decrypt_round_trip_in_chunks
+    plaintext = SecureRandom.random_bytes(100_000)
+
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    encrypter.reset!
+    header = encrypter.header('ignored')
+    ciphertext = +''.b
+    plaintext.each_char.each_slice(4096) { |chunk| ciphertext << encrypter.encrypt(chunk.join) }
+    trailer = encrypter.trailer
+
+    decrypter = Zip::AESDecrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    decrypter.reset!(header)
+    decrypted = +''.b
+    ciphertext.each_char.each_slice(32_768) { |chunk| decrypted << decrypter.decrypt(chunk.join) }
+    decrypter.check_integrity!(StringIO.new(trailer))
+
+    assert_equal plaintext, decrypted
+  end
+
+  def test_decrypt_with_wrong_password_raises
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    encrypter.reset!
+    header = encrypter.header('ignored')
+    encrypter.encrypt('some data')
+
+    decrypter = Zip::AESDecrypter.new('wrong_password', Zip::AESEncryption::STRENGTH_256_BIT)
+    error = assert_raises(Zip::Error) { decrypter.reset!(header) }
+    assert_equal 'Bad password', error.message
+  end
+
+  def test_tampered_ciphertext_fails_integrity_check
+    encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    encrypter.reset!
+    header = encrypter.header('ignored')
+    ciphertext = encrypter.encrypt('some secret data')
+    trailer = encrypter.trailer
+
+    tampered = ciphertext.dup
+    tampered[0] = (tampered.getbyte(0) ^ 0xFF).chr
+
+    decrypter = Zip::AESDecrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
+    decrypter.reset!(header)
+    decrypter.decrypt(tampered)
+    error = assert_raises(Zip::Error) { decrypter.check_integrity!(StringIO.new(trailer)) }
+    assert_equal 'Integrity fault', error.message
   end
 end

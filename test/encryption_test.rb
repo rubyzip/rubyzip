@@ -134,6 +134,137 @@ class EncryptionTest < Minitest::Test
     end
   end
 
+  def test_aes_encrypt
+    content = File.read("#{DATA_DIR}/#{INPUT_FILE1}")
+    test_filename = 'top_secret_file.txt'
+    password = 'swordfish'
+
+    [
+      Zip::AESEncryption::STRENGTH_128_BIT,
+      Zip::AESEncryption::STRENGTH_256_BIT
+    ].each do |strength|
+      encrypted_zip = Zip::OutputStream.write_buffer(
+        StringIO.new,
+        encrypter: Zip::AESEncrypter.new(password, strength)
+      ) do |out|
+        out.put_next_entry(test_filename)
+        out.write content
+      end
+
+      Zip::InputStream.open(
+        encrypted_zip, decrypter: Zip::AESDecrypter.new(password, strength)
+      ) do |zis|
+        entry = zis.get_next_entry
+        assert_equal test_filename, entry.name
+        assert_equal 1_327, entry.size
+        assert_equal content, zis.read
+        assert entry.aes?
+        assert entry.encrypted?
+        assert_equal 0, entry.crc
+        assert_equal Zip::Entry::DEFLATED, entry.compression_method
+        assert_equal Zip::AESEncryption::VERSION_AE_2, entry.extra[:aes].vendor_version
+        assert_equal strength, entry.extra[:aes].encryption_strength
+      end
+    end
+  end
+
+  def test_aes_encrypt_stored
+    content = File.read("#{DATA_DIR}/#{INPUT_FILE1}")
+    test_filename = 'top_secret_file.txt'
+    password = 'swordfish'
+
+    encrypted_zip = Zip::OutputStream.write_buffer(
+      StringIO.new,
+      encrypter: Zip::AESEncrypter.new(password, Zip::AESEncryption::STRENGTH_256_BIT)
+    ) do |out|
+      out.put_next_entry(test_filename, '', Zip::ExtraField.new, Zip::Entry::STORED)
+      out.write content
+    end
+
+    refute_includes encrypted_zip.string, content[0, 64]
+
+    Zip::InputStream.open(
+      encrypted_zip, decrypter: Zip::AESDecrypter.new(password, Zip::AESEncryption::STRENGTH_256_BIT)
+    ) do |zis|
+      entry = zis.get_next_entry
+      assert_equal content, zis.read
+      assert_equal Zip::Entry::STORED, entry.compression_method
+    end
+  end
+
+  def test_aes_encrypt_wrong_password
+    encrypted_zip = Zip::OutputStream.write_buffer(
+      StringIO.new,
+      encrypter: Zip::AESEncrypter.new('swordfish', Zip::AESEncryption::STRENGTH_256_BIT)
+    ) do |out|
+      out.put_next_entry('secret.txt')
+      out.write 'top secret content'
+    end
+
+    error = assert_raises(Zip::Error) do
+      Zip::InputStream.open(
+        encrypted_zip,
+        decrypter: Zip::AESDecrypter.new('wrong_password', Zip::AESEncryption::STRENGTH_256_BIT)
+      ) do |zis|
+        zis.get_next_entry
+        zis.read
+      end
+    end
+    assert_equal 'Bad password', error.message
+  end
+
+  def test_aes_encrypt_with_directory
+    password = 'swordfish'
+    strength = Zip::AESEncryption::STRENGTH_256_BIT
+
+    encrypted_zip = Zip::OutputStream.write_buffer(
+      StringIO.new,
+      encrypter: Zip::AESEncrypter.new(password, strength)
+    ) do |out|
+      out.put_next_entry('adir/')
+      out.put_next_entry('adir/file.txt')
+      out.write 'hello directory world'
+    end
+
+    Zip::InputStream.open(
+      encrypted_zip, decrypter: Zip::AESDecrypter.new(password, strength)
+    ) do |zis|
+      dir_entry = zis.get_next_entry
+      assert_equal 'adir/', dir_entry.name
+      refute dir_entry.encrypted?
+      refute dir_entry.aes?
+      assert_equal 0, dir_entry.gp_flags
+
+      file_entry = zis.get_next_entry
+      assert_equal 'adir/file.txt', file_entry.name
+      assert file_entry.encrypted?
+      assert file_entry.aes?
+      assert_equal 'hello directory world', zis.read
+    end
+  end
+
+  def test_aes_encrypt_via_entry
+    password = 'swordfish'
+    strength = Zip::AESEncryption::STRENGTH_256_BIT
+    content = 'hello via Zip::File'
+
+    encrypted_zip = Zip::OutputStream.write_buffer(
+      StringIO.new,
+      encrypter: Zip::AESEncrypter.new(password, strength)
+    ) do |out|
+      out.put_next_entry('secret.txt')
+      out.write content
+    end
+
+    zip_file = Zip::File.open_buffer(encrypted_zip)
+    entry = zip_file.find_entry('secret.txt')
+    assert entry.encrypted?
+
+    entry.get_input_stream(decrypter: Zip::AESDecrypter.new(password, strength)) do |entry_stream|
+      assert_equal content, entry_stream.read
+    end
+  end
+
   def test_aes_decrypt_keka
     Zip::InputStream.open(
       "#{DATA_DIR}/#{AES_KEKA_ZIP_TEST_FILE}",
