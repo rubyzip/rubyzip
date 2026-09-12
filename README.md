@@ -251,9 +251,9 @@ end # The `InputStream` is closed at the end of the block.
 
 Any attempt to move about in a zip file opened with `Zip::InputStream` could result in the incorrect entry being accessed and/or Zlib buffer errors. If you need random access in a zip file, use `Zip::File`.
 
-### Password Protection (experimental)
+### Encryption and Password Protection (experimental)
 
-Rubyzip supports reading zip files with AES encryption (version 3.1 and later), and reading and writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). Encryption is currently only available with the stream API, with either files or buffers, e.g.:
+Rubyzip supports reading and writing zip files with AES encryption (reading: version 3.1 and later; writing: version 3.7 and later), and reading and writing zip files with traditional zip encryption (a.k.a. "ZipCrypto"). Encryption is currently only available with the stream API, with either files or buffers, e.g.:
 
 #### Version 2.x (ZipCrypto only)
 
@@ -274,9 +274,16 @@ Zip::InputStream.open(buffer, 0, dec) do |input|
 end
 ```
 
-#### Version 3.x (AES reading and ZipCrypto read/write)
+#### Version 3.x (AES and ZipCrypto)
 
 ```ruby
+# Writing AES, version 3.7 and later.
+enc = Zip::AESEncrypter.new('password', Zip::AESEncryption::STRENGTH_256_BIT)
+Zip::OutputStream.open('aes-encrypted-file.zip', encrypter: enc) do |output|
+  output.put_next_entry('my_file.txt')
+  output.write my_data
+end
+
 # Reading AES, version 3.1 and later.
 dec = Zip::AESDecrypter.new('password', Zip::AESEncryption::STRENGTH_256_BIT)
 Zip::InputStream.open('aes-encrypted-file.zip', decrypter: dec) do |input|
@@ -285,14 +292,14 @@ Zip::InputStream.open('aes-encrypted-file.zip', decrypter: dec) do |input|
   puts input.read
 end
 
-# Writing.
+# Writing ZipCrypto.
 enc = Zip::TraditionalEncrypter.new('password')
 buffer = Zip::OutputStream.write_buffer(encrypter: enc) do |output|
   output.put_next_entry("my_file.txt")
   output.write my_data
 end
 
-# Reading.
+# Reading ZipCrypto.
 dec = Zip::TraditionalDecrypter.new('password')
 Zip::InputStream.open(buffer, decrypter: dec) do |input|
   entry = input.get_next_entry
