@@ -2,6 +2,15 @@
 
 module Zip
   class Encrypter # :nodoc:all
+    def trailer
+      ''
+    end
+
+    def crc(computed_crc)
+      computed_crc
+    end
+
+    def prepare_entry(_entry); end
   end
 
   class Decrypter # :nodoc:all
