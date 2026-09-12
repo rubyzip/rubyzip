@@ -149,27 +149,29 @@ module Zip
       return unless @current_entry
 
       finish
+      @output_stream << @encrypter.trailer unless @current_entry.directory?
       @current_entry.compressed_size = @output_stream.tell -
                                        @current_entry.local_header_offset -
                                        @current_entry.calculate_local_header_size
       @current_entry.size = @compressor.size
-      @current_entry.crc = @compressor.crc
+      @current_entry.crc = @encrypter.crc(@compressor.crc)
       @output_stream << @encrypter.data_descriptor(
         @current_entry.crc,
         @current_entry.compressed_size,
         @current_entry.size
       )
-      @current_entry.gp_flags |= @encrypter.gp_flags
+      @current_entry.gp_flags |= @encrypter.gp_flags unless @current_entry.directory?
       @current_entry = nil
       @compressor = ::Zip::NullCompressor.instance
     end
 
     def init_next_entry(entry)
       finalize_current_entry
+      @encrypter.prepare_entry(entry)
       @cdir << entry
       entry.write_local_entry(@output_stream, suppress_extra_fields: @suppress_extra_fields)
       @encrypter.reset!
-      @output_stream << @encrypter.header(entry.mtime)
+      @output_stream << @encrypter.header(entry.mtime) unless entry.directory?
       @compressor = get_compressor(entry)
     end
 
@@ -178,7 +180,7 @@ module Zip
       when Entry::DEFLATED
         ::Zip::Deflater.new(@output_stream, entry.compression_level, @encrypter)
       when Entry::STORED
-        ::Zip::PassThruCompressor.new(@output_stream)
+        ::Zip::PassThruCompressor.new(@output_stream, @encrypter)
       else
         raise ::Zip::CompressionMethodError, entry.compression_method
       end
