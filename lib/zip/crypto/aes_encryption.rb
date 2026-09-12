@@ -95,24 +95,17 @@ module Zip
       @salt + @pwd_verify
     end
 
+    # `Deflater`/`PassThruCompressor` call this with whatever, arbitrarily
+    # sized (and not necessarily block-aligned) buffer they happen to have
+    # flushed, potentially many times per entry. Only whole 16-byte blocks
+    # are actually run through the cipher here; any trailing partial block
+    # is buffered in `@pending` until either more data completes it or
+    # `trailer` forces the final flush. This keeps the CTR counter aligned
+    # with the true byte offset in the plaintext stream regardless of how
+    # callers happen to chunk their writes.
     def encrypt(data)
-      idx = 0
-      encrypted_data = +''
-      amount_to_write = data.size
-
-      while amount_to_write.positive?
-        @cipher.iv = [@counter + 1].pack('Vx12')
-        begin_index = BLOCK_SIZE * idx
-        end_index = begin_index + [BLOCK_SIZE, amount_to_write].min
-        encrypted_data << @cipher.update(data[begin_index...end_index])
-        amount_to_write -= BLOCK_SIZE
-        @counter += 1
-        idx += 1
-      end
-
-      # JRuby requires finalization of the cipher. This is a bug, as noted in
-      # jruby/jruby-openssl#182 and jruby/jruby-openssl#183.
-      encrypted_data << @cipher.final if defined?(JRUBY_VERSION)
+      @pending << data
+      encrypted_data = encrypt_blocks
       @hmac.update(encrypted_data)
       encrypted_data
     end
@@ -122,7 +115,9 @@ module Zip
     end
 
     def trailer
-      @hmac.digest[0...AUTHENTICATION_CODE_LENGTH]
+      encrypted_data = encrypt_blocks(final: true)
+      @hmac.update(encrypted_data)
+      encrypted_data + @hmac.digest[0...AUTHENTICATION_CODE_LENGTH]
     end
 
     def crc(_computed_crc)
@@ -134,6 +129,7 @@ module Zip
       enc_key, enc_hmac_key, @pwd_verify = derive_keys(@salt)
 
       @counter = 0
+      @pending = +''.b
       @cipher = OpenSSL::Cipher::AES.new(@bits, :CTR)
       @cipher.encrypt
       @cipher.key = enc_key
@@ -142,6 +138,30 @@ module Zip
 
     def prepare_entry(entry)
       entry.prep_aes_extra(AESEncryption::VERSION_AE_2, @strength)
+    end
+
+    private
+
+    def encrypt_blocks(final: false)
+      length = final ? @pending.bytesize : (@pending.bytesize / BLOCK_SIZE) * BLOCK_SIZE
+      return '' if length.zero?
+
+      data = @pending.slice!(0, length)
+      encrypted_data = +''.b
+      offset = 0
+
+      while offset < data.bytesize
+        @cipher.iv = [@counter + 1].pack('Vx12')
+        encrypted_data << @cipher.update(data[offset, BLOCK_SIZE])
+        @counter += 1
+        offset += BLOCK_SIZE
+      end
+
+      # JRuby requires finalization of the cipher when the last block fed to
+      # it is a partial one. This is a bug, as noted in
+      # jruby/jruby-openssl#182 and jruby/jruby-openssl#183.
+      encrypted_data << @cipher.final if final && defined?(JRUBY_VERSION)
+      encrypted_data
     end
   end
 

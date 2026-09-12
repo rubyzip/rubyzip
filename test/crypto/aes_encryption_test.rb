@@ -81,6 +81,16 @@ class AESEncrypterTest < Minitest::Test
     refute_equal first_header, second_header
   end
 
+  # `trailer` returns whatever ciphertext was still buffered (a final,
+  # not-yet-block-aligned remainder) followed by the 10-byte authentication
+  # code, since that's what `OutputStream` needs to be able to just append
+  # it straight onto the output (see `Zip::OutputStream#finalize_current_entry`).
+  # These tests split it back into its two parts.
+  def split_trailer(trailer)
+    auth_length = Zip::AESEncryption::AUTHENTICATION_CODE_LENGTH
+    [trailer[0...-auth_length], trailer[-auth_length..]]
+  end
+
   def test_encrypt_decrypt_round_trip
     plaintext = 'the quick brown fox jumps over the lazy dog' * 100
 
@@ -89,32 +99,40 @@ class AESEncrypterTest < Minitest::Test
       encrypter.reset!
       header = encrypter.header('ignored')
       ciphertext = encrypter.encrypt(plaintext)
-      trailer = encrypter.trailer
+      leftover, auth_code = split_trailer(encrypter.trailer)
 
       decrypter = Zip::AESDecrypter.new(@password, strength)
       decrypter.reset!(header)
-      decrypted = decrypter.decrypt(ciphertext)
-      decrypter.check_integrity!(StringIO.new(trailer))
+      decrypted = decrypter.decrypt(ciphertext + leftover)
+      decrypter.check_integrity!(StringIO.new(auth_code))
 
       assert_equal plaintext, decrypted
     end
   end
 
+  # Chunk sizes are deliberately *not* multiples of the 16-byte block size,
+  # and don't evenly divide the plaintext either - matching how `Deflater`
+  # calls `encrypt` with whatever, arbitrarily sized buffer zlib happens to
+  # have flushed. This is the scenario that originally broke on JRuby: the
+  # cipher must only ever be run over whole blocks internally, buffering any
+  # trailing partial block until it's completed by the next chunk (or
+  # flushed by `trailer`), regardless of how the caller chunks its writes.
   def test_encrypt_decrypt_round_trip_in_chunks
-    plaintext = SecureRandom.random_bytes(100_000)
+    plaintext = SecureRandom.random_bytes(100_003)
 
     encrypter = Zip::AESEncrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
     encrypter.reset!
     header = encrypter.header('ignored')
     ciphertext = +''.b
-    plaintext.each_char.each_slice(4096) { |chunk| ciphertext << encrypter.encrypt(chunk.join) }
-    trailer = encrypter.trailer
+    plaintext.each_char.each_slice(4097) { |chunk| ciphertext << encrypter.encrypt(chunk.join) }
+    leftover, auth_code = split_trailer(encrypter.trailer)
+    ciphertext << leftover
 
     decrypter = Zip::AESDecrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
     decrypter.reset!(header)
     decrypted = +''.b
     ciphertext.each_char.each_slice(32_768) { |chunk| decrypted << decrypter.decrypt(chunk.join) }
-    decrypter.check_integrity!(StringIO.new(trailer))
+    decrypter.check_integrity!(StringIO.new(auth_code))
 
     assert_equal plaintext, decrypted
   end
@@ -135,7 +153,8 @@ class AESEncrypterTest < Minitest::Test
     encrypter.reset!
     header = encrypter.header('ignored')
     ciphertext = encrypter.encrypt('some secret data')
-    trailer = encrypter.trailer
+    leftover, auth_code = split_trailer(encrypter.trailer)
+    ciphertext << leftover
 
     tampered = ciphertext.dup
     tampered[0] = (tampered.getbyte(0) ^ 0xFF).chr
@@ -143,7 +162,7 @@ class AESEncrypterTest < Minitest::Test
     decrypter = Zip::AESDecrypter.new(@password, Zip::AESEncryption::STRENGTH_256_BIT)
     decrypter.reset!(header)
     decrypter.decrypt(tampered)
-    error = assert_raises(Zip::Error) { decrypter.check_integrity!(StringIO.new(trailer)) }
+    error = assert_raises(Zip::Error) { decrypter.check_integrity!(StringIO.new(auth_code)) }
     assert_equal 'Integrity fault', error.message
   end
 end
