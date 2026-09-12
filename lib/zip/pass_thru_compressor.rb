@@ -2,9 +2,10 @@
 
 module Zip
   class PassThruCompressor < Compressor # :nodoc:all
-    def initialize(output_stream)
+    def initialize(output_stream, encrypter = NullEncrypter.new)
       super()
       @output_stream = output_stream
+      @encrypter = encrypter
       @crc = Zlib.crc32
       @size = 0
     end
@@ -13,7 +14,7 @@ module Zip
       val = data.to_s
       @crc = Zlib.crc32(val, @crc)
       @size += val.bytesize
-      @output_stream << val
+      @output_stream << @encrypter.encrypt(val)
     end
 
     attr_reader :size, :crc
