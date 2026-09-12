@@ -14,6 +14,7 @@ module Zip
   VERSION_MADE_BY                        = 52 # this library's version
   VERSION_NEEDED_TO_EXTRACT              = 20
   VERSION_NEEDED_TO_EXTRACT_ZIP64        = 45
+  VERSION_NEEDED_TO_EXTRACT_AES          = 51
 
   SPLIT_FILE_SIGNATURE = 0x08074b50
 
