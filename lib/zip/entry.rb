@@ -411,7 +411,7 @@ module Zip
       [::Zip::LOCAL_ENTRY_SIGNATURE,
        @version_needed_to_extract, # version needed to extract
        @gp_flags, # @gp_flags
-       compression_method,
+       stored_compression_method,
        @time.to_binary_dos_time, # @last_mod_time
        @time.to_binary_dos_date, # @last_mod_date
        @crc,
@@ -593,7 +593,7 @@ module Zip
         @fstype, # filesystem type
         @version_needed_to_extract, # @versionNeededToExtract
         @gp_flags, # @gp_flags
-        compression_method,
+        stored_compression_method,
         @time.to_binary_dos_time, # @last_mod_time
         @time.to_binary_dos_date, # @last_mod_date
         @crc,
@@ -837,6 +837,13 @@ module Zip
       end
 
       @compression_method = @extra[:aes].compression_method if ftype != :directory
+    end
+
+    # AES-encrypted entries always store `COMPRESSION_METHOD_AES` (99) on the
+    # wire; the real compression method lives in the AES extra field instead
+    # (see `parse_aes_extra`, which reverses this on read).
+    def stored_compression_method # :nodoc:
+      aes? ? COMPRESSION_METHOD_AES : compression_method
     end
 
     # For DEFLATED compression *only*: set the general purpose flags 1 and 2 to
