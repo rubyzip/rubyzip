@@ -35,6 +35,14 @@ class ZipFileExtractAllTest < Minitest::Test
     assert ::File.directory?(::File.join(DEST_DIR, 'empty_subdir'))
   end
 
+  def test_extract_all_class_method
+    Zip::File.extract_all(ZIP_PATH, DEST_DIR)
+
+    assert_equal 'top level file', ::File.read(::File.join(DEST_DIR, 'top.txt'))
+    assert_equal 'nested file', ::File.read(::File.join(DEST_DIR, 'subdir', 'nested.txt'))
+    assert ::File.directory?(::File.join(DEST_DIR, 'empty_subdir'))
+  end
+
   def test_extract_all_creates_missing_intermediate_directories
     # A hand-built archive with only file entries and nested paths - no
     # explicit directory entries at all.

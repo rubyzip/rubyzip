@@ -193,6 +193,14 @@ module Zip
           zf.add_recursive(src_dir, prefix: prefix, max_depth: max_depth, &continue_on_exists_proc)
         end
       end
+
+      # Extracts every entry in the zip archive `zip_file_name` into
+      # `destination_directory`, preserving the archive's directory structure.
+      def extract_all(zip_file_name, destination_directory = '.', &block)
+        Zip::File.open(zip_file_name) do |zf|
+          zf.extract_all(destination_directory, &block)
+        end
+      end
     end
 
     # Returns an input stream to the specified entry. If a block is passed
