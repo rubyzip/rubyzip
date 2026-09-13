@@ -286,7 +286,16 @@ module Zip
     #
     # NB: The caller is responsible for making sure `destination_directory` is
     # safe, if it is passed.
-    def extract(entry_path = @name, destination_directory: '.', &block)
+    #
+    # `create_parent_directories`, if true, creates any missing intermediate
+    # directories for a file entry before writing it. This defaults to
+    # false: a missing intermediate directory usually means an earlier
+    # entry (e.g. a symlink) was deliberately skipped as unsafe, and letting
+    # a later entry silently succeed by re-creating that path as a plain
+    # directory would mask that. Bulk operations such as `extract_all`,
+    # which have no such earlier-entry to skip past, opt into this.
+    def extract(entry_path = @name, destination_directory: '.',
+                create_parent_directories: false, &block)
       dest_dir = ::File.absolute_path(destination_directory || '.')
       extract_path = ::File.absolute_path(::File.join(dest_dir, entry_path))
 
@@ -298,6 +307,8 @@ module Zip
       block ||= proc { ::Zip.on_exists_proc }
 
       raise "unknown file type #{inspect}" unless directory? || file? || symlink?
+
+      ::FileUtils.mkdir_p(::File.dirname(extract_path)) if create_parent_directories && file?
 
       __send__(:"create_#{ftype}", extract_path, &block)
       self

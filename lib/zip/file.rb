@@ -305,6 +305,33 @@ module Zip
       found_entry.extract(entry_path, destination_directory: destination_directory, &block)
     end
 
+    # Extracts every entry in the archive into `destination_directory`,
+    # preserving the archive's directory structure.
+    #
+    # Symlink entries are ignored (skipped, with a warning) rather than
+    # extracted. See `Entry#extract` for the path-safety checks applied to
+    # every other entry.
+    #
+    # NB: The caller is responsible for making sure `destination_directory` is
+    # safe, if it is passed.
+    def extract_all(destination_directory = '.', &block)
+      # Partition the entries into directories and non-directories, so that
+      # directories are created first.
+      dirs, others = entries.partition(&:directory?)
+
+      (dirs + others).each do |entry|
+        if entry.symlink?
+          warn "WARNING: skipped symlink '#{entry.name}' during extract_all."
+          next
+        end
+
+        entry.extract(entry.name, destination_directory:     destination_directory,
+                                  create_parent_directories: true, &block)
+      end
+
+      self
+    end
+
     # Commits changes that has been made since the previous commit to
     # the zip archive.
     def commit

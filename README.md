@@ -239,6 +239,16 @@ Zip::File.open('foo.zip') do |zip_file|
 end
 ```
 
+To extract every entry in an archive at once, preserving its directory structure, use `Zip::File#extract_all`:
+
+```ruby
+Zip::File.open('foo.zip') do |zip_file|
+  zip_file.extract_all('/path/to/destination')
+end
+```
+
+As with `extract`, existing files at the destination will raise `Zip::DestinationExistsError` unless a block is passed to resolve the conflict (see [Existing Files](#existing-files) below). Symlink entries are always skipped (ignored, with a warning), rather than extracted.
+
 ### Reading a Zip file with `Zip::InputStream`
 
 `Zip::InputStream` can be used for faster reading of zip file content because it does not read the Central directory up front.
