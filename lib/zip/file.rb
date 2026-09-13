@@ -179,6 +179,20 @@ module Zip
           cdir.count_entries(path_or_io)
         end
       end
+
+      # Recursively adds the contents of `src_dir` to the new archive
+      # `zip_file_name`, nested under `prefix` if given (the archive root
+      # otherwise). `src_dir` itself is not added, only its contents.
+      #
+      # Symlinks are ignored (skipped, with a warning) rather than followed
+      # or added, to avoid the security issues they can pose. `max_depth`
+      # limits how many directory levels below `src_dir` are walked; anything
+      # deeper is skipped, also with a warning (default: 16).
+      def add_recursive(zip_file_name, src_dir, prefix: '', max_depth: 16, &continue_on_exists_proc)
+        Zip::File.open(zip_file_name, create: true) do |zf|
+          zf.add_recursive(src_dir, prefix: prefix, max_depth: max_depth, &continue_on_exists_proc)
+        end
+      end
     end
 
     # Returns an input stream to the specified entry. If a block is passed

@@ -36,6 +36,20 @@ class ZipFileAddRecursiveTest < Minitest::Test
     end
   end
 
+  def test_add_recursive_class_method
+    Zip::File.add_recursive(OUT_ZIP, SRC_DIR)
+
+    Zip::File.open(OUT_ZIP) do |zf|
+      assert_equal(
+        %w[top.txt subdir/ subdir/nested.txt empty_subdir/].sort,
+        zf.entries.map(&:name).sort
+      )
+      assert_equal 'top level file', zf.read('top.txt')
+      assert_equal 'nested file', zf.read('subdir/nested.txt')
+      assert zf.find_entry('empty_subdir/').directory?
+    end
+  end
+
   def test_add_recursive_with_entry_prefix
     Zip::File.open(OUT_ZIP, create: true) do |zf|
       zf.add_recursive(SRC_DIR, prefix: 'assets')
