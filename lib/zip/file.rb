@@ -12,9 +12,10 @@ module Zip
   # the archive and methods such as `get_input_stream` and
   # `get_output_stream` for reading from and writing entries to the
   # archive. The class includes a few convenience methods such as
-  # `extract` for extracting entries to the filesystem, and `remove`,
-  # `replace`, `rename` and `mkdir` for making simple modifications to
-  # the archive.
+  # `extract` for extracting entries to the filesystem, `extract_all` for
+  # extracting every entry, `add_recursive` for adding the contents of a
+  # directory tree, and `remove`, `replace`, `rename` and `mkdir` for
+  # making simple modifications to the archive.
   #
   # Modifications to a zip archive are not committed until `commit` or
   # `close` is called. The method `open` accepts a block following
