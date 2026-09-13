@@ -118,7 +118,17 @@ Note that there are some extra fields that cannot be suppressed at all (e.g. `:a
 
 ### Zipping a directory recursively
 
-Copy from [here](https://github.com/rubyzip/rubyzip/blob/9d891f7353e66052283562d3e252fe380bb4b199/samples/example_recursive.rb)
+`Zip::File#add_recursive` adds the contents of a directory (not the directory itself) to an archive, recursing into subdirectories:
+
+```ruby
+Zip::File.open('archive.zip', create: true) do |zipfile|
+  zipfile.add_recursive('/path/to/directory')
+end
+```
+
+Pass `prefix:` (default `''`) to nest the contents under a prefix inside the archive, and `max_depth:` (default `16`) to limit how many directory levels are walked. Symlinks are always skipped (ignored, with a warning), rather than followed or added.
+
+For more manual control, here is a hand-rolled version of the same thing:
 
 ```ruby
 require 'zip'

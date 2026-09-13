@@ -252,6 +252,25 @@ module Zip
       add(entry, src_path, &continue_on_exists_proc)
     end
 
+    # Recursively adds the contents of `src_dir` to the archive, nested
+    # under `prefix` if given (the archive root otherwise). `src_dir`
+    # itself is not added, only its contents.
+    #
+    # Symlinks are ignored (skipped, with a warning) rather than followed
+    # or added, to avoid the security issues they can pose. `max_depth`
+    # limits how many directory levels below `src_dir` are walked; anything
+    # deeper is skipped, also with a warning (default: 16).
+    def add_recursive(src_dir, prefix: '', max_depth: 16, &continue_on_exists_proc)
+      raise Errno::ENOENT, src_dir unless ::File.directory?(src_dir)
+      raise ArgumentError, 'max_depth must be at least 1' if max_depth < 1
+
+      prefix = prefix.to_s
+      prefix += '/' unless prefix.empty? || prefix.end_with?('/')
+
+      add_recursive_dir(prefix, src_dir, 1, max_depth, continue_on_exists_proc)
+      self
+    end
+
     # Removes the specified entry.
     def remove(entry)
       @cdir.delete(get_entry(entry))
@@ -362,6 +381,29 @@ module Zip
     end
 
     private
+
+    def add_recursive_dir(entry_prefix, src_dir, depth, max_depth, continue_on_exists_proc)
+      ::Dir.children(src_dir).sort.each do |child|
+        src_path = ::File.join(src_dir, child)
+
+        if ::File.symlink?(src_path)
+          warn "WARNING: skipped symlink '#{src_path}' while adding directory contents."
+        elsif ::File.directory?(src_path)
+          entry_name = "#{entry_prefix}#{child}/"
+          add(entry_name, src_path, &continue_on_exists_proc)
+
+          if depth < max_depth
+            add_recursive_dir(entry_name, src_path, depth + 1, max_depth, continue_on_exists_proc)
+          else
+            warn "WARNING: max_depth (#{max_depth}) reached, not descending into '#{src_path}'."
+          end
+        elsif ::File.file?(src_path)
+          add("#{entry_prefix}#{child}", src_path, &continue_on_exists_proc)
+        else
+          warn "WARNING: skipped '#{src_path}' - not a regular file or directory."
+        end
+      end
+    end
 
     def initialize_cdir(path_or_io, buffer: false)
       @cdir = ::Zip::CentralDirectory.new
