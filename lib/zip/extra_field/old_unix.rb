@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 module Zip
-  # Olf Info-ZIP Extra for UNIX uid/gid and file timestampes
+  # Old Info-ZIP Extra for UNIX uid/gid and file timestamps
   class ExtraField::OldUnix < ExtraField::Generic # :nodoc:
     HEADER_ID = 'UX'
     register_map
+
+    TIMES_SIZE = 8
+    OWNER_SIZE = 4
 
     def initialize(binstr = nil)
       @uid = nil
@@ -20,14 +23,22 @@ module Zip
       return if binstr.empty?
 
       size, content = initial_parse(binstr)
-      # size: 0 for central directory. 4 for local header
+      # size: 8 for central directory. 8 or 12 for local header, as the UID
+      # and GID are optional there.
       return if !size || size == 0
 
-      atime, mtime, uid, gid = content.unpack('VVvv')
+      if content.bytesize >= TIMES_SIZE
+        atime, mtime = content.unpack('VV')
+        @atime ||= atime
+        @mtime ||= mtime
+      end
+
+      # UID and GID are either both present or both absent.
+      return unless content.bytesize >= TIMES_SIZE + OWNER_SIZE
+
+      uid, gid = content[TIMES_SIZE, OWNER_SIZE].unpack('vv')
       @uid ||= uid
-      @gid ||= gid
-      @atime ||= atime
-      @mtime ||= mtime # rubocop:disable Naming/MemoizedInstanceVariableName
+      @gid ||= gid # rubocop:disable Naming/MemoizedInstanceVariableName
     end
 
     def ==(other)
@@ -37,8 +48,12 @@ module Zip
         @mtime == other.mtime
     end
 
+    # The UID and GID are optional in the local header, so only write them if
+    # we have both. The timestamps must be present for the layout to be valid.
     def pack_for_local
-      [@atime, @mtime, @uid, @gid].pack('VVvv')
+      s = pack_for_c_dir
+      s << [@uid, @gid].pack('vv') if !s.empty? && @uid && @gid
+      s
     end
 
     def pack_for_c_dir
