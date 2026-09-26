@@ -27,6 +27,11 @@ Lint/MissingSuper:
 Metrics/ClassLength:
   Max: 675
 
+# Offense count: 1
+# Configuration parameters: CountComments, CountAsOne.
+Metrics/ModuleLength:
+  Max: 120
+
 # Offense count: 21
 # Configuration parameters: IgnoredMethods.
 Metrics/CyclomaticComplexity:

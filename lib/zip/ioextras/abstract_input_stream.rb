@@ -17,6 +17,12 @@ module Zip
       # `IO` allows itself the same slack; see `extra_limit` in `io.c`.
       MAX_CHAR_BYTES = 16 # :nodoc:
 
+      # On MRI, finding the cut with a `StringIO` is faster than walking the
+      # characters next to it for limits smaller than this. Other Rubies are
+      # always walked as their `StringIO#gets` can't be relied on near invalid
+      # bytes (JRuby) or to finish a multi-byte character (TruffleRuby).
+      UTF8_WALK_MIN_LIMIT = 1000 # :nodoc:
+
       # Creates a new input stream wrapper.
       #
       # This method accepts the standard IO encoding options:
@@ -156,15 +162,8 @@ module Zip
         cut_index = [sep_index + sep.bytesize, cut_index].min if sep_index
 
         # A limit must not split a multi-byte character.
-        # `rb_enc_right_char_head`, which `StringIO` uses for this, isn't exposed to Ruby
-        # so let a `StringIO` find the boundary for us.
-        # Binary data has no multi-byte characters to split, so it skips this
-        # and cuts exactly on the limit.
         if limit && encoding != Encoding::ASCII_8BIT
-          window = @output_buffer.byteslice(0, cut_index + MAX_CHAR_BYTES)
-          reader = ::StringIO.new(window.force_encoding(encoding))
-          reader.gets(nil, cut_index)
-          cut_index = reader.pos
+          cut_index = char_safe_cut_index(cut_index, encoding)
         end
 
         @lineno = @lineno.next
@@ -232,6 +231,63 @@ module Zip
 
       # Alias for compatibility. Remove for version 4.
       alias eof eof? # :nodoc:
+
+      private
+
+      # Finds the byte offset of the end of whichever character `cut_index`
+      # falls inside, so a `gets` limit never splits a multi-byte character.
+      #
+      # UTF-8 (for large limits, or on any Ruby but MRI) is handled by walking
+      # the characters next to the cut. Other multi-byte encodings can't be
+      # framed from the middle of a string, so `rb_enc_right_char_head`, which
+      # `StringIO` uses for this, is the best way to find their boundaries. It
+      # isn't exposed to Ruby, so let a `StringIO` find the boundary for us.
+      def char_safe_cut_index(cut_index, encoding)
+        if encoding == Encoding::UTF_8 &&
+           (cut_index > UTF8_WALK_MIN_LIMIT || RUBY_ENGINE != 'ruby')
+          return utf8_char_safe_cut_index(cut_index)
+        end
+
+        # Keep the window a whole number of UTF-16/UTF-32 code units, as
+        # TruffleRuby raises an `ArgumentError` for a UTF-16 string with an
+        # odd byte length.
+        window = @output_buffer.byteslice(0, (cut_index + MAX_CHAR_BYTES) & ~3)
+        reader = StringIO.new(window.force_encoding(encoding))
+        reader.gets(nil, cut_index)
+        reader.pos
+      end
+
+      # `each_char` locates boundaries the same way `rb_enc_right_char_head`
+      # does, treating invalid/truncated bytes as one-byte "characters" too
+      # — unlike a Regexp match/scan, which raises `ArgumentError` on any
+      # invalid byte anywhere in the window, even ones the match ignores.
+      #
+      # The walk only has to start at a known character boundary at or before
+      # `cut_index`, which is cheap to find for UTF-8.
+      def utf8_char_safe_cut_index(cut_index)
+        start  = utf8_boundary_at_or_before(cut_index)
+        window = @output_buffer.byteslice(start, cut_index - start + MAX_CHAR_BYTES)
+        window.force_encoding(Encoding::UTF_8)
+
+        start + window.each_char.reduce(0) do |pos, char|
+          break pos if start + pos >= cut_index
+
+          pos + char.bytesize
+        end
+      end
+
+      # Finds a byte offset at or before `index` that is certain to be the
+      # start of a character. UTF-8 continuation bytes (`10xxxxxx`) are only
+      # ever consumed by a preceding lead byte, so any other byte (including
+      # an invalid one) starts a character. A character has at most three
+      # continuation bytes, so if none of the bytes in the last four offsets
+      # is a lead byte then `index` is itself a boundary.
+      def utf8_boundary_at_or_before(index)
+        index.downto([index - 3, 0].max).find do |offset|
+          # `index` can be the end of the buffer, which is also a boundary.
+          (@output_buffer.getbyte(offset) || 0) & 0xC0 != 0x80
+        end || index
+      end
     end
   end
 end

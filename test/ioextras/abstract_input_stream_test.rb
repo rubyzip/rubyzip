@@ -289,6 +289,26 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(6, io.pos)
   end
 
+  def test_gets_with_odd_limit_does_not_split_utf16_chars_in_long_buffer
+    data = 'aéb👍'.encode('UTF-16LE') * 20
+    io = TestAbstractInputStream.new(data.b, internal_encoding: Encoding::UTF_16LE)
+
+    assert_equal('a'.encode('UTF-16LE'), io.gets(nil, 1))
+    assert_equal('é'.encode('UTF-16LE'), io.gets(nil, 1))
+    assert_equal('b👍'.encode('UTF-16LE'), io.gets(nil, 3))
+    assert_equal(10, io.pos)
+  end
+
+  def test_gets_with_limit_does_not_split_shift_jis_chars
+    io = TestAbstractInputStream.new('a日本語'.encode('Shift_JIS').b, internal_encoding: Encoding::Shift_JIS)
+
+    assert_equal('a'.encode('Shift_JIS'), io.gets(nil, 1))
+    assert_equal('日'.encode('Shift_JIS'), io.gets(nil, 1))
+    assert_equal('本'.encode('Shift_JIS'), io.gets(nil, 2))
+    assert_equal('語'.encode('Shift_JIS'), io.gets(nil, 1))
+    assert_equal(7, io.pos)
+  end
+
   def test_gets_with_limit_completes_char_at_end_of_stream
     io = TestAbstractInputStream.new('é'.b, internal_encoding: Encoding::UTF_8)
 
@@ -308,6 +328,31 @@ class AbstractInputStreamTest < Minitest::Test
 
     assert_equal("\xFF".b, io.gets(nil, 1).b)
     assert_equal("\xFE".b, io.gets(nil, 1).b)
+  end
+
+  def test_gets_with_large_limit_does_not_split_multibyte_chars
+    io = TestAbstractInputStream.new(('é👍€' * 1000).b, internal_encoding: Encoding::UTF_8)
+
+    # 9 bytes per repetition, so limit 4501 falls inside the 'é' that follows
+    # 500 whole repetitions (and 4502 on a character boundary).
+    assert_equal("#{'é👍€' * 500}é", io.gets(nil, 4501))
+    assert_equal(4502, io.pos)
+    assert_equal('👍', io.gets(nil, 4))
+  end
+
+  def test_gets_with_limit_after_invalid_bytes_does_not_split_multibyte_chars
+    # Truncated and stray bytes before and around the cut must not confuse the
+    # search for a character boundary. `each_char` gives the reference framing.
+    data = "ab\xE3\x80\x80\x80\xF0\x9F\xC3é\xF0\x9F\x91\x8D\x80\x80\x80\x80€".b
+    expected = data.dup.force_encoding(Encoding::UTF_8).each_char.map(&:b)
+
+    io = TestAbstractInputStream.new(data, internal_encoding: Encoding::UTF_8)
+    pieces = []
+    while (piece = io.gets(nil, 1))
+      pieces << piece.b
+    end
+
+    assert_equal(expected, pieces)
   end
 
   def test_gets_with_limit_cuts_on_byte_boundaries_when_binary
