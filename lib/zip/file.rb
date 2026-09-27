@@ -360,6 +360,7 @@ module Zip
       block ||= proc { Zip.on_exists_proc }
       found_entry = entry.kind_of?(Entry) ? entry : get_entry(entry)
       found_entry = found_entry.first if found_entry.kind_of?(Array)
+      apply_restore_options(found_entry)
       entry_path ||= found_entry.name
       found_entry.extract(entry_path, destination_directory: destination_directory, &block)
     end
@@ -384,6 +385,7 @@ module Zip
           next
         end
 
+        apply_restore_options(entry)
         entry.extract(entry.name, destination_directory:     destination_directory,
                                   create_parent_directories: true, &block)
       end

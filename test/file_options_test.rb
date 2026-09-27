@@ -163,6 +163,29 @@ class FileOptionsTest < Minitest::Test
     end
   end
 
+  def test_restore_times_false_extract_entry_object
+    testzip = ::File.expand_path(::File.join('data', 'globTest.zip'), __dir__)
+    Dir.mktmpdir do |tmp|
+      ::Zip::File.open(testzip, restore_times: false) do |zip|
+        entry = zip.glob('globTest/food.txt').first
+        zip.extract(entry, 'food.txt', destination_directory: tmp)
+      end
+
+      assert_time_equal(::Time.now, ::File.mtime(::File.join(tmp, 'food.txt')))
+    end
+  end
+
+  def test_restore_times_false_extract_all
+    testzip = ::File.expand_path(::File.join('data', 'globTest.zip'), __dir__)
+    Dir.mktmpdir do |tmp|
+      ::Zip::File.open(testzip, restore_times: false) do |zip|
+        zip.extract_all(tmp)
+      end
+
+      assert_time_equal(::Time.now, ::File.mtime(::File.join(tmp, 'globTest', 'food.txt')))
+    end
+  end
+
   private
 
   # Method to compare file times. DOS times only have 2 second accuracy.
