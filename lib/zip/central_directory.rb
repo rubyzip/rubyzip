@@ -188,21 +188,29 @@ module Zip
         entry = Entry.read_c_dir_entry(io)
         break unless entry
 
-        offset = if entry.zip64?
-                   entry.extra[:zip64].relative_header_offset
-                 else
-                   entry.local_header_offset
-                 end
-
-        unless offset.nil?
-          io_save = io.tell
-          io.seek(offset, IO::SEEK_SET)
-          entry.read_extra_field(read_local_extra_field(io), local: true)
-          io.seek(io_save, IO::SEEK_SET)
-        end
+        load_local_extra_field(io, entry)
 
         @entry_set << entry
       end
+    end
+
+    def load_local_extra_field(io, entry)
+      unless ::Zip.preload_extra_fields
+        entry.local_extra_field_deferred = true
+        return
+      end
+
+      offset = if entry.zip64?
+                 entry.extra[:zip64].relative_header_offset
+               else
+                 entry.local_header_offset
+               end
+      return if offset.nil?
+
+      io_save = io.tell
+      io.seek(offset, IO::SEEK_SET)
+      entry.read_extra_field(read_local_extra_field(io), local: true)
+      io.seek(io_save, IO::SEEK_SET)
     end
 
     def read_local_extra_field(io)

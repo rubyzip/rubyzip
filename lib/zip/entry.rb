@@ -29,7 +29,8 @@ module Zip
                   :unix_gid, :unix_perms, :unix_uid
 
     attr_accessor :crc, :external_file_attributes, :fstype, :gp_flags,
-                  :internal_file_attributes, :local_header_offset # :nodoc:
+                  :internal_file_attributes, :local_extra_field_deferred,
+                  :local_header_offset # :nodoc:
 
     attr_reader :extra, :compression_level, :filepath # :nodoc:
 
@@ -42,6 +43,7 @@ module Zip
     def set_default_vars_values # :nodoc:
       @local_header_offset      = 0
       @local_header_size        = nil # not known until local entry is created or read
+      @local_extra_field_deferred = false
       @internal_file_attributes = 1
       @external_file_attributes = 0
       @header_signature         = ::Zip::CENTRAL_DIRECTORY_ENTRY_SIGNATURE
@@ -685,7 +687,13 @@ module Zip
       else
         zis = ::Zip::InputStream.new(@zipfile, offset: local_header_offset, decrypter: decrypter)
         zis.instance_variable_set(:@complete_entry, self)
-        zis.get_next_entry
+        local_entry = zis.get_next_entry
+
+        if @local_extra_field_deferred
+          @local_extra_field_deferred = false
+          read_extra_field(local_entry&.extra&.to_local_bin, local: true)
+        end
+
         if block
           begin
             yield(zis)

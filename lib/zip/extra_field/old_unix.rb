@@ -38,10 +38,14 @@ module Zip
     end
 
     def pack_for_local
+      return '' if [@atime, @mtime, @uid, @gid].any?(&:nil?)
+
       [@atime, @mtime, @uid, @gid].pack('VVvv')
     end
 
     def pack_for_c_dir
+      return '' if @atime.nil? || @mtime.nil?
+
       [@atime, @mtime].pack('VV')
     end
   end

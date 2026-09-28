@@ -31,6 +31,8 @@ module Zip
     end
 
     def pack_for_local
+      return '' if @uid.nil? || @gid.nil?
+
       [@uid, @gid].pack('vv')
     end
 
