@@ -265,6 +265,41 @@ class EncryptionTest < Minitest::Test
     end
   end
 
+  # Lines are read from the decrypted, inflated stream in chunks, so a
+  # multi-byte character can straddle two of them. A limit must not split
+  # one, just as it doesn't for any other Ruby stream.
+  def test_gets_with_limit_over_encrypted_entry_does_not_split_multibyte_chars
+    password = 'swordfish'
+    content = "ééé👍abc\nsecond line ééé\n" * 400
+
+    encrypted_zip = Zip::OutputStream.write_buffer(
+      StringIO.new,
+      encrypter: Zip::TraditionalEncrypter.new(password)
+    ) do |out|
+      out.put_next_entry('multibyte.txt')
+      out.write content
+    end
+
+    Zip::InputStream.open(
+      encrypted_zip,
+      decrypter:         Zip::TraditionalDecrypter.new(password),
+      internal_encoding: Encoding::UTF_8
+    ) do |zis|
+      zis.get_next_entry
+
+      assert_equal 'é', zis.gets(nil, 1)
+      assert_equal 'éé', zis.gets(nil, 3)
+      assert_equal '👍', zis.gets(2)
+      assert_equal "abc\n", zis.gets("\n", 100)
+
+      # The rest of the entry, read a few bytes at a time, must come back
+      # byte for byte the same as it went in.
+      rest = +''
+      rest << zis.gets(nil, 5) until zis.eof?
+      assert_equal content[8..], rest
+    end
+  end
+
   def test_aes_decrypt_keka
     Zip::InputStream.open(
       "#{DATA_DIR}/#{AES_KEKA_ZIP_TEST_FILE}",
