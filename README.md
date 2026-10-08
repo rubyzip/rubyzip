@@ -475,6 +475,25 @@ Zip::File.open('foo.zip', create:true, compression_level: 9) do |zip|
 end
 ```
 
+### Preloading Extra Fields
+
+An entry's extra fields are split between the central directory and the entry's own local header, and the central directory copy is often just a marker: Unix uid/gid, access and creation times, and local Zip64 sizes live only in the local header. Reading them all means a seek out to every local header, and back, once per entry.
+
+That is cheap on a local disk and expensive over a network. If you only need names, sizes and compression methods, turn it off:
+
+```ruby
+Zip.preload_extra_fields = false
+
+Zip::File.open('foo.zip') do |zip_file|
+  entry = zip_file.find_entry('bar.txt')
+  entry.extra[:iunix].uid   # => nil
+  entry.get_input_stream(&:read)
+  entry.extra[:iunix].uid   # => 1000
+end
+```
+
+Opening an archive is then a single pass over the central directory, and reading an entry fills its extra fields in, because that visits the local header anyway. Writing an archive out fetches whatever it still needs first, so what you write is the same either way. Until an entry is read its `atime`, `ctime` and `iunix` owner are not available. A directory entry has no data to read, so asking for one of those is what fetches them.
+
 ### Zip64 Support
 
 Since version 3.0, Zip64 support is enabled for writing by default. To disable it do this:

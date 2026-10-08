@@ -36,6 +36,7 @@ module Zip
 
         def gid
           e = find_entry
+          e.load_local_extra_field
           if e.extra.member? :iunix
             e.extra[:iunix].gid || 0
           else
@@ -45,6 +46,7 @@ module Zip
 
         def uid
           e = find_entry
+          e.load_local_extra_field
           if e.extra.member? :iunix
             e.extra[:iunix].uid || 0
           else

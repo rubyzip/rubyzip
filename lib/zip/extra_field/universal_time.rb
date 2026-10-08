@@ -42,7 +42,8 @@ module Zip
       size, content = initial_parse(binstr)
       return if !size || size <= 0
 
-      @flag, *times = content.unpack('Cl<l<l<')
+      flag, *times = content.unpack('Cl<l<l<')
+      @flag |= flag
 
       # Parse the timestamps, in order, based on which flags are set.
       return if times[0].nil?

@@ -168,11 +168,15 @@ module Zip
       end
 
       def atime(filename)
-        @mapped_zip.get_entry(filename).atime
+        entry = @mapped_zip.get_entry(filename)
+        entry.load_local_extra_field
+        entry.atime
       end
 
       def ctime(filename)
-        @mapped_zip.get_entry(filename).ctime
+        entry = @mapped_zip.get_entry(filename)
+        entry.load_local_extra_field
+        entry.ctime
       end
 
       def pipe?(_filename)

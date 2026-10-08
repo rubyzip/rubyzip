@@ -72,6 +72,12 @@ Metrics/MethodLength:
   Exclude:
     - 'test/**/*.rb'
 
+# The length of CentralDirectoryEntry is set by the record layout it reads and
+# writes, so splitting it up would not make it any clearer.
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/zip/central_directory_entry.rb'
+
 # These tests are just better with snake_case numbers.
 Naming/VariableNumber:
   Exclude:

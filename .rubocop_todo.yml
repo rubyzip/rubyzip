@@ -80,6 +80,7 @@ Style/Documentation:
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Exclude:
+    - 'lib/zip/central_directory_entry.rb'
     - 'lib/zip/entry.rb'
     - 'lib/zip/file_split.rb'
     - 'lib/zip/filesystem/dir.rb'
@@ -117,6 +118,7 @@ Style/NumericPredicate:
 # AllowedMethods: present?, blank?, presence, try, try!
 Style/SafeNavigation:
   Exclude:
+    - 'lib/zip/central_directory_entry.rb'
     - 'lib/zip/entry.rb'
     - 'lib/zip/input_stream.rb'
     - 'lib/zip/output_stream.rb'

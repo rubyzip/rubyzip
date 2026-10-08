@@ -55,6 +55,7 @@ module Zip
                 :case_insensitive_match,
                 :allow_duplicate_entry_names,
                 :force_entry_names_encoding,
+                :preload_extra_fields,
                 :validate_entry_sizes,
                 :validate_declared_number_of_entries,
                 :inflater_chunk_size
@@ -81,6 +82,7 @@ module Zip
     @case_insensitive_match = false
     @allow_duplicate_entry_names = false
     @force_entry_names_encoding = nil
+    @preload_extra_fields = true
     @validate_entry_sizes = true
     @validate_declared_number_of_entries = false # Set this to `true` in v4.0.0?
     @inflater_chunk_size = 4096

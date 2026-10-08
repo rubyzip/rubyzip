@@ -398,6 +398,8 @@ module Zip
     def commit
       return if name.kind_of?(StringIO) || !commit_required?
 
+      load_local_extra_fields
+
       on_success_replace do |tmp_file|
         ::Zip::OutputStream.open(tmp_file, suppress_extra_fields: @suppress_extra_fields) do |zos|
           @cdir.each do |e|
@@ -414,6 +416,8 @@ module Zip
     # Write buffer write changes to buffer and return
     def write_buffer(io = ::StringIO.new)
       return io unless commit_required?
+
+      load_local_extra_fields
 
       ::Zip::OutputStream.write_buffer(io, suppress_extra_fields: @suppress_extra_fields) do |zos|
         @cdir.each { |e| e.write_to_zip_output_stream(zos) }
@@ -474,6 +478,10 @@ module Zip
     end
 
     private
+
+    def load_local_extra_fields
+      @cdir.each(&:load_local_extra_field)
+    end
 
     def apply_restore_options(entry)
       entry.restore_ownership   = @restore_ownership

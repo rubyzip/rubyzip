@@ -22,8 +22,8 @@ module Zip
       return if !size || size == 0
 
       uid, gid = content.unpack('vv')
-      @uid = uid
-      @gid = gid
+      @uid ||= uid
+      @gid ||= gid # rubocop:disable Naming/MemoizedInstanceVariableName
     end
 
     def ==(other)

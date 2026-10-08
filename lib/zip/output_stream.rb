@@ -124,14 +124,17 @@ module Zip
           )
         end
 
+      new_entry.load_local_extra_field
       init_next_entry(new_entry)
       @current_entry = new_entry
     end
 
     def copy_raw_entry(entry) # :nodoc:
-      entry = entry.dup
       raise Error, 'zip stream is closed' if @closed
       raise Error, 'entry is not a ZipEntry' unless entry.kind_of?(Entry)
+
+      entry.load_local_extra_field
+      entry = entry.dup
 
       finalize_current_entry
       check_duplicate_name(entry, 'copy_raw_entry')
