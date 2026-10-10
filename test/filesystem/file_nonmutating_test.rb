@@ -229,6 +229,14 @@ class FileNonmutatingTest < Minitest::Test
     assert_equal('directory', @zip_file.file.ftype('dir1/dir11/'))
   end
 
+  def test_ftype_symlink
+    ::Zip::File.open('test/data/path_traversal/tuzovakaoff/symlink.zip') do |zip_file|
+      assert_equal('link', zip_file.file.ftype('path'))
+      assert_equal('file', zip_file.file.ftype('path/file.txt'))
+      assert_equal(:symlink, zip_file.get_entry('path').ftype)
+    end
+  end
+
   def test_link
     assert_raises(NotImplementedError) do
       @zip_file.file.link('file1', 'someOtherString')

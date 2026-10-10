@@ -77,6 +77,8 @@ module Zip
             'file'
           elsif directory?
             'directory'
+          elsif symlink?
+            'link'
           else
             raise StandardError, 'Unknown file type'
           end

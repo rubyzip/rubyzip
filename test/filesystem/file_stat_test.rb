@@ -34,6 +34,14 @@ class FileStatTest < Minitest::Test
     assert_equal('directory', @zip_file.file.stat('dir1').ftype)
   end
 
+  def test_ftype_symlink
+    ::Zip::File.open('test/data/path_traversal/tuzovakaoff/symlink.zip') do |zip_file|
+      assert_equal('link', zip_file.file.stat('path').ftype)
+      assert_equal('link', zip_file.file.lstat('path').ftype)
+      assert_equal('file', zip_file.file.stat('path/file.txt').ftype)
+    end
+  end
+
   def test_mode
     assert_equal(0o600, @zip_file.file.stat('file1').mode & 0o777)
     assert_equal(0o600, @zip_file.file.stat('file1').mode & 0o777)
