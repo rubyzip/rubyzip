@@ -196,7 +196,10 @@ module Zip
       end
 
       def ftype(filename)
-        @mapped_zip.get_entry(filename).directory? ? 'directory' : 'file'
+        entry = @mapped_zip.get_entry(filename)
+        return 'link' if entry.symlink?
+
+        entry.directory? ? 'directory' : 'file'
       end
 
       def readlink(_filename)
