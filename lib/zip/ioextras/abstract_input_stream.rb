@@ -128,6 +128,9 @@ module Zip
           sep   = $INPUT_RECORD_SEPARATOR
         elsif sep&.empty?
           # Paragraph mode, as IO#gets(""): newlines around a paragraph are skipped.
+          # A zero limit reads nothing, so it must not skip anything either.
+          return gets("\n\n", limit, chomp: chomp) if limit&.zero?
+
           skip_newlines
           return gets("\n\n", limit, chomp: chomp)&.tap { skip_newlines }
         end

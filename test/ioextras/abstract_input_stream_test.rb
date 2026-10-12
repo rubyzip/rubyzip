@@ -204,6 +204,20 @@ class AbstractInputStreamTest < Minitest::Test
     assert_equal(expected, Array.new(4) { [io.gets(''), io.pos] })
   end
 
+  def test_gets_with_empty_string_separator_and_zero_limit_consumes_nothing
+    ["\n\nhello\n\nworld", "\n\n\n"].each do |data|
+      expected = Tempfile.create('paragraphs') do |file|
+        file.binmode
+        file.write(data)
+        file.rewind
+        [file.gets('', 0), file.pos, file.gets(''), file.pos]
+      end
+      io = TestAbstractInputStream.new(data)
+
+      assert_equal(expected, [io.gets('', 0), io.pos, io.gets(''), io.pos])
+    end
+  end
+
   def test_gets_with_chomp
     line_tests_with_chomp
   end
