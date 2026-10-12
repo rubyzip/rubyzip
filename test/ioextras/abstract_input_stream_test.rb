@@ -2,6 +2,7 @@
 
 require_relative '../test_helper'
 
+require 'tempfile'
 require 'zip/ioextras'
 
 class AbstractInputStreamTest < Minitest::Test
@@ -164,6 +165,43 @@ class AbstractInputStreamTest < Minitest::Test
 
     assert_predicate(io, :eof?)
     assert_nil(io.gets(''))
+  end
+
+  def test_gets_with_empty_string_separator_skips_extra_newlines
+    io = TestAbstractInputStream.new("\n\nfirst\n\n\n\nsecond\nline\n\n\nlast")
+
+    assert_equal("first\n\n", io.gets(''))
+    assert_equal(1, io.lineno)
+    assert_equal(11, io.pos)
+
+    assert_equal("second\nline\n\n", io.gets(''))
+    assert_equal(2, io.lineno)
+    assert_equal(25, io.pos)
+
+    assert_equal('last', io.gets(''))
+    assert_nil(io.gets(''))
+  end
+
+  def test_gets_with_empty_string_separator_only_newlines
+    io = TestAbstractInputStream.new("\n\n\n")
+
+    assert_nil(io.gets(''))
+    assert_equal(0, io.lineno)
+    assert_equal(3, io.pos)
+    assert_predicate(io, :eof?)
+  end
+
+  def test_gets_with_empty_string_separator_matches_file
+    data = "a\n\n\n\nb\n\n\nc\n"
+    expected = Tempfile.create('paragraphs') do |file|
+      file.binmode
+      file.write(data)
+      file.rewind
+      Array.new(4) { [file.gets(''), file.pos] }
+    end
+    io = TestAbstractInputStream.new(data)
+
+    assert_equal(expected, Array.new(4) { [io.gets(''), io.pos] })
   end
 
   def test_gets_with_chomp

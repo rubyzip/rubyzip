@@ -127,7 +127,9 @@ module Zip
           limit = sep.to_int
           sep   = $INPUT_RECORD_SEPARATOR
         elsif sep&.empty?
-          sep = "#{$INPUT_RECORD_SEPARATOR}#{$INPUT_RECORD_SEPARATOR}"
+          # Paragraph mode, as IO#gets(""): newlines around a paragraph are skipped.
+          skip_newlines
+          return gets("\n\n", limit, chomp: chomp)&.tap { skip_newlines }
         end
 
         encoding = @internal_encoding || @external_encoding
@@ -160,6 +162,19 @@ module Zip
       def ungetc(byte) # :nodoc:
         @output_buffer = byte.chr + @output_buffer
       end
+
+      # Consumes newlines at the read position, refilling the buffer as needed.
+      def skip_newlines
+        loop do
+          @output_buffer << produce_input.to_s if @output_buffer.empty? && !input_finished?
+          count = @output_buffer[/\A\n*/].bytesize
+          break if count.zero?
+
+          @output_buffer.slice!(0, count)
+          @pos += count
+        end
+      end
+      private :skip_newlines
 
       def flush # :nodoc:
         @output_buffer.slice!(0..)
