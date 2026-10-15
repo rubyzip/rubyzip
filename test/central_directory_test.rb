@@ -45,6 +45,87 @@ class ZipCentralDirectoryTest < Minitest::Test
     end
   end
 
+  def test_read_truncated_eocd
+    data = ::File.binread('test/data/rubycode.zip') # It has no archive comment.
+
+    # Keep the EOCD signature, but cut off some or all of the rest of the record.
+    (1..18).each do |cut|
+      io = StringIO.new(data[0...-cut])
+
+      error = assert_raises(::Zip::Error) do
+        ::Zip::CentralDirectory.new.read_from_stream(io)
+      end
+      assert_equal('Zip end of central directory record is truncated', error.message)
+
+      assert_raises(::Zip::Error) do
+        ::Zip::CentralDirectory.new.count_entries(io)
+      end
+    end
+  end
+
+  def test_read_zip64_eocd_locator_pointing_elsewhere
+    # The archive comment is as long as it can be, so the Zip64 EOCD is not in
+    # the data read from the end of the file, and is found from the locator.
+    data = ::File.binread('test/data/zip64_max_length_file_comment.zip')
+    locator = data.rindex("PK\x06\x07".b)
+
+    [
+      locator - 55,       # Too close to the locator for a whole Zip64 EOCD.
+      locator + 1,        # After the locator.
+      data.bytesize,      # The end of the file.
+      0xFFFFFFFFFFFFFFFF, # Further than `seek` can go.
+      0                   # Not a Zip64 EOCD.
+    ].each do |offset|
+      data[locator + 8, 8] = [offset].pack('Q<')
+
+      assert_raises(::Zip::Error) do
+        ::Zip::CentralDirectory.new.read_from_stream(StringIO.new(data))
+      end
+    end
+  end
+
+  def test_read_truncated_zip64_eocd
+    data = ::File.binread('test/data/zip64-sample.zip')
+    locator = data.rindex("PK\x06\x07".b)
+
+    # A Zip64 EOCD signature at the end of the Zip64 EOCD is found first, but
+    # there is no room after it for the rest of the record.
+    data[locator - 4, 4] = "PK\x06\x06".b
+
+    error = assert_raises(::Zip::Error) do
+      ::Zip::CentralDirectory.new.read_from_stream(StringIO.new(data))
+    end
+    assert_equal('Zip64 end of central directory record is truncated', error.message)
+  end
+
+  def test_read_zip64_eocd_with_cdir_offset_too_big_to_seek_to
+    data = ::File.binread('test/data/zip64-sample.zip')
+    zip64_eocd = data.rindex("PK\x06\x06".b)
+    data[zip64_eocd + 48, 8] = [0xFFFFFFFFFFFFFFFF].pack('Q<')
+
+    zip_name = 'test/data/generated/zip64_cdir_offset.zip'
+    ::File.binwrite(zip_name, data)
+    ::File.open(zip_name, 'rb') do |f|
+      assert_raises(::Zip::Error) do
+        ::Zip::CentralDirectory.new.read_from_stream(f)
+      end
+    end
+
+    assert_raises(::Zip::Error) do
+      ::Zip::CentralDirectory.new.read_from_stream(StringIO.new(data))
+    end
+  end
+
+  def test_read_zip64_eocd_with_wrong_record_size
+    data = ::File.binread('test/data/zip64-sample.zip')
+    zip64_eocd = data.rindex("PK\x06\x06".b)
+    data[zip64_eocd + 4, 8] = [0xFFFFFFFFFFFFFFFF].pack('Q<')
+
+    cdir = ::Zip::CentralDirectory.new
+    cdir.read_from_stream(StringIO.new(data)) # Should not raise anything.
+    assert_equal(2, cdir.size)
+  end
+
   def test_read_file_with_cdir_headers_in_payload
     ::File.open('test/data/zipWithCDirHeadersInPayload.zip', 'rb') do |f|
       cdir = ::Zip::CentralDirectory.new

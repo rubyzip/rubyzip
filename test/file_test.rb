@@ -994,6 +994,15 @@ class ZipFileTest < Minitest::Test
     end
   end
 
+  def test_truncated_zip
+    zip_name = 'test/data/generated/truncated.zip'
+    ::File.binwrite(zip_name, ::File.binread('test/data/rubycode.zip')[0...-4])
+
+    assert_raises(::Zip::Error) do
+      ::Zip::File.open(zip_name)
+    end
+  end
+
   def test_odd_extra_field
     entry_count = 0
     File.open 'test/data/oddExtraField.zip', 'rb' do |zip_io|
