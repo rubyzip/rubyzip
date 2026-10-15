@@ -113,7 +113,7 @@ module Zip
     end
 
     def unpack_64_e_o_c_d(buffer) # :nodoc:
-      _, # ZIP64_END_OF_CD_SIG. We know we have this at this point.
+      signature,
       size_of_zip64_e_o_c_d,
       _version_made_by,
       _version_needed_for_extract,
@@ -124,8 +124,18 @@ module Zip
       size_in_bytes,
       @cdir_offset = buffer.unpack('VQ<vvVVQ<Q<Q<Q<')
 
+      # In a damaged file the locator can point at anything, and a stray
+      # signature can be too close to the locator to start a whole record.
+      unless signature == ZIP64_END_OF_CD_SIG
+        raise Error, 'Zip64 end of central directory signature not found'
+      end
+      if buffer.bytesize < ZIP64_STATIC_EOCD_SIZE
+        raise Error, 'Zip64 end of central directory record is truncated'
+      end
+
       validate_size!(@size, size_in_bytes)
 
+      # The size of the record can be wrong, so only take the data we have.
       zip64_extensible_data_size =
         size_of_zip64_e_o_c_d - ZIP64_STATIC_EOCD_SIZE + 12
       @zip64_extensible_data = if zip64_extensible_data_size.zero?
@@ -133,7 +143,7 @@ module Zip
                                else
                                  buffer.slice(
                                    ZIP64_STATIC_EOCD_SIZE,
-                                   zip64_extensible_data_size
+                                   [zip64_extensible_data_size, buffer.bytesize].min
                                  )
                                end
     end
@@ -148,6 +158,12 @@ module Zip
     # Unpack the EOCD and return a boolean indicating whether this header is
     # complete without needing Zip64 extensions.
     def unpack_e_o_c_d(buffer) # :nodoc:
+      # A file that has been cut short can have the signature, but not the
+      # rest of the record.
+      if buffer.bytesize < STATIC_EOCD_SIZE
+        raise Error, 'Zip end of central directory record is truncated'
+      end
+
       _, # END_OF_CD_SIG. We know we have this at this point.
       number_of_this_disk,
       number_of_disk_with_start_of_cdir,
@@ -174,11 +190,12 @@ module Zip
 
     def read_central_directory_entries(io) # :nodoc:
       # `StringIO` doesn't raise `EINVAL` if you seek beyond the current end,
-      # so we need to catch that *and* query `io#eof?` here.
+      # so we need to catch that *and* query `io#eof?` here. An offset that is
+      # too big for `seek` to take at all (`RangeError`) is beyond the end too.
       eof = false
       begin
         io.seek(@cdir_offset, IO::SEEK_SET)
-      rescue Errno::EINVAL
+      rescue Errno::EINVAL, RangeError
         eof = true
       end
       raise Error, 'Zip consistency problem while reading central directory entry' if eof || io.eof?
@@ -247,8 +264,15 @@ module Zip
             raise Error, 'Zip64 end of central directory signature not found'
           end
 
+          # A damaged locator can point anywhere, but there has to be room for
+          # the whole record between where it points and the locator itself.
+          zip64_eocd_size = base_location + zip64_eocd_locator - zip64_eocd_location
+          if zip64_eocd_size < ZIP64_STATIC_EOCD_SIZE
+            raise Error, 'Zip64 end of central directory signature not found'
+          end
+
           io.seek(zip64_eocd_location, IO::SEEK_SET)
-          io.read(base_location + zip64_eocd_locator - zip64_eocd_location)
+          io.read(zip64_eocd_size)
         end
 
       # Finally, unpack the Zip64 EOCD.
