@@ -67,6 +67,12 @@ Metrics/ClassLength:
   Exclude:
     - 'test/**/*.rb'
 
+# The IO-compatible reading methods in this mixin (read, gets, each,
+# paragraph mode, etc) need more room than the default allows.
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/zip/ioextras/abstract_input_stream.rb'
+
 # Turn method length metrics off for the tests.
 Metrics/MethodLength:
   Exclude:
