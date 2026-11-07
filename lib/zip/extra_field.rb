@@ -6,13 +6,17 @@ module Zip
     # which #register replaces with a frozen copy, so that it can be read by
     # any Ractor.
     @id_map = {}.freeze
+    REGISTER_LOCK = Mutex.new
+    private_constant :REGISTER_LOCK
 
     class << self
       attr_reader :id_map
 
       # Register an extra field class to read the fields with this header ID.
       def register(header_id, field_class)
-        @id_map = @id_map.merge(header_id => field_class).freeze
+        REGISTER_LOCK.synchronize do
+          @id_map = @id_map.merge(header_id => field_class).freeze
+        end
       end
 
       # `ID_MAP` was a mutable Hash, and a non-main Ractor cannot read a

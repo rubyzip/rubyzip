@@ -9,7 +9,7 @@ class RactorTest < Minitest::Test
 
   # An extra field registered after rubyzip has loaded, as a third party would.
   class RactorField < ::Zip::ExtraField::Generic
-    HEADER_ID = 'Rz'
+    HEADER_ID = +'Rz'
     register_map
 
     attr_reader :data
