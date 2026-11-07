@@ -231,11 +231,19 @@ module Zip
       @ftype ||= name_is_directory? ? :directory : :file
     end
 
-    # Dynamic checkers
-    %w[directory file symlink].each do |k|
-      define_method :"#{k}?" do
-        file_type_is?(k.to_sym)
-      end
+    # Is this entry a directory?
+    def directory?
+      file_type_is?(:directory)
+    end
+
+    # Is this entry a file?
+    def file?
+      file_type_is?(:file)
+    end
+
+    # Is this entry a symlink?
+    def symlink?
+      file_type_is?(:symlink)
     end
 
     def name_is_directory? # :nodoc:

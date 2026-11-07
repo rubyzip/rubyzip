@@ -5,7 +5,9 @@ module Zip
     def self.register_map
       return unless const_defined?(:HEADER_ID)
 
-      ::Zip::ExtraField::ID_MAP[const_get(:HEADER_ID)] = self
+      # Set the name now: a non-main Ractor cannot set it later.
+      name
+      ::Zip::ExtraField.register(const_get(:HEADER_ID), self)
     end
 
     def self.name

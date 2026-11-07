@@ -4,7 +4,7 @@ module Zip
   # PKWARE NTFS Extra Field (0x000a)
   # Only Tag 0x0001 is supported
   class ExtraField::NTFS < ExtraField::Generic # :nodoc:
-    HEADER_ID = [0x000A].pack('v')
+    HEADER_ID = [0x000A].pack('v').freeze
     register_map
 
     WINDOWS_TICK = 10_000_000.0

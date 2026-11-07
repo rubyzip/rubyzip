@@ -2,18 +2,38 @@
 
 module Zip
   class ExtraField < Hash # :nodoc:all
-    ID_MAP = {}
+    # The registered extra field classes, by header ID. This is a frozen Hash,
+    # which #register replaces with a frozen copy, so that it can be read by
+    # any Ractor.
+    @id_map = {}.freeze
+
+    class << self
+      attr_reader :id_map
+
+      # Register an extra field class to read the fields with this header ID.
+      def register(header_id, field_class)
+        @id_map = @id_map.merge(header_id => field_class).freeze
+      end
+
+      # `ID_MAP` was a mutable Hash, and a non-main Ractor cannot read a
+      # constant whose value can change. Answer the current registry for code
+      # that still reads `ID_MAP`.
+      def const_missing(name)
+        name == :ID_MAP ? id_map : super
+      end
+    end
 
     def initialize(binstr = nil, local: false)
       merge(binstr, local: local) if binstr
     end
 
     def extra_field_type_exist(binstr, id, len, index)
-      field_name = ID_MAP[id].name
+      field_class = ExtraField.id_map[id]
+      field_name = field_class.name
       if member?(field_name)
         self[field_name].merge(binstr[index, len + 4])
       else
-        field_obj        = ID_MAP[id].new(binstr[index, len + 4])
+        field_obj        = field_class.new(binstr[index, len + 4])
         self[field_name] = field_obj
       end
     end
@@ -36,7 +56,7 @@ module Zip
       while i < binstr.bytesize
         id  = binstr[i, 2]
         len = binstr[i + 2, 2].to_s.unpack1('v')
-        if id && ID_MAP.member?(id)
+        if id && ExtraField.id_map.member?(id)
           extra_field_type_exist(binstr, id, len, i)
         elsif id
           break unless extra_field_type_unknown(binstr, len, i, local)
@@ -46,7 +66,7 @@ module Zip
     end
 
     def create(name)
-      unless (field_class = ID_MAP.values.find { |k| k.name == name })
+      unless (field_class = ExtraField.id_map.values.find { |k| k.name == name })
         raise Error, "Unknown extra field '#{name}'"
       end
 

@@ -14,13 +14,17 @@ module Zip
       def mark_dirty(*symbols) # :nodoc:
         # Move the original method and call it after we've set the dirty flag.
         symbols.each do |symbol|
-          orig_name = "orig_#{symbol}"
+          orig_name = :"orig_#{symbol}"
           alias_method orig_name, symbol
 
-          define_method(symbol) do |param|
+          body = proc do |param|
             @dirty = true
             send(orig_name, param)
           end
+
+          # Any Ractor can call a method defined by a shareable Proc.
+          body = Ractor.make_shareable(body) if defined?(Ractor)
+          define_method(symbol, body)
         end
       end
     end

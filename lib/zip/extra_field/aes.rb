@@ -5,7 +5,7 @@ module Zip
   class ExtraField::AES < ExtraField::Generic # :nodoc:
     attr_accessor :vendor_version, :vendor_id, :encryption_strength, :compression_method
 
-    HEADER_ID = [0x9901].pack('v')
+    HEADER_ID = [0x9901].pack('v').freeze
     register_map
 
     def initialize(binstr = nil)
