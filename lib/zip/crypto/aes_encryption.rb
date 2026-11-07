@@ -130,7 +130,7 @@ module Zip
 
       @counter = 0
       @pending = +''.b
-      @cipher = OpenSSL::Cipher::AES.new(@bits, :CTR)
+      @cipher = OpenSSL::Cipher.new("aes-#{@bits}-ctr")
       @cipher.encrypt
       @cipher.key = enc_key
       @hmac = OpenSSL::HMAC.new(enc_hmac_key, OpenSSL::Digest.new('SHA1'))
@@ -199,7 +199,7 @@ module Zip
       raise Error, 'Bad password' if enc_pwd_verify != pwd_verify
 
       @counter = 0
-      @cipher = OpenSSL::Cipher::AES.new(@bits, :CTR)
+      @cipher = OpenSSL::Cipher.new("aes-#{@bits}-ctr")
       @cipher.decrypt
       @cipher.key = enc_key
       @hmac = OpenSSL::HMAC.new(enc_hmac_key, OpenSSL::Digest.new('SHA1'))

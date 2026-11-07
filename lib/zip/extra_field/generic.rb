@@ -5,7 +5,12 @@ module Zip
     def self.register_map
       return unless const_defined?(:HEADER_ID)
 
-      ::Zip::ExtraField::ID_MAP[const_get(:HEADER_ID)] = self
+      # Freeze the header ID, and set the name now, so that a non-main Ractor
+      # can read them. A class that is not yet assigned to a constant has no
+      # name to set.
+      header_id = const_get(:HEADER_ID).freeze
+      name unless to_s.start_with?('#<')
+      ::Zip::ExtraField.register(header_id, self)
     end
 
     def self.name

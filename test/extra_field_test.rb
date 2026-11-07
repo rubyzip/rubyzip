@@ -3,6 +3,60 @@
 require_relative 'test_helper'
 
 class ZipExtraFieldTest < Minitest::Test
+  # An extra field registered after rubyzip has loaded, as a third party would.
+  class RegisteredField < ::Zip::ExtraField::Generic
+    HEADER_ID = +'RZ'
+    register_map
+
+    attr_reader :data
+
+    def initialize(binstr = nil)
+      super()
+      @data = nil
+      binstr && merge(binstr)
+    end
+
+    def merge(binstr)
+      _, @data = initial_parse(binstr)
+    end
+
+    def pack_for_local
+      @data.to_s
+    end
+
+    def pack_for_c_dir
+      @data.to_s
+    end
+  end
+
+  # An extra field class made with Class.new, which is named only when it is
+  # assigned to a constant, after it has registered.
+  AnonymousField = Class.new(::Zip::ExtraField::Generic) do
+    const_set(:HEADER_ID, 'Ra')
+    register_map
+  end
+
+  def test_registered_field
+    extra = ::Zip::ExtraField.new("RZ\x03\x00abc")
+    assert_instance_of(RegisteredField, extra[:registeredfield])
+    assert_equal('abc', extra[:registeredfield].data)
+    assert_equal("RZ\x03\x00abc", extra.to_local_bin)
+
+    assert_instance_of(RegisteredField, ::Zip::ExtraField.new.create(:registeredfield))
+    assert_predicate(RegisteredField::HEADER_ID, :frozen?)
+  end
+
+  def test_registered_anonymous_field
+    assert_equal(:anonymousfield, AnonymousField.name)
+    assert_instance_of(AnonymousField, ::Zip::ExtraField.new.create(:anonymousfield))
+  end
+
+  def test_id_map
+    assert_equal(RegisteredField, ::Zip::ExtraField::ID_MAP['RZ'])
+    assert_equal(::Zip::ExtraField::UniversalTime, ::Zip::ExtraField::ID_MAP['UT'])
+    assert_predicate(::Zip::ExtraField::ID_MAP, :frozen?)
+  end
+
   def test_new
     extra_pure = ::Zip::ExtraField.new('')
     extra_withstr = ::Zip::ExtraField.new('foo')

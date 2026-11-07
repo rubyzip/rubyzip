@@ -4,12 +4,20 @@ module Zip
   class Decompressor # :nodoc:all
     CHUNK_SIZE = 32_768
 
+    REGISTER_LOCK = Mutex.new
+    private_constant :REGISTER_LOCK
+
+    # A frozen Hash, which #register replaces with a frozen copy, so that it
+    # can be read by any Ractor.
     def self.decompressor_classes
-      @decompressor_classes ||= {}
+      @decompressor_classes ||= {}.freeze
     end
 
     def self.register(compression_method, decompressor_class)
-      decompressor_classes[compression_method] = decompressor_class
+      REGISTER_LOCK.synchronize do
+        @decompressor_classes =
+          decompressor_classes.merge(compression_method => decompressor_class).freeze
+      end
     end
 
     def self.find_by_compression_method(compression_method)

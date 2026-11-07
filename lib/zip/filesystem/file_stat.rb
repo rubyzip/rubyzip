@@ -8,9 +8,11 @@ module Zip
           def delegate_to_fs_file(*methods)
             methods.each do |method|
               class_exec do
-                define_method(method) do
-                  @zip_fs_file.__send__(method, @entry_name)
-                end
+                body = proc { @zip_fs_file.__send__(method, @entry_name) }
+
+                # Any Ractor can call a method defined by a shareable Proc.
+                body = Ractor.make_shareable(body) if defined?(Ractor)
+                define_method(method, body)
               end
             end
           end

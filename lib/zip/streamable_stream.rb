@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zip
-  class StreamableStream < DelegateClass(Entry) # :nodoc:all
+  class StreamableStream < SimpleDelegator # :nodoc:all
     def initialize(entry)
       super
       @temp_file = Tempfile.new(::File.basename(name))

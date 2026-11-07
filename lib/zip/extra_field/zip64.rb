@@ -6,7 +6,7 @@ module Zip
     attr_accessor :compressed_size, :disk_start_number,
                   :original_size, :relative_header_offset
 
-    HEADER_ID = ['0100'].pack('H*')
+    HEADER_ID = ['0100'].pack('H*').freeze
     register_map
 
     def initialize(binstr = nil)
