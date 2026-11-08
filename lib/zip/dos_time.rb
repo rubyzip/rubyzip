@@ -84,32 +84,6 @@ module Zip
       time.absolute_time = false
       time
     end
-
-    if defined? JRUBY_VERSION && Gem::Version.new(JRUBY_VERSION) < '9.2.18.0'
-      module JRubyCMP # :nodoc:
-        def ==(other)
-          (self <=> other).zero?
-        end
-
-        def <(other)
-          (self <=> other).negative?
-        end
-
-        def <=(other)
-          (self <=> other) <= 0
-        end
-
-        def >(other)
-          (self <=> other).positive?
-        end
-
-        def >=(other)
-          (self <=> other) >= 0
-        end
-      end
-
-      include JRubyCMP
-    end
   end
 end
 
