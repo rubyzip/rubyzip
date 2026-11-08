@@ -101,16 +101,10 @@ class DOSTimeTest < Minitest::Test
     assert_equal(0, @dos_time <=> time)
   end
 
-  def test_jruby_cmp
-    return unless defined? JRUBY_VERSION && Gem::Version.new(JRUBY_VERSION) < '9.2.18.0'
-
-    time = Time.new(2022, 1, 1, 12, 0, 0)
-    assert(@dos_time == time)
-    assert(@dos_time <= time)
-    assert(@dos_time >= time)
-
-    time = Time.new(2022, 1, 1, 12, 1, 1)
-    assert(time > @dos_time)
-    assert(@dos_time < time)
+  def test_comparison_with_a_non_time
+    refute(@dos_time == nil)
+    refute(@dos_time == 'not a time')
+    refute(@dos_time == 42)
+    refute([@dos_time].include?(nil))
   end
 end
