@@ -386,8 +386,20 @@ module Zip
         end
 
         apply_restore_options(entry)
+        # A directory's permissions and times are set after its contents are
+        # written, so a read-only directory can still be filled.
+        if entry.directory?
+          entry.restore_permissions = false
+          entry.restore_times = false
+        end
         entry.extract(entry.name, destination_directory:     destination_directory,
                                   create_parent_directories: true, &block)
+      end
+
+      dirs.sort_by { |entry| -entry.name.length }.each do |entry|
+        apply_restore_options(entry)
+        path = ::File.join(::File.absolute_path(destination_directory), entry.name)
+        entry.set_extra_attributes_on_path(path) if ::File.directory?(path)
       end
 
       self

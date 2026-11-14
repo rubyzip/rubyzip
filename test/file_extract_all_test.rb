@@ -76,6 +76,26 @@ class ZipFileExtractAllTest < Minitest::Test
     end
   end
 
+  def test_extract_all_read_only_directory
+    skip 'Unix permissions only' if Zip::RUNNING_ON_WINDOWS
+
+    read_only = ::File.join(SRC_DIR, 'read_only')
+    FileUtils.mkdir_p(read_only)
+    ::File.write(::File.join(read_only, 'inside.txt'), 'inside')
+    ::File.chmod(0o555, read_only)
+    FileUtils.rm_f(ZIP_PATH)
+    Zip::File.open(ZIP_PATH, create: true) { |zf| zf.add_recursive(SRC_DIR) }
+    ::File.chmod(0o755, read_only)
+
+    Zip::File.open(ZIP_PATH) { |zf| zf.extract_all(DEST_DIR) }
+
+    extracted = ::File.join(DEST_DIR, 'read_only')
+    assert_equal 'inside', ::File.read(::File.join(extracted, 'inside.txt'))
+    assert_equal 0o555, ::File.stat(extracted).mode & 0o777
+  ensure
+    ::File.chmod(0o755, extracted) if extracted && ::File.directory?(extracted)
+  end
+
   def test_extract_all_exists_overwrite_via_block
     FileUtils.mkdir_p(DEST_DIR)
     ::File.write(::File.join(DEST_DIR, 'top.txt'), 'pre-existing')
